@@ -3,7 +3,9 @@ import isotp
 import logging
 import threading
 import struct
+import asyncio
 
+import can
 from can.interfaces.socketcan import SocketcanBus
 
 
@@ -21,20 +23,35 @@ isotp_params = {
    'max_frame_size' : 4095                                  # Limit the size of receive frame.
 }
 
+def print_message(msg):
+    """Regular callback function. Can also be a coroutine."""
+    print(msg)
 
+
+reader = None
 class ThreadedApp:
     def __init__(self):
         self.exit_requested = False
         self.bus = SocketcanBus(channel='can0')
         addr = isotp.Address(isotp.AddressingMode.Normal_11bits, rxid=0x7e0, txid=0x7e8)
         self.stack = isotp.CanStack(bus=self.bus, address=addr, error_handler=self.my_error_handler, params=isotp_params)
+        reader = can.AsyncBufferedReader()
+        # logger = can.Logger("logfile.log")
 
     def start(self):
+        listeners = [
+            print_message,  # Callback function
+            reader,  # AsyncBufferedReader() listener
+            # logger,  # Regular Listener object
+        ]
+        # Create Notifier with an explicit loop to use for scheduling of callbacks
+        self.notifier = can.Notifier(self.bus, listeners, loop=asyncio.get_event_loop())
         self.exit_requested = False
         self.thread = threading.Thread(target = self.thread_task)
         self.thread.start()
 
     def stop(self):
+        self.notifier.stop()
         self.exit_requested = True
         if self.thread.is_alive():
             self.thread.join()
@@ -58,20 +75,17 @@ if __name__ == '__main__':
 
     while True:
         try:
-            if app.stack.available():
-                payload = app.stack.recv()
-                print("Received payload : %s" % (payload))
-                service, pid = struct.unpack('>BH', payload)
-
-                if service == 0x22:
-                    if pid == 0x417D:
-                        response = struct.pack('>BHB', 0x62, pid, 0x02)
-                        app.stack.send(response)
-                        # app.stack.send(bytearray([payload[0] | 0x40, payload[1], payload[2], 0x02]))
-                        while app.stack.transmitting():
-                            app.stack.process()
-                            time.sleep(app.stack.sleep_time())
-            time.sleep(0.1)
+            payload = app.stack.recv()
+            print("Received payload : %s" % (payload))
+            service, pid = struct.unpack('>BH', payload)
+            if service == 0x22:
+                if pid == 0x417D:
+                    response = struct.pack('>BHB', 0x62, pid, 0x02)
+                    app.stack.send(response)
+                    # app.stack.send(bytearray([payload[0] | 0x40, payload[1], payload[2], 0x02]))
+                    while app.stack.transmitting():
+                        app.stack.process()
+                        time.sleep(app.stack.sleep_time())
         except KeyboardInterrupt:
             break
 
