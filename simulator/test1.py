@@ -251,8 +251,8 @@ if __name__ == '__main__':
                 if service == 0x22:
                     if pid == 0x8012:
                         alt = 100
-                        lat = 0x00000a11
-                        long = 0xFFFFFFFF - 0xFFFFEE16
+                        lat = 2577
+                        long = -4610
                         fix = 4
                         speed = 12
                         heading = 256
@@ -308,7 +308,7 @@ if __name__ == '__main__':
                 service, pid = struct.unpack('>BH', payload)
                 if service == 0x22:
                     if pid == 0x1505:
-                        response = struct.pack('>BHH', 0x62, pid, 0x0100)
+                        response = struct.pack('>BHH', 0x62, pid, 10000)
                     else:
                         response = struct.pack('>BBB', 0x7F, 0x22, 0x31)
                     while pcm.stack.transmitting():
