@@ -22,7 +22,7 @@ isotp_params = {
 }
 
 
-class ThreadedApp:
+class CANmodule:
     def __init__(self):
         self.exit_requested = False
         self.bus = SocketcanBus(channel='can0')
@@ -31,7 +31,7 @@ class ThreadedApp:
 
     def start(self):
         self.exit_requested = False
-        self.thread = threading.Thread(target = self.thread_task)
+        self.thread = threading.Thread(target=self.thread_task)
         self.thread.start()
 
     def stop(self):
@@ -53,7 +53,7 @@ class ThreadedApp:
 
 
 if __name__ == '__main__':
-    app = ThreadedApp()
+    app = CANmodule()
     app.start()
 
     while True:
@@ -62,18 +62,18 @@ if __name__ == '__main__':
                 payload = app.stack.recv()
                 print("Received payload : %s" % (payload))
                 service, pid = struct.unpack('>BH', payload)
-
                 if service == 0x22:
                     if pid == 0x417D:
                         response = struct.pack('>BHB', 0x62, pid, 0x02)
-                        app.stack.send(response)
-                        # app.stack.send(bytearray([payload[0] | 0x40, payload[1], payload[2], 0x02]))
-                        while app.stack.transmitting():
-                            app.stack.process()
-                            time.sleep(app.stack.sleep_time())
-            time.sleep(0.1)
+                    else:
+                        response = struct.pack('>BBB', 0x7F, 0x22, 0x31)
+
+                    while app.stack.transmitting():
+                        app.stack.process()
+                        time.sleep(app.stack.sleep_time())
+                    app.stack.send(response)
+
         except KeyboardInterrupt:
             break
 
     app.shutdown()
-    
