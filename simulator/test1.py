@@ -230,7 +230,7 @@ if __name__ == '__main__':
     dcdc = DCDC('DCDC', 'can0', 0x746)
     apim = GWM('APIM', 'can1', 0x7D0)
     pcm = PCM('PCM', 'can0', 0x7E0)
-    sobdm = SOBDM('SOBDM', 'can0', 0x7A0)
+    sobdm = SOBDM('SOBDM', 'can0', 0x7E2)
     becm = BECM('BECM', 'can0', 0x7E4)
 
     becm.start()
@@ -246,15 +246,15 @@ if __name__ == '__main__':
         try:
             if apim.stack.available():
                 payload = apim.stack.recv()
-                print("Received APIM payload : %s" % (payload))
+                #print("Received APIM payload : %s" % (payload))
                 service, pid = struct.unpack('>BH', payload)
                 if service == 0x22:
                     if pid == 0x8012:
                         alt = 100
-                        lat = 2400
-                        long = 2400
-                        fix = 3
-                        speed = 100
+                        lat = 0x00000a11
+                        long = 0xFFFFFFFF - 0xFFFFEE16
+                        fix = 4
+                        speed = 12
                         heading = 256
                         response = struct.pack('>BHHllBHH', 0x62, pid, alt, lat, long, fix, speed, heading)
                     else:
@@ -266,7 +266,7 @@ if __name__ == '__main__':
             
             if ipc.stack.available():
                 payload = ipc.stack.recv()
-                print("Received IPC payload : %s" % (payload))
+                #print("Received IPC payload : %s" % (payload))
                 service, pid = struct.unpack('>BH', payload)
                 if service == 0x22:
                     if pid == 0x404C:
@@ -282,7 +282,7 @@ if __name__ == '__main__':
             
             if becm.stack.available():
                 payload = becm.stack.recv()
-                print("Received BECM payload : %s" % (payload))
+                #print("Received BECM payload : %s" % (payload))
                 service, pid = struct.unpack('>BH', payload)
                 if service == 0x22:
                     if pid == 0x4800:
@@ -304,7 +304,7 @@ if __name__ == '__main__':
             
             if pcm.stack.available():
                 payload = pcm.stack.recv()
-                print("Received PCM payload : %s" % (payload))
+                #print("Received PCM payload : %s" % (payload))
                 service, pid = struct.unpack('>BH', payload)
                 if service == 0x22:
                     if pid == 0x1505:
@@ -318,7 +318,7 @@ if __name__ == '__main__':
             
             if gwm.stack.available():
                 payload = gwm.stack.recv()
-                print("Received GWM payload : %s" % (payload))
+                #print("Received GWM payload : %s" % (payload))
                 service, pid = struct.unpack('>BH', payload)
                 if service == 0x22:
                     if pid == 0x411F:
@@ -332,7 +332,7 @@ if __name__ == '__main__':
             
             if sobdm.stack.available():
                 payload = sobdm.stack.recv()
-                print("Received SOBDM payload : %s" % (payload))
+                #print("Received SOBDM payload : %s" % (payload))
                 service, pid = struct.unpack('>BH', payload)
                 if service == 0x22:
                     if pid == 0xDD00:
@@ -349,11 +349,10 @@ if __name__ == '__main__':
                         sobdm.stack.process()
                         time.sleep(sobdm.stack.sleep_time())
                     sobdm.stack.send(response)
-                    print("Sent SOBDM response : %s" % (response))
             
             if bcm.stack.available():
                 payload = bcm.stack.recv()
-                print("Received BCM payload : %s" % (payload))
+                #print("Received BCM payload : %s" % (payload))
                 service, pid = struct.unpack('>BH', payload)
                 if service == 0x22:
                     if pid == 0x4028:
@@ -373,7 +372,7 @@ if __name__ == '__main__':
             
             if dcdc.stack.available():
                 payload = dcdc.stack.recv()
-                print("Received DCDC payload : %s" % (payload))
+                #print("Received DCDC payload : %s" % (payload))
                 service, pid = struct.unpack('>BH', payload)
                 if service == 0x22:
                     if pid == 0x4836:
