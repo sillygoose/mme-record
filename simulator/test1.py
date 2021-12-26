@@ -48,6 +48,56 @@ class CanModule:
         self.stop()
 
 
+class IPC(CanModule):
+    def __init__(self, name, channel, id):
+        self.name = name
+        self.channel = channel
+        self.id = id
+        super().__init__()
+
+    def start(self):
+        self.bus = SocketcanBus(channel=self.channel)
+        addr = isotp.Address(isotp.AddressingMode.Normal_11bits, rxid=self.id, txid=self.id+8)
+        self.stack = isotp.CanStack(bus=self.bus, address=addr, error_handler=self.error_handler, params=isotp_params)
+        super().start()
+
+    def error_handler(self, error):
+        logging.warning('IPC IsoTp error happened : %s - %s' % (error.__class__.__name__, str(error)))
+
+    def stop(self):
+        self.bus.shutdown()
+        super().stop()
+
+    def shutdown(self):
+        self.stop()
+        super().shutdown()
+
+
+class GWM(CanModule):
+    def __init__(self, name, channel, id):
+        self.name = name
+        self.channel = channel
+        self.id = id
+        super().__init__()
+
+    def start(self):
+        self.bus = SocketcanBus(channel=self.channel)
+        addr = isotp.Address(isotp.AddressingMode.Normal_11bits, rxid=self.id, txid=self.id+8)
+        self.stack = isotp.CanStack(bus=self.bus, address=addr, error_handler=self.error_handler, params=isotp_params)
+        super().start()
+
+    def error_handler(self, error):
+        logging.warning('GWM IsoTp error happened : %s - %s' % (error.__class__.__name__, str(error)))
+
+    def stop(self):
+        self.bus.shutdown()
+        super().stop()
+
+    def shutdown(self):
+        self.stop()
+        super().shutdown()
+
+
 class SOBDM(CanModule):
     def __init__(self, name, channel, id):
         self.name = name
@@ -97,6 +147,7 @@ class BCM(CanModule):
         self.stop()
         super().shutdown()
 
+
 class DCDC(CanModule):
     def __init__(self, name, channel, id):
         self.name = name
@@ -123,17 +174,70 @@ class DCDC(CanModule):
 
 
 if __name__ == '__main__':
+    apim = GWM('APIM', 'can1', 0x7D0)
+    gwm = GWM('GWM', 'can0', 0x716)
+    ipc = IPC('GWM', 'can1', 0x720)
     sobdm = SOBDM('SOBDM', 'can0', 0x7E2)
     bcm = BCM('BCM', 'can0', 0x726)
     dcdc = DCDC('DD', 'can0', 0x746)
 
+    apim.start()
+    gwm.start()
+    ipc.start()
     sobdm.start()
     bcm.start()
     dcdc.start()
 
     while True:
         try:
-            if sobdm.stack.available():
+            if apim.stack.available():
+                payload = apim.stack.recv()
+                print("Received APIM payload : %s" % (payload))
+                service, pid = struct.unpack('>BH', payload)
+                if service == 0x22:
+                    if pid == 0x8012:
+                        alt = 100
+                        lat = 2400
+                        long = 2400
+                        fix = 3
+                        speed = 100
+                        heading = 256
+                        response = struct.pack('>BHHllBHH', 0x62, pid, alt, lat, long, fix, speed, heading)
+                    else:
+                        response = struct.pack('>BBB', 0x7F, 0x22, 0x31)
+                    while apim.stack.transmitting():
+                        apim.stack.process()
+                        time.sleep(apim.stack.sleep_time())
+                    apim.stack.send(response)
+            if ipc.stack.available():
+                payload = ipc.stack.recv()
+                print("Received IPC payload : %s" % (payload))
+                service, pid = struct.unpack('>BH', payload)
+                if service == 0x22:
+                    if pid == 0x404C:
+                        response = struct.pack('>BHBBB', 0x62, pid, 0x00, 0xDC, 0x66)
+                    elif pid == 0x6310:
+                        response = struct.pack('>BHB', 0x62, pid, 0)
+                    else:
+                        response = struct.pack('>BBB', 0x7F, 0x22, 0x31)
+                    while ipc.stack.transmitting():
+                        ipc.stack.process()
+                        time.sleep(ipc.stack.sleep_time())
+                    ipc.stack.send(response)
+            if gwm.stack.available():
+                payload = gwm.stack.recv()
+                print("Received GWM payload : %s" % (payload))
+                service, pid = struct.unpack('>BH', payload)
+                if service == 0x22:
+                    if pid == 0x411F:
+                        response = struct.pack('>BHB', 0x62, pid, 5)
+                    else:
+                        response = struct.pack('>BBB', 0x7F, 0x22, 0x31)
+                    while gwm.stack.transmitting():
+                        gwm.stack.process()
+                        time.sleep(gwm.stack.sleep_time())
+                    gwm.stack.send(response)
+            elif sobdm.stack.available():
                 payload = sobdm.stack.recv()
                 print("Received SOBDM payload : %s" % (payload))
                 service, pid = struct.unpack('>BH', payload)
@@ -144,6 +248,8 @@ if __name__ == '__main__':
                         response = struct.pack('>BHB', 0x62, pid, 0x3B)
                     elif pid == 0xDD05:
                         response = struct.pack('>BHB', 0x62, pid, 0x34)
+                    elif pid == 0x1E12:
+                        response = struct.pack('>BHB', 0x62, pid, 60)
                     else:
                         response = struct.pack('>BBB', 0x7F, 0x22, 0x31)
                     while sobdm.stack.transmitting():
@@ -190,6 +296,9 @@ if __name__ == '__main__':
         except KeyboardInterrupt:
             break
 
+    apim.shutdown()
+    ipc.shutdown()
+    gwm.shutdown()
     sobdm.shutdown()
     bcm.shutdown()
     dcdc.shutdown()
