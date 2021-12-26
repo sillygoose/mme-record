@@ -173,19 +173,73 @@ class DCDC(CanModule):
         super().shutdown()
 
 
+class PCM(CanModule):
+    def __init__(self, name, channel, id):
+        self.name = name
+        self.channel = channel
+        self.id = id
+        super().__init__()
+
+    def start(self):
+        self.bus = SocketcanBus(channel=self.channel)
+        addr = isotp.Address(isotp.AddressingMode.Normal_11bits, rxid=self.id, txid=self.id+8)
+        self.stack = isotp.CanStack(bus=self.bus, address=addr, error_handler=self.error_handler, params=isotp_params)
+        super().start()
+
+    def error_handler(self, error):
+        logging.warning('PCM IsoTp error happened : %s - %s' % (error.__class__.__name__, str(error)))
+
+    def stop(self):
+        self.bus.shutdown()
+        super().stop()
+
+    def shutdown(self):
+        self.stop()
+        super().shutdown()
+
+
+class BECM(CanModule):
+    def __init__(self, name, channel, id):
+        self.name = name
+        self.channel = channel
+        self.id = id
+        super().__init__()
+
+    def start(self):
+        self.bus = SocketcanBus(channel=self.channel)
+        addr = isotp.Address(isotp.AddressingMode.Normal_11bits, rxid=self.id, txid=self.id+8)
+        self.stack = isotp.CanStack(bus=self.bus, address=addr, error_handler=self.error_handler, params=isotp_params)
+        super().start()
+
+    def error_handler(self, error):
+        logging.warning('BECM IsoTp error happened : %s - %s' % (error.__class__.__name__, str(error)))
+
+    def stop(self):
+        self.bus.shutdown()
+        super().stop()
+
+    def shutdown(self):
+        self.stop()
+        super().shutdown()
+
+
 if __name__ == '__main__':
-    apim = GWM('APIM', 'can1', 0x7D0)
     gwm = GWM('GWM', 'can0', 0x716)
     ipc = IPC('GWM', 'can1', 0x720)
-    sobdm = SOBDM('SOBDM', 'can0', 0x7E2)
     bcm = BCM('BCM', 'can0', 0x726)
-    dcdc = DCDC('DD', 'can0', 0x746)
+    dcdc = DCDC('DCDC', 'can0', 0x746)
+    apim = GWM('APIM', 'can1', 0x7D0)
+    pcm = PCM('PCM', 'can0', 0x7E0)
+    sobdm = SOBDM('SOBDM', 'can0', 0x7A0)
+    becm = BECM('BECM', 'can0', 0x7E4)
 
+    becm.start()
     apim.start()
     gwm.start()
     ipc.start()
     sobdm.start()
     bcm.start()
+    pcm.start()
     dcdc.start()
 
     while True:
@@ -209,6 +263,7 @@ if __name__ == '__main__':
                         apim.stack.process()
                         time.sleep(apim.stack.sleep_time())
                     apim.stack.send(response)
+            
             if ipc.stack.available():
                 payload = ipc.stack.recv()
                 print("Received IPC payload : %s" % (payload))
@@ -224,6 +279,43 @@ if __name__ == '__main__':
                         ipc.stack.process()
                         time.sleep(ipc.stack.sleep_time())
                     ipc.stack.send(response)
+            
+            if becm.stack.available():
+                payload = becm.stack.recv()
+                print("Received BECM payload : %s" % (payload))
+                service, pid = struct.unpack('>BH', payload)
+                if service == 0x22:
+                    if pid == 0x4800:
+                        response = struct.pack('>BHB', 0x62, pid, 0x40)
+                    elif pid == 0x480D:
+                        response = struct.pack('>BHH', 0x62, pid, 0x8ABD)
+                    elif pid == 0x4845:
+                        response = struct.pack('>BHB', 0x62, pid, 0x84)
+                    elif pid == 0x4848:
+                        response = struct.pack('>BHH', 0x62, pid, 0x63C5)
+                    elif pid == 0x48F9:
+                        response = struct.pack('>BHh', 0x62, pid, 0x0052)
+                    else:
+                        response = struct.pack('>BBB', 0x7F, 0x22, 0x31)
+                    while becm.stack.transmitting():
+                        becm.stack.process()
+                        time.sleep(becm.stack.sleep_time())
+                    becm.stack.send(response)
+            
+            if pcm.stack.available():
+                payload = pcm.stack.recv()
+                print("Received PCM payload : %s" % (payload))
+                service, pid = struct.unpack('>BH', payload)
+                if service == 0x22:
+                    if pid == 0x1505:
+                        response = struct.pack('>BHH', 0x62, pid, 0x0100)
+                    else:
+                        response = struct.pack('>BBB', 0x7F, 0x22, 0x31)
+                    while pcm.stack.transmitting():
+                        pcm.stack.process()
+                        time.sleep(pcm.stack.sleep_time())
+                    pcm.stack.send(response)
+            
             if gwm.stack.available():
                 payload = gwm.stack.recv()
                 print("Received GWM payload : %s" % (payload))
@@ -237,7 +329,8 @@ if __name__ == '__main__':
                         gwm.stack.process()
                         time.sleep(gwm.stack.sleep_time())
                     gwm.stack.send(response)
-            elif sobdm.stack.available():
+            
+            if sobdm.stack.available():
                 payload = sobdm.stack.recv()
                 print("Received SOBDM payload : %s" % (payload))
                 service, pid = struct.unpack('>BH', payload)
@@ -256,7 +349,9 @@ if __name__ == '__main__':
                         sobdm.stack.process()
                         time.sleep(sobdm.stack.sleep_time())
                     sobdm.stack.send(response)
-            elif bcm.stack.available():
+                    print("Sent SOBDM response : %s" % (response))
+            
+            if bcm.stack.available():
                 payload = bcm.stack.recv()
                 print("Received BCM payload : %s" % (payload))
                 service, pid = struct.unpack('>BH', payload)
@@ -275,7 +370,8 @@ if __name__ == '__main__':
                         bcm.stack.process()
                         time.sleep(bcm.stack.sleep_time())
                     bcm.stack.send(response)
-            elif dcdc.stack.available():
+            
+            if dcdc.stack.available():
                 payload = dcdc.stack.recv()
                 print("Received DCDC payload : %s" % (payload))
                 service, pid = struct.unpack('>BH', payload)
@@ -296,9 +392,11 @@ if __name__ == '__main__':
         except KeyboardInterrupt:
             break
 
+    becm.shutdown()
     apim.shutdown()
     ipc.shutdown()
     gwm.shutdown()
     sobdm.shutdown()
     bcm.shutdown()
+    pcm.shutdown()
     dcdc.shutdown()
