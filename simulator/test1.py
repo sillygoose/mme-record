@@ -22,12 +22,9 @@ isotp_params = {
 }
 
 
-class BCM:
+class CanModule:
     def __init__(self):
         self.exit_requested = False
-        self.bus = SocketcanBus(channel='can0')
-        addr = isotp.Address(isotp.AddressingMode.Normal_11bits, rxid=0x726, txid=0x72E)
-        self.stack = isotp.CanStack(bus=self.bus, address=addr, error_handler=self.my_error_handler, params=isotp_params)
 
     def start(self):
         self.exit_requested = False
@@ -39,58 +36,121 @@ class BCM:
         if self.thread.is_alive():
             self.thread.join()
 
-    def my_error_handler(self, error):
+    def error_handler(self, error):
+        logging.warning('IsoTp error happened : %s - %s' % (error.__class__.__name__, str(error)))
+
+    def thread_task(self):
+        while self.exit_requested == False:
+            self.stack.process()                # Non-blocking
+            time.sleep(self.stack.sleep_time()) # Variable sleep time based on state machine state
+
+    def shutdown(self):
+        self.stop()
+
+
+class SOBDM(CanModule):
+    def __init__(self, name, channel, id):
+        self.name = name
+        self.channel = channel
+        self.id = id
+        super().__init__()
+
+    def start(self):
+        self.bus = SocketcanBus(channel=self.channel)
+        addr = isotp.Address(isotp.AddressingMode.Normal_11bits, rxid=self.id, txid=self.id+8)
+        self.stack = isotp.CanStack(bus=self.bus, address=addr, error_handler=self.error_handler, params=isotp_params)
+        super().start()
+
+    def error_handler(self, error):
+        logging.warning('SOBDM IsoTp error happened : %s - %s' % (error.__class__.__name__, str(error)))
+
+    def stop(self):
+        self.bus.shutdown()
+        super().stop()
+
+    def shutdown(self):
+        self.stop()
+        super().shutdown()
+
+
+class BCM(CanModule):
+    def __init__(self, name, channel, id):
+        self.name = name
+        self.channel = channel
+        self.id = id
+        super().__init__()
+
+    def start(self):
+        self.bus = SocketcanBus(channel=self.channel)
+        addr = isotp.Address(isotp.AddressingMode.Normal_11bits, rxid=self.id, txid=self.id+8)
+        self.stack = isotp.CanStack(bus=self.bus, address=addr, error_handler=self.error_handler, params=isotp_params)
+        super().start()
+
+    def error_handler(self, error):
         logging.warning('BCM IsoTp error happened : %s - %s' % (error.__class__.__name__, str(error)))
 
-    def thread_task(self):
-        while self.exit_requested == False:
-            self.stack.process()                # Non-blocking
-            time.sleep(self.stack.sleep_time()) # Variable sleep time based on state machine state
+    def stop(self):
+        self.bus.shutdown()
+        super().stop()
 
     def shutdown(self):
         self.stop()
-        self.bus.shutdown()
+        super().shutdown()
 
-
-class DCDC:
-    def __init__(self):
-        self.exit_requested = False
-        self.bus = SocketcanBus(channel='can0')
-        addr = isotp.Address(isotp.AddressingMode.Normal_11bits, rxid=0x746, txid=0x74E)
-        self.stack = isotp.CanStack(bus=self.bus, address=addr, error_handler=self.my_error_handler, params=isotp_params)
+class DCDC(CanModule):
+    def __init__(self, name, channel, id):
+        self.name = name
+        self.channel = channel
+        self.id = id
+        super().__init__()
 
     def start(self):
-        self.exit_requested = False
-        self.thread = threading.Thread(target=self.thread_task)
-        self.thread.start()
+        self.bus = SocketcanBus(channel=self.channel)
+        addr = isotp.Address(isotp.AddressingMode.Normal_11bits, rxid=self.id, txid=self.id+8)
+        self.stack = isotp.CanStack(bus=self.bus, address=addr, error_handler=self.error_handler, params=isotp_params)
+        super().start()
 
-    def stop(self):
-        self.exit_requested = True
-        if self.thread.is_alive():
-            self.thread.join()
-
-    def my_error_handler(self, error):
+    def error_handler(self, error):
         logging.warning('DCDC IsoTp error happened : %s - %s' % (error.__class__.__name__, str(error)))
 
-    def thread_task(self):
-        while self.exit_requested == False:
-            self.stack.process()                # Non-blocking
-            time.sleep(self.stack.sleep_time()) # Variable sleep time based on state machine state
+    def stop(self):
+        self.bus.shutdown()
+        super().stop()
 
     def shutdown(self):
         self.stop()
-        self.bus.shutdown()
+        super().shutdown()
 
 
 if __name__ == '__main__':
-    bcm = BCM()
-    dcdc = DCDC()
+    sobdm = SOBDM('SOBDM', 'can0', 0x7E2)
+    bcm = BCM('BCM', 'can0', 0x726)
+    dcdc = DCDC('DD', 'can0', 0x746)
+
+    sobdm.start()
     bcm.start()
     dcdc.start()
 
     while True:
         try:
-            if bcm.stack.available():
+            if sobdm.stack.available():
+                payload = sobdm.stack.recv()
+                print("Received SOBDM payload : %s" % (payload))
+                service, pid = struct.unpack('>BH', payload)
+                if service == 0x22:
+                    if pid == 0xDD00:
+                        response = struct.pack('>BHI', 0x62, pid, 0x0923A217)
+                    elif pid == 0xDD04:
+                        response = struct.pack('>BHB', 0x62, pid, 0x3B)
+                    elif pid == 0xDD05:
+                        response = struct.pack('>BHB', 0x62, pid, 0x34)
+                    else:
+                        response = struct.pack('>BBB', 0x7F, 0x22, 0x31)
+                    while sobdm.stack.transmitting():
+                        sobdm.stack.process()
+                        time.sleep(sobdm.stack.sleep_time())
+                    sobdm.stack.send(response)
+            elif bcm.stack.available():
                 payload = bcm.stack.recv()
                 print("Received BCM payload : %s" % (payload))
                 service, pid = struct.unpack('>BH', payload)
@@ -105,7 +165,6 @@ if __name__ == '__main__':
                         response = struct.pack('>BHB', 0x62, pid, 0x82)
                     else:
                         response = struct.pack('>BBB', 0x7F, 0x22, 0x31)
-
                     while bcm.stack.transmitting():
                         bcm.stack.process()
                         time.sleep(bcm.stack.sleep_time())
@@ -123,7 +182,6 @@ if __name__ == '__main__':
                         response = struct.pack('>BHH', 0x62, pid, 0x0186)
                     else:
                         response = struct.pack('>BBB', 0x7F, 0x22, 0x31)
-
                     while dcdc.stack.transmitting():
                         dcdc.stack.process()
                         time.sleep(dcdc.stack.sleep_time())
@@ -132,5 +190,6 @@ if __name__ == '__main__':
         except KeyboardInterrupt:
             break
 
+    sobdm.shutdown()
     bcm.shutdown()
     dcdc.shutdown()
