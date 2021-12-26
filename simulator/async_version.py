@@ -18,31 +18,36 @@ def print_message(msg):
 async def main():
     bus = SocketcanBus(channel='can0') 
     reader = can.AsyncBufferedReader()
-    logger = can.Logger("logfile.log")
+    logger = can.Logger("logfile.csv")
 
     listeners = [
         print_message,      # Callback function
         reader,             # AsyncBufferedReader() listener
         logger,             # Regular Listener object
     ]
-    # Create Notifier with an explicit loop to use for scheduling of callbacks
-    loop = asyncio.get_event_loop()
-    notifier = can.Notifier(bus, listeners, loop=loop)
+    notifier = can.Notifier(bus, listeners, loop=asyncio.get_event_loop())
 
     while True:
         try:
             msg = await reader.get_message()
             payload = msg.data
-            tup = struct.unpack('>BBHL', payload)
-            length, service, pid = tup[0], tup[1], tup[2]
+            length, service, pid = struct.unpack_from('>BBH', payload, 0)
 
+            if length == 0x00:
+                break
+            
             if length == 0x03 and service == 0x22:
-                if pid == 0x417D:
-                    response = can.Message(arbitration_id=0x7e8, is_extended_id=False, channel='can0', data=struct.pack('>BBHBBBB', 0x04, 0x62, pid, 0x02, 0x00, 0x00, 0x00))
-                    bus.send(response)
+                buffer = bytearray(8)
+                if pid == 0x4028:
+                    struct.pack_into('>BBHB', buffer, 0, 0x04, 0x62, pid, 0x5B)
+                elif pid == 0x404C:
+                    struct.pack_into('>BBHHB', buffer, 0, 0x06, 0x62, pid, 0x00DC, 0x66)
+                elif pid == 0x417D:
+                    struct.pack_into('>BBHB', buffer, 0, 0x04, 0x62, pid, 0x02)
                 else:
-                    response = can.Message(arbitration_id=0x7e8, is_extended_id=False, channel='can0', data=struct.pack('>BBBBBBBB', 0x03, 0x7F, 0x22, 0x31, 0x00, 0x00, 0x00, 0x00))
-                    bus.send(response)
+                    struct.pack_into('>BBBB', buffer, 0, 0x03, 0x7F, 0x22, 0x31)
+                response = can.Message(arbitration_id=0x7e8, is_extended_id=False, channel='can0', data=buffer)
+                bus.send(response)
 
         except KeyboardInterrupt:
             break
