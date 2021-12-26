@@ -1,23 +1,24 @@
+import time
 import isotp
 import logging
-import time
 import threading
+import struct
 
 from can.interfaces.socketcan import SocketcanBus
 
 
 _TIMEOUT = 5.0
 isotp_params = {
-   'stmin' : 32,                                      # Will request the sender to wait 32ms between consecutive frame. 0-127ms or 100-900ns with values from 0xF1-0xF9
-   'blocksize' : 8,                                   # Request the sender to send 8 consecutives frames before sending a new flow control message
-   'wftmax' : 0,                                      # Number of wait frame allowed before triggering an error
-   'tx_data_length' : 8,                              # Link layer (CAN layer) works with 8 byte payload (CAN 2.0)
-   'tx_data_min_length' : 8,                          # Minimum length of CAN messages. When different from None, messages are padded to meet this length. Works with CAN 2.0 and CAN FD.
-   'tx_padding' : 0x00,                               # Will pad all transmitted CAN messages with byte 0x00.
-   'rx_flowcontrol_timeout' : int(_TIMEOUT * 1000),        # Triggers a timeout if a flow control is awaited for more than 1000 milliseconds
-   'rx_consecutive_frame_timeout' : int(_TIMEOUT * 1000),  # Triggers a timeout if a consecutive frame is awaited for more than 1000 milliseconds
-   'squash_stmin_requirement' : False,                # When sending, respect the stmin requirement of the receiver. If set to True, go as fast as possible.
-   'max_frame_size' : 4095                            # Limit the size of receive frame.
+   'stmin' : 32,                                            # Will request the sender to wait 32ms between consecutive frame. 0-127ms or 100-900ns with values from 0xF1-0xF9
+   'blocksize' : 8,                                         # Request the sender to send 8 consecutives frames before sending a new flow control message
+   'wftmax' : 0,                                            # Number of wait frame allowed before triggering an error
+   'tx_data_length' : 8,                                    # Link layer (CAN layer) works with 8 byte payload (CAN 2.0)
+   'tx_data_min_length' : 8,                                # Minimum length of CAN messages. When different from None, messages are padded to meet this length. Works with CAN 2.0 and CAN FD.
+   'tx_padding' : 0x00,                                     # Will pad all transmitted CAN messages with byte 0x00.
+   'rx_flowcontrol_timeout' : int(_TIMEOUT * 1000),         # Triggers a timeout if a flow control is awaited for more than 1000 milliseconds
+   'rx_consecutive_frame_timeout' : int(_TIMEOUT * 1000),   # Triggers a timeout if a consecutive frame is awaited for more than 1000 milliseconds
+   'squash_stmin_requirement' : False,                      # When sending, respect the stmin requirement of the receiver. If set to True, go as fast as possible.
+   'max_frame_size' : 4095                                  # Limit the size of receive frame.
 }
 
 
@@ -55,22 +56,23 @@ if __name__ == '__main__':
     app = ThreadedApp()
     app.start()
 
-    print('Waiting for payload - maximum 10 sec')
-    t1 = time.time()
-    while time.time() - t1 < 20:
-        if app.stack.available():
-            payload = app.stack.recv()
-            print("Received payload : %s" % (payload))
+    while True:
+        try:
+            if app.stack.available():
+                payload = app.stack.recv()
+                print("Received payload : %s" % (payload))
+                service, pid = struct.unpack('>BH', payload)
 
-            app.stack.send(bytearray([payload[0] | 0x40, payload[1], payload[2], 0x02]))
-            #app.stack.send(bytearray([0x62, 0x41, 0x7d, 0x02]))
-            while app.stack.transmitting():
-                app.stack.process()
-                time.sleep(app.stack.sleep_time())
-
-            print("Payload transmission done.")
+                if service == 0x22:
+                    if pid == 0x417D:
+                        response = struct.pack('>BHB', 0x62, pid, 0x02)
+                        app.stack.send(response)
+                        # app.stack.send(bytearray([payload[0] | 0x40, payload[1], payload[2], 0x02]))
+                        while app.stack.transmitting():
+                            app.stack.process()
+                            time.sleep(app.stack.sleep_time())
+            time.sleep(0.1)
+        except KeyboardInterrupt:
             break
-        time.sleep(0.2)
 
-    print("Exiting")
     app.shutdown()
