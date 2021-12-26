@@ -22,11 +22,11 @@ isotp_params = {
 }
 
 
-class CANmodule:
+class BCM:
     def __init__(self):
         self.exit_requested = False
         self.bus = SocketcanBus(channel='can0')
-        addr = isotp.Address(isotp.AddressingMode.Normal_11bits, rxid=0x7e0, txid=0x7e8)
+        addr = isotp.Address(isotp.AddressingMode.Normal_11bits, rxid=0x726, txid=0x72E)
         self.stack = isotp.CanStack(bus=self.bus, address=addr, error_handler=self.my_error_handler, params=isotp_params)
 
     def start(self):
@@ -40,7 +40,37 @@ class CANmodule:
             self.thread.join()
 
     def my_error_handler(self, error):
-        logging.warning('IsoTp error happened : %s - %s' % (error.__class__.__name__, str(error)))
+        logging.warning('BCM IsoTp error happened : %s - %s' % (error.__class__.__name__, str(error)))
+
+    def thread_task(self):
+        while self.exit_requested == False:
+            self.stack.process()                # Non-blocking
+            time.sleep(self.stack.sleep_time()) # Variable sleep time based on state machine state
+
+    def shutdown(self):
+        self.stop()
+        self.bus.shutdown()
+
+
+class DCDC:
+    def __init__(self):
+        self.exit_requested = False
+        self.bus = SocketcanBus(channel='can0')
+        addr = isotp.Address(isotp.AddressingMode.Normal_11bits, rxid=0x746, txid=0x74E)
+        self.stack = isotp.CanStack(bus=self.bus, address=addr, error_handler=self.my_error_handler, params=isotp_params)
+
+    def start(self):
+        self.exit_requested = False
+        self.thread = threading.Thread(target=self.thread_task)
+        self.thread.start()
+
+    def stop(self):
+        self.exit_requested = True
+        if self.thread.is_alive():
+            self.thread.join()
+
+    def my_error_handler(self, error):
+        logging.warning('DCDC IsoTp error happened : %s - %s' % (error.__class__.__name__, str(error)))
 
     def thread_task(self):
         while self.exit_requested == False:
@@ -53,27 +83,54 @@ class CANmodule:
 
 
 if __name__ == '__main__':
-    app = CANmodule()
-    app.start()
+    bcm = BCM()
+    dcdc = DCDC()
+    bcm.start()
+    dcdc.start()
 
     while True:
         try:
-            if app.stack.available():
-                payload = app.stack.recv()
-                print("Received payload : %s" % (payload))
+            if bcm.stack.available():
+                payload = bcm.stack.recv()
+                print("Received BCM payload : %s" % (payload))
                 service, pid = struct.unpack('>BH', payload)
                 if service == 0x22:
-                    if pid == 0x417D:
+                    if pid == 0x4028:
+                        response = struct.pack('>BHB', 0x62, pid, 0x5B)
+                    elif pid == 0x402A:
+                        response = struct.pack('>BHB', 0x62, pid, 0x92)
+                    elif pid == 0x402B:
                         response = struct.pack('>BHB', 0x62, pid, 0x02)
+                    elif pid == 0x417D:
+                        response = struct.pack('>BHB', 0x62, pid, 0x82)
                     else:
                         response = struct.pack('>BBB', 0x7F, 0x22, 0x31)
 
-                    while app.stack.transmitting():
-                        app.stack.process()
-                        time.sleep(app.stack.sleep_time())
-                    app.stack.send(response)
+                    while bcm.stack.transmitting():
+                        bcm.stack.process()
+                        time.sleep(bcm.stack.sleep_time())
+                    bcm.stack.send(response)
+            elif dcdc.stack.available():
+                payload = dcdc.stack.recv()
+                print("Received DCDC payload : %s" % (payload))
+                service, pid = struct.unpack('>BH', payload)
+                if service == 0x22:
+                    if pid == 0x4836:
+                        response = struct.pack('>BHB', 0x62, pid, 0x1B)
+                    elif pid == 0x483A:
+                        response = struct.pack('>BHB', 0x62, pid, 0x3A)
+                    elif pid == 0x483D:
+                        response = struct.pack('>BHH', 0x62, pid, 0x0186)
+                    else:
+                        response = struct.pack('>BBB', 0x7F, 0x22, 0x31)
+
+                    while dcdc.stack.transmitting():
+                        dcdc.stack.process()
+                        time.sleep(dcdc.stack.sleep_time())
+                    dcdc.stack.send(response)
 
         except KeyboardInterrupt:
             break
 
-    app.shutdown()
+    bcm.shutdown()
+    dcdc.shutdown()
