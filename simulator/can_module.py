@@ -5,7 +5,7 @@ import threading
 import isotp
 from can.interfaces.socketcan import SocketcanBus
 
-#from pid import PID
+from pid import PID
 
 
 _TIMEOUT = 5.0
@@ -24,38 +24,27 @@ isotp_params = {
 
 
 class CanModule:
-    def __init__(self, name, channel, id) -> None:
+    def __init__(self, name, channel, id, handler) -> None:
         self._name = name
         self._channel = channel
         self._rxid = id
         self._txid = id + 8
-        self._pids = {}
+        self._hanlder = handler
         self._exit_requested = False
 
     def start(self) -> None:
-        print(f"Starting CanModule {self._name} on channel {self._channel} with address {self._rxid:03X}")
-        addr = isotp.Address(isotp.AddressingMode.Normal_11bits, rxid=self._rxid, txid=self._txid)
-        self._bus = SocketcanBus(channel=self._channel)
-        self._stack = isotp.CanStack(bus=self._bus, address=addr, error_handler=self.error_handler, params=isotp_params)
-
         self._exit_requested = False
         self._thread = threading.Thread(target=self._thread_task)
         self._thread.start()
 
     def stop(self) -> None:
-        print(f"Stopping CanModule {self._name}")
-        self._bus.shutdown()
         self._exit_requested = True
         if self._thread.is_alive():
             self._thread.join()
 
-    def error_handler(self, error):
-        logging.warning('%s IsoTp error happened : %s - %s' % (self._name, error.__class__.__name__, str(error)))
-
     def _thread_task(self):
         while self._exit_requested == False:
-            self._stack.process()                       # Non-blocking
-            time.sleep(self._stack.sleep_time())        # Variable sleep time based on state machine state
+            self._hanlder()
 
     def shutdown(self):
         self.stop()

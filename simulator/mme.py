@@ -1,4 +1,6 @@
-from can_module import CanModule
+import time
+
+from sobdm import SOBDM
 
 
 class MustangMachE:
@@ -22,21 +24,20 @@ class MustangMachE:
             self.modules[module.name()] = module
 
 
-modules = [
-    CanModule('SOBDM', 'can0', 0x7E2),
-    CanModule('BECM', 'can0', 0x7E4),
-    CanModule('APIM', 'can1', 0x7D0),
-]
-
 
 def main():
+    modules = [
+        SOBDM(),
+    ]
     mme = MustangMachE()
-
     mme.addModules(modules)
-    #mme.addModule(CanModule('APIM', 'can1', 0x7D0))
-    
     mme.start()
-    
+    while True:
+        try:
+            time.sleep(1)
+        except KeyboardInterrupt:
+            break
+
     mme.stop()
 
 

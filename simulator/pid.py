@@ -1,8 +1,4 @@
 
-#pids = [
-#    { 'SOBDM', []}
-#]
-
 class PID:
     def __init__(self, id, name) -> None:
         self._id = id
@@ -22,3 +18,5 @@ class PID:
 
     def id(self) -> int:
         return self._id
+
+
