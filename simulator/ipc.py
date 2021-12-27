@@ -9,10 +9,10 @@ from pid import PID
 from can_module import CanModule
 
 
-class PID_1E12(PID):
+class PID_404C(PID):
     def __init__(self) -> None:
-        self._state = 50
-        super().__init__(0x1E12, 'GearCommanded')
+        self._odometer = 0x00dc66
+        super().__init__(0x404C, 'Odometer')
 
     def start(self) -> None:
         super().start()
@@ -21,12 +21,12 @@ class PID_1E12(PID):
         super().stop()
 
     def response(self) -> bytearray:
-        return struct.pack('>BHB', 0x62, self._id, self._state)
+        return struct.pack('>BHBBB', 0x62, self._id, ((self._odometer & 0xff0000) >> 16), ((self._odometer & 0x00ff00) >> 8), (self._odometer & 0x0000ff))
 
-class PID_DD00(PID):
+class PID_6310(PID):
     def __init__(self) -> None:
-        self._state = int(time.time())
-        super().__init__(0xD000, 'GlobalTime')
+        self._gear = 1
+        super().__init__(0x404C, 'Gear')
 
     def start(self) -> None:
         super().start()
@@ -35,43 +35,13 @@ class PID_DD00(PID):
         super().stop()
 
     def response(self) -> bytearray:
-        return struct.pack('>BHI', 0x62, self._id, self._state)
-
-class PID_DD04(PID):
-    def __init__(self) -> None:
-        self._state = 50
-        super().__init__(0xDD04, 'InteriorTemp')
-
-    def start(self) -> None:
-        super().start()
-
-    def stop(self) -> None:
-        super().stop()
-
-    def response(self) -> bytearray:
-        return struct.pack('>BHB', 0x62, self._id, self._state)
-
-class PID_DD05(PID):
-    def __init__(self) -> None:
-        self._state = 50
-        super().__init__(0xDD05, 'ExteriorTemp')
-
-    def start(self) -> None:
-        super().start()
-
-    def stop(self) -> None:
-        super().stop()
-
-    def response(self) -> bytearray:
-        return struct.pack('>BHB', 0x62, self._id, self._state)
+        return struct.pack('>BHB', 0x62, self._id, self._gear) 
 
 
-class SOBDM(CanModule):
+class IPC(CanModule):
     pids = {
-        0x1E12: PID_1E12(),
-        0xDD00: PID_DD00(),
-        0xDD04: PID_DD04(),
-        0xDD05: PID_DD05(),
+        0x404C: PID_404C(),
+        0x6310: PID_6310(),
     }
 
     _TIMEOUT = 5.0
@@ -89,13 +59,13 @@ class SOBDM(CanModule):
     }
 
     def __init__(self) -> None:
-        super().__init__('SOBDM', 'can0', 0x7E2, self._pid_task)
+        super().__init__('IPC', 'can1', 0x720, self._pid_task)
 
     def start(self) -> None:
         print(f"Starting CanModule {self._name} on channel {self._channel} with address {self._rxid:03X}")
         addr = isotp.Address(isotp.AddressingMode.Normal_11bits, rxid=self._rxid, txid=self._txid)
         self._bus = SocketcanBus(channel=self._channel)
-        self._stack = isotp.CanStack(bus=self._bus, address=addr, error_handler=self.error_handler, params=SOBDM.isotp_params)
+        self._stack = isotp.CanStack(bus=self._bus, address=addr, error_handler=self.error_handler, params=IPC.isotp_params)
         super().start()
 
     def _pid_task(self):
@@ -104,7 +74,7 @@ class SOBDM(CanModule):
             payload = self._stack.recv()
             service, pid = struct.unpack('>BH', payload)
             if service == 0x22:
-                handler = SOBDM.pids.get(pid, None)
+                handler = IPC.pids.get(pid, None)
                 if handler is None:
                     response = struct.pack('>BBB', 0x7F, 0x22, 0x31)
                 else:

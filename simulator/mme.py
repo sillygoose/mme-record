@@ -1,6 +1,9 @@
 import time
 
 from sobdm import SOBDM
+from apim import APIM
+from ipc import IPC
+from pcm import PCM
 
 
 class MustangMachE:
@@ -27,8 +30,9 @@ class MustangMachE:
 
 def main():
     modules = [
-        SOBDM(),
+        SOBDM(), APIM(), IPC(), PCM(),
     ]
+
     mme = MustangMachE()
     mme.addModules(modules)
     mme.start()
