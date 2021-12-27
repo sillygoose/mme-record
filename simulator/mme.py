@@ -11,17 +11,29 @@ class MustangMachE:
             module.start()
 
     def stop(self) -> None:
-        for module in self.modules:
+        for module in self.modules.values():
             module.stop()
 
     def addModule(self, module) -> None:
         self.modules[module.name()] = module
 
+    def addModules(self, modules) -> None:
+        for module in modules:
+            self.modules[module.name()] = module
+
+
+modules = [
+    CanModule('SOBDM', 'can0', 0x7E2),
+    CanModule('BECM', 'can0', 0x7E4),
+    CanModule('APIM', 'can1', 0x7D0),
+]
+
 
 def main():
     mme = MustangMachE()
 
-    mme.addModule(CanModule('APIM', 'can1', 0x7D0))
+    mme.addModules(modules)
+    #mme.addModule(CanModule('APIM', 'can1', 0x7D0))
     
     mme.start()
     
