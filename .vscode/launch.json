@@ -5,6 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: MME Sim",
+            "type": "python",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/simulator",
+            "module": "mme"
+        },
+        {
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
