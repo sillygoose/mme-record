@@ -254,6 +254,7 @@ def check_config(config):
     required_keys = [
         {
             'mme': {'required': True, 'keys': [
+                {'vin': {'required': False, 'keys': []}},
                 {'modules': {'required': True, 'keys': [
                     {'module': {'required': True, 'keys': [
                         {'name': {'required': True, 'keys': [], 'type': str}},

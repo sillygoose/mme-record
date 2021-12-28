@@ -66,6 +66,8 @@ def main():
         mme = MustangMachE()
         mme.addModules(modules)
         mme.start()
+    except KeyboardInterrupt:
+        pass
     except Exception as e:
         _LOGGER.error(f"Unexpected exception: {e}")
     finally:

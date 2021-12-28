@@ -1,8 +1,14 @@
 mme:
+  vin: '12345678901234567'
   modules:
     - module:
         name: 'DCDC'
+        channel: 'can0'
         arbitration_id: 0x123
+    - module:
+        name: 'BCM'
+        channel: 'can0'
+        arbitration_id: 0x456
 
 #  simfile:
 #    enable: False

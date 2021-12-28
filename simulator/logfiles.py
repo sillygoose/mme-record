@@ -9,7 +9,7 @@ _LOGGER = logging.getLogger()
 
 _DEFAULT_LOG_FILE = 'log/mme'
 _DEFAULT_LOG_FORMAT = '[%(asctime)s] [%(module)s] [%(levelname)s] %(message)s'
-_DEFAULT_LOG_LEVEL = 'INFO'
+_DEFAULT_LOG_LEVEL = 'WARNING'
 
 
 def start():
