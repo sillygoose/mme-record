@@ -1,9 +1,14 @@
 import time
+from becm import BECM
 
 from sobdm import SOBDM
 from apim import APIM
 from ipc import IPC
 from pcm import PCM
+from gwm import GWM
+from dcdc import DCDC
+from bcm import BCM
+from becm import BECM
 
 
 class MustangMachE:
@@ -30,7 +35,7 @@ class MustangMachE:
 
 def main():
     modules = [
-        SOBDM(), APIM(), IPC(), PCM(),
+        SOBDM(), APIM(), IPC(), PCM(), GWM(), DCDC(), BCM(), BECM(),
     ]
 
     mme = MustangMachE()

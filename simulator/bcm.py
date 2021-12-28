@@ -9,10 +9,10 @@ from pid import PID
 from can_module import CanModule
 
 
-class PID_411F(PID):
+class PID_4028(PID):
     def __init__(self) -> None:
-        self._keystate = 5
-        super().__init__(0x411F, 'KeyState')        ### check it?
+        self._current = 0x5B
+        super().__init__(0x4028, 'LvbSoc')
 
     def start(self) -> None:
         super().start()
@@ -21,19 +21,12 @@ class PID_411F(PID):
         super().stop()
 
     def response(self) -> bytearray:
-        return struct.pack('>BHB', 0x62, self._id, self._keystate)
+        return struct.pack('>BHB', 0x62, self._id, self._current)
 
-
-class PID_8012(PID):
+class PID_402A(PID):
     def __init__(self) -> None:
-        self._elevation = 100
-        self._latitude = 2577
-        self._longitude = -4610
-        self._fix = 4
-        self._speed = 12
-        self._heading = 256
-        self._state = 50
-        super().__init__(0x8012, 'GPS')
+        self._current = 0x92
+        super().__init__(0x402A, 'LvbV')
 
     def start(self) -> None:
         super().start()
@@ -42,13 +35,43 @@ class PID_8012(PID):
         super().stop()
 
     def response(self) -> bytearray:
-        return struct.pack('>BHHllBHH', 0x62, self._id, self._elevation, self._latitude, self._longitude, self._fix, self._speed, self._heading)
+        return struct.pack('>BHB', 0x62, self._id, self._current)
+
+class PID_402B(PID):
+    def __init__(self) -> None:
+        self._state = 0x82
+        super().__init__(0x402B, 'LvbA')
+
+    def start(self) -> None:
+        super().start()
+
+    def stop(self) -> None:
+        super().stop()
+
+    def response(self) -> bytearray:
+        return struct.pack('>BHB', 0x62, self._id, self._state)
+
+class PID_417D(PID):
+    def __init__(self) -> None:
+        self._state = 0x02
+        super().__init__(0x417D, 'KeyState')
+
+    def start(self) -> None:
+        super().start()
+
+    def stop(self) -> None:
+        super().stop()
+
+    def response(self) -> bytearray:
+        return struct.pack('>BHB', 0x62, self._id, self._state)
 
 
-class APIM(CanModule):
+class BCM(CanModule):
     pids = {
-        0x411F: PID_411F(),
-        0x8012: PID_8012(),
+        0x4028: PID_4028(),
+        0x402A: PID_402A(),
+        0x402B: PID_402B(),
+        0x417D: PID_417D(),
     }
 
     _TIMEOUT = 5.0
@@ -66,13 +89,13 @@ class APIM(CanModule):
     }
 
     def __init__(self) -> None:
-        super().__init__('APIM', 'can1', 0x7D0, self._pid_task)
+        super().__init__('BCM', 'can0', 0x726, self._pid_task)
 
     def start(self) -> None:
         print(f"Starting CanModule {self._name} on channel {self._channel} with address {self._rxid:03X}")
         addr = isotp.Address(isotp.AddressingMode.Normal_11bits, rxid=self._rxid, txid=self._txid)
         self._bus = SocketcanBus(channel=self._channel)
-        self._stack = isotp.CanStack(bus=self._bus, address=addr, error_handler=self.error_handler, params=APIM.isotp_params)
+        self._stack = isotp.CanStack(bus=self._bus, address=addr, error_handler=self.error_handler, params=BCM.isotp_params)
         super().start()
 
     def _pid_task(self):
@@ -81,7 +104,7 @@ class APIM(CanModule):
             payload = self._stack.recv()
             service, pid = struct.unpack('>BH', payload)
             if service == 0x22:
-                handler = APIM.pids.get(pid, None)
+                handler = BCM.pids.get(pid, None)
                 if handler is None:
                     response = struct.pack('>BBB', 0x7F, 0x22, 0x31)
                 else:
