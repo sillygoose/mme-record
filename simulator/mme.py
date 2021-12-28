@@ -1,6 +1,15 @@
+import sys
+import os
 import time
-from becm import BECM
+import logging
 
+import version
+import logfiles
+from readconfig import read_config
+
+from exceptions import FailedInitialization
+
+from becm import BECM
 from sobdm import SOBDM
 from apim import APIM
 from ipc import IPC
@@ -9,6 +18,9 @@ from gwm import GWM
 from dcdc import DCDC
 from bcm import BCM
 from becm import BECM
+
+
+_LOGGER = logging.getLogger()
 
 
 class MustangMachE:
@@ -38,17 +50,30 @@ def main():
         SOBDM(), APIM(), IPC(), PCM(), GWM(), DCDC(), BCM(), BECM(),
     ]
 
-    mme = MustangMachE()
-    mme.addModules(modules)
-    mme.start()
-    while True:
-        try:
-            time.sleep(1)
-        except KeyboardInterrupt:
-            break
+    logfiles.start()
+    _LOGGER.info(f"MME Simulator version {version.get_version()}, PID is {os.getpid()}")
 
-    mme.stop()
+    try:
+        config = read_config()
+    except FailedInitialization as e:
+        _LOGGER.error(f"{e}")
+        return
+    except Exception as e:
+        _LOGGER.error(f"Unexpected exception: {e}")
+        return
+
+    try:
+        mme = MustangMachE()
+        mme.addModules(modules)
+        mme.start()
+    except Exception as e:
+        _LOGGER.error(f"Unexpected exception: {e}")
+    finally:
+        mme.stop()
 
 
 if __name__ == '__main__':
-    main()
+    if sys.version_info[0] >= 3 and sys.version_info[1] >= 10:
+        main()
+    else:
+        print("python 3.10 or better required")

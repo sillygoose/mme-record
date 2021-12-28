@@ -1,0 +1,10 @@
+mme:
+  modules:
+    - module:
+        name: 'DCDC'
+        arbitration_id: 0x123
+
+#  simfile:
+#    enable: False
+#    path:   test.csv
+

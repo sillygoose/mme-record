@@ -1,5 +1,9 @@
-# Ignore
+# Ignore files and folders
 *.csv
+log/
+
+# Ignore any secrets files
+*secrets.yaml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
