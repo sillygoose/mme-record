@@ -9,6 +9,9 @@ from pid import PID
 from can_module import CanModule
 
 
+_LOGGER = logging.getLogger('mme')
+
+
 class PID_1505(PID):
     def __init__(self) -> None:
         self._speed = 10000
@@ -47,7 +50,7 @@ class PCM(CanModule):
         super().__init__('PCM', 'can0', 0x7E0, self._pid_task)
 
     def start(self) -> None:
-        print(f"Starting CanModule {self._name} on channel {self._channel} with address {self._rxid:03X}")
+        _LOGGER.info(f"Starting CanModule {self._name} on channel {self._channel} with address {self._rxid:03X}")
         addr = isotp.Address(isotp.AddressingMode.Normal_11bits, rxid=self._rxid, txid=self._txid)
         self._bus = SocketcanBus(channel=self._channel)
         self._stack = isotp.CanStack(bus=self._bus, address=addr, error_handler=self.error_handler, params=PCM.isotp_params)
@@ -71,10 +74,10 @@ class PCM(CanModule):
         time.sleep(self._stack.sleep_time())
 
     def error_handler(self, error):
-        logging.warning('%s IsoTp error happened : %s - %s' % (self._name, error.__class__.__name__, str(error)))
+        logging.error('%s IsoTp error happened : %s - %s' % (self._name, error.__class__.__name__, str(error)))
 
     def stop(self) -> None:
-        print(f"Stopping CanModule {self._name}")
+        _LOGGER.info(f"Stopping CanModule {self._name}")
         self._bus.shutdown()
         super().stop()
 

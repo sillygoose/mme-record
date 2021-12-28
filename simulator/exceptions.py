@@ -1,8 +1,5 @@
 """Exceptions used in mme-sim."""
 
-from enum import Enum, auto
-
-
 class NormalCompletion(Exception):
     """Normal completion, no errors."""
 

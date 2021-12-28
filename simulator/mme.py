@@ -20,7 +20,7 @@ from bcm import BCM
 from becm import BECM
 
 
-_LOGGER = logging.getLogger()
+_LOGGER = logging.getLogger('mme')
 
 
 class MustangMachE:
@@ -66,8 +66,11 @@ def main():
         mme = MustangMachE()
         mme.addModules(modules)
         mme.start()
-    except KeyboardInterrupt:
-        pass
+        while True:
+            try:
+                time.sleep(1)
+            except KeyboardInterrupt:
+                break
     except Exception as e:
         _LOGGER.error(f"Unexpected exception: {e}")
     finally:

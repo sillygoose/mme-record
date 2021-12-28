@@ -21,7 +21,7 @@ SECRET_YAML = 'mme_secrets.yaml'
 JSON_TYPE = Union[List, Dict, str]      # pylint: disable=invalid-name
 DICT_T = TypeVar("DICT_T", bound=Dict)  # pylint: disable=invalid-name
 
-_LOGGER = logging.getLogger(__name__)
+_LOGGER = logging.getLogger()
 _SECRET_CACHE: Dict[str, JSON_TYPE] = {}
 
 
@@ -258,6 +258,7 @@ def check_config(config):
                 {'modules': {'required': True, 'keys': [
                     {'module': {'required': True, 'keys': [
                         {'name': {'required': True, 'keys': [], 'type': str}},
+                        {'channel': {'required': True, 'keys': [], 'type': str}},
                         {'arbitration_id': {'required': True, 'keys': [], 'type': int}},
                     ]}},
                 ]}},
