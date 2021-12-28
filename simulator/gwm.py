@@ -9,10 +9,10 @@ from pid import PID
 from can_module import CanModule
 
 
-class PID_417D(PID):
+class PID_411F(PID):
     def __init__(self) -> None:
         self._keystate = 3
-        super().__init__(0x1505, 'KeyState')
+        super().__init__(0x411F, 'KeyState')
 
     def start(self) -> None:
         super().start()
@@ -26,7 +26,7 @@ class PID_417D(PID):
 
 class GWM(CanModule):
     pids = {
-        0x417D: PID_417D(),     ### right?
+        0x411F: PID_411F(),     ### right?
     }
 
     _TIMEOUT = 5.0

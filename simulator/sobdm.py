@@ -23,10 +23,178 @@ class PID_1E12(PID):
     def response(self) -> bytearray:
         return struct.pack('>BHB', 0x62, self._id, self._state)
 
+class PID_4842(PID):
+    def __init__(self) -> None:
+        self._state = 0
+        super().__init__(0x4842, 'HvbChargeCurrentRequested')
+
+    def start(self) -> None:
+        super().start()
+
+    def stop(self) -> None:
+        super().stop()
+
+    def response(self) -> bytearray:
+        return struct.pack('>BHh', 0x62, self._id, self._state)
+
+class PID_4844(PID):
+    def __init__(self) -> None:
+        self._state = 0
+        super().__init__(0x4844, 'HvbChargeVoltageRequested')
+
+    def start(self) -> None:
+        super().start()
+
+    def stop(self) -> None:
+        super().stop()
+
+    def response(self) -> bytearray:
+        return struct.pack('>BHB', 0x62, self._id, self._state)
+
+class PID_484A(PID):
+    def __init__(self) -> None:
+        self._state = 0
+        super().__init__(0x484A, 'ChargerOutputVoltage')
+
+    def start(self) -> None:
+        super().start()
+
+    def stop(self) -> None:
+        super().stop()
+
+    def response(self) -> bytearray:
+        return struct.pack('>BHh', 0x62, self._id, self._state)
+
+class PID_484E(PID):
+    def __init__(self) -> None:
+        self._state = 0
+        super().__init__(0x484E, 'ChargerInputPower')
+
+    def start(self) -> None:
+        super().start()
+
+    def stop(self) -> None:
+        super().stop()
+
+    def response(self) -> bytearray:
+        return struct.pack('>BHh', 0x62, self._id, self._state)
+
+class PID_4850(PID):
+    def __init__(self) -> None:
+        self._state = 0
+        super().__init__(0x4850, 'ChargerOutputCurrent')
+
+    def start(self) -> None:
+        super().start()
+
+    def stop(self) -> None:
+        super().stop()
+
+    def response(self) -> bytearray:
+        return struct.pack('>BHh', 0x62, self._id, self._state)
+
+class PID_485E(PID):
+    def __init__(self) -> None:
+        self._state = 0
+        super().__init__(0x485E, 'ChargerInputVoltage')
+
+    def start(self) -> None:
+        super().start()
+
+    def stop(self) -> None:
+        super().stop()
+
+    def response(self) -> bytearray:
+        return struct.pack('>BHH', 0x62, self._id, self._state)
+
+class PID_485F(PID):
+    def __init__(self) -> None:
+        self._state = 0
+        super().__init__(0x485F, 'ChargerInputCurrent')
+
+    def start(self) -> None:
+        super().start()
+
+    def stop(self) -> None:
+        super().stop()
+
+    def response(self) -> bytearray:
+        return struct.pack('>BHB', 0x62, self._id, self._state)
+
+class PID_4860(PID):
+    def __init__(self) -> None:
+        self._state = 0
+        super().__init__(0x4860, 'ChargerInputFrequency')
+
+    def start(self) -> None:
+        super().start()
+
+    def stop(self) -> None:
+        super().stop()
+
+    def response(self) -> bytearray:
+        return struct.pack('>BHB', 0x62, self._id, self._state)
+
+class PID_4861(PID):
+    def __init__(self) -> None:
+        self._state = 0
+        super().__init__(0x4861, 'ChargerPilotDutyCycle')
+
+    def start(self) -> None:
+        super().start()
+
+    def stop(self) -> None:
+        super().stop()
+
+    def response(self) -> bytearray:
+        return struct.pack('>BHB', 0x62, self._id, self._state)
+
+class PID_48B6(PID):
+    def __init__(self) -> None:
+        self._state = 0
+        super().__init__(0x48B6, 'ChargerPilotVoltage')
+
+    def start(self) -> None:
+        super().start()
+
+    def stop(self) -> None:
+        super().stop()
+
+    def response(self) -> bytearray:
+        return struct.pack('>BHB', 0x62, self._id, self._state)
+
+class PID_48BC(PID):
+    def __init__(self) -> None:
+        self._state = 0
+        super().__init__(0x48BC, 'HvbMaximumChargeCurrent')
+
+    def start(self) -> None:
+        super().start()
+
+    def stop(self) -> None:
+        super().stop()
+
+    def response(self) -> bytearray:
+        return struct.pack('>BHh', 0x62, self._id, self._state)
+
+class PID_48C4(PID):
+    def __init__(self) -> None:
+        self._state = 0
+        super().__init__(0x48C4, 'ChargerMaxPower')
+
+    def start(self) -> None:
+        super().start()
+
+    def stop(self) -> None:
+        super().stop()
+
+    def response(self) -> bytearray:
+        return struct.pack('>BHH', 0x62, self._id, self._state)
+
 class PID_DD00(PID):
     def __init__(self) -> None:
         self._state = int(time.time())
-        super().__init__(0xD000, 'GlobalTime')
+        super().__init__(0xDD00, 'GlobalTime')
 
     def start(self) -> None:
         super().start()
@@ -69,6 +237,18 @@ class PID_DD05(PID):
 class SOBDM(CanModule):
     pids = {
         0x1E12: PID_1E12(),
+        0x4842: PID_4842(),
+        0x4844: PID_4844(),
+        0x484A: PID_484A(),
+        0x484E: PID_484E(),
+        0x4850: PID_4850(),
+        0x485E: PID_485E(),
+        0x485F: PID_485F(),
+        0x4860: PID_4860(),
+        0x4861: PID_4861(),
+        0x48B6: PID_48B6(),
+        0x48BC: PID_48BC(),
+        0x48C4: PID_48C4(),
         0xDD00: PID_DD00(),
         0xDD04: PID_DD04(),
         0xDD05: PID_DD05(),

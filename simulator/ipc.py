@@ -26,7 +26,7 @@ class PID_404C(PID):
 class PID_6310(PID):
     def __init__(self) -> None:
         self._gear = 1
-        super().__init__(0x404C, 'Gear')
+        super().__init__(0x6310, 'GearSelected')
 
     def start(self) -> None:
         super().start()
