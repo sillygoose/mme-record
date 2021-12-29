@@ -1,5 +1,6 @@
 mme:
   vin: '12345678901234567'
+
   modules:
     - module:
         name: 'DCDC'
@@ -10,7 +11,28 @@ mme:
         channel: 'can0'
         arbitration_id: 0x456
 
-#  simfile:
-#    enable: False
-#    path:   test.csv
-
+  pids:
+    - pid:
+        name: 'HvbCurrent'
+        id: 0x1234
+        format: '>B'
+        state:
+          - current:
+              int
+    - pid:
+        name: 'GPS'
+        id: 0x8012
+        format: '>HllBHH'
+        state:
+          - elevation:
+              int
+          - latitude:
+              int
+          - longitude:
+              int
+          - fix:
+              int
+          - speed:
+              int
+          - heading:
+             int

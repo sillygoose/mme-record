@@ -6,11 +6,13 @@ from module import Module
 
 class PID_404C(PID):
     def __init__(self) -> None:
-        self._state = 0x00dc66
+        self._state = 10000
         super().__init__(0x404C, 'Odometer')
 
     def response(self) -> bytearray:
-        return struct.pack('>BHBBB', 0x62, self._id, ((self._state & 0xff0000) >> 16), ((self._state & 0x00ff00) >> 8), (self._state & 0x0000ff))
+        # Pack as uint then remove high order byte to get A:B:C
+        packed = struct.pack('>BHI', 0x62, self._id, self._state)
+        return packed[:3] + packed[4:]
 
 class PID_6310(PID):
     def __init__(self) -> None:

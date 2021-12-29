@@ -262,6 +262,13 @@ def check_config(config):
                         {'arbitration_id': {'required': True, 'keys': [], 'type': int}},
                     ]}},
                 ]}},
+                {'pids': {'required': True, 'keys': [
+                    {'pid': {'required': True, 'keys': [
+                        {'id': {'required': True, 'keys': [], 'type': int}},
+                        {'name': {'required': True, 'keys': [], 'type': str}},
+                        {'format': {'required': True, 'keys': [], 'type': str}},
+                    ]}},
+                ]}},
             ]},
         },
     ]
