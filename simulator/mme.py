@@ -44,10 +44,9 @@ class MustangMachE:
 
 
 
-
 def main():
     modules = [
-        APIM(), # SOBDM(), IPC(), PCM(), GWM(), DCDC(), BCM(), BECM(),
+        APIM(), SOBDM(), IPC(), PCM(), GWM(), DCDC(), BCM(), BECM(),
     ]
 
     logfiles.start()

@@ -26,42 +26,6 @@ isotp_params = {
 }
 
 
-class CanModule:
-    def __init__(self, name, channel, id, handler) -> None:
-        self._name = name
-        self._channel = channel
-        self._rxid = id
-        self._txid = id + 8
-        self._hanlder = handler
-        self._exit_requested = False
-
-    def start(self) -> None:
-        self._exit_requested = False
-        self._thread = threading.Thread(target=self._thread_task)
-        self._thread.start()
-
-    def stop(self) -> None:
-        self._exit_requested = True
-        if self._thread.is_alive():
-            self._thread.join()
-
-    def _thread_task(self):
-        while self._exit_requested == False:
-            self._hanlder()
-
-    def shutdown(self):
-        self.stop()
-
-    def name(self) -> str:
-        return self._name
-
-    def bus(self) -> str:
-        return self._channel
-
-    def id(self) -> int:
-        return self._rxid
-
-
 class Module:
     def __init__(self, name, channel, arbitration_id, pids) -> None:
         self._name = name
