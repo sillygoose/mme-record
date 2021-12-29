@@ -2,7 +2,7 @@ import struct
 import time
 
 from pid import PID
-from can_module import Module
+from module import Module
 
 
 class PID_1E12(PID):

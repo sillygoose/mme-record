@@ -1,7 +1,7 @@
 import struct
 
 from pid import PID
-from can_module import Module
+from module import Module
 
 
 class PID_404C(PID):

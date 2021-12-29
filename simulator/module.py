@@ -6,8 +6,6 @@ import struct
 import isotp
 from can.interfaces.socketcan import SocketcanBus
 
-from pid import PID
-
 
 _LOGGER = logging.getLogger('mme')
 
@@ -39,7 +37,7 @@ class Module:
          
     def start(self) -> None:
         self._exit_requested = False
-        _LOGGER.info(f"Starting CanModule {self._name} on channel {self._channel} with address {self._rxid:03X}")
+        _LOGGER.info(f"Starting module {self._name} on channel {self._channel} with arbitration ID {self._rxid:03X}")
         addr = isotp.Address(isotp.AddressingMode.Normal_11bits, rxid=self._rxid, txid=self._txid)
         self._bus = SocketcanBus(channel=self._channel)
         self._stack = isotp.CanStack(bus=self._bus, address=addr, error_handler=self.error_handler, params=isotp_params)
@@ -47,11 +45,13 @@ class Module:
         self._thread.start()
 
     def stop(self) -> None:
-        _LOGGER.info(f"Stopping CanModule {self._name}")
-        self._bus.shutdown()
+        _LOGGER.info(f"Stopping module {self._name}")
         self._exit_requested = True
         if self._thread.is_alive():
             self._thread.join()
+        if self._bus:
+            self._bus.shutdown()
+            self._bus = None
 
     def _pid_task(self):
         while self._exit_requested == False:
