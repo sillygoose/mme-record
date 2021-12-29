@@ -1,6 +1,4 @@
 mme:
-  vin: '12345678901234567'
-
   modules:
     - module:
         name: 'DCDC'
@@ -13,26 +11,38 @@ mme:
 
   pids:
     - pid:
-        id: 0x1234
         name: 'HvbCurrent'
+        id: 0x1234
+        modules:
+            - module:   BECM
+            - module:   SOBDM
         format: '>B'
-        state:
-          - current:
-              int
+        states:
+          - state:
+                name:   current
+                type:   int
     - pid:
-        id: 0x8012
         name: 'GPS'
+        id: 0x8012
+        modules:
+            - module:   APIM
         format: '>HllBHH'
-        state:
-          - elevation:
-              int
-          - latitude:
-              int
-          - longitude:
-              int
-          - fix:
-              int
-          - speed:
-              int
-          - heading:
-             int
+        states:
+          - state:
+                name:   elevation
+                type:   int
+          - state:
+                name:   latitude
+                type:   int
+          - state:
+                name:   longitude
+                type:   int
+          - state:
+                name:   fix
+                type:   int
+          - state:
+                name:   speed
+                type:   int
+          - state:
+                name:   heading
+                type:   int
