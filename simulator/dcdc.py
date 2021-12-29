@@ -30,11 +30,11 @@ class PID_483D(PID):
 
 
 class DCDC(Module):
-    pids = {
-        0x4836: PID_4836(),
-        0x483A: PID_483A(),
-        0x483D: PID_483D(),
-    }
+    pids = [
+        PID_4836(),
+        PID_483A(),
+        PID_483D(),
+    ]
 
     def __init__(self) -> None:
         super().__init__(name='DCDC', channel='can0', arbitration_id=0x746, pids=DCDC.pids)

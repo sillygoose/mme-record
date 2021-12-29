@@ -28,10 +28,10 @@ class PID_8012(PID):
 
 
 class APIM(Module):
-    pids = {
-        0x411F: PID_411F(),
-        0x8012: PID_8012(),
-    }
+    pids = [
+        PID_411F(),
+        PID_8012(),
+    ]
 
     def __init__(self) -> None:
         super().__init__(name='APIM', channel='can1', arbitration_id=0x7D0, pids=APIM.pids)

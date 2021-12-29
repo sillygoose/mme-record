@@ -30,11 +30,13 @@ class Module:
         self._channel = channel
         self._rxid = arbitration_id
         self._txid = arbitration_id + 8
-        self._pids = pids
         self._exit_requested = False
         self._bus = None
         self._stack = None
-         
+        self._pids = {}
+        for pid in pids:
+            self._pids[pid.id()] = pid
+
     def start(self) -> None:
         self._exit_requested = False
         _LOGGER.info(f"Starting module {self._name} on channel {self._channel} with arbitration ID {self._rxid:03X}")

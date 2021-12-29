@@ -22,10 +22,10 @@ class PID_6310(PID):
 
 
 class IPC(Module):
-    pids = {
-        0x404C: PID_404C(),
-        0x6310: PID_6310(),
-    }
+    pids = [
+        PID_404C(),
+        PID_6310(),
+    ]
 
     def __init__(self) -> None:
         super().__init__(name='IPC', channel='can1', arbitration_id=0x720, pids=IPC.pids)

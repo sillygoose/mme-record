@@ -14,9 +14,9 @@ class PID_1505(PID):
 
 
 class PCM(Module):
-    pids = {
-        0x1505: PID_1505(),
-    }
+    pids = [
+        PID_1505(),
+    ]
 
     def __init__(self) -> None:
         super().__init__(name='PCM', channel='can0', arbitration_id=0x7E0, pids=PCM.pids)

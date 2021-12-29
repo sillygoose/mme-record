@@ -135,24 +135,24 @@ class PID_DD05(PID):
 
 
 class SOBDM(Module):
-    pids = {
-        0x1E12: PID_1E12(),
-        0x4842: PID_4842(),
-        0x4844: PID_4844(),
-        0x484A: PID_484A(),
-        0x484E: PID_484E(),
-        0x4850: PID_4850(),
-        0x485E: PID_485E(),
-        0x485F: PID_485F(),
-        0x4860: PID_4860(),
-        0x4861: PID_4861(),
-        0x48B6: PID_48B6(),
-        0x48BC: PID_48BC(),
-        0x48C4: PID_48C4(),
-        0xDD00: PID_DD00(),
-        0xDD04: PID_DD04(),
-        0xDD05: PID_DD05(),
-    }
+    pids = [
+        PID_1E12(),
+        PID_4842(),
+        PID_4844(),
+        PID_484A(),
+        PID_484E(),
+        PID_4850(),
+        PID_485E(),
+        PID_485F(),
+        PID_4860(),
+        PID_4861(),
+        PID_48B6(),
+        PID_48BC(),
+        PID_48C4(),
+        PID_DD00(),
+        PID_DD04(),
+        PID_DD05(),
+    ]
 
     def __init__(self) -> None:
         super().__init__(name='SOBDM', channel='can0', arbitration_id=0x7E2, pids=SOBDM.pids)

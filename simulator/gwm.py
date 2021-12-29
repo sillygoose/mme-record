@@ -14,9 +14,9 @@ class PID_411F(PID):
 
 
 class GWM(Module):
-    pids = {
-        0x411F: PID_411F(),     ### right?
-    }
+    pids = [
+        PID_411F(),     ### right?
+    ]
 
     def __init__(self) -> None:
         super().__init__(name='GWM', channel='can0', arbitration_id=0x716, pids=GWM.pids)

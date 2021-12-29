@@ -38,12 +38,12 @@ class PID_417D(PID):
 
 
 class BCM(Module):
-    pids = {
-        0x4028: PID_4028(),
-        0x402A: PID_402A(),
-        0x402B: PID_402B(),
-        0x417D: PID_417D(),
-    }
+    pids = [
+        PID_4028(),
+        PID_402A(),
+        PID_402B(),
+        PID_417D(),
+    ]
 
     def __init__(self) -> None:
         super().__init__(name='BCM', channel='can0', arbitration_id=0x726, pids=BCM.pids)

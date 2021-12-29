@@ -89,18 +89,18 @@ class PID_490C(PID):
 
 
 class BECM(Module):
-    pids = {
-        0x4800: PID_4800(),
-        0x4801: PID_4801(),
-        0x480D: PID_480D(),
-        0x4845: PID_4845(),
-        0x4848: PID_4848(),
-        0x484F: PID_484F(),
-        0x4851: PID_4851(),
-        0x48F9: PID_48F9(),
-        0x48FB: PID_48FB(),
-        0x490C: PID_490C(),
-    }
+    pids = [
+        PID_4800(),
+        PID_4801(),
+        PID_480D(),
+        PID_4845(),
+        PID_4848(),
+        PID_484F(),
+        PID_4851(),
+        PID_48F9(),
+        PID_48FB(),
+        PID_490C(),
+    ]
 
     def __init__(self) -> None:
         super().__init__(name='BECM', channel='can0', arbitration_id=0x7E4, pids=BECM.pids)
