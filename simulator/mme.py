@@ -9,9 +9,8 @@ from readconfig import read_config
 
 from exceptions import FailedInitialization
 
-from becm import BECM
-from sobdm import SOBDM
 from apim import APIM
+from sobdm import SOBDM
 from ipc import IPC
 from pcm import PCM
 from gwm import GWM
@@ -45,9 +44,10 @@ class MustangMachE:
 
 
 
+
 def main():
     modules = [
-        SOBDM(), APIM(), IPC(), PCM(), GWM(), DCDC(), BCM(), BECM(),
+        APIM(), # SOBDM(), IPC(), PCM(), GWM(), DCDC(), BCM(), BECM(),
     ]
 
     logfiles.start()
