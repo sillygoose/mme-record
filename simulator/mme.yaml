@@ -7,21 +7,21 @@ mme:
         channel: 'can0'
         arbitration_id: 0x123
     - module:
-        name: 'BCM'
-        channel: 'can0'
-        arbitration_id: 0x456
+        name: 'APIM'
+        channel: 'can1'
+        arbitration_id: 0x7D0
 
   pids:
     - pid:
-        name: 'HvbCurrent'
         id: 0x1234
+        name: 'HvbCurrent'
         format: '>B'
         state:
           - current:
               int
     - pid:
-        name: 'GPS'
         id: 0x8012
+        name: 'GPS'
         format: '>HllBHH'
         state:
           - elevation:
