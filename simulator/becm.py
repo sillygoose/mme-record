@@ -41,9 +41,6 @@ class PID_4848(PID):
         self._state = 0x63C5
         super().__init__(0x4848, 'EnergyToEmpty')
 
-    def stop(self) -> None:
-        super().stop()
-
     def response(self) -> bytearray:
         return struct.pack('>BHH', 0x62, self._id, self._state)
 
