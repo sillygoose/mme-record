@@ -2,9 +2,12 @@ import time
 import logging
 import threading
 import struct
+from typing import List
 
 import isotp
 from can.interfaces.socketcan import SocketcanBus
+
+from simulator.pid import PID
 
 
 _LOGGER = logging.getLogger('mme')
@@ -25,7 +28,7 @@ isotp_params = {
 
 
 class Module:
-    def __init__(self, name, channel, arbitration_id, pids) -> None:
+    def __init__(self, name: str, channel: str, arbitration_id: int, pids: List[PID]) -> None:
         self._name = name
         self._channel = channel
         self._rxid = arbitration_id
@@ -55,7 +58,7 @@ class Module:
             self._bus.shutdown()
             self._bus = None
 
-    def _pid_task(self):
+    def _pid_task(self) -> None:
         while self._exit_requested == False:
             time.sleep(self._stack.sleep_time())
             self._stack.process()
@@ -73,7 +76,7 @@ class Module:
                         time.sleep(self._stack.sleep_time())
                     self._stack.send(response)
 
-    def error_handler(self, error):
+    def error_handler(self, error) -> None:
         _LOGGER.error('%s IsoTp error happened : %s - %s' % (self._name, error.__class__.__name__, str(error)))
 
     def name(self) -> str:
@@ -85,5 +88,5 @@ class Module:
     def arbitration_id(self) -> int:
         return self._rxid
 
-    def pids(self):
+    def pids(self) -> List[PID]:
         return self._pids
