@@ -44,7 +44,7 @@ class MustangMachE:
 
 
 
-def main():
+def main() -> None:
     modules = [
         APIM(), SOBDM(), IPC(), PCM(), GWM(), DCDC(), BCM(), BECM(),
     ]
