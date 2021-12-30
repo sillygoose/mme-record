@@ -254,13 +254,29 @@ def check_config(config):
     required_keys = [
         {
             'mme': {'required': True, 'keys': [
-                {'vin': {'required': False, 'keys': []}},
+                {'builtin': {'required': True, 'keys': [
+                    {'modules': {'required': True, 'keys': [], 'type': bool}},
+                    {'pids': {'required': True, 'keys': [], 'type': bool}},
+                ]}},
                 {'modules': {'required': True, 'keys': [
                     {'module': {'required': True, 'keys': [
                     ]}},
                 ]}},
-                {'pids': {'required': True, 'keys': [
+                {'pids': {'required': False, 'keys': [
                     {'pid': {'required': True, 'keys': [
+                        {'id': {'required': True, 'keys': [], 'type': int}},
+                        {'name': {'required': True, 'keys': [], 'type': str}},
+                        {'format': {'required': True, 'keys': [], 'type': str}},
+                        {'modules': {'required': True, 'keys': [
+                            {'module': {'required': True, 'keys': [
+                            ]}},
+                        ]}},
+                        {'states': {'required': True, 'keys': [
+                            {'state': {'required': True, 'keys': [
+                                {'name': {'required': True, 'keys': [], 'type': str}},
+                                {'type': {'required': True, 'keys': [], 'type': str}},
+                            ]}},
+                        ]}},
                     ]}},
                 ]}},
             ]},

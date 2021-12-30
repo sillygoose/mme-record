@@ -1,5 +1,8 @@
 # YAML configuraton file for the Mustang Mach-E CANbus Simulator
 mme:
+    builtin:
+        modules: True
+        pids:   True
 
     # Define the modules included in the imulator:
     #   name:               the module to be loaded in the simulator
