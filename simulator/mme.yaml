@@ -1,54 +1,54 @@
 mme:
 
-  # Define the supported modules
-  modules:
-    - module:
-        name: 'APIM'
-        channel: 'can1'
-        arbitration_id: 0x7D0
+    # Define the supported modules
+    modules:
+        - module:
+            name: 'APIM'
+            channel: 'can1'
+            arbitration_id: 0x7D0
 
-    - module:
-        name: 'GWM'
-        channel: 'can0'
-        arbitration_id: 0x716
+        - module:
+            name: 'GWM'
+            channel: 'can0'
+            arbitration_id: 0x716
 
-# Define the supported PIDs
-  pids:
-    - pid:
-        name: 'KeyState'
-        id: 0x411F
-        modules:
-            - module:   APIM
-            - module:   GWM
-        packing: 'B'
-        states:
-          - state:
-                name:   key_state
-                value:  5
+    # Define the supported PIDs
+    pids:
+        - pid:
+            name: 'KeyState'
+            id: 0x411F
+            modules:
+                - module:   APIM
+                - module:   GWM
+            packing: 'B'
+            states:
+            - state:
+                    name:   key_state
+                    value:  5
 
-    - pid:
-        name: 'GPS'
-        id: 0x8012
-        modules:
-            - module:   APIM
-        packing: 'HllBHH'
-        states:
-          - state:
-                name:   elevation
-                value:  100
-          - state:
-                name:   latitude
-                value:  2577
-          - state:
-                name:   longitude
-                value:  -4610
-          - state:
-                name:   fix
-                value:  4
-          - state:
-                name:   speed
-                value:  12
-          - state:
-                name:   heading
-                value:  256
+        - pid:
+            name: 'GPS'
+            id: 0x8012
+            modules:
+                - module:   APIM
+            packing: 'HllBHH'
+            states:
+            - state:
+                    name:   elevation
+                    value:  100
+            - state:
+                    name:   latitude
+                    value:  2577
+            - state:
+                    name:   longitude
+                    value:  -4610
+            - state:
+                    name:   fix
+                    value:  4
+            - state:
+                    name:   speed
+                    value:  12
+            - state:
+                    name:   heading
+                    value:  256
 
