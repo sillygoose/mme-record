@@ -1,4 +1,4 @@
-"""Exceptions used in mme-sim."""
+"""Exceptions used in the simulator."""
 
 class NormalCompletion(Exception):
     """Normal completion, no errors."""
@@ -9,7 +9,7 @@ class AbnormalCompletion(Exception):
 
 
 class FailedInitialization(Exception):
-    """mme-sim initialization failed."""
+    """Simulator initialization failed."""
 
 
 class TerminateSignal(Exception):

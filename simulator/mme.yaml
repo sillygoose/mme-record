@@ -1,6 +1,10 @@
+# YAML configuraton file for the Mustang Mach-E CANbus Simulator
 mme:
 
-    # Define the supported modules
+    # Define the modules included in the imulator.  Each module requires:
+    #   name:               name used to refer to the module
+    #   channel:            CANbus ('can0' or 'can1') used to interface with the module
+    #   arbitration_id:     The address used by the module
     modules:
         - module:
             name: 'APIM'
@@ -12,7 +16,12 @@ mme:
             channel: 'can0'
             arbitration_id: 0x716
 
-    # Define the supported PIDs
+    # Define the PIDs included in the simulator.  PIDs can be used in more than one module.
+    #   name:               name used to refer to the PID
+    #   id:                 PID
+    #   modules:            list of modules that respond to this PID
+    #   packing:            the struct packing format needed to encode the response
+    #   states:             list of variables used by the PID 
     pids:
         - pid:
             name: 'KeyState'
