@@ -33,7 +33,6 @@ class MustangMachE:
         self._config = config.mme
         self._modules = {}
         self._pids_by_id = {}
-        self._pids_by_module = {}
 
     def start(self) -> None:
         for module in self._modules.values():
@@ -43,29 +42,29 @@ class MustangMachE:
         for module in self._modules.values():
             module.stop()
 
-    def addModules(self) -> None:
+    def add_modules_from_yaml(self) -> None:
         config = self._config.modules
         if len(config) == 0:
-            raise FailedInitialization("Must define at least one module in the YAML file")
+            raise FailedInitialization("Must define at least one module in YAML file")
 
         for yaml_module in config:
             module = yaml_module.get('module', None)
             if module is None:
-                raise FailedInitialization("Error parsing module definition in the YAML file")
+                raise FailedInitialization("Error parsing module definition in YAML file")
             name = module.get('name', None)
             channel = module.get('channel', None)
             arbitration_id = module.get('arbitration_id', None)
             self._modules[name] = Module(name=name, channel=channel, arbitration_id=arbitration_id)
 
-    def addPIDs(self) -> None:
+    def add_pids_from_yaml(self) -> None:
         config = self._config.pids
         if len(config) == 0:
-            raise FailedInitialization("Must define at least one PID in the YAML file")
+            raise FailedInitialization("Must define at least one PID in YAML file")
 
         for yaml_pid in config:
             pid = yaml_pid.get('pid', None)
             if pid is None:
-                raise FailedInitialization("Error parsing PID definition in the YAML file")
+                raise FailedInitialization("Error parsing PID definition in YAML file")
             name = pid.get('name', None)
             id = pid.get('id', None)
             packing = pid.get('packing', None)
@@ -78,22 +77,11 @@ class MustangMachE:
                 name = module_name.get('module')
                 module_object = self._modules.get(name, None)
                 if module_object is not None:
-                    module_object.addPID(pid_object)
-
-
-#if self._pids_by_module[id]
-            #self._pids_by_module[id] = pid_object
-
-
+                    module_object.add_pid(pid_object)
 
 
 def main() -> None:
-    """
-    modules = [
-        APIM(), #SOBDM(), IPC(), PCM(), GWM(), DCDC(), BCM(), BECM(),
-    ]
-    """
-    
+
     logfiles.start()
     _LOGGER.info(f"MME Simulator version {version.get_version()}, PID is {os.getpid()}")
 
@@ -110,8 +98,8 @@ def main() -> None:
 
     try:
         mme = MustangMachE(config=config)
-        mme.addModules()
-        mme.addPIDs()
+        mme.add_modules_from_yaml()
+        mme.add_pids_from_yaml()
         mme.start()
         
         while True:

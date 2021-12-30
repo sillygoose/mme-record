@@ -1,10 +1,18 @@
 mme:
+
+  # Define the supported modules
   modules:
     - module:
         name: 'APIM'
         channel: 'can1'
         arbitration_id: 0x7D0
 
+    - module:
+        name: 'GWM'
+        channel: 'can0'
+        arbitration_id: 0x716
+
+# Define the supported PIDs
   pids:
     - pid:
         name: 'KeyState'

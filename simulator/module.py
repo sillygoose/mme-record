@@ -56,7 +56,7 @@ class Module:
             self._bus.shutdown()
             self._bus = None
 
-    def addPID(self, pid: PID) -> None:
+    def add_pid(self, pid: PID) -> None:
         self._pids[pid.id()] = pid
 
     def _pid_task(self) -> None:

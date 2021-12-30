@@ -1,4 +1,8 @@
 import struct
+#import logging
+
+
+#_LOGGER = logging.getLogger('mme')
 
 
 class PID:
@@ -9,7 +13,7 @@ class PID:
         self._states = []
         for state_dict in states:
             state = state_dict.get('state')
-            variable = state.get('name', None)
+            # variable = state.get('name', None)
             value = state.get('value', None)
             self._states.append(value)
 
