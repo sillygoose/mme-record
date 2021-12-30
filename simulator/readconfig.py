@@ -267,7 +267,6 @@ def check_config(config):
                         {'id': {'required': True, 'keys': [], 'type': int}},
                         {'name': {'required': True, 'keys': [], 'type': str}},
                         {'packing': {'required': True, 'keys': [], 'type': str}},
-                        {'initial_state': {'required': True, 'keys': [], 'type': None}},
                         {'modules': {'required': True, 'keys': [
                             {'module': {'required': True, 'keys': [
                             ]}},
@@ -275,7 +274,7 @@ def check_config(config):
                         {'states': {'required': True, 'keys': [
                             {'state': {'required': True, 'keys': [
                                 {'name': {'required': True, 'keys': [], 'type': str}},
-                                {'type': {'required': True, 'keys': [], 'type': str}},
+                                {'value': {'required': True, 'keys': [], 'type': None}},
                             ]}},
                         ]}},
                     ]}},

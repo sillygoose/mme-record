@@ -12,11 +12,10 @@ mme:
         modules:
             - module:   APIM
             - module:   GWM
-        packing: 'B'
-        initial_state: 5
+        packing: 'BH'
         states:
           - state:
                 name:   key_state
-                type:   int
+                value:  5
 
 
