@@ -10,9 +10,38 @@ _LOGGER = logging.getLogger('mme')
 _PIDS = {
     0x1505: { 'name': 'HiresSpeed',     'packing': 'H',     'modules': ['PCM'],     'states': [{ 'name': 'speed', 'value': 10000}] },
     0x1E12: { 'name': 'GearCommanded',  'packing': 'B',     'modules': ['SOBDM'],   'states': [{ 'name': 'gear_commanded', 'value': 70}] },
+    0x4028: { 'name': 'LvbSoc',         'packing': 'B',     'modules': ['BCM'],     'states': [{ 'name': 'lvb_soc', 'value': 0x5B}] },
+    0x402A: { 'name': 'LvbVoltage',     'packing': 'B',     'modules': ['BCM'],     'states': [{ 'name': 'lvb_voltage', 'value': 0x92}] },
+    0x402B: { 'name': 'LvbCurrent',     'packing': 'B',     'modules': ['BCM'],     'states': [{ 'name': 'lvb_current', 'value': 0x82}] },
+    0x404C: { 'name': 'HiresOdometer',  'packing': 'T',     'modules': ['IPC'],     'states': [{ 'name': 'odometer', 'value': 0xdcdc}] },
+    0x411F: { 'name': 'KeyState',       'packing': 'B',     'modules': ['APIM', 'GWM'],     'states': [{ 'name': 'key_state', 'value': 5}] },
+    0x4800: { 'name': 'HvbTemp',        'packing': 'B',     'modules': ['BECM'],    'states': [{ 'name': 'hvb_temp', 'value': 0x40}] },
+    0x4801: { 'name': 'HvbSoc',         'packing': 'H',     'modules': ['BECM'],    'states': [{ 'name': 'hvb_soc', 'value': 0x7A86}] },
+    0x480D: { 'name': 'HvbVoltage',     'packing': 'H',     'modules': ['BECM'],    'states': [{ 'name': 'hvb_voltage', 'value': 0x8ABD}] },
+    0x4836: { 'name': 'LvbLvCurrent',   'packing': 'B',     'modules': ['DCDC'],    'states': [{ 'name': 'LvbLvCurrent', 'value': 0x1B}] },
+    0x483A: { 'name': 'LvbHvCurrent',   'packing': 'B',     'modules': ['DCDC'],    'states': [{ 'name': 'LvbHvCurrent', 'value': 0x3A}] },
+    0x483D: { 'name': 'LvbDcdcEnable',  'packing': 'H',     'modules': ['DCDC'],    'states': [{ 'name': 'LvbDcdcEnable', 'value': 0x186}] },
+    0x4845: { 'name': 'HvbSocD',        'packing': 'B',     'modules': ['BECM'],    'states': [{ 'name': 'hvb_socd', 'value': 0x84}] },
+    0x4848: { 'name': 'EnergyToEmpty',  'packing': 'H',     'modules': ['BECM'],    'states': [{ 'name': 'energy_to_empty', 'value': 0x63C5}] },
+    0x484F: { 'name': 'ChargerStatus',  'packing': 'B',     'modules': ['BECM'],    'states': [{ 'name': 'charger_status', 'value': 0x03}] },
+    0x4851: { 'name': 'EvseType',       'packing': 'B',     'modules': ['BECM'],    'states': [{ 'name': 'evse_type', 'value': 0x06}] },
+    0x48F9: { 'name': 'HvbCurrent',     'packing': 'h',     'modules': ['BECM'],    'states': [{ 'name': 'hvb_current', 'value': 0x0052}] },
+    0x48FB: { 'name': 'ChrgPowerLimit', 'packing': 'h',     'modules': ['BECM'],    'states': [{ 'name': 'charge_power_limit', 'value': -1}] },
+    0x490C: { 'name': 'HvbSoh',         'packing': 'B',     'modules': ['BECM'],    'states': [{ 'name': 'hvb_soh', 'value': 0xC8}] },
+    0x6310: { 'name': 'GearSelected',   'packing': 'B',     'modules': ['IPC'],     'states': [{ 'name': 'gear_selected', 'value': 0}] },
+    0x8012: { 'name': 'GPS',            'packing': 'HllBHH','modules': ['APIM'],    'states': [
+                                                                                            { 'name': 'elevation', 'value': 100},
+                                                                                            { 'name': 'latitude', 'value': 2577},
+                                                                                            { 'name': 'longitude', 'value': -4610},
+                                                                                            { 'name': 'fix', 'value': 4},
+                                                                                            { 'name': 'speed', 'value': 12},
+                                                                                            { 'name': 'heading', 'value': 256},
+                                                                                        ]},
+    0xDD00: { 'name': 'Time',           'packing': 'I',     'modules': ['SOBDM'],   'states': [{ 'name': 'time', 'value': 0}] },
+    0xDD04: { 'name': 'InteriorTemp',   'packing': 'B',     'modules': ['SOBDM'],   'states': [{ 'name': 'interior_temp', 'value': 50}] },
+    0xDD05: { 'name': 'ExteriorTemp',   'packing': 'B',     'modules': ['SOBDM'],   'states': [{ 'name': 'exterior_temp', 'value': 50}] },
 }
-"""
-"""
+
 
 class PID:
     def __init__(self, id: int) -> None:
