@@ -39,7 +39,7 @@ class MustangMachE:
         for module in modules:
             module_settings = module.get('module', None)
             if module_settings is None:
-                raise FailedInitialization("Error parsing module definition in YAML file")
+                raise FailedInitialization("Error parsing custom module definition in YAML file")
             name = module_settings.get('name', None)
             channel = module_settings.get('channel', None)
             arbitration_id = module_settings.get('arbitration_id', None)
@@ -52,12 +52,19 @@ class MustangMachE:
         for pid_item in pids:
             pid = pid_item.get('pid', None)
             if pid is None:
-                raise FailedInitialization("Error parsing PID definition in YAML file")
-            if self._pids_by_id.get(pid, None) is not None:
+                raise FailedInitialization("Error parsing custom PID definition in YAML file")
+
+            id = pid.get('id', None)
+            name = pid.get('name', None)
+            packing = pid.get('packing', None)
+            modules = pid.get('modules', None)
+            states = pid.get('states', None)
+
+            if self._pids_by_id.get(id, None) is not None:
                 raise FailedInitialization(f"PID {pid:04X} is defined more than once in the YAML file")
-            pid_object = PID(id=pid)
-            self._pids_by_id[pid] = pid_object
-            _LOGGER.info(f"Added PID {pid:04X} to simulator")
+            pid_object = PID(id=id, name=name, packing=packing, modules=modules, states=states)
+            self._pids_by_id[id] = pid_object
+            _LOGGER.info(f"Added PID {id:04X} to simulator")
 
             pid_modules = pid_object.used_in()
             for module_name in pid_modules:
@@ -108,17 +115,17 @@ def main() -> None:
         builtin = config.mme.builtin
         if builtin.modules == True:
             mme.add_builtin_modules(builtin_modules())
-        if builtin.pids == True:
-            mme.add_builtin_pids(builtin_pids())
-
         if 'custom' in config.mme.keys():
             custom = config.mme.custom
             if 'modules' in custom.keys():
                 mme.add_custom_modules(custom.modules)
+
+        if builtin.pids == True:
+            mme.add_builtin_pids(builtin_pids())
+        if 'custom' in config.mme.keys():
+            custom = config.mme.custom
             if 'pids' in custom.keys():
                 mme.add_custom_pids(custom.pids)
-
-        #mme.add_pids_from_yaml()
     except FailedInitialization as e:
         _LOGGER.error(f"{e}")
         return

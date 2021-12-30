@@ -45,11 +45,11 @@ def builtin_modules() -> List[str]:
 
 class Module:
     def __init__(self, name: str, channel: str = None, arbitration_id: int = None) -> None:
-        self._name = name
         module_lookup = _MODULES.get(name, None)
         if module_lookup is None and (channel is None or arbitration_id is None):
-            raise FailedInitialization(f"The module '{name}' is not supported by the simulator")
+            raise FailedInitialization(f"The module '{name}' is not supported by the simulator or cannot be created")
 
+        self._name = name
         self._channel = module_lookup.get('channel') if channel is None else channel
         self._rxid = module_lookup.get('arbitration_id') if arbitration_id is None else arbitration_id
         self._txid = self._rxid + 8

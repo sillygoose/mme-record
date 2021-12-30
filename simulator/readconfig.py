@@ -10,7 +10,7 @@ import yaml
 from config import config_from_yaml
 
 from collections import OrderedDict
-from typing import Dict, List, TextIO, TypeVar, Union
+from typing import Any, Dict, List, TextIO, TypeVar, Union
 
 from exceptions import FailedInitialization
 
@@ -266,7 +266,17 @@ def check_config(config):
                             {'arbitration_id': {'required': True, 'keys': [], 'type': int}},
                         ]}},
                     ]}},
-                    {'pids': {'required': False, 'keys': [], 'type': bool}},
+                    {'pids': {'required': False, 'keys': [
+                        {'pid': {'required': True, 'keys': [
+                            {'id': {'required': True, 'keys': [], 'type': int}},
+                            {'name': {'required': True, 'keys': [], 'type': str}},
+                            {'packing': {'required': True, 'keys': [], 'type': str}},
+                            {'modules': {'required': True, 'keys': [
+                            ]}},
+                            {'states': {'required': True, 'keys': [
+                            ]}},
+                        ]}},
+                    ]}},
                 ]}},
             ]},
         },
