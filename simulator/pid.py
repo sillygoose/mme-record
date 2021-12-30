@@ -40,6 +40,18 @@ _PIDS = {
     0xDD00: { 'name': 'Time',           'packing': 'I',     'modules': ['SOBDM'],   'states': [{ 'name': 'time', 'value': 0}] },
     0xDD04: { 'name': 'InteriorTemp',   'packing': 'B',     'modules': ['SOBDM'],   'states': [{ 'name': 'interior_temp', 'value': 50}] },
     0xDD05: { 'name': 'ExteriorTemp',   'packing': 'B',     'modules': ['SOBDM'],   'states': [{ 'name': 'exterior_temp', 'value': 50}] },
+    0x4842: { 'name': 'HvbChrgCurrentReqsted',  'packing': 'h',     'modules': ['SOBDM'],   'states': [{ 'name': 'HvbChrgCurrentReqsted', 'value': 1000}] },
+    0x4844: { 'name': 'HvbChrgVoltageReqsted',  'packing': 'B',     'modules': ['SOBDM'],   'states': [{ 'name': 'HvbChrgVoltageReqsted', 'value': 10}] },
+    0x484A: { 'name': 'ChargerOutputVoltage',  'packing': 'h',     'modules': ['SOBDM'],   'states': [{ 'name': 'ChargerOutputVoltage', 'value': 1000}] },
+    0x484E: { 'name': 'ChargerInputPower',  'packing': 'h',     'modules': ['SOBDM'],   'states': [{ 'name': 'ChargerInputPower', 'value': 1000}] },
+    0x4850: { 'name': 'ChargerOutputCurrent',  'packing': 'h',     'modules': ['SOBDM'],   'states': [{ 'name': 'ChargerOutputCurrent', 'value': 1000}] },
+    0x485E: { 'name': 'ChargerInputVoltage',  'packing': 'H',     'modules': ['SOBDM'],   'states': [{ 'name': 'ChargerInputVoltage', 'value': 1000}] },
+    0x485F: { 'name': 'ChargerInputCurrent',  'packing': 'B',     'modules': ['SOBDM'],   'states': [{ 'name': 'ChargerInputCurrent', 'value': 100}] },
+    0x4860: { 'name': 'ChargerInputFrequency',  'packing': 'B',     'modules': ['SOBDM'],   'states': [{ 'name': 'ChargerInputFrequency', 'value': 100}] },
+    0x4861: { 'name': 'ChargerPilotDutyCycle',  'packing': 'B',     'modules': ['SOBDM'],   'states': [{ 'name': 'ChargerPilotDutyCycle', 'value': 100}] },
+    0x48B6: { 'name': 'ChargerPilotVoltage',  'packing': 'B',     'modules': ['SOBDM'],   'states': [{ 'name': 'ChargerPilotVoltage', 'value': 100}] },
+    0x48BC: { 'name': 'HvbMaximumChargeCurrent',  'packing': 'h',     'modules': ['SOBDM'],   'states': [{ 'name': 'HvbMaximumChargeCurrent', 'value': 100}] },
+    0x48C4: { 'name': 'ChargerMaxPower',  'packing': 'H',     'modules': ['SOBDM'],   'states': [{ 'name': 'ChargerMaxPower', 'value': 100}] },
 }
 
 

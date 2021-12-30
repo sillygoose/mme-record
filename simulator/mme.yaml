@@ -46,3 +46,15 @@ mme:
         - pid:  0xDD00
         - pid:  0xDD04
         - pid:  0xDD05
+        - pid:  0x4842
+        - pid:  0x4844
+        - pid:  0x484A
+        - pid:  0x484E
+        - pid:  0x4850
+        - pid:  0x485E
+        - pid:  0x485F
+        - pid:  0x4860
+        - pid:  0x4861
+        - pid:  0x48B6
+        - pid:  0x48BC
+        - pid:  0x48C4
