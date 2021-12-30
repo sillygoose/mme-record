@@ -8,7 +8,19 @@ import isotp
 from can.interfaces.socketcan import SocketcanBus
 
 from pid import PID
+from exceptions import FailedInitialization
 
+
+_MODULES = {
+    'APIM': { 'channel': 'can1', 'arbitration_id': 0x7D0 },
+    'GWM': { 'channel': 'can0', 'arbitration_id': 0x716 },
+    'IPC': { 'channel': 'can1', 'arbitration_id': 0x720 },
+    'BECM': { 'channel': 'can0', 'arbitration_id': 0x7E4 },
+    'PCM': { 'channel': 'can0', 'arbitration_id': 0x7E0 },
+    'BCM': { 'channel': 'can0', 'arbitration_id': 0x726 },
+    'SOBDM': { 'channel': 'can0', 'arbitration_id': 0x7E2 },
+    'DCDC': { 'channel': 'can0', 'arbitration_id': 0x746 },
+}
 
 _LOGGER = logging.getLogger('mme')
 
@@ -28,11 +40,14 @@ isotp_params = {
 
 
 class Module:
-    def __init__(self, name: str, channel: str, arbitration_id: int) -> None:
+    def __init__(self, name: str) -> None:
         self._name = name
-        self._channel = channel
-        self._rxid = arbitration_id
-        self._txid = arbitration_id + 8
+        lookup = _MODULES.get(name, None)
+        if lookup is None:
+            raise FailedInitialization(f"The module '{name}' is not supported by the simulator")
+        self._channel = lookup.get('channel')
+        self._rxid = lookup.get('arbitration_id')
+        self._txid = self._rxid + 8
         self._exit_requested = False
         self._bus = None
         self._stack = None

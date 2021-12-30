@@ -1,40 +1,17 @@
 # YAML configuraton file for the Mustang Mach-E CANbus Simulator
 mme:
 
-    # Define the modules included in the imulator.  Each module requires:
-    #   name:               name used to refer to the module
-    #   channel:            CANbus ('can0' or 'can1') used to interface with the module
-    #   arbitration_id:     the address used by the module on the specified CANbus
+    # Define the modules included in the imulator:
+    #   name:               the module to be loaded in the simulator
     modules:
-        - module:
-            name: 'APIM'
-            channel: 'can1'
-            arbitration_id: 0x7D0
-
-        - module:
-            name: 'GWM'
-            channel: 'can0'
-            arbitration_id: 0x716
-
-        - module:
-            name: 'IPC'
-            channel: 'can1'
-            arbitration_id: 0x720
-
-        - module:
-            name: 'BECM'
-            channel: 'can0'
-            arbitration_id: 0x7E4
-
-        - module:
-            name: 'PCM'
-            channel: 'can0'
-            arbitration_id: 0x7E0
-
-        - module:
-            name: 'SOBDM'
-            channel: 'can0'
-            arbitration_id: 0x7E2
+        - module:   APIM
+        - module:   GWM
+        - module:   IPC
+        - module:   BECM
+        - module:   PCM
+        - module:   BCM
+        - module:   SOBDM
+        - module:   DCDC
 
 
     # Define the PIDs included in the simulator.  PIDs can be used in more than one module.
@@ -65,6 +42,39 @@ mme:
             - state:
                     name:   gear_commanded
                     value:  70
+
+        - pid:
+            name: 'LvbSoc'
+            id: 0x4028
+            modules:
+                - module:   BCM
+            packing: 'B'
+            states:
+            - state:
+                    name:   lvb_soc
+                    value:  0x5B
+
+        - pid:
+            name: 'LvbVoltage'
+            id: 0x402A
+            modules:
+                - module:   BCM
+            packing: 'B'
+            states:
+            - state:
+                    name:   lvb_voltage
+                    value:  0x92
+
+        - pid:
+            name: 'LvbCurrent'
+            id: 0x402B
+            modules:
+                - module:   BCM
+            packing: 'B'
+            states:
+            - state:
+                    name:   lvb_current
+                    value:  0x82
 
         - pid:
             name: 'HiresOdometer'
@@ -123,6 +133,39 @@ mme:
                     value:  0x8ABD
 
         - pid:
+            name: LvbLvCurrent
+            id: 0x4836
+            modules:
+                - module:   DCDC
+            packing: 'B'
+            states:
+            - state:
+                    name:   LvbLvCurrent
+                    value:  0x1B
+
+        - pid:
+            name: LvbHvCurrent
+            id: 0x483A
+            modules:
+                - module:   DCDC
+            packing: 'B'
+            states:
+            - state:
+                    name:   LvbHvCurrent
+                    value:  0x3A
+
+        - pid:
+            name: LvbDcdcEnable
+            id: 0x483D
+            modules:
+                - module:   DCDC
+            packing: 'H'
+            states:
+            - state:
+                    name:   LvbDcdcEnable
+                    value:  0x186
+
+        - pid:
             name: 'HvbSocD'
             id: 0x4845
             modules:
@@ -145,6 +188,28 @@ mme:
                     value:  0x63C5
 
         - pid:
+            name: 'ChargerStatus'
+            id: 0x484F
+            modules:
+                - module:   BECM
+            packing: 'B'
+            states:
+            - state:
+                    name:   charger_status
+                    value:  0x03
+
+        - pid:
+            name: 'EvseType'
+            id: 0x4851
+            modules:
+                - module:   BECM
+            packing: 'B'
+            states:
+            - state:
+                    name:   evse_type
+                    value:  0x06
+
+        - pid:
             name: 'HvbCurrent'
             id: 0x48F9
             modules:
@@ -154,6 +219,28 @@ mme:
             - state:
                     name:   hvb_current
                     value:  0x0052
+
+        - pid:
+            name: 'ChargePowerLimit'
+            id: 0x48FB
+            modules:
+                - module:   BECM
+            packing: 'h'
+            states:
+            - state:
+                    name:   charge_power_limit
+                    value:  -1
+
+        - pid:
+            name: 'HvbSoh'
+            id: 0x490C
+            modules:
+                - module:   BECM
+            packing: 'B'
+            states:
+            - state:
+                    name:   hvb_soh
+                    value:  0xC8
 
         - pid:
             name: 'GearSelected'

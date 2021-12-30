@@ -48,13 +48,10 @@ class MustangMachE:
             raise FailedInitialization("Must define at least one module in YAML file")
 
         for yaml_module in config:
-            module = yaml_module.get('module', None)
-            if module is None:
+            module_name = yaml_module.get('module', None)
+            if module_name is None:
                 raise FailedInitialization("Error parsing module definition in YAML file")
-            name = module.get('name', None)
-            channel = module.get('channel', None)
-            arbitration_id = module.get('arbitration_id', None)
-            self._modules[name] = Module(name=name, channel=channel, arbitration_id=arbitration_id)
+            self._modules[module_name] = Module(name=module_name)
 
     def add_pids_from_yaml(self) -> None:
         config = self._config.pids
@@ -69,8 +66,11 @@ class MustangMachE:
             id = pid.get('id', None)
             packing = pid.get('packing', None)
             states = pid.get('states', None)
+            if self._pids_by_id.get(id, None) is not None:
+                raise FailedInitialization(f"PID {name}/{id:04X} is defined more than once")
             pid_object = PID(id=id, name=name, packing=packing, states=states)
             self._pids_by_id[id] = pid_object
+            _LOGGER.info(f"Added PID {name}/{id:04X} to simulator")
 
             pid_modules = pid.get('modules', None)
             for module_name in pid_modules:
@@ -100,8 +100,15 @@ def main() -> None:
         mme = MustangMachE(config=config)
         mme.add_modules_from_yaml()
         mme.add_pids_from_yaml()
+    except FailedInitialization as e:
+        _LOGGER.error(f"{e}")
+        return
+    except Exception as e:
+        _LOGGER.error(f"Unexpected exception: {e}")
+        return
+
+    try:
         mme.start()
-        
         while True:
             try:
                 time.sleep(1)

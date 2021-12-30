@@ -257,9 +257,6 @@ def check_config(config):
                 {'vin': {'required': False, 'keys': []}},
                 {'modules': {'required': True, 'keys': [
                     {'module': {'required': True, 'keys': [
-                        {'name': {'required': True, 'keys': [], 'type': str}},
-                        {'channel': {'required': True, 'keys': [], 'type': str}},
-                        {'arbitration_id': {'required': True, 'keys': [], 'type': int}},
                     ]}},
                 ]}},
                 {'pids': {'required': True, 'keys': [

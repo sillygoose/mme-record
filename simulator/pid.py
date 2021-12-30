@@ -1,9 +1,12 @@
 import struct
-#import logging
+import logging
 
 
-#_LOGGER = logging.getLogger('mme')
+_LOGGER = logging.getLogger('mme')
 
+_PIDS = [
+
+]
 
 class PID:
     def __init__(self, id: int, name: str, packing: str, states: dict) -> None:
