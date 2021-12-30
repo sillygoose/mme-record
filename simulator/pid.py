@@ -17,7 +17,8 @@ class PID:
         response = struct.pack('>BH', 0x62, self._id)
         index = 0
         for state in self._states:
-            postfix = struct.pack(self._packing[index], state)
+            packing_format = '>' + self._packing[index]
+            postfix = struct.pack(packing_format, state)
             response = response + postfix
             index += 1
         return response

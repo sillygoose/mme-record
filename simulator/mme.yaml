@@ -12,10 +12,35 @@ mme:
         modules:
             - module:   APIM
             - module:   GWM
-        packing: 'BH'
+        packing: 'B'
         states:
           - state:
                 name:   key_state
                 value:  5
 
+    - pid:
+        name: 'GPS'
+        id: 0x8012
+        modules:
+            - module:   APIM
+        packing: 'HllBHH'
+        states:
+          - state:
+                name:   elevation
+                value:  100
+          - state:
+                name:   latitude
+                value:  2577
+          - state:
+                name:   longitude
+                value:  -4610
+          - state:
+                name:   fix
+                value:  4
+          - state:
+                name:   speed
+                value:  12
+          - state:
+                name:   heading
+                value:  256
 
