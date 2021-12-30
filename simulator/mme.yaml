@@ -21,6 +21,21 @@ mme:
             channel: 'can1'
             arbitration_id: 0x720
 
+        - module:
+            name: 'BECM'
+            channel: 'can0'
+            arbitration_id: 0x7E4
+
+        - module:
+            name: 'PCM'
+            channel: 'can0'
+            arbitration_id: 0x7E0
+
+        - module:
+            name: 'SOBDM'
+            channel: 'can0'
+            arbitration_id: 0x7E2
+
 
     # Define the PIDs included in the simulator.  PIDs can be used in more than one module.
     #   name:               name used to refer to the PID
@@ -30,11 +45,33 @@ mme:
     #   states:             list of variables used by the PID 
     pids:
         - pid:
-            name: 'Hires Odometer'
+            name: 'HiresSpeed'
+            id: 0x1505
+            modules:
+                - module:   PCM
+            packing: 'H'
+            states:
+            - state:
+                    name:   speed
+                    value:  10000
+
+        - pid:
+            name: 'GearCommanded'
+            id: 0x1E12
+            modules:
+                - module:   SOBDM
+            packing: 'B'
+            states:
+            - state:
+                    name:   gear_commanded
+                    value:  70
+
+        - pid:
+            name: 'HiresOdometer'
             id: 0x404C
             modules:
                 - module:   IPC
-            packing: 'Q'
+            packing: 'T'
             states:
             - state:
                     name:   odometer
@@ -53,14 +90,80 @@ mme:
                     value:  5
 
         - pid:
-            name: 'GearCommanded'
+            name: 'HvbTemp'
+            id: 0x4800
+            modules:
+                - module:   BECM
+            packing: 'B'
+            states:
+            - state:
+                    name:   hvb_temp
+                    value:  0x40
+
+        - pid:
+            name: 'HvbSoc'
+            id: 0x4801
+            modules:
+                - module:   BECM
+            packing: 'H'
+            states:
+            - state:
+                    name:   hvb_soc
+                    value:  0x7A86
+
+        - pid:
+            name: 'HvbVoltage'
+            id: 0x480D
+            modules:
+                - module:   BECM
+            packing: 'H'
+            states:
+            - state:
+                    name:   hvb_voltage
+                    value:  0x8ABD
+
+        - pid:
+            name: 'HvbSocD'
+            id: 0x4845
+            modules:
+                - module:   BECM
+            packing: 'B'
+            states:
+            - state:
+                    name:   hvb_socd
+                    value:  0x84
+
+        - pid:
+            name: 'EnergyToEmpty'
+            id: 0x4848
+            modules:
+                - module:   BECM
+            packing: 'H'
+            states:
+            - state:
+                    name:   energy_to_empty
+                    value:  0x63C5
+
+        - pid:
+            name: 'HvbCurrent'
+            id: 0x48F9
+            modules:
+                - module:   BECM
+            packing: 'h'
+            states:
+            - state:
+                    name:   hvb_current
+                    value:  0x0052
+
+        - pid:
+            name: 'GearSelected'
             id: 0x6310
             modules:
                 - module:   IPC
             packing: 'B'
             states:
             - state:
-                    name:   gear_commanded
+                    name:   gear_selected
                     value:  0
 
         - pid:
@@ -88,4 +191,37 @@ mme:
             - state:
                     name:   heading
                     value:  256
+
+        - pid:
+            name: 'Time'
+            id: 0xDD00
+            modules:
+                - module:   SOBDM
+            packing: 'I'
+            states:
+            - state:
+                    name:   time
+                    value:  0
+
+        - pid:
+            name: 'InteriorTemp'
+            id: 0xDD04
+            modules:
+                - module:   SOBDM
+            packing: 'B'
+            states:
+            - state:
+                    name:   interior_temp
+                    value:  50
+
+        - pid:
+            name: 'ExteriorTemp'
+            id: 0xDD05
+            modules:
+                - module:   SOBDM
+            packing: 'B'
+            states:
+            - state:
+                    name:   exterior_temp
+                    value:  50
 

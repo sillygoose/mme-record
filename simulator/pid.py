@@ -21,14 +21,14 @@ class PID:
         response = struct.pack('>BH', 0x62, self._id)
         index = 0
         for state in self._states:
-            if self._packing[index] == 'Q':
+            if self._packing[index] == 'T':
                 packing_format = '>L'
-            elif self._packing[index] == 'q':
+            elif self._packing[index] == 't':
                 packing_format = '>l'
             else:
                 packing_format = '>' + self._packing[index]
             postfix = struct.pack(packing_format, state)
-            if self._packing[index] == 'Q' or self._packing[index] == 'q':
+            if self._packing[index] == 'T' or self._packing[index] == 't':
                 # Pack as uint then remove high order byte to get A:B:C
                 postfix = postfix[1:4]
             response = response + postfix
