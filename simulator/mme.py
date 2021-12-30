@@ -68,18 +68,17 @@ class MustangMachE:
                 raise FailedInitialization("Error parsing PID definition in the YAML file")
             name = pid.get('name', None)
             id = pid.get('id', None)
-            pid_modules = pid.get('modules', None)
             packing = pid.get('packing', None)
             states = pid.get('states', None)
-            initial_state = pid.get('initial_state', None)
-            pid_object = PID(id=id, name=name, packing=packing, initial_state=initial_state)
+            pid_object = PID(id=id, name=name, packing=packing, states=states)
             self._pids_by_id[id] = pid_object
 
+            pid_modules = pid.get('modules', None)
             for module_name in pid_modules:
                 name = module_name.get('module')
-                module = self._modules.get(name, None)
-                if module is not None:
-                    module.addPID(pid_object)
+                module_object = self._modules.get(name, None)
+                if module_object is not None:
+                    module_object.addPID(pid_object)
 
 
 #if self._pids_by_module[id]
