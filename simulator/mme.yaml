@@ -38,7 +38,7 @@ mme:
             states:
             - state:
                     name:   odometer
-                    value:  0
+                    value:  0xdcdc
 
         - pid:
             name: 'KeyState'
