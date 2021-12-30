@@ -62,20 +62,15 @@ class MustangMachE:
             pid = yaml_pid.get('pid', None)
             if pid is None:
                 raise FailedInitialization("Error parsing PID definition in YAML file")
-            name = pid.get('name', None)
-            id = pid.get('id', None)
-            packing = pid.get('packing', None)
-            states = pid.get('states', None)
-            if self._pids_by_id.get(id, None) is not None:
-                raise FailedInitialization(f"PID {name}/{id:04X} is defined more than once")
-            pid_object = PID(id=id, name=name, packing=packing, states=states)
-            self._pids_by_id[id] = pid_object
-            _LOGGER.info(f"Added PID {name}/{id:04X} to simulator")
+            if self._pids_by_id.get(pid, None) is not None:
+                raise FailedInitialization(f"PID {pid:04X} is defined more than once in the YAML file")
+            pid_object = PID(id=pid)
+            self._pids_by_id[pid] = pid_object
+            _LOGGER.info(f"Added PID {pid:04X} to simulator")
 
-            pid_modules = pid.get('modules', None)
+            pid_modules = pid_object.used_in()
             for module_name in pid_modules:
-                name = module_name.get('module')
-                module_object = self._modules.get(name, None)
+                module_object = self._modules.get(module_name, None)
                 if module_object is not None:
                     module_object.add_pid(pid_object)
 

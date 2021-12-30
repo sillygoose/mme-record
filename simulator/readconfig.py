@@ -261,19 +261,6 @@ def check_config(config):
                 ]}},
                 {'pids': {'required': True, 'keys': [
                     {'pid': {'required': True, 'keys': [
-                        {'id': {'required': True, 'keys': [], 'type': int}},
-                        {'name': {'required': True, 'keys': [], 'type': str}},
-                        {'packing': {'required': True, 'keys': [], 'type': str}},
-                        {'modules': {'required': True, 'keys': [
-                            {'module': {'required': True, 'keys': [
-                            ]}},
-                        ]}},
-                        {'states': {'required': True, 'keys': [
-                            {'state': {'required': True, 'keys': [
-                                {'name': {'required': True, 'keys': [], 'type': str}},
-                                {'value': {'required': True, 'keys': [], 'type': None}},
-                            ]}},
-                        ]}},
                     ]}},
                 ]}},
             ]},

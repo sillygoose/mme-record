@@ -1,21 +1,31 @@
 import struct
 import logging
+from typing import List
+
+from exceptions import FailedInitialization
 
 
 _LOGGER = logging.getLogger('mme')
 
-_PIDS = [
-
-]
+_PIDS = {
+    0x1505: { 'name': 'HiresSpeed',     'packing': 'H',     'modules': ['PCM'],     'states': [{ 'name': 'speed', 'value': 10000}] },
+    0x1E12: { 'name': 'GearCommanded',  'packing': 'B',     'modules': ['SOBDM'],   'states': [{ 'name': 'gear_commanded', 'value': 70}] },
+}
+"""
+"""
 
 class PID:
-    def __init__(self, id: int, name: str, packing: str, states: dict) -> None:
+    def __init__(self, id: int) -> None:
         self._id = id
-        self._name = name
-        self._packing = packing
+        pid_lookup = _PIDS.get(id, None)
+        if pid_lookup is None:
+            raise FailedInitialization(f"The PID {id:04X} is not supported by the simulator")
+
+        self._name = pid_lookup.get('name')
+        self._packing = pid_lookup.get('packing')
+        self._modules = pid_lookup.get('modules')
         self._states = []
-        for state_dict in states:
-            state = state_dict.get('state')
+        for state in pid_lookup.get('states'):
             # variable = state.get('name', None)
             value = state.get('value', None)
             self._states.append(value)
@@ -46,4 +56,7 @@ class PID:
 
     def packing(self) -> str:
         return self._packing
+
+    def used_in(self) -> List[str]:
+        return self._modules
 
