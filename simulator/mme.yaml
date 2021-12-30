@@ -1,63 +1,14 @@
 # YAML configuraton file for the Mustang Mach-E CANbus Simulator
 mme:
     builtin:
-        modules: True
-        pids:   True
+        modules:    True
+        pids:       True
 
-    # Define the modules included in the imulator:
-    #   name:               the module to be loaded in the simulator
-    modules:
-        - module:   APIM
-        - module:   GWM
-        - module:   IPC
-        - module:   BECM
-        - module:   PCM
-        - module:   BCM
-        - module:   SOBDM
-        - module:   DCDC
+    custom:
+        modules:
+            - module:
+                name:               'ABC'
+                channel:            'can0'
+                arbitration_id:     0x700
 
-
-    # Define the PIDs included in the simulator.  PIDs can be used in more than one module.
-    #   name:               name used to refer to the PID
-    #   id:                 PID
-    #   modules:            list of modules that respond to this PID
-    #   packing:            the struct packing format needed to encode the response
-    #   states:             list of variables used by the PID 
-    pids:
-        - pid:  0x1505
-        - pid:  0x1E12
-        - pid:  0x4028
-        - pid:  0x402A
-        - pid:  0x402B
-        - pid:  0x404C
-        - pid:  0x411F
-        - pid:  0x4800
-        - pid:  0x4801
-        - pid:  0x480D
-        - pid:  0x4836
-        - pid:  0x483A
-        - pid:  0x483D
-        - pid:  0x4845
-        - pid:  0x4848
-        - pid:  0x484F
-        - pid:  0x4851
-        - pid:  0x48F9
-        - pid:  0x48FB
-        - pid:  0x490C
-        - pid:  0x6310
-        - pid:  0x8012
-        - pid:  0xDD00
-        - pid:  0xDD04
-        - pid:  0xDD05
-        - pid:  0x4842
-        - pid:  0x4844
-        - pid:  0x484A
-        - pid:  0x484E
-        - pid:  0x4850
-        - pid:  0x485E
-        - pid:  0x485F
-        - pid:  0x4860
-        - pid:  0x4861
-        - pid:  0x48B6
-        - pid:  0x48BC
-        - pid:  0x48C4
+ 

@@ -39,14 +39,19 @@ isotp_params = {
 }
 
 
+def builtin_modules() -> List[str]:
+    return _MODULES.keys()
+
+
 class Module:
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str, channel: str = None, arbitration_id: int = None) -> None:
         self._name = name
         module_lookup = _MODULES.get(name, None)
-        if module_lookup is None:
+        if module_lookup is None and (channel is None or arbitration_id is None):
             raise FailedInitialization(f"The module '{name}' is not supported by the simulator")
-        self._channel = module_lookup.get('channel')
-        self._rxid = module_lookup.get('arbitration_id')
+
+        self._channel = module_lookup.get('channel') if channel is None else channel
+        self._rxid = module_lookup.get('arbitration_id') if arbitration_id is None else arbitration_id
         self._txid = self._rxid + 8
         self._exit_requested = False
         self._bus = None
