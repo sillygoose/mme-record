@@ -4,7 +4,7 @@ mme:
     # Define the modules included in the imulator.  Each module requires:
     #   name:               name used to refer to the module
     #   channel:            CANbus ('can0' or 'can1') used to interface with the module
-    #   arbitration_id:     The address used by the module
+    #   arbitration_id:     the address used by the module on the specified CANbus
     modules:
         - module:
             name: 'APIM'
@@ -16,6 +16,12 @@ mme:
             channel: 'can0'
             arbitration_id: 0x716
 
+        - module:
+            name: 'IPC'
+            channel: 'can1'
+            arbitration_id: 0x720
+
+
     # Define the PIDs included in the simulator.  PIDs can be used in more than one module.
     #   name:               name used to refer to the PID
     #   id:                 PID
@@ -23,6 +29,17 @@ mme:
     #   packing:            the struct packing format needed to encode the response
     #   states:             list of variables used by the PID 
     pids:
+        - pid:
+            name: 'Hires Odometer'
+            id: 0x404C
+            modules:
+                - module:   IPC
+            packing: 'Q'
+            states:
+            - state:
+                    name:   odometer
+                    value:  0
+
         - pid:
             name: 'KeyState'
             id: 0x411F
@@ -34,6 +51,17 @@ mme:
             - state:
                     name:   key_state
                     value:  5
+
+        - pid:
+            name: 'GearCommanded'
+            id: 0x6310
+            modules:
+                - module:   IPC
+            packing: 'B'
+            states:
+            - state:
+                    name:   gear_commanded
+                    value:  0
 
         - pid:
             name: 'GPS'
