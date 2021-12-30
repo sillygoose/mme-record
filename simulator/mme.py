@@ -5,7 +5,7 @@ import logging
 from typing import List
 
 from module import Module, builtin_modules
-from pid import _PIDS, PID, builtin_pids
+from pid import PID, builtin_pids
 
 import version
 import logfiles
@@ -64,7 +64,7 @@ class MustangMachE:
                 raise FailedInitialization(f"PID {pid:04X} is defined more than once in the YAML file")
             pid_object = PID(id=id, name=name, packing=packing, modules=modules, states=states)
             self._pids_by_id[id] = pid_object
-            _LOGGER.info(f"Added PID {id:04X} to simulator")
+            _LOGGER.debug(f"Added PID {id:04X} to simulator")
 
             pid_modules = pid_object.used_in()
             for module_name in pid_modules:
@@ -77,15 +77,15 @@ class MustangMachE:
             if self._modules.get(module, None) is not None:
                 raise FailedInitialization(f"Module {module} is defined more than once")
             self._modules[module] = Module(name=module)
-            _LOGGER.debug(f"Added module '{module}' to simulator")
+            _LOGGER.debug(f"Added builtin module '{module}' to simulator")
 
     def add_builtin_pids(self, pids: List[int]) -> None:
         for pid in pids:
             if self._pids_by_id.get(pid, None) is not None:
-                raise FailedInitialization(f"PID {pid:04X} is defined more than once in the YAML file")
+                raise FailedInitialization(f"PID {pid:04X} is defined more than once")
             pid_object = PID(id=pid)
             self._pids_by_id[pid] = pid_object
-            _LOGGER.debug(f"Added PID {pid:04X} to simulator")
+            _LOGGER.debug(f"Added builtin PID {pid:04X} to simulator")
 
             pid_modules = pid_object.used_in()
             for module_name in pid_modules:
