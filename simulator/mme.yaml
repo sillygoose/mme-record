@@ -1,48 +1,22 @@
 mme:
   modules:
     - module:
-        name: 'DCDC'
-        channel: 'can0'
-        arbitration_id: 0x123
-    - module:
         name: 'APIM'
         channel: 'can1'
         arbitration_id: 0x7D0
 
   pids:
     - pid:
-        name: 'HvbCurrent'
-        id: 0x1234
-        modules:
-            - module:   BECM
-            - module:   SOBDM
-        format: '>B'
-        states:
-          - state:
-                name:   current
-                type:   int
-    - pid:
-        name: 'GPS'
-        id: 0x8012
+        name: 'KeyState'
+        id: 0x411F
         modules:
             - module:   APIM
-        format: '>HllBHH'
+            - module:   GWM
+        packing: 'B'
+        initial_state: 5
         states:
           - state:
-                name:   elevation
+                name:   key_state
                 type:   int
-          - state:
-                name:   latitude
-                type:   int
-          - state:
-                name:   longitude
-                type:   int
-          - state:
-                name:   fix
-                type:   int
-          - state:
-                name:   speed
-                type:   int
-          - state:
-                name:   heading
-                type:   int
+
+

@@ -1,3 +1,4 @@
+from os import name
 import struct
 
 from pid import PID
@@ -6,11 +7,10 @@ from module import Module
 
 class PID_411F(PID):
     def __init__(self) -> None:
-        self._state = 5
-        super().__init__(0x411F, 'KeyState')        ### check it?
+        super().__init__(id=0x411F, name='KeyState', packing='B', initial_state=5)        ### check it?
 
-    def response(self) -> bytearray:
-        return struct.pack('>BHB', 0x62, self._id, self._state)
+#    def response(self) -> bytearray:
+#        return struct.pack('>BHB', 0x62, self._id, self._state)
 
 
 class PID_8012(PID):
@@ -30,7 +30,7 @@ class PID_8012(PID):
 class APIM(Module):
     pids = [
         PID_411F(),
-        PID_8012(),
+#        PID_8012(),
     ]
 
     def __init__(self) -> None:

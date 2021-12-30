@@ -185,7 +185,7 @@ def check_required_keys(yaml, required, path='') -> bool:
 
                 yamlValue = dict(yaml).get(rk, None)
                 if yamlValue is None:
-                    return passed
+                    continue
 
                 if rk in yamlKeys and keyType and not isinstance(yamlValue, keyType):
                     _LOGGER.error(f"'{currentpath}' should be type '{keyType.__name__}'")
@@ -266,7 +266,8 @@ def check_config(config):
                     {'pid': {'required': True, 'keys': [
                         {'id': {'required': True, 'keys': [], 'type': int}},
                         {'name': {'required': True, 'keys': [], 'type': str}},
-                        {'format': {'required': True, 'keys': [], 'type': str}},
+                        {'packing': {'required': True, 'keys': [], 'type': str}},
+                        {'initial_state': {'required': True, 'keys': [], 'type': None}},
                         {'modules': {'required': True, 'keys': [
                             {'module': {'required': True, 'keys': [
                             ]}},

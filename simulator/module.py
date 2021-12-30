@@ -7,7 +7,7 @@ from typing import List
 import isotp
 from can.interfaces.socketcan import SocketcanBus
 
-from simulator.pid import PID
+from pid import PID
 
 
 _LOGGER = logging.getLogger('mme')
@@ -28,7 +28,7 @@ isotp_params = {
 
 
 class Module:
-    def __init__(self, name: str, channel: str, arbitration_id: int, pids: List[PID]) -> None:
+    def __init__(self, name: str, channel: str, arbitration_id: int) -> None:
         self._name = name
         self._channel = channel
         self._rxid = arbitration_id
@@ -37,12 +37,10 @@ class Module:
         self._bus = None
         self._stack = None
         self._pids = {}
-        for pid in pids:
-            self._pids[pid.id()] = pid
 
     def start(self) -> None:
         self._exit_requested = False
-        _LOGGER.info(f"Starting module {self._name} on channel {self._channel} with arbitration ID {self._rxid:03X}")
+        _LOGGER.info(f"Starting module '{self._name}' on channel '{self._channel}' with arbitration ID {self._rxid:03X}")
         addr = isotp.Address(isotp.AddressingMode.Normal_11bits, rxid=self._rxid, txid=self._txid)
         self._bus = SocketcanBus(channel=self._channel)
         self._stack = isotp.CanStack(bus=self._bus, address=addr, error_handler=self.error_handler, params=isotp_params)
@@ -57,6 +55,9 @@ class Module:
         if self._bus:
             self._bus.shutdown()
             self._bus = None
+
+    def addPID(self, pid: PID) -> None:
+        self._pids[pid.id()] = pid
 
     def _pid_task(self) -> None:
         while self._exit_requested == False:
