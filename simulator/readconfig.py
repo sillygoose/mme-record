@@ -256,7 +256,7 @@ def check_config(config):
             'mme': {'required': True, 'keys': [
                 {'builtin': {'required': True, 'keys': [
                     {'modules': {'required': True, 'keys': [], 'type': bool}},
-                    {'pids': {'required': True, 'keys': [], 'type': bool}},
+                    {'dids': {'required': True, 'keys': [], 'type': bool}},
                 ]}},
                 {'custom': {'required': False, 'keys': [
                     {'modules': {'required': False, 'keys': [
@@ -266,8 +266,8 @@ def check_config(config):
                             {'arbitration_id': {'required': True, 'keys': [], 'type': int}},
                         ]}},
                     ]}},
-                    {'pids': {'required': False, 'keys': [
-                        {'pid': {'required': True, 'keys': [
+                    {'dids': {'required': False, 'keys': [
+                        {'did': {'required': True, 'keys': [
                             {'id': {'required': True, 'keys': [], 'type': int}},
                             {'name': {'required': True, 'keys': [], 'type': str}},
                             {'packing': {'required': True, 'keys': [], 'type': str}},

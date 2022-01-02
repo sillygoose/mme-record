@@ -5,7 +5,7 @@ import logging
 from typing import List
 
 from module import Module, builtin_modules
-from pid import PID, builtin_pids
+from did import DID, builtin_dids
 
 import version
 import logfiles
@@ -22,7 +22,7 @@ class MustangMachE:
         self._modules = {}
         self._config = config.mme
         self._modules = {}
-        self._pids_by_id = {}
+        self._dids_by_id = {}
 
     def start(self) -> None:
         for module in self._modules.values():
@@ -45,32 +45,32 @@ class MustangMachE:
             arbitration_id = module_settings.get('arbitration_id', None)
             self._modules[name] = Module(name=name, channel=channel,arbitration_id=arbitration_id)
 
-    def add_custom_pids(self, pids: dict) -> None:
-        if len(pids) == 0:
-            raise FailedInitialization("Must define at least one PID in YAML file")
+    def add_custom_dids(self, dids: dict) -> None:
+        if len(dids) == 0:
+            raise FailedInitialization("Must define at least one DID in YAML file")
 
-        for pid_item in pids:
-            pid = pid_item.get('pid', None)
-            if pid is None:
-                raise FailedInitialization("Error parsing custom PID definition in YAML file")
+        for did_item in dids:
+            did = did_item.get('did', None)
+            if did is None:
+                raise FailedInitialization("Error parsing custom DID definition in YAML file")
 
-            id = pid.get('id', None)
-            name = pid.get('name', None)
-            packing = pid.get('packing', None)
-            modules = pid.get('modules', None)
-            states = pid.get('states', None)
+            id = did.get('id', None)
+            name = did.get('name', None)
+            packing = did.get('packing', None)
+            modules = did.get('modules', None)
+            states = did.get('states', None)
 
-            if self._pids_by_id.get(id, None) is not None:
-                raise FailedInitialization(f"PID {pid:04X} is defined more than once in the YAML file")
-            pid_object = PID(id=id, name=name, packing=packing, modules=modules, states=states)
-            self._pids_by_id[id] = pid_object
-            _LOGGER.debug(f"Added PID {id:04X} to simulator")
+            if self._dids_by_id.get(id, None) is not None:
+                raise FailedInitialization(f"DID {did:04X} is defined more than once in the YAML file")
+            did_object = DID(id=id, name=name, packing=packing, modules=modules, states=states)
+            self._dids_by_id[id] = did_object
+            _LOGGER.debug(f"Added DID {id:04X} to simulator")
 
-            pid_modules = pid_object.used_in()
-            for module_name in pid_modules:
+            did_modules = did_object.used_in()
+            for module_name in did_modules:
                 module_object = self._modules.get(module_name, None)
                 if module_object is not None:
-                    module_object.add_pid(pid_object)
+                    module_object.add_did(did_object)
 
     def add_builtin_modules(self, modules: List[str]) -> None:
         for module in modules:
@@ -79,19 +79,19 @@ class MustangMachE:
             self._modules[module] = Module(name=module)
             _LOGGER.debug(f"Added builtin module '{module}' to simulator")
 
-    def add_builtin_pids(self, pids: List[int]) -> None:
-        for pid in pids:
-            if self._pids_by_id.get(pid, None) is not None:
-                raise FailedInitialization(f"PID {pid:04X} is defined more than once")
-            pid_object = PID(id=pid)
-            self._pids_by_id[pid] = pid_object
-            _LOGGER.debug(f"Added builtin PID {pid:04X} to simulator")
+    def add_builtin_dids(self, dids: List[int]) -> None:
+        for did in dids:
+            if self._dids_by_id.get(did, None) is not None:
+                raise FailedInitialization(f"DID {did:04X} is defined more than once")
+            did_object = DID(id=did)
+            self._dids_by_id[did] = did_object
+            _LOGGER.debug(f"Added builtin DID {did:04X} to simulator")
 
-            pid_modules = pid_object.used_in()
-            for module_name in pid_modules:
+            did_modules = did_object.used_in()
+            for module_name in did_modules:
                 module_object = self._modules.get(module_name, None)
                 if module_object is not None:
-                    module_object.add_pid(pid_object)
+                    module_object.add_did(did_object)
 
 
 def main() -> None:
@@ -120,12 +120,12 @@ def main() -> None:
             if 'modules' in custom.keys():
                 mme.add_custom_modules(custom.modules)
 
-        if builtin.pids == True:
-            mme.add_builtin_pids(builtin_pids())
+        if builtin.dids == True:
+            mme.add_builtin_dids(builtin_dids())
         if 'custom' in config.mme.keys():
             custom = config.mme.custom
-            if 'pids' in custom.keys():
-                mme.add_custom_pids(custom.pids)
+            if 'dids' in custom.keys():
+                mme.add_custom_dids(custom.dids)
     except FailedInitialization as e:
         _LOGGER.error(f"{e}")
         return

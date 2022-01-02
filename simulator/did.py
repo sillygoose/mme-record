@@ -7,7 +7,7 @@ from exceptions import FailedInitialization
 
 _LOGGER = logging.getLogger('mme')
 
-_PIDS = {
+_DIDS = {
     0x1505: { 'name': 'HiresSpeed',             'packing': 'H',     'modules': ['PCM'],         'states': [{ 'name': 'speed', 'value': 10000}] },
     0x1E12: { 'name': 'GearCommanded',          'packing': 'B',     'modules': ['SOBDM'],       'states': [{ 'name': 'gear_commanded', 'value': 70}] },
     0x4028: { 'name': 'LvbSoc',                 'packing': 'B',     'modules': ['BCM'],         'states': [{ 'name': 'lvb_soc', 'value': 0x5B}] },
@@ -54,22 +54,22 @@ _PIDS = {
     0xDD05: { 'name': 'ExteriorTemp',           'packing': 'B',     'modules': ['SOBDM'],       'states': [{ 'name': 'exterior_temp', 'value': 50}] },
 }
 
-def builtin_pids() -> List[int]:
-    return _PIDS.keys()
+def builtin_dids() -> List[int]:
+    return _DIDS.keys()
 
 
-class PID:
+class DID:
 
     def __init__(self, id: int, name: str = None, packing: str = None, modules: List[str] = None, states: List[dict] = None) -> None:
-        pid_lookup = _PIDS.get(id, None)
-        if pid_lookup is None and (name is None or packing is None or modules is None or states is None):
-            raise FailedInitialization(f"The PID {id:04X} is not supported by the simulator or cannot be created")
+        did_lookup = _DIDS.get(id, None)
+        if did_lookup is None and (name is None or packing is None or modules is None or states is None):
+            raise FailedInitialization(f"The DID {id:04X} is not supported by the simulator or cannot be created")
 
         self._id = id
-        self._name = pid_lookup.get('name') if name is None else name
-        self._packing = pid_lookup.get('packing') if packing is None else packing
-        self._modules = pid_lookup.get('modules') if modules is None else modules
-        states = pid_lookup.get('states') if states is None else states
+        self._name = did_lookup.get('name') if name is None else name
+        self._packing = did_lookup.get('packing') if packing is None else packing
+        self._modules = did_lookup.get('modules') if modules is None else modules
+        states = did_lookup.get('states') if states is None else states
         self._states = []
         for state in states:
             # variable = state.get('name', None)
