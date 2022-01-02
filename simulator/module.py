@@ -2,8 +2,9 @@ import time
 import logging
 import threading
 import struct
-from typing import List
 import json
+
+from typing import List
 
 import isotp
 from can.interfaces.socketcan import SocketcanBus
@@ -30,19 +31,6 @@ class Module:
         'squash_stmin_requirement' : False,                             # When sending, respect the stmin requirement of the receiver. If set to True, go as fast as possible.
         'max_frame_size' : 4095                                         # Limit the size of receive frame.
     }
-
-    modules = [
-        { 'name': 'APIM',   'channel': 'can1',  'arbitration_id': 0x7D0 },
-        { 'name': 'GWM',    'channel': 'can0',  'arbitration_id': 0x716 },
-        { 'name': 'IPC',    'channel': 'can1',  'arbitration_id': 0x720 },
-        { 'name': 'BECM',   'channel': 'can0',  'arbitration_id': 0x7E4 },
-        { 'name': 'PCM',    'channel': 'can0',  'arbitration_id': 0x7E0 },
-        { 'name': 'BCM',    'channel': 'can0',  'arbitration_id': 0x726 },
-        { 'name': 'SOBDM',  'channel': 'can0',  'arbitration_id': 0x7E2 },
-        { 'name': 'DCDC',   'channel': 'can0',  'arbitration_id': 0x746 },
-    ]
-
-
 
     def __init__(self, name: str, channel: str = None, arbitration_id: int = None) -> None:
         module_lookup = Module.modules_by_name.get(name, None)
@@ -152,10 +140,9 @@ class Module:
             outfile.write(json_modules)
 
     # Module static data
-    #_dump_modules(modules)
-    mods = _load_modules()
-    modules_by_name = _organize_by_name(mods)
-    modules_by_id = _organize_by_id(mods)
+    modules = _load_modules()
+    modules_by_name = _organize_by_name(modules)
+    modules_by_id = _organize_by_id(modules)
 
 
 def builtin_modules() -> List[str]:
