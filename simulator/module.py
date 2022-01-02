@@ -3,6 +3,7 @@ import logging
 import threading
 import struct
 from typing import List
+import json
 
 import isotp
 from can.interfaces.socketcan import SocketcanBus
@@ -138,9 +139,23 @@ class Module:
             modules_by_id[module.get('arbitration_id')] = module
         return modules_by_id
 
+    def _load_modules() -> dict:
+        filename = f"mme_modules.json"
+        with open(filename) as infile:
+            modules = json.load(infile)
+        return modules
+
+    def _dump_modules(modules: dict) -> None:
+        filename = 'mme_modules.json'
+        json_modules = json.dumps(modules, indent = 4, sort_keys=False)
+        with open(filename, "w") as outfile:
+            outfile.write(json_modules)
+
     # Module static data
-    modules_by_name = _organize_by_name(modules)
-    modules_by_id = _organize_by_id(modules)
+    #_dump_modules(modules)
+    mods = _load_modules()
+    modules_by_name = _organize_by_name(mods)
+    modules_by_id = _organize_by_id(mods)
 
 
 def builtin_modules() -> List[str]:

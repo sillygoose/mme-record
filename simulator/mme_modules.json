@@ -1,0 +1,42 @@
+[
+    {
+        "name": "APIM",
+        "channel": "can1",
+        "arbitration_id": 2000
+    },
+    {
+        "name": "GWM",
+        "channel": "can0",
+        "arbitration_id": 1814
+    },
+    {
+        "name": "IPC",
+        "channel": "can1",
+        "arbitration_id": 1824
+    },
+    {
+        "name": "BECM",
+        "channel": "can0",
+        "arbitration_id": 2020
+    },
+    {
+        "name": "PCM",
+        "channel": "can0",
+        "arbitration_id": 2016
+    },
+    {
+        "name": "BCM",
+        "channel": "can0",
+        "arbitration_id": 1830
+    },
+    {
+        "name": "SOBDM",
+        "channel": "can0",
+        "arbitration_id": 2018
+    },
+    {
+        "name": "DCDC",
+        "channel": "can0",
+        "arbitration_id": 1862
+    }
+]
