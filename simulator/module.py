@@ -41,20 +41,6 @@ class Module:
         { 'name': 'DCDC',   'channel': 'can0',  'arbitration_id': 0x746 },
     ]
 
-    def _organize_by_name(modules: List[dict]) -> dict:
-        modules_by_names = {}
-        for module in modules:
-            modules_by_names[module.get('name')] = module
-        return modules_by_names
-
-    def _organize_by_id(modules: List[dict]) -> dict:
-        modules_by_id = {}
-        for module in modules:
-            modules_by_id[module.get('arbitration_id')] = module
-        return modules_by_id
-
-    modules_by_name = _organize_by_name(modules)
-    modules_by_id = _organize_by_id(modules)
 
 
     def __init__(self, name: str, channel: str = None, arbitration_id: int = None) -> None:
@@ -138,6 +124,23 @@ class Module:
         if module is not None:
             module.get('name', None)
         return module_name
+
+
+    def _organize_by_name(modules: List[dict]) -> dict:
+        modules_by_names = {}
+        for module in modules:
+            modules_by_names[module.get('name')] = module
+        return modules_by_names
+
+    def _organize_by_id(modules: List[dict]) -> dict:
+        modules_by_id = {}
+        for module in modules:
+            modules_by_id[module.get('arbitration_id')] = module
+        return modules_by_id
+
+    # Module static data
+    modules_by_name = _organize_by_name(modules)
+    modules_by_id = _organize_by_id(modules)
 
 
 def builtin_modules() -> List[str]:

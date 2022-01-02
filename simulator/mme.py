@@ -97,7 +97,7 @@ class MustangMachE:
 def main() -> None:
 
     logfiles.start()
-    _LOGGER.info(f"MME Simulator version {version.get_version()}, PID is {os.getpid()}")
+    _LOGGER.info(f"Mustang Mach E Simulator version {version.get_version()}, PID is {os.getpid()}")
 
     try:
         config = read_config()
