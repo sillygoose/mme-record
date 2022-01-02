@@ -1,0 +1,43 @@
+"""
+Timestamp: 1641078948.336225        ID: 072e    S Rx                DLC:  8    04 62 71 1b 80 00 00 00     Channel: can0
+Timestamp: 1641078953.163743        ID: 072e    S Rx                DLC:  8    04 62 71 33 01 00 00 00     Channel: can0
+Timestamp: 1641078959.003296        ID: 072e    S Rx                DLC:  8    07 62 71 50 00 00 00 00     Channel: can0
+Timestamp: 1641078959.006802        ID: 072c    S Rx                DLC:  8    07 62 71 50 10 00 00 00     Channel: can1
+Timestamp: 1641078998.606392        ID: 072f    S Rx                DLC:  8    04 62 72 15 00 00 00 00     Channel: can1
+"""
+[
+    {
+        "did": 28955,
+        "length": 1,
+        "can0": [
+            1830
+        ],
+        "can1": []
+    },
+    {
+        "did": 28979,
+        "length": 1,
+        "can0": [
+            1830
+        ],
+        "can1": []
+    },
+    {
+        "did": 29008,
+        "length": 4,
+        "can0": [
+            1830
+        ],
+        "can1": [
+            1828
+        ]
+    },
+    {
+        "did": 29205,
+        "length": 1,
+        "can0": [],
+        "can1": [
+            1831
+        ]
+    }
+]

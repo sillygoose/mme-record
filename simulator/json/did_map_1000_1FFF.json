@@ -1,0 +1,177 @@
+"""
+Timestamp: 1641072517.069965        ID: 07e8    S Rx                DLC:  8    03 7f 22 22 cc cc cc cc     Channel: can0
+Timestamp: 1641072716.294912        ID: 0758    S Rx                DLC:  8    05 62 15 05 00 00 cc cc     Channel: can0
+Timestamp: 1641072716.303046        ID: 07e8    S Rx                DLC:  8    05 62 15 05 00 00 cc cc     Channel: can0
+Timestamp: 1641072716.298855        ID: 077d    S Rx                DLC:  8    05 62 15 05 00 00 00 00     Channel: can1
+Timestamp: 1641072716.307685        ID: 072f    S Rx                DLC:  8    05 62 15 05 00 00 00 00     Channel: can1
+Timestamp: 1641073178.488079        ID: 07ee    S Rx                DLC:  8    05 62 1e 00 00 00 cc cc     Channel: can0
+Timestamp: 1641073178.694752        ID: 07e8    S Rx                DLC:  8    07 62 1e 01 00 00 00 00     Channel: can0
+Timestamp: 1641073179.304162        ID: 07ee    S Rx                DLC:  8    07 62 1e 04 02 00 00 00     Channel: can0
+Timestamp: 1641073179.304729        ID: 07e8    S Rx                DLC:  8    07 62 1e 04 00 00 00 00     Channel: can0
+Timestamp: 1641073182.125158        ID: 07ea    S Rx                DLC:  8    04 62 1e 12 46 00 00 00     Channel: can0
+Timestamp: 1641073182.128171        ID: 07ee    S Rx                DLC:  8    04 62 1e 12 46 cc cc cc     Channel: can0
+Timestamp: 1641073182.133470        ID: 07ec    S Rx                DLC:  8    04 62 1e 12 46 00 00 00     Channel: can0
+Timestamp: 1641073182.131844        ID: 073a    S Rx                DLC:  8    04 62 1e 12 46 00 00 00     Channel: can1
+Timestamp: 1641073184.149040        ID: 07ef    S Rx                DLC:  8    05 62 1e 1c 00 00 cc cc     Channel: can0
+Timestamp: 1641073184.152267        ID: 07ee    S Rx                DLC:  8    05 62 1e 1c 00 9d cc cc     Channel: can0
+Timestamp: 1641073184.765168        ID: 077d    S Rx                DLC:  8    04 62 1e 1f 02 00 00 00     Channel: can1
+Timestamp: 1641073185.568311        ID: 07ee    S Rx                DLC:  8    04 62 1e 23 46 cc cc cc     Channel: can0
+Timestamp: 1641073186.176299        ID: 07ee    S Rx                DLC:  8    05 62 1e 26 00 00 cc cc     Channel: can0
+Timestamp: 1641073186.180918        ID: 07ef    S Rx                DLC:  8    05 62 1e 26 00 00 cc cc     Channel: can0
+Timestamp: 1641073187.392353        ID: 07ee    S Rx                DLC:  8    05 62 1e 2c 00 00 cc cc     Channel: can0
+Timestamp: 1641073188.408387        ID: 07ee    S Rx                DLC:  8    05 62 1e 31 00 00 cc cc     Channel: can0
+Timestamp: 1641073191.032472        ID: 07ee    S Rx                DLC:  8    05 62 1e 3e 00 1e cc cc     Channel: can0
+Timestamp: 1641073207.320955        ID: 07ee    S Rx                DLC:  8    04 62 1e 8f 01 cc cc cc     Channel: can0
+Timestamp: 1641073207.528962        ID: 07ee    S Rx                DLC:  8    04 62 1e 90 00 cc cc cc     Channel: can0
+Timestamp: 1641073207.736967        ID: 07ee    S Rx                DLC:  8    04 62 1e 91 00 cc cc cc     Channel: can0
+Timestamp: 1641073227.651794        ID: 073a    S Rx                DLC:  8    07 62 1e f4 00 00 00 00     Channel: can1
+"""
+[
+    {
+        "did": 4390,
+        "length": 0,
+        "can0": [
+            2016
+        ],
+        "can1": []
+    },
+    {
+        "did": 5381,
+        "length": 2,
+        "can0": [
+            1872,
+            2016
+        ],
+        "can1": [
+            1831,
+            1909
+        ]
+    },
+    {
+        "did": 7680,
+        "length": 2,
+        "can0": [
+            2022
+        ],
+        "can1": []
+    },
+    {
+        "did": 7681,
+        "length": 4,
+        "can0": [
+            2016
+        ],
+        "can1": []
+    },
+    {
+        "did": 7684,
+        "length": 4,
+        "can0": [
+            2016,
+            2022
+        ],
+        "can1": []
+    },
+    {
+        "did": 7698,
+        "length": 1,
+        "can0": [
+            2018,
+            2020,
+            2022
+        ],
+        "can1": [
+            1842
+        ]
+    },
+    {
+        "did": 7708,
+        "length": 2,
+        "can0": [
+            2022,
+            2023
+        ],
+        "can1": []
+    },
+    {
+        "did": 7711,
+        "length": 1,
+        "can0": [],
+        "can1": [
+            1909
+        ]
+    },
+    {
+        "did": 7715,
+        "length": 1,
+        "can0": [
+            2022
+        ],
+        "can1": []
+    },
+    {
+        "did": 7718,
+        "length": 2,
+        "can0": [
+            2022,
+            2023
+        ],
+        "can1": []
+    },
+    {
+        "did": 7724,
+        "length": 2,
+        "can0": [
+            2022
+        ],
+        "can1": []
+    },
+    {
+        "did": 7729,
+        "length": 2,
+        "can0": [
+            2022
+        ],
+        "can1": []
+    },
+    {
+        "did": 7742,
+        "length": 2,
+        "can0": [
+            2022
+        ],
+        "can1": []
+    },
+    {
+        "did": 7823,
+        "length": 1,
+        "can0": [
+            2022
+        ],
+        "can1": []
+    },
+    {
+        "did": 7824,
+        "length": 1,
+        "can0": [
+            2022
+        ],
+        "can1": []
+    },
+    {
+        "did": 7825,
+        "length": 1,
+        "can0": [
+            2022
+        ],
+        "can1": []
+    },
+    {
+        "did": 7924,
+        "length": 4,
+        "can0": [],
+        "can1": [
+            1842
+        ]
+    }
+]

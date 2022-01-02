@@ -1,0 +1,350 @@
+"""
+Timestamp: 1641083009.857725        ID: 072e    S Rx                DLC:  8    04 62 c0 03 00 00 00 00     Channel: can0
+Timestamp: 1641083010.064270        ID: 07ee    S Rx                DLC:  8    04 62 c0 04 0a cc cc cc     Channel: can0
+Timestamp: 1641083010.473455        ID: 07d8    S Rx                DLC:  8    05 62 c0 06 00 00 00 00     Channel: can1
+Timestamp: 1641083010.477680        ID: 072f    S Rx                DLC:  8    05 62 c0 06 00 00 00 00     Channel: can1
+Timestamp: 1641083010.677675        ID: 072f    S Rx                DLC:  8    05 62 c0 07 00 00 00 00     Channel: can1
+Timestamp: 1641083010.884104        ID: 072f    S Rx                DLC:  8    10 f4 62 c0 08 ff ff ff     Channel: can1
+Timestamp: 1641083010.913490        ID: 07d8    S Rx                DLC:  8    03 7f 22 78 00 00 00 00     Channel: can1
+Timestamp: 1641083011.075290        ID: 072e    S Rx                DLC:  8    10 43 62 c0 09 1d 00 00     Channel: can0
+Timestamp: 1641083012.498108        ID: 0739    S Rx                DLC:  8    04 62 c0 10 01 00 00 00     Channel: can1
+Timestamp: 1641083012.696600        ID: 072e    S Rx                DLC:  8    07 62 c0 11 00 01 00 0c     Channel: can0
+Timestamp: 1641083012.696864        ID: 07ef    S Rx                DLC:  8    07 62 c0 11 00 04 00 00     Channel: can0
+Timestamp: 1641083012.697111        ID: 07ee    S Rx                DLC:  8    07 62 c0 11 00 04 00 00     Channel: can0
+Timestamp: 1641083012.698058        ID: 0739    S Rx                DLC:  8    07 62 c0 11 00 00 00 04     Channel: can1
+Timestamp: 1641083012.903805        ID: 072e    S Rx                DLC:  8    07 62 c0 12 00 01 00 0c     Channel: can0
+Timestamp: 1641083012.904399        ID: 07ee    S Rx                DLC:  8    07 62 c0 12 00 04 00 00     Channel: can0
+Timestamp: 1641083012.904961        ID: 07ef    S Rx                DLC:  8    07 62 c0 12 00 04 00 00     Channel: can0
+Timestamp: 1641083012.908074        ID: 0739    S Rx                DLC:  8    07 62 c0 12 00 00 00 04     Channel: can1
+Timestamp: 1641083013.312083        ID: 071e    S Rx                DLC:  8    04 62 c0 14 00 cc cc cc     Channel: can0
+Timestamp: 1641083013.522451        ID: 071e    S Rx                DLC:  8    04 62 c0 15 04 cc cc cc     Channel: can0
+Timestamp: 1641083013.737668        ID: 0739    S Rx                DLC:  8    04 62 c0 16 04 00 00 00     Channel: can1
+Timestamp: 1641083013.937582        ID: 0739    S Rx                DLC:  8    04 62 c0 17 1d 00 00 00     Channel: can1
+Timestamp: 1641083014.137558        ID: 0739    S Rx                DLC:  8    05 62 c0 18 00 96 00 00     Channel: can1
+Timestamp: 1641083014.338166        ID: 0739    S Rx                DLC:  8    04 62 c0 19 04 00 00 00     Channel: can1
+Timestamp: 1641083015.542825        ID: 071e    S Rx                DLC:  8    06 62 c0 1f 00 00 00 cc     Channel: can0
+Timestamp: 1641083015.904019        ID: 07d8    S Rx                DLC:  8    03 7f 22 78 00 00 00 00     Channel: can1
+Timestamp: 1641083020.894098        ID: 07d8    S Rx                DLC:  8    03 7f 22 78 00 00 00 00     Channel: can1
+Timestamp: 1641083020.933962        ID: 07d8    S Rx                DLC:  8    03 7f 22 22 00 00 00 00     Channel: can1
+Timestamp: 1641083061.670577        ID: 072e    S Rx                DLC:  8    04 62 c1 04 01 00 00 00     Channel: can0
+Timestamp: 1641083076.962774        ID: 072f    S Rx                DLC:  8    07 62 c1 50 00 00 00 00     Channel: can1
+Timestamp: 1641083092.257775        ID: 072e    S Rx                DLC:  8    04 62 c1 9c 01 00 00 00     Channel: can0
+Timestamp: 1641083092.668420        ID: 0739    S Rx                DLC:  8    04 62 c1 9e 00 00 00 00     Channel: can1
+Timestamp: 1641083092.871362        ID: 072e    S Rx                DLC:  8    04 62 c1 9f 01 00 00 00     Channel: can0
+Timestamp: 1641083093.682250        ID: 07ef    S Rx                DLC:  8    07 62 c1 a3 40 00 00 00     Channel: can0
+Timestamp: 1641083093.691081        ID: 07ee    S Rx                DLC:  8    07 62 c1 a3 40 00 00 00     Channel: can0
+Timestamp: 1641083115.806942        ID: 072e    S Rx                DLC:  8    07 62 c2 11 24 d6 44 f7     Channel: can0
+Timestamp: 1641083125.873409        ID: 072e    S Rx                DLC:  8    07 62 c2 43 24 d6 44 f7     Channel: can0
+Timestamp: 1641083126.088071        ID: 072e    S Rx                DLC:  8    07 62 c2 44 00 00 00 00     Channel: can0
+Timestamp: 1641083126.294590        ID: 072e    S Rx                DLC:  8    07 62 c2 45 00 00 00 00     Channel: can0
+Timestamp: 1641083126.501225        ID: 072e    S Rx                DLC:  8    07 62 c2 46 00 00 00 00     Channel: can0
+Timestamp: 1641083129.126816        ID: 072e    S Rx                DLC:  8    07 62 c2 53 00 00 00 00     Channel: can0
+Timestamp: 1641083129.332340        ID: 072e    S Rx                DLC:  8    07 62 c2 54 00 00 00 00     Channel: can0
+Timestamp: 1641083129.537812        ID: 072e    S Rx                DLC:  8    07 62 c2 55 00 00 00 00     Channel: can0
+Timestamp: 1641083129.744642        ID: 072e    S Rx                DLC:  8    07 62 c2 56 00 00 00 00     Channel: can0
+Timestamp: 1641083130.157657        ID: 072e    S Rx                DLC:  8    07 62 c2 58 80 00 00 00     Channel: can0
+Timestamp: 1641083130.766551        ID: 072e    S Rx                DLC:  8    04 62 c2 5b 01 00 00 00     Channel: can0
+Timestamp: 1641083782.081142        ID: 075c    S Rx                DLC:  8    04 62 cf 03 02 00 00 00     Channel: can1
+"""
+[
+    {
+        "did": 49155,
+        "length": 1,
+        "can0": [
+            1830
+        ],
+        "can1": []
+    },
+    {
+        "did": 49156,
+        "length": 1,
+        "can0": [
+            2022
+        ],
+        "can1": []
+    },
+    {
+        "did": 49158,
+        "length": 2,
+        "can0": [],
+        "can1": [
+            1831,
+            2000
+        ]
+    },
+    {
+        "did": 49159,
+        "length": 2,
+        "can0": [],
+        "can1": [
+            1831
+        ]
+    },
+    {
+        "did": 49160,
+        "length": 241,
+        "can0": [],
+        "can1": [
+            1831,
+            2000
+        ]
+    },
+    {
+        "did": 49161,
+        "length": 64,
+        "can0": [
+            1830
+        ],
+        "can1": []
+    },
+    {
+        "did": 49168,
+        "length": 1,
+        "can0": [],
+        "can1": [
+            1841
+        ]
+    },
+    {
+        "did": 49169,
+        "length": 4,
+        "can0": [
+            1830,
+            2022,
+            2023
+        ],
+        "can1": [
+            1841
+        ]
+    },
+    {
+        "did": 49170,
+        "length": 4,
+        "can0": [
+            1830,
+            2022,
+            2023
+        ],
+        "can1": [
+            1841
+        ]
+    },
+    {
+        "did": 49172,
+        "length": 1,
+        "can0": [
+            1814
+        ],
+        "can1": []
+    },
+    {
+        "did": 49173,
+        "length": 1,
+        "can0": [
+            1814
+        ],
+        "can1": []
+    },
+    {
+        "did": 49174,
+        "length": 1,
+        "can0": [],
+        "can1": [
+            1841
+        ]
+    },
+    {
+        "did": 49175,
+        "length": 1,
+        "can0": [],
+        "can1": [
+            1841
+        ]
+    },
+    {
+        "did": 49176,
+        "length": 2,
+        "can0": [],
+        "can1": [
+            1841
+        ]
+    },
+    {
+        "did": 49177,
+        "length": 1,
+        "can0": [],
+        "can1": [
+            1841
+        ]
+    },
+    {
+        "did": 49183,
+        "length": 3,
+        "can0": [
+            1814
+        ],
+        "can1": []
+    },
+    {
+        "did": 49184,
+        "length": 0,
+        "can0": [],
+        "can1": [
+            2000
+        ]
+    },
+    {
+        "did": 49209,
+        "length": 0,
+        "can0": [],
+        "can1": [
+            2000,
+            2000
+        ]
+    },
+    {
+        "did": 49412,
+        "length": 1,
+        "can0": [
+            1830
+        ],
+        "can1": []
+    },
+    {
+        "did": 49488,
+        "length": 4,
+        "can0": [],
+        "can1": [
+            1831
+        ]
+    },
+    {
+        "did": 49564,
+        "length": 1,
+        "can0": [
+            1830
+        ],
+        "can1": []
+    },
+    {
+        "did": 49566,
+        "length": 1,
+        "can0": [],
+        "can1": [
+            1841
+        ]
+    },
+    {
+        "did": 49567,
+        "length": 1,
+        "can0": [
+            1830
+        ],
+        "can1": []
+    },
+    {
+        "did": 49571,
+        "length": 4,
+        "can0": [
+            2022,
+            2023
+        ],
+        "can1": []
+    },
+    {
+        "did": 49681,
+        "length": 4,
+        "can0": [
+            1830
+        ],
+        "can1": []
+    },
+    {
+        "did": 49731,
+        "length": 4,
+        "can0": [
+            1830
+        ],
+        "can1": []
+    },
+    {
+        "did": 49732,
+        "length": 4,
+        "can0": [
+            1830
+        ],
+        "can1": []
+    },
+    {
+        "did": 49733,
+        "length": 4,
+        "can0": [
+            1830
+        ],
+        "can1": []
+    },
+    {
+        "did": 49734,
+        "length": 4,
+        "can0": [
+            1830
+        ],
+        "can1": []
+    },
+    {
+        "did": 49747,
+        "length": 4,
+        "can0": [
+            1830
+        ],
+        "can1": []
+    },
+    {
+        "did": 49748,
+        "length": 4,
+        "can0": [
+            1830
+        ],
+        "can1": []
+    },
+    {
+        "did": 49749,
+        "length": 4,
+        "can0": [
+            1830
+        ],
+        "can1": []
+    },
+    {
+        "did": 49750,
+        "length": 4,
+        "can0": [
+            1830
+        ],
+        "can1": []
+    },
+    {
+        "did": 49752,
+        "length": 4,
+        "can0": [
+            1830
+        ],
+        "can1": []
+    },
+    {
+        "did": 49755,
+        "length": 1,
+        "can0": [
+            1830
+        ],
+        "can1": []
+    },
+    {
+        "did": 52995,
+        "length": 1,
+        "can0": [],
+        "can1": [
+            1876
+        ]
+    }
+]

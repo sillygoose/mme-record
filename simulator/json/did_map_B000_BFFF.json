@@ -1,0 +1,93 @@
+"""
+Timestamp: 1641082237.920096        ID: 070e    S Rx                DLC:  8    07 62 b1 04 ff 00 00 00     Channel: can0
+Timestamp: 1641082238.129112        ID: 070e    S Rx                DLC:  8    07 62 b1 05 01 06 00 00     Channel: can0
+Timestamp: 1641082240.749213        ID: 070e    S Rx                DLC:  8    04 62 b1 12 2c cc cc cc     Channel: can0
+Timestamp: 1641082240.958969        ID: 070e    S Rx                DLC:  8    04 62 b1 13 2a cc cc cc     Channel: can0
+Timestamp: 1641082241.168798        ID: 070e    S Rx                DLC:  8    04 62 b1 14 27 cc cc cc     Channel: can0
+Timestamp: 1641082241.378983        ID: 070e    S Rx                DLC:  8    04 62 b1 15 24 cc cc cc     Channel: can0
+Timestamp: 1641082241.589745        ID: 070e    S Rx                DLC:  8    04 62 b1 16 ff cc cc cc     Channel: can0
+Timestamp: 1641082241.799615        ID: 070e    S Rx                DLC:  8    04 62 b1 17 ff cc cc cc     Channel: can0
+Timestamp: 1641082242.009680        ID: 070e    S Rx                DLC:  8    04 62 b1 18 ff cc cc cc     Channel: can0
+Timestamp: 1641082242.219106        ID: 070e    S Rx                DLC:  8    04 62 b1 19 ff cc cc cc     Channel: can0
+"""
+{
+    "did": 45316,
+    "length": 4,
+    "can0": [
+        1798
+    ],
+    "can1": []
+},
+{
+    "did": 45317,
+    "length": 4,
+    "can0": [
+        1798
+    ],
+    "can1": []
+},
+{
+    "did": 45330,
+    "length": 1,
+    "can0": [
+        1798
+    ],
+    "can1": []
+},
+{
+    "did": 45331,
+    "length": 1,
+    "can0": [
+        1798
+    ],
+    "can1": []
+},
+{
+    "did": 45332,
+    "length": 1,
+    "can0": [
+        1798
+    ],
+    "can1": []
+},
+{
+    "did": 45333,
+    "length": 1,
+    "can0": [
+        1798
+    ],
+    "can1": []
+},
+{
+    "did": 45334,
+    "length": 1,
+    "can0": [
+        1798
+    ],
+    "can1": []
+},
+{
+    "did": 45335,
+    "length": 1,
+    "can0": [
+        1798
+    ],
+    "can1": []
+},
+{
+    "did": 45336,
+    "length": 1,
+    "can0": [
+        1798
+    ],
+    "can1": []
+},
+{
+    "did": 45337,
+    "length": 1,
+    "can0": [
+        1798
+    ],
+    "can1": []
+}
+]
