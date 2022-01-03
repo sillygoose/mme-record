@@ -11,7 +11,7 @@
     },
     {
         "name": "ACM",
-        "channel": "can0",
+        "channel": "can1",
         "arbitration_id": 1831
     },
     {
@@ -56,17 +56,17 @@
     },
     {
         "name": "DCME",
-        "channel": "can0",
+        "channel": "can1",
         "arbitration_id": 1954
     },
     {
         "name": "DCMG",
-        "channel": "can0",
+        "channel": "can1",
         "arbitration_id": 1971
     },
     {
         "name": "DCMH",
-        "channel": "can0",
+        "channel": "can1",
         "arbitration_id": 1972
     },
     {
@@ -76,22 +76,22 @@
     },
     {
         "name": "DSM",
-        "channel": "can0",
+        "channel": "can1",
         "arbitration_id": 1860
     },
     {
         "name": "DSP",
-        "channel": "can0",
+        "channel": "can1",
         "arbitration_id": 1923
     },
     {
         "name": "GFM",
-        "channel": "can0",
+        "channel": "can1",
         "arbitration_id": 1953
     },
     {
         "name": "GSM",
-        "channel": "can0",
+        "channel": "can1",
         "arbitration_id": 1842
     },
     {
@@ -101,12 +101,12 @@
     },
     {
         "name": "HCM",
-        "channel": "can0",
+        "channel": "can1",
         "arbitration_id": 1844
     },
     {
         "name": "HVAC",
-        "channel": "can0",
+        "channel": "can1",
         "arbitration_id": 1843
     },
     {
@@ -126,7 +126,7 @@
     },
     {
         "name": "OCS",
-        "channel": "can0",
+        "channel": "can1",
         "arbitration_id": 1893
     },
     {
@@ -141,7 +141,7 @@
     },
     {
         "name": "PDM",
-        "channel": "can0",
+        "channel": "can1",
         "arbitration_id": 1857
     },
     {
@@ -151,27 +151,27 @@
     },
     {
         "name": "RCM",
-        "channel": "can0",
+        "channel": "can1",
         "arbitration_id": 1847
     },
     {
         "name": "RFA",
-        "channel": "can0",
+        "channel": "can1",
         "arbitration_id": 1841
     },
     {
         "name": "RGTM",
-        "channel": "can0",
+        "channel": "can1",
         "arbitration_id": 1909
     },
     {
         "name": "SCCM",
-        "channel": "can0",
+        "channel": "can1",
         "arbitration_id": 1828
     },
     {
         "name": "SCMF",
-        "channel": "can0",
+        "channel": "can1",
         "arbitration_id": 1890
     },
     {
@@ -211,7 +211,7 @@
     },
     {
         "name": "TCU",
-        "channel": "can0",
+        "channel": "can1",
         "arbitration_id": 1876
     },
     {
@@ -221,7 +221,7 @@
     },
     {
         "name": "WACM",
-        "channel": "can0",
+        "channel": "can1",
         "arbitration_id": 1829
     }
 ]
