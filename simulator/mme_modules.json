@@ -122,7 +122,7 @@
     {
         "name": "OBCC",
         "channel": "can0",
-        "arbitration_id": 2001
+        "arbitration_id": 1781
     },
     {
         "name": "OCS",
@@ -182,7 +182,7 @@
     {
         "name": "SOBDMB",
         "channel": "can0",
-        "arbitration_id": 1941
+        "arbitration_id": 2023
     },
     {
         "name": "SOBDMC",
