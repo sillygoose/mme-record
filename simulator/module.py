@@ -127,20 +127,18 @@ class Module:
             modules_by_id[module.get('arbitration_id')] = module
         return modules_by_id
 
-    def _load_modules() -> dict:
-        filename = f"mme_modules.json"
+    def _load_modules(filename: str) -> dict:
         with open(filename) as infile:
             modules = json.load(infile)
         return modules
 
-    def _dump_modules(modules: dict) -> None:
-        filename = 'mme_modules.json'
+    def _dump_modules(filename: str, modules: dict) -> None:
         json_modules = json.dumps(modules, indent = 4, sort_keys=False)
         with open(filename, "w") as outfile:
             outfile.write(json_modules)
 
     # Module static data
-    modules = _load_modules()
+    modules = _load_modules(filename='mme_modules.json')
     modules_by_name = _organize_by_name(modules)
     modules_by_id = _organize_by_id(modules)
 
