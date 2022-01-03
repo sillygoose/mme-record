@@ -15,6 +15,7 @@
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
+            "cwd": "${workspaceFolder}/simulator",
             "program": "${file}",
             "console": "integratedTerminal"
         }
