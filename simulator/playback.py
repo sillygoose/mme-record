@@ -1,4 +1,7 @@
 import sys
+import threading
+from queue import Queue, Full, Empty
+
 #import logging
 from time import time, sleep
 import json
@@ -37,20 +40,25 @@ modules_by_id = modules_organized_by_id(modules)
 
 class Playback:
 
-    def __init__(self, file: str=None) -> None:
+    def __init__(self, file: str, queues: dict) -> None:
         self._playback_file = file
-        self._internal_clock = self._time_zero = int(time())
+        self._queues = queues
+        self._exit_requested = False
+        self._time_zero = int(time())
 
     def start(self) -> None:
+        self._exit_requested = False
         self._playback = self._load_playback(file=self._playback_file)
         self._currrent_playback = 0
+        self._thread = threading.Thread(target=self._event_task)
+        self._thread.start()
 
-    def run(self) -> None:
-        while True:
+    def _event_task(self) -> None:
+        while self._exit_requested == False:
             event = self._next_event()
             if event is None:
                 return
-            current_time = int(time()) - self._time_zero
+            current_time = round(time() - self._time_zero, ndigits=2)
             event_time = event.get('time')
             if current_time < event_time:
                 sleep_for = event_time - current_time
@@ -58,11 +66,20 @@ class Playback:
                     if sleep_for > 5:
                         print(f"sleeping for {sleep_for} seconds")
                     sleep(sleep_for)
-            current_time = int(time())
-            print(f"{current_time-self._time_zero}: {self._decode_event(event)}")
+            current_time = round(time() - self._time_zero, ndigits=2)
+            arbitration_id = event.get('id')
+            destination = self._queues.get(arbitration_id)
+            if destination:
+                try:
+                    destination.put(event, block=False, timeout=2)
+                    #print(f"{current_time:.02f}: {self._decode_event(event)}")
+                except Full:
+                    print(f"Queue {arbitration_id:04X} has timed out")
 
     def stop(self) -> None:
-        pass
+        self._exit_requested = True
+        if self._thread.is_alive():
+            self._thread.join()
 
     def _next_event(self) -> dict:
         if self._currrent_playback == len(self._playback):
@@ -96,10 +113,29 @@ class Playback:
 
 def main() -> None:
 
-    pb = Playback('data_log.json')
-    pb.start()
-    pb.run()
-    pb.stop()
+    queues = {}
+    for module in modules:
+        arbitration_id = module.get('arbitration_id')
+        q = Queue(maxsize=10)
+        queues[arbitration_id] = q
+
+    pb = Playback(file='data_log.json', queues=queues)
+    try:
+        pb.start()
+        while True:
+            try:
+                for arbitration_id, queue in queues.items():
+                    while queue.empty() == False:
+                        event = queue.get(block='False')
+                        print(f"{event}")
+                sleep(0.25)
+            except KeyboardInterrupt:
+                break
+    except Exception as e:
+        print(f"Unexpected exception: {e}")
+    finally:
+        pb.stop()
+
 
 if __name__ == '__main__':
     if sys.version_info[0] >= 3 and sys.version_info[1] >= 10:
