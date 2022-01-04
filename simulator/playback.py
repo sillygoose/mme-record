@@ -40,9 +40,10 @@ modules_by_id = modules_organized_by_id(modules)
 
 class Playback:
 
-    def __init__(self, file: str, queues: dict) -> None:
+    def __init__(self, file: str, queues: dict, start_at: int=0) -> None:
         self._playback_file = file
         self._queues = queues
+        self._start_at = start_at
         self._exit_requested = False
         self._time_zero = int(time())
 
@@ -50,6 +51,15 @@ class Playback:
         self._exit_requested = False
         self._playback = self._load_playback(file=self._playback_file)
         self._currrent_playback = 0
+        if self._start_at > 0:
+            offset = 0
+            for event in self._playback:
+                if event.get('time') < self._start_at:
+                    offset += 1
+                    continue
+                break
+            self._currrent_playback = offset
+            self._time_zero -= event.get('time')
         self._thread = threading.Thread(target=self._event_task)
         self._thread.start()
 

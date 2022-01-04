@@ -97,20 +97,16 @@ class DID:
     def new_event(self, event) -> None:
         print(f"{self._packing}: {event}")
         payload = bytearray(event.get('payload'))
+        unpacking_format = '>' + self._packing
+        if self._packing.find('T') >= 0:
+            unpacking_format = unpacking_format.replace('T', 'HB')
+        unpacked_values = list(struct.unpack(unpacking_format, payload))
+        if self._packing.find('T') >= 0:
+            print(f"Found a 'T' format: {unpacked_values}")
+            unpacked_values[0] = unpacked_values[0] * 256 + unpacked_values[1]
         index = 0
-        for format in self._packing:
-            if format == 'T':
-                unpacking_format = '>L'
-            elif format == 't':
-                unpacking_format = '>l'
-            else:
-                unpacking_format = '>' + format
-            unpacking_result = struct.unpack(unpacking_format, payload)
-            self._states[index] = unpacking_result[0]
-            #if self._packing[index] == 'T' or self._packing[index] == 't':
-                # Pack as uint then remove high order byte to get A:B:C
-            #    postfix = postfix[1:4]
-            #response = response + postfix
+        for state in self._states:
+            self._states[index] = unpacked_values[index]
             index += 1
         print(self._states)
 
