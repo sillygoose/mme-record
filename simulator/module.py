@@ -54,7 +54,7 @@ class Module:
         addr = isotp.Address(isotp.AddressingMode.Normal_11bits, rxid=self._rxid, txid=self._txid)
         self._bus = SocketcanBus(channel=self._channel)
         self._stack = isotp.CanStack(bus=self._bus, address=addr, error_handler=self.error_handler, params=Module.isotp_params)
-        self._did_thread = threading.Thread(target=self._did_task)
+        self._did_thread = threading.Thread(target=self._did_task, name=self._name)
         self._did_thread.start()
 
     def stop(self) -> None:

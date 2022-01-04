@@ -95,7 +95,6 @@ class DID:
         return response
 
     def new_event(self, event) -> None:
-        #print(f"{self._packing}: {event}")
         payload = bytearray(event.get('payload'))
         unpacking_format = '>' + self._packing
         if self._packing.find('T') >= 0:
@@ -103,12 +102,10 @@ class DID:
         unpacked_values = list(struct.unpack(unpacking_format, payload))
         if self._packing.find('T') >= 0:
             unpacked_values[0] = unpacked_values[0] * 256 + unpacked_values[1]
-            print(f"Found a 'T' format: {unpacked_values}")
         index = 0
         for state in self._states:
             self._states[index] = unpacked_values[index]
             index += 1
-        #print(self._states)
 
     def id(self) -> int:
         return self._id

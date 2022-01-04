@@ -151,12 +151,7 @@ def main() -> None:
         pb = Playback(file='playback.json', queues=mme.event_queues(), start_at=0)
         mme.start()
         pb.start()
-        while True:
-            try:
-                time.sleep(0.25)
-            except KeyboardInterrupt:
-                break
-    except FailedInitialization as e:
+    except KeyboardInterrupt:
         pass
     except Exception as e:
         _LOGGER.error(f"Unexpected exception: {e}")

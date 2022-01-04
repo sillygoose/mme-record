@@ -60,8 +60,9 @@ class Playback:
                 break
             self._currrent_playback = offset
             self._time_zero -= event.get('time')
-        self._thread = threading.Thread(target=self._event_task)
+        self._thread = threading.Thread(target=self._event_task, name='playback')
         self._thread.start()
+        self._thread.join()
 
     def _event_task(self) -> None:
         while self._exit_requested == False:
