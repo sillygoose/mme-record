@@ -77,7 +77,7 @@ class DID:
             self._states.append(value)
 
     def response(self) -> bytearray:
-        response = struct.pack('>BH', 0x62, self._id)
+        response = bytearray()
         index = 0
         for state in self._states:
             if self._packing[index] == 'T':

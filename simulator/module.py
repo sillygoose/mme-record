@@ -75,13 +75,23 @@ class Module:
             self._stack.process()
             if self._stack.available():
                 payload = self._stack.recv()
-                service, did = struct.unpack('>BH', payload)
-                if service == 0x22:
-                    did_handler = self._dids.get(did, None)
-                    if did_handler is None:
-                        response = struct.pack('>BBB', 0x7F, 0x22, 0x31)
-                    else:
-                        response = did_handler.response()
+                #print("Received payload : %s" % (payload))
+                service = struct.unpack_from('>B', payload)
+                if service[0] == 0x22:
+                    offset = 1
+                    response = struct.pack('>B', 0x62)
+                    while offset < len(payload):
+                        did = struct.unpack_from('>H', payload, offset=offset)
+                        offset += 2
+                        did = did[0]
+                        #print(f"DID: {did:04X}")
+                        response += struct.pack('>H', did)
+                        did_handler = self._dids.get(did, None)
+                        if did_handler is None:
+                            pass # response = struct.pack('>BBB', 0x7F, 0x22, 0x31)
+                        else:
+                            response += did_handler.response()
+
                     while self._stack.transmitting():
                         self._stack.process()
                         time.sleep(self._stack.sleep_time())
