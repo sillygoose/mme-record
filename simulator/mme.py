@@ -146,7 +146,7 @@ def main() -> None:
         return
 
     try:
-        pb = Playback(file='playback.json', queues=mme.event_queues(), start_at=300)
+        pb = Playback(file='playback.json', queues=mme.event_queues(), start_at=0)
         mme.start()
         pb.start()
         while True:
