@@ -8,7 +8,7 @@ from exceptions import FailedInitialization
 _LOGGER = logging.getLogger('mme')
 
 _DIDS = {
-    0x1505: { 'name': 'HiresSpeed',             'packing': 'H',     'modules': ['PCM'],         'states': [{ 'name': 'speed', 'value': 10000}] },
+    0x1505: { 'name': 'HiresSpeed',             'packing': 'H',     'modules': ['PCM'],         'states': [{ 'name': 'speed', 'value': 0}] },
     0x1E12: { 'name': 'GearCommanded',          'packing': 'B',     'modules': ['SOBDM'],       'states': [{ 'name': 'gear_commanded', 'value': 70}] },
     0x4028: { 'name': 'LvbSoc',                 'packing': 'B',     'modules': ['BCM'],         'states': [{ 'name': 'lvb_soc', 'value': 0x5B}] },
     0x402A: { 'name': 'LvbVoltage',             'packing': 'B',     'modules': ['BCM'],         'states': [{ 'name': 'lvb_voltage', 'value': 0x92}] },

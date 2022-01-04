@@ -21,7 +21,7 @@ class Module:
 
     isotp_timeout = 5.0
     isotp_params = {
-        'stmin' : 32,                                                   # Will request the sender to wait 32ms between consecutive frame. 0-127ms or 100-900ns with values from 0xF1-0xF9
+        'stmin' : 2,                                                    # Will request the sender to wait 2ms between consecutive frame. 0-127ms or 100-900ns with values from 0xF1-0xF9
         'blocksize' : 8,                                                # Request the sender to send 8 consecutives frames before sending a new flow control message
         'wftmax' : 0,                                                   # Number of wait frame allowed before triggering an error
         'tx_data_length' : 8,                                           # Link layer (CAN layer) works with 8 byte payload (CAN 2.0)
