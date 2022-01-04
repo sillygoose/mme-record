@@ -1,4 +1,3 @@
-import queue
 import time
 import logging
 from queue import Queue
@@ -51,38 +50,24 @@ class Module:
 
     def start(self) -> None:
         self._exit_requested = False
-        _LOGGER.info(f"Starting module '{self._name}' on channel '{self._channel}' with arbitration ID {self._rxid:03X}")
+        _LOGGER.debug(f"Starting module '{self._name}' on channel '{self._channel}' with arbitration ID {self._rxid:03X}")
         addr = isotp.Address(isotp.AddressingMode.Normal_11bits, rxid=self._rxid, txid=self._txid)
         self._bus = SocketcanBus(channel=self._channel)
         self._stack = isotp.CanStack(bus=self._bus, address=addr, error_handler=self.error_handler, params=Module.isotp_params)
         self._did_thread = threading.Thread(target=self._did_task)
         self._did_thread.start()
-        self._event_thread = threading.Thread(target=self._event_task)
-        self._event_thread.start()
 
     def stop(self) -> None:
-        _LOGGER.info(f"Stopping module {self._name}")
+        _LOGGER.debug(f"Stopping module {self._name}")
         self._exit_requested = True
         if self._did_thread.is_alive():
             self._did_thread.join()
-        if self._event_thread.is_alive():
-            self._event_thread.join()
         if self._bus:
             self._bus.shutdown()
             self._bus = None
 
     def add_did(self, did: DID) -> None:
         self._dids[did.id()] = did
-
-    def _event_task(self) -> None:
-        while self._exit_requested == False:
-            while self._event_queue.empty() == False:
-                event = self._event_queue.get(block='False')
-                did = event.get('did')
-                did_handler = self._dids.get(did, None)
-                if did_handler:
-                    did_handler.new_event(event)
-            time.sleep(0.1)
 
     def _did_task(self) -> None:
         while self._exit_requested == False:
@@ -101,6 +86,13 @@ class Module:
                         self._stack.process()
                         time.sleep(self._stack.sleep_time())
                     self._stack.send(response)
+
+            if not self._event_queue.empty():
+                event = self._event_queue.get(block='False')
+                did_handler = self._dids.get(event.get('did'), None)
+                if did_handler:
+                    did_handler.new_event(event)
+
 
     def error_handler(self, error) -> None:
         _LOGGER.error('%s IsoTp error happened : %s - %s' % (self._name, error.__class__.__name__, str(error)))

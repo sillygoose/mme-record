@@ -2,226 +2,271 @@
     {
         "name": "ABS",
         "channel": "can0",
-        "arbitration_id": 1888
+        "arbitration_id": 1888,
+        "enable": 0
     },
     {
         "name": "ACCM",
         "channel": "can0",
-        "arbitration_id": 1991
+        "arbitration_id": 1991,
+        "enable": 0
     },
     {
         "name": "ACM",
         "channel": "can1",
-        "arbitration_id": 1831
+        "arbitration_id": 1831,
+        "enable": 0
     },
     {
         "name": "APIM",
         "channel": "can1",
-        "arbitration_id": 2000
+        "arbitration_id": 2000,
+        "enable": 1
     },
     {
         "name": "BCM",
         "channel": "can0",
-        "arbitration_id": 1830
+        "arbitration_id": 1830,
+        "enable": 1
     },
     {
         "name": "BCMC",
         "channel": "can0",
-        "arbitration_id": 1776
+        "arbitration_id": 1776,
+        "enable": 0
     },
     {
         "name": "BECM",
         "channel": "can0",
-        "arbitration_id": 2020
+        "arbitration_id": 2020,
+        "enable": 1
     },
     {
         "name": "BECMB",
         "channel": "can0",
-        "arbitration_id": 1827
+        "arbitration_id": 1827,
+        "enable": 0
     },
     {
         "name": "CCM",
         "channel": "can0",
-        "arbitration_id": 1892
+        "arbitration_id": 1892,
+        "enable": 0
     },
     {
         "name": "CMR",
         "channel": "can0",
-        "arbitration_id": 1985
+        "arbitration_id": 1985,
+        "enable": 0
     },
     {
         "name": "DCDC",
         "channel": "can0",
-        "arbitration_id": 1862
+        "arbitration_id": 1862,
+        "enable": 1
     },
     {
         "name": "DCME",
         "channel": "can1",
-        "arbitration_id": 1954
+        "arbitration_id": 1954,
+        "enable": 0
     },
     {
         "name": "DCMG",
         "channel": "can1",
-        "arbitration_id": 1971
+        "arbitration_id": 1971,
+        "enable": 0
     },
     {
         "name": "DCMH",
         "channel": "can1",
-        "arbitration_id": 1972
+        "arbitration_id": 1972,
+        "enable": 0
     },
     {
         "name": "DDM",
         "channel": "can0",
-        "arbitration_id": 1856
+        "arbitration_id": 1856,
+        "enable": 0
     },
     {
         "name": "DSM",
         "channel": "can1",
-        "arbitration_id": 1860
+        "arbitration_id": 1860,
+        "enable": 0
     },
     {
         "name": "DSP",
         "channel": "can1",
-        "arbitration_id": 1923
+        "arbitration_id": 1923,
+        "enable": 0
     },
     {
         "name": "GFM",
         "channel": "can1",
-        "arbitration_id": 1953
+        "arbitration_id": 1953,
+        "enable": 0
     },
     {
         "name": "GSM",
         "channel": "can1",
-        "arbitration_id": 1842
+        "arbitration_id": 1842,
+        "enable": 0
     },
     {
         "name": "GWM",
         "channel": "can0",
-        "arbitration_id": 1814
+        "arbitration_id": 1814,
+        "enable": 1
     },
     {
         "name": "HCM",
         "channel": "can1",
-        "arbitration_id": 1844
+        "arbitration_id": 1844,
+        "enable": 0
     },
     {
         "name": "HVAC",
         "channel": "can1",
-        "arbitration_id": 1843
+        "arbitration_id": 1843,
+        "enable": 0
     },
     {
         "name": "IPC",
         "channel": "can1",
-        "arbitration_id": 1824
+        "arbitration_id": 1824,
+        "enable": 1
     },
     {
         "name": "IPMA",
         "channel": "can0",
-        "arbitration_id": 1798
+        "arbitration_id": 1798,
+        "enable": 0
     },
     {
         "name": "OBCC",
         "channel": "can0",
-        "arbitration_id": 1781
+        "arbitration_id": 1781,
+        "enable": 0
     },
     {
         "name": "OCS",
         "channel": "can1",
-        "arbitration_id": 1893
+        "arbitration_id": 1893,
+        "enable": 0
     },
     {
         "name": "PACM",
         "channel": "can0",
-        "arbitration_id": 1872
+        "arbitration_id": 1872,
+        "enable": 0
     },
     {
         "name": "PCM",
         "channel": "can0",
-        "arbitration_id": 2016
+        "arbitration_id": 2016,
+        "enable": 1
     },
     {
         "name": "PDM",
         "channel": "can1",
-        "arbitration_id": 1857
+        "arbitration_id": 1857,
+        "enable": 0
     },
     {
         "name": "PSCM",
         "channel": "can0",
-        "arbitration_id": 1840
+        "arbitration_id": 1840,
+        "enable": 0
     },
     {
         "name": "RCM",
         "channel": "can1",
-        "arbitration_id": 1847
+        "arbitration_id": 1847,
+        "enable": 0
     },
     {
         "name": "RFA",
         "channel": "can1",
-        "arbitration_id": 1841
+        "arbitration_id": 1841,
+        "enable": 0
     },
     {
         "name": "RGTM",
         "channel": "can1",
-        "arbitration_id": 1909
+        "arbitration_id": 1909,
+        "enable": 0
     },
     {
         "name": "SCCM",
         "channel": "can1",
-        "arbitration_id": 1828
+        "arbitration_id": 1828,
+        "enable": 0
     },
     {
         "name": "SCMF",
         "channel": "can1",
-        "arbitration_id": 1890
+        "arbitration_id": 1890,
+        "enable": 0
     },
     {
         "name": "SOBDM",
         "channel": "can0",
-        "arbitration_id": 2018
+        "arbitration_id": 2018,
+        "enable": 1
     },
     {
         "name": "SOBDMB",
         "channel": "can0",
-        "arbitration_id": 2023
+        "arbitration_id": 2023,
+        "enable": 0
     },
     {
         "name": "SOBDMC",
         "channel": "can0",
-        "arbitration_id": 2022
+        "arbitration_id": 2022,
+        "enable": 0
     },
     {
         "name": "SODCMC",
         "channel": "can0",
-        "arbitration_id": 1778
+        "arbitration_id": 1778,
+        "enable": 0
     },
     {
         "name": "SODCMD",
         "channel": "can0",
-        "arbitration_id": 1779
+        "arbitration_id": 1779,
+        "enable": 0
     },
     {
         "name": "SODL",
         "channel": "can0",
-        "arbitration_id": 1988
+        "arbitration_id": 1988,
+        "enable": 0
     },
     {
         "name": "SODR",
         "channel": "can0",
-        "arbitration_id": 1990
+        "arbitration_id": 1990,
+        "enable": 0
     },
     {
         "name": "TCU",
         "channel": "can1",
-        "arbitration_id": 1876
+        "arbitration_id": 1876,
+        "enable": 0
     },
     {
         "name": "VDM",
         "channel": "can0",
-        "arbitration_id": 1825
+        "arbitration_id": 1825,
+        "enable": 0
     },
     {
         "name": "WACM",
         "channel": "can1",
-        "arbitration_id": 1829
+        "arbitration_id": 1829,
+        "enable": 0
     }
 ]

@@ -83,12 +83,14 @@ class MustangMachE:
             name = module.get('name')
             channel = module.get('channel')
             arbitration_id = module.get('arbitration_id')
-            #if self._modules.get(module, None) is not None:
-            #    raise FailedInitialization(f"Module {module} is defined more than once")
-            event_queue = Queue(maxsize=10)
-            self._module_event_queues[name] = event_queue
-            self._modules[name] = Module(name=name, event_queue=event_queue, channel=channel, arbitration_id=arbitration_id)
-            _LOGGER.debug(f"Added builtin module '{module}' to simulator")
+            enable = module.get('enable')
+            if enable:
+                #if self._modules.get(module, None) is not None:
+                #    raise FailedInitialization(f"Module {module} is defined more than once")
+                event_queue = Queue(maxsize=10)
+                self._module_event_queues[name] = event_queue
+                self._modules[name] = Module(name=name, event_queue=event_queue, channel=channel, arbitration_id=arbitration_id)
+                _LOGGER.debug(f"Added builtin module '{module}' to simulator")
 
     def add_builtin_dids(self, dids: List[int]) -> None:
         for did in dids:

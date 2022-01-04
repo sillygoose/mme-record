@@ -40,7 +40,7 @@ _DIDS = {
     0x48F9: { 'name': 'HvbCurrent',             'packing': 'h',     'modules': ['BECM'],        'states': [{ 'name': 'hvb_current', 'value': 0x0052}] },
     0x48FB: { 'name': 'ChrgPowerLimit',         'packing': 'h',     'modules': ['BECM'],        'states': [{ 'name': 'charge_power_limit', 'value': -1}] },
     0x490C: { 'name': 'HvbSoh',                 'packing': 'B',     'modules': ['BECM'],        'states': [{ 'name': 'hvb_soh', 'value': 0xC8}] },
-    0x6310: { 'name': 'GearSelected',           'packing': 'B',     'modules': ['IPC'],         'states': [{ 'name': 'gear_selected', 'value': 0}] },
+    0x6310: { 'name': 'GearDisplayed',          'packing': 'B',     'modules': ['IPC'],         'states': [{ 'name': 'gear_selected', 'value': 0}] },
     0x8012: { 'name': 'GPS',                    'packing': 'HllBHH','modules': ['APIM'],        'states': [
                                                                                                         { 'name': 'elevation', 'value': 100},
                                                                                                         { 'name': 'latitude', 'value': 2577},
@@ -95,20 +95,20 @@ class DID:
         return response
 
     def new_event(self, event) -> None:
-        print(f"{self._packing}: {event}")
+        #print(f"{self._packing}: {event}")
         payload = bytearray(event.get('payload'))
         unpacking_format = '>' + self._packing
         if self._packing.find('T') >= 0:
             unpacking_format = unpacking_format.replace('T', 'HB')
         unpacked_values = list(struct.unpack(unpacking_format, payload))
         if self._packing.find('T') >= 0:
-            print(f"Found a 'T' format: {unpacked_values}")
             unpacked_values[0] = unpacked_values[0] * 256 + unpacked_values[1]
+            print(f"Found a 'T' format: {unpacked_values}")
         index = 0
         for state in self._states:
             self._states[index] = unpacked_values[index]
             index += 1
-        print(self._states)
+        #print(self._states)
 
     def id(self) -> int:
         return self._id
