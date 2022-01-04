@@ -75,7 +75,6 @@ class Module:
             self._stack.process()
             if self._stack.available():
                 payload = self._stack.recv()
-                #print("Received payload : %s" % (payload))
                 service = struct.unpack_from('>B', payload)
                 if service[0] == 0x22:
                     offset = 1
@@ -84,11 +83,10 @@ class Module:
                         did = struct.unpack_from('>H', payload, offset=offset)
                         offset += 2
                         did = did[0]
-                        #print(f"DID: {did:04X}")
                         response += struct.pack('>H', did)
                         did_handler = self._dids.get(did, None)
                         if did_handler is None:
-                            pass # response = struct.pack('>BBB', 0x7F, 0x22, 0x31)
+                            pass ### response = struct.pack('>BBB', 0x7F, 0x22, 0x31)
                         else:
                             response += did_handler.response()
 
