@@ -5,31 +5,3 @@ mme:
     builtin:
         modules:    True
         dids:       True
-
-    # The custom section allows createion of new modules and PIDs from the
-    # configuration file.
-    custom:
-        # Custom modules require three items to configure:
-        #   name                the module name (which should be unique)
-        #   channel             'can0' or 'can1' or some other CANbus you may have
-        #   arbitration_id      the arbitration_id of the module
-        modules:
-            - module:
-                name:               'ABC'
-                channel:            'can0'
-                arbitration_id:     0x700
-
-        # Custom PIDs require five items to configure:
-        #   name                the DID name
-        #   id                  the id that the DID responds to
-        #   packing             a string of Python struct packing format codes, one per state
-        #   modules             a list of modules that respond to this DID
-        #   states              a list of state dictionaries containing a name and the state's initial value
-        dids:
-            - did:
-                name: 'CustomPID'
-                id: 0x1234
-                packing: 'B'
-                modules: [ABC, DEF]
-                states: [{name: val_a, value: 10}]
- 

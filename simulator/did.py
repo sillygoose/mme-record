@@ -94,6 +94,26 @@ class DID:
             index += 1
         return response
 
+    def new_event(self, event) -> None:
+        print(f"{self._packing}: {event}")
+        payload = bytearray(event.get('payload'))
+        index = 0
+        for format in self._packing:
+            if format == 'T':
+                unpacking_format = '>L'
+            elif format == 't':
+                unpacking_format = '>l'
+            else:
+                unpacking_format = '>' + format
+            unpacking_result = struct.unpack(unpacking_format, payload)
+            self._states[index] = unpacking_result[0]
+            #if self._packing[index] == 'T' or self._packing[index] == 't':
+                # Pack as uint then remove high order byte to get A:B:C
+            #    postfix = postfix[1:4]
+            #response = response + postfix
+            index += 1
+        print(self._states)
+
     def id(self) -> int:
         return self._id
 

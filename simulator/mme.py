@@ -1,11 +1,13 @@
 import sys
 import os
 import time
+from queue import Queue
 import logging
 from typing import List
 
 from module import Module, builtin_modules
 from did import DID, builtin_dids
+from playback import Playback
 
 import version
 import logfiles
@@ -22,6 +24,7 @@ class MustangMachE:
         self._modules = {}
         self._config = config.mme
         self._modules = {}
+        self._module_event_queues = {}
         self._dids_by_id = {}
 
     def start(self) -> None:
@@ -31,6 +34,9 @@ class MustangMachE:
     def stop(self) -> None:
         for module in self._modules.values():
             module.stop()
+
+    def event_queues(self) -> dict:
+        return self._module_event_queues
 
     def add_custom_modules(self, modules: dict) -> None:
         if len(modules) == 0:
@@ -72,11 +78,16 @@ class MustangMachE:
                 if module_object is not None:
                     module_object.add_did(did_object)
 
-    def add_builtin_modules(self, modules: List[str]) -> None:
+    def add_builtin_modules(self, modules: List[dict]) -> None:
         for module in modules:
-            if self._modules.get(module, None) is not None:
-                raise FailedInitialization(f"Module {module} is defined more than once")
-            self._modules[module] = Module(name=module)
+            name = module.get('name')
+            channel = module.get('channel')
+            arbitration_id = module.get('arbitration_id')
+            #if self._modules.get(module, None) is not None:
+            #    raise FailedInitialization(f"Module {module} is defined more than once")
+            event_queue = Queue(maxsize=10)
+            self._module_event_queues[name] = event_queue
+            self._modules[name] = Module(name=name, event_queue=event_queue, channel=channel, arbitration_id=arbitration_id)
             _LOGGER.debug(f"Added builtin module '{module}' to simulator")
 
     def add_builtin_dids(self, dids: List[int]) -> None:
@@ -114,7 +125,8 @@ def main() -> None:
         mme = MustangMachE(config=config)
         builtin = config.mme.builtin
         if builtin.modules == True:
-            mme.add_builtin_modules(builtin_modules())
+            list_of_modules = builtin_modules()
+            mme.add_builtin_modules(modules=list_of_modules)
         if 'custom' in config.mme.keys():
             custom = config.mme.custom
             if 'modules' in custom.keys():
@@ -134,10 +146,12 @@ def main() -> None:
         return
 
     try:
+        pb = Playback(file='playback.json', queues=mme.event_queues())
         mme.start()
+        pb.start()
         while True:
             try:
-                time.sleep(1)
+                time.sleep(0.25)
             except KeyboardInterrupt:
                 break
     except FailedInitialization as e:

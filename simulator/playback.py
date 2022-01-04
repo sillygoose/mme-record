@@ -68,7 +68,8 @@ class Playback:
                     sleep(sleep_for)
             current_time = round(time() - self._time_zero, ndigits=2)
             arbitration_id = event.get('id')
-            destination = self._queues.get(arbitration_id)
+            name = modules_by_id.get(arbitration_id).get('name')
+            destination = self._queues.get(name)
             if destination:
                 try:
                     destination.put(event, block=False, timeout=2)
@@ -112,14 +113,13 @@ class Playback:
 
 
 def main() -> None:
-
     queues = {}
     for module in modules:
         arbitration_id = module.get('arbitration_id')
         q = Queue(maxsize=10)
         queues[arbitration_id] = q
 
-    pb = Playback(file='data_log.json', queues=queues)
+    pb = Playback(file='playback.json', queues=queues)
     try:
         pb.start()
         while True:

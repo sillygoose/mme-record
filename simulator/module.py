@@ -1,5 +1,7 @@
+import queue
 import time
 import logging
+from queue import Queue
 import threading
 import struct
 import json
@@ -32,12 +34,13 @@ class Module:
         'max_frame_size' : 4095                                         # Limit the size of receive frame.
     }
 
-    def __init__(self, name: str, channel: str = None, arbitration_id: int = None) -> None:
+    def __init__(self, name: str, event_queue: Queue, channel: str = None, arbitration_id: int = None) -> None:
         module_lookup = Module.modules_by_name.get(name, None)
         if module_lookup is None and (channel is None or arbitration_id is None):
             raise FailedInitialization(f"The module '{name}' is not supported by the simulator or cannot be created")
 
         self._name = name
+        self._event_queue = event_queue
         self._channel = module_lookup.get('channel') if channel is None else channel
         self._rxid = module_lookup.get('arbitration_id') if arbitration_id is None else arbitration_id
         self._txid = self._rxid + 8
@@ -52,20 +55,34 @@ class Module:
         addr = isotp.Address(isotp.AddressingMode.Normal_11bits, rxid=self._rxid, txid=self._txid)
         self._bus = SocketcanBus(channel=self._channel)
         self._stack = isotp.CanStack(bus=self._bus, address=addr, error_handler=self.error_handler, params=Module.isotp_params)
-        self._thread = threading.Thread(target=self._did_task)
-        self._thread.start()
+        self._did_thread = threading.Thread(target=self._did_task)
+        self._did_thread.start()
+        self._event_thread = threading.Thread(target=self._event_task)
+        self._event_thread.start()
 
     def stop(self) -> None:
         _LOGGER.info(f"Stopping module {self._name}")
         self._exit_requested = True
-        if self._thread.is_alive():
-            self._thread.join()
+        if self._did_thread.is_alive():
+            self._did_thread.join()
+        if self._event_thread.is_alive():
+            self._event_thread.join()
         if self._bus:
             self._bus.shutdown()
             self._bus = None
 
     def add_did(self, did: DID) -> None:
         self._dids[did.id()] = did
+
+    def _event_task(self) -> None:
+        while self._exit_requested == False:
+            while self._event_queue.empty() == False:
+                event = self._event_queue.get(block='False')
+                did = event.get('did')
+                did_handler = self._dids.get(did, None)
+                if did_handler:
+                    did_handler.new_event(event)
+            time.sleep(0.1)
 
     def _did_task(self) -> None:
         while self._exit_requested == False:
@@ -143,5 +160,5 @@ class Module:
     modules_by_id = _organize_by_id(modules)
 
 
-def builtin_modules() -> List[str]:
-    return Module.modules_by_name.keys()
+def builtin_modules() -> List[dict]:
+    return Module.modules
