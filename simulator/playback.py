@@ -33,7 +33,7 @@ def get_module_name(arbitration_id: int) -> str:
     return modules_by_id.get(arbitration_id, '???')
 
 
-modules = load_modules(file='mme_modules.json')
+modules = load_modules(file='json/mme_modules.json')
 modules_by_name = modules_organized_by_name(modules)
 modules_by_id = modules_organized_by_id(modules)
 

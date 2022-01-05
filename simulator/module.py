@@ -67,7 +67,8 @@ class Module:
             self._bus = None
 
     def add_did(self, did: DID) -> None:
-        self._dids[did.id()] = did
+        did_id = did.did()
+        self._dids[did_id] = did
 
     def _did_task(self) -> None:
         while self._exit_requested == False:
@@ -131,34 +132,40 @@ class Module:
             module.get('name', None)
         return module_name
 
-
-    def _organize_by_name(modules: List[dict]) -> dict:
+    # Static functions and data
+    def _modules_organized_by_name(modules: List[dict]) -> dict:
         modules_by_names = {}
         for module in modules:
             modules_by_names[module.get('name')] = module
         return modules_by_names
 
-    def _organize_by_id(modules: List[dict]) -> dict:
+    def _modules_organized_by_id(modules: List[dict]) -> dict:
         modules_by_id = {}
         for module in modules:
             modules_by_id[module.get('arbitration_id')] = module
         return modules_by_id
 
-    def _load_modules(filename: str) -> dict:
-        with open(filename) as infile:
+    def _load_modules(file: str) -> dict:
+        with open(file) as infile:
             modules = json.load(infile)
         return modules
 
-    def _dump_modules(filename: str, modules: dict) -> None:
+    def _dump_modules(file: str, modules: dict) -> None:
         json_modules = json.dumps(modules, indent = 4, sort_keys=False)
-        with open(filename, "w") as outfile:
+        with open(file, "w") as outfile:
             outfile.write(json_modules)
 
     # Module static data
-    modules = _load_modules(filename='mme_modules.json')
-    modules_by_name = _organize_by_name(modules)
-    modules_by_id = _organize_by_id(modules)
+    modules = _load_modules(file='json/mme_modules.json')
+    modules_by_name = _modules_organized_by_name(modules)
+    modules_by_id = _modules_organized_by_id(modules)
 
 
 def builtin_modules() -> List[dict]:
     return Module.modules
+
+def arbitration_id(name: str) -> int:
+    return Module.modules_by_name.get(name, None)
+
+def module_name(arbitration_id: int) -> str:
+    return Module.modules_by_id.get(arbitration_id, None)

@@ -1,5 +1,7 @@
 import struct
+import json
 import logging
+
 from typing import List
 
 from exceptions import FailedInitialization
@@ -7,6 +9,7 @@ from exceptions import FailedInitialization
 
 _LOGGER = logging.getLogger('mme')
 
+"""
 _DIDS = {
     0x1505: { 'name': 'HiresSpeed',             'packing': 'H',     'modules': ['PCM'],         'states': [{ 'name': 'speed', 'value': 0}] },
     0x1E12: { 'name': 'GearCommanded',          'packing': 'B',     'modules': ['SOBDM'],       'states': [{ 'name': 'gear_commanded', 'value': 70}] },
@@ -18,29 +21,29 @@ _DIDS = {
     0x4800: { 'name': 'HvbTemp',                'packing': 'B',     'modules': ['BECM'],        'states': [{ 'name': 'hvb_temp', 'value': 0x40}] },
     0x4801: { 'name': 'HvbSoc',                 'packing': 'H',     'modules': ['BECM'],        'states': [{ 'name': 'hvb_soc', 'value': 0x7A86}] },
     0x480D: { 'name': 'HvbVoltage',             'packing': 'H',     'modules': ['BECM'],        'states': [{ 'name': 'hvb_voltage', 'value': 0x8ABD}] },
-    0x4836: { 'name': 'LvbLvCurrent',           'packing': 'B',     'modules': ['DCDC'],        'states': [{ 'name': 'LvbLvCurrent', 'value': 0x1B}] },
-    0x483A: { 'name': 'LvbHvCurrent',           'packing': 'B',     'modules': ['DCDC'],        'states': [{ 'name': 'LvbHvCurrent', 'value': 0x3A}] },
-    0x483D: { 'name': 'LvbDcdcEnable',          'packing': 'H',     'modules': ['DCDC'],        'states': [{ 'name': 'LvbDcdcEnable', 'value': 0x186}] },
-    0x4842: { 'name': 'HvbChrgCurrentReqsted',  'packing': 'h',     'modules': ['SOBDM'],       'states': [{ 'name': 'HvbChrgCurrentReqsted', 'value': 1000}] },
-    0x4844: { 'name': 'HvbChrgVoltageReqsted',  'packing': 'B',     'modules': ['SOBDM'],       'states': [{ 'name': 'HvbChrgVoltageReqsted', 'value': 10}] },
+    0x4836: { 'name': 'LvbLvCurrent',           'packing': 'B',     'modules': ['DCDC'],        'states': [{ 'name': 'lvb_lv_current', 'value': 0x1B}] },
+    0x483A: { 'name': 'LvbHvCurrent',           'packing': 'B',     'modules': ['DCDC'],        'states': [{ 'name': 'lvb_hv_current', 'value': 0x3A}] },
+    0x483D: { 'name': 'LvbDcdcEnable',          'packing': 'H',     'modules': ['DCDC'],        'states': [{ 'name': 'lvb_dcdc_enable', 'value': 0x186}] },
+    0x4842: { 'name': 'HvbChrgCurrentReqsted',  'packing': 'h',     'modules': ['SOBDM'],       'states': [{ 'name': 'hvb_chrg_current_reqsted', 'value': 1000}] },
+    0x4844: { 'name': 'HvbChrgVoltageReqsted',  'packing': 'B',     'modules': ['SOBDM'],       'states': [{ 'name': 'hvb_chrg_voltage_reqsted', 'value': 10}] },
     0x4845: { 'name': 'HvbSocD',                'packing': 'B',     'modules': ['BECM'],        'states': [{ 'name': 'hvb_socd', 'value': 0x84}] },
     0x4848: { 'name': 'EnergyToEmpty',          'packing': 'H',     'modules': ['BECM'],        'states': [{ 'name': 'energy_to_empty', 'value': 0x63C5}] },
-    0x484A: { 'name': 'ChargerOutputVoltage',   'packing': 'h',     'modules': ['SOBDM'],       'states': [{ 'name': 'ChargerOutputVoltage', 'value': 1000}] },
-    0x484E: { 'name': 'ChargerInputPower',      'packing': 'h',     'modules': ['SOBDM'],       'states': [{ 'name': 'ChargerInputPower', 'value': 1000}] },
+    0x484A: { 'name': 'ChargerOutputVoltage',   'packing': 'h',     'modules': ['SOBDM'],       'states': [{ 'name': 'charger_output_voltage', 'value': 1000}] },
+    0x484E: { 'name': 'ChargerInputPower',      'packing': 'h',     'modules': ['SOBDM'],       'states': [{ 'name': 'charger_input_power', 'value': 1000}] },
     0x484F: { 'name': 'ChargerStatus',          'packing': 'B',     'modules': ['BECM'],        'states': [{ 'name': 'charger_status', 'value': 0x03}] },
-    0x4850: { 'name': 'ChargerOutputCurrent',   'packing': 'h',     'modules': ['SOBDM'],       'states': [{ 'name': 'ChargerOutputCurrent', 'value': 1000}] },
+    0x4850: { 'name': 'ChargerOutputCurrent',   'packing': 'h',     'modules': ['SOBDM'],       'states': [{ 'name': 'charger_output_current', 'value': 1000}] },
     0x4851: { 'name': 'EvseType',               'packing': 'B',     'modules': ['BECM'],        'states': [{ 'name': 'evse_type', 'value': 0x06}] },
-    0x485E: { 'name': 'ChargerInputVoltage',    'packing': 'H',     'modules': ['SOBDM'],       'states': [{ 'name': 'ChargerInputVoltage', 'value': 1000}] },
-    0x485F: { 'name': 'ChargerInputCurrent',    'packing': 'B',     'modules': ['SOBDM'],       'states': [{ 'name': 'ChargerInputCurrent', 'value': 100}] },
-    0x4860: { 'name': 'ChargerInputFrequency',  'packing': 'B',     'modules': ['SOBDM'],       'states': [{ 'name': 'ChargerInputFrequency', 'value': 100}] },
-    0x4861: { 'name': 'ChargerPilotDutyCycle',  'packing': 'B',     'modules': ['SOBDM'],       'states': [{ 'name': 'ChargerPilotDutyCycle', 'value': 100}] },
-    0x48B6: { 'name': 'ChargerPilotVoltage',    'packing': 'B',     'modules': ['SOBDM'],       'states': [{ 'name': 'ChargerPilotVoltage', 'value': 100}] },
-    0x48BC: { 'name': 'HvbMaxChargeCurrent',    'packing': 'h',     'modules': ['SOBDM'],       'states': [{ 'name': 'HvbMaximumChargeCurrent', 'value': 100}] },
+    0x485E: { 'name': 'ChargerInputVoltage',    'packing': 'H',     'modules': ['SOBDM'],       'states': [{ 'name': 'charger_input_voltage', 'value': 1000}] },
+    0x485F: { 'name': 'ChargerInputCurrent',    'packing': 'B',     'modules': ['SOBDM'],       'states': [{ 'name': 'charger_input_current', 'value': 100}] },
+    0x4860: { 'name': 'ChargerInputFrequency',  'packing': 'B',     'modules': ['SOBDM'],       'states': [{ 'name': 'charger_input_freq', 'value': 100}] },
+    0x4861: { 'name': 'ChargerPilotDutyCycle',  'packing': 'B',     'modules': ['SOBDM'],       'states': [{ 'name': 'charger_pilot_duty_cycle', 'value': 100}] },
+    0x48B6: { 'name': 'ChargerPilotVoltage',    'packing': 'B',     'modules': ['SOBDM'],       'states': [{ 'name': 'charger_pilot_voltage', 'value': 100}] },
+    0x48BC: { 'name': 'HvbMaxChargeCurrent',    'packing': 'h',     'modules': ['SOBDM'],       'states': [{ 'name': 'hvb_max_charge_current', 'value': 100}] },
     0x48C4: { 'name': 'ChargerMaxPower',        'packing': 'H',     'modules': ['SOBDM'],       'states': [{ 'name': 'ChargerMaxPower', 'value': 100}] },
     0x48F9: { 'name': 'HvbCurrent',             'packing': 'h',     'modules': ['BECM'],        'states': [{ 'name': 'hvb_current', 'value': 0x0052}] },
-    0x48FB: { 'name': 'ChrgPowerLimit',         'packing': 'h',     'modules': ['BECM'],        'states': [{ 'name': 'charge_power_limit', 'value': -1}] },
+    0x48FB: { 'name': 'ChargerPowerLimit',      'packing': 'h',     'modules': ['BECM'],        'states': [{ 'name': 'charger_power_limit', 'value': -1}] },
     0x490C: { 'name': 'HvbSoh',                 'packing': 'B',     'modules': ['BECM'],        'states': [{ 'name': 'hvb_soh', 'value': 0xC8}] },
-    0x6310: { 'name': 'GearDisplayed',          'packing': 'B',     'modules': ['IPC'],         'states': [{ 'name': 'gear_selected', 'value': 0}] },
+    0x6310: { 'name': 'GearDisplayed',          'packing': 'B',     'modules': ['IPC'],         'states': [{ 'name': 'gear_displayed', 'value': 0}] },
     0x8012: { 'name': 'GPS',                    'packing': 'HllBHH','modules': ['APIM'],        'states': [
                                                                                                         { 'name': 'elevation', 'value': 100},
                                                                                                         { 'name': 'latitude', 'value': 2577},
@@ -56,20 +59,16 @@ _DIDS = {
 
 def builtin_dids() -> List[int]:
     return _DIDS.keys()
+"""
 
 
 class DID:
 
-    def __init__(self, id: int, name: str = None, packing: str = None, modules: List[str] = None, states: List[dict] = None) -> None:
-        did_lookup = _DIDS.get(id, None)
-        if did_lookup is None and (name is None or packing is None or modules is None or states is None):
-            raise FailedInitialization(f"The DID {id:04X} is not supported by the simulator or cannot be created")
-
-        self._id = id
-        self._name = did_lookup.get('name') if name is None else name
-        self._packing = did_lookup.get('packing') if packing is None else packing
-        self._modules = did_lookup.get('modules') if modules is None else modules
-        states = did_lookup.get('states') if states is None else states
+    def __init__(self, did: int, name: str, packing: str, modules: List[str], states: List[dict]) -> None:
+        self._did = did
+        self._name = name
+        self._packing = packing
+        self._modules = modules
         self._states = []
         for state in states:
             # variable = state.get('name', None)
@@ -107,8 +106,8 @@ class DID:
             self._states[index] = unpacked_values[index]
             index += 1
 
-    def id(self) -> int:
-        return self._id
+    def did(self) -> int:
+        return self._did
 
     def name(self) -> str:
         return self._name
@@ -119,3 +118,67 @@ class DID:
     def used_in(self) -> List[str]:
         return self._modules
 
+    def _dids_organized_by_name(dids: List[dict]) -> dict:
+        dids_by_names = {}
+        for did in dids:
+            dids_by_names[did.get('name')] = did
+        return dids_by_names
+
+    def _dids_organized_by_did(dids: List[dict]) -> dict:
+        dids_by_id = {}
+        for did in dids:
+            dids_by_id[did.get('did')] = did
+        return dids_by_id
+
+    def _load_dids(file: str) -> dict:
+        with open(file) as infile:
+            dids = json.load(infile)
+        return dids
+
+    def _dump_dids(file: str, dids: dict) -> None:
+        json_dids = json.dumps(dids, indent = 4, sort_keys=False)
+        with open(file, "w") as outfile:
+            outfile.write(json_dids)
+
+    def _modules_organized_by_name(modules: List[dict]) -> dict:
+        modules_by_names = {}
+        for module in modules:
+            modules_by_names[module.get('name')] = module
+        return modules_by_names
+
+    def _modules_organized_by_id(modules: List[dict]) -> dict:
+        modules_by_id = {}
+        for module in modules:
+            modules_by_id[module.get('arbitration_id')] = module
+        return modules_by_id
+
+    def _load_modules(file: str) -> dict:
+        with open(file) as infile:
+            modules = json.load(infile)
+        return modules
+
+
+    # DID static data
+    supported_dids = _load_dids(file='json/mme_dids.json')
+    dids_by_id = _dids_organized_by_did(supported_dids)
+    """
+    modules = _load_modules(file='json/mme_modules.json')
+    modules_by_id = _modules_organized_by_id(modules)
+
+    local_dids = []
+    for did, did_def in _DIDS.items():
+        name = did_def.get('name')
+        packing = did_def.get('packing')
+        states = did_def.get('states')
+        did_lookup = dids_by_id.get(did)
+        modules = did_lookup.get('modules')
+        module_names = []
+        for module in modules:
+            module_names.append(modules_by_id.get(module).get('name'))
+        local_dids.append({ 'did': did, 'name': name, 'enable': True, 'modules': module_names, 'packing': packing, 'states': states})
+    _dump_dids(file='dids.json', dids=local_dids)
+    """
+
+
+def builtin_dids() -> List[dict]:
+    return DID.supported_dids

@@ -1,0 +1,656 @@
+[
+    {
+        "did": 5381,
+        "name": "HiresSpeed",
+        "enable": true,
+        "modules": [
+            "ACM",
+            "PACM",
+            "RGTM",
+            "PCM"
+        ],
+        "packing": "H",
+        "states": [
+            {
+                "name": "speed",
+                "value": 0
+            }
+        ]
+    },
+    {
+        "did": 7698,
+        "name": "GearCommanded",
+        "enable": true,
+        "modules": [
+            "GSM",
+            "SOBDM",
+            "BECM",
+            "SOBDMC"
+        ],
+        "packing": "B",
+        "states": [
+            {
+                "name": "gear_commanded",
+                "value": 70
+            }
+        ]
+    },
+    {
+        "did": 16424,
+        "name": "LvbSoc",
+        "enable": true,
+        "modules": [
+            "BCM"
+        ],
+        "packing": "B",
+        "states": [
+            {
+                "name": "lvb_soc",
+                "value": 91
+            }
+        ]
+    },
+    {
+        "did": 16426,
+        "name": "LvbVoltage",
+        "enable": true,
+        "modules": [
+            "BECMB",
+            "SCCM",
+            "BCM"
+        ],
+        "packing": "B",
+        "states": [
+            {
+                "name": "lvb_voltage",
+                "value": 146
+            }
+        ]
+    },
+    {
+        "did": 16427,
+        "name": "LvbCurrent",
+        "enable": true,
+        "modules": [
+            "BCM"
+        ],
+        "packing": "B",
+        "states": [
+            {
+                "name": "lvb_current",
+                "value": 130
+            }
+        ]
+    },
+    {
+        "did": 16460,
+        "name": "HiresOdometer",
+        "enable": true,
+        "modules": [
+            "IPC"
+        ],
+        "packing": "T",
+        "states": [
+            {
+                "name": "odometer",
+                "value": 56540
+            }
+        ]
+    },
+    {
+        "did": 16671,
+        "name": "KeyState",
+        "enable": true,
+        "modules": [
+            "GWM",
+            "WACM",
+            "ACM",
+            "HVAC",
+            "DSP",
+            "APIM",
+            "SOBDM",
+            "BECM",
+            "SOBDMC",
+            "SOBDMB"
+        ],
+        "packing": "B",
+        "states": [
+            {
+                "name": "key_state",
+                "value": 5
+            }
+        ]
+    },
+    {
+        "did": 18432,
+        "name": "HvbTemp",
+        "enable": true,
+        "modules": [
+            "BECM"
+        ],
+        "packing": "B",
+        "states": [
+            {
+                "name": "hvb_temp",
+                "value": 64
+            }
+        ]
+    },
+    {
+        "did": 18433,
+        "name": "HvbSoc",
+        "enable": true,
+        "modules": [
+            "BECM"
+        ],
+        "packing": "H",
+        "states": [
+            {
+                "name": "hvb_soc",
+                "value": 31366
+            }
+        ]
+    },
+    {
+        "did": 18445,
+        "name": "HvbVoltage",
+        "enable": true,
+        "modules": [
+            "OBCC",
+            "SOBDM",
+            "BECM",
+            "SOBDMC",
+            "SOBDMB"
+        ],
+        "packing": "H",
+        "states": [
+            {
+                "name": "hvb_voltage",
+                "value": 35517
+            }
+        ]
+    },
+    {
+        "did": 18486,
+        "name": "LvbLvCurrent",
+        "enable": true,
+        "modules": [
+            "DCDC"
+        ],
+        "packing": "B",
+        "states": [
+            {
+                "name": "lvb_lv_current",
+                "value": 27
+            }
+        ]
+    },
+    {
+        "did": 18490,
+        "name": "LvbHvCurrent",
+        "enable": true,
+        "modules": [
+            "DCDC"
+        ],
+        "packing": "B",
+        "states": [
+            {
+                "name": "lvb_hv_current",
+                "value": 58
+            }
+        ]
+    },
+    {
+        "did": 18493,
+        "name": "LvbDcdcEnable",
+        "enable": true,
+        "modules": [
+            "DCDC",
+            "SOBDM",
+            "SOBDMC"
+        ],
+        "packing": "H",
+        "states": [
+            {
+                "name": "lvb_dcdc_enable",
+                "value": 390
+            }
+        ]
+    },
+    {
+        "did": 18498,
+        "name": "HvbChrgCurrentReqsted",
+        "enable": true,
+        "modules": [
+            "OBCC",
+            "SOBDM",
+            "BECM"
+        ],
+        "packing": "h",
+        "states": [
+            {
+                "name": "hvb_chrg_current_reqsted",
+                "value": 1000
+            }
+        ]
+    },
+    {
+        "did": 18500,
+        "name": "HvbChrgVoltageReqsted",
+        "enable": true,
+        "modules": [
+            "OBCC",
+            "SOBDM",
+            "BECM"
+        ],
+        "packing": "B",
+        "states": [
+            {
+                "name": "hvb_chrg_voltage_reqsted",
+                "value": 10
+            }
+        ]
+    },
+    {
+        "did": 18501,
+        "name": "HvbSocD",
+        "enable": true,
+        "modules": [
+            "OBCC",
+            "SOBDM",
+            "BECM"
+        ],
+        "packing": "B",
+        "states": [
+            {
+                "name": "hvb_socd",
+                "value": 132
+            }
+        ]
+    },
+    {
+        "did": 18504,
+        "name": "EnergyToEmpty",
+        "enable": true,
+        "modules": [
+            "BECM"
+        ],
+        "packing": "H",
+        "states": [
+            {
+                "name": "energy_to_empty",
+                "value": 25541
+            }
+        ]
+    },
+    {
+        "did": 18506,
+        "name": "ChargerOutputVoltage",
+        "enable": true,
+        "modules": [
+            "OBCC",
+            "SOBDM",
+            "BECM"
+        ],
+        "packing": "h",
+        "states": [
+            {
+                "name": "charger_output_voltage",
+                "value": 1000
+            }
+        ]
+    },
+    {
+        "did": 18510,
+        "name": "ChargerInputPower",
+        "enable": true,
+        "modules": [
+            "SOBDM",
+            "BECM"
+        ],
+        "packing": "h",
+        "states": [
+            {
+                "name": "charger_input_power",
+                "value": 1000
+            }
+        ]
+    },
+    {
+        "did": 18511,
+        "name": "ChargerStatus",
+        "enable": true,
+        "modules": [
+            "OBCC",
+            "SOBDM",
+            "BECM"
+        ],
+        "packing": "B",
+        "states": [
+            {
+                "name": "charger_status",
+                "value": 3
+            }
+        ]
+    },
+    {
+        "did": 18512,
+        "name": "ChargerOutputCurrent",
+        "enable": true,
+        "modules": [
+            "OBCC",
+            "SOBDM",
+            "BECM"
+        ],
+        "packing": "h",
+        "states": [
+            {
+                "name": "charger_output_current",
+                "value": 1000
+            }
+        ]
+    },
+    {
+        "did": 18513,
+        "name": "EvseType",
+        "enable": true,
+        "modules": [
+            "OBCC",
+            "SOBDM",
+            "BECM"
+        ],
+        "packing": "B",
+        "states": [
+            {
+                "name": "evse_type",
+                "value": 6
+            }
+        ]
+    },
+    {
+        "did": 18526,
+        "name": "ChargerInputVoltage",
+        "enable": true,
+        "modules": [
+            "SOBDM"
+        ],
+        "packing": "H",
+        "states": [
+            {
+                "name": "charger_input_voltage",
+                "value": 1000
+            }
+        ]
+    },
+    {
+        "did": 18527,
+        "name": "ChargerInputCurrent",
+        "enable": true,
+        "modules": [
+            "SOBDM"
+        ],
+        "packing": "B",
+        "states": [
+            {
+                "name": "charger_input_current",
+                "value": 100
+            }
+        ]
+    },
+    {
+        "did": 18528,
+        "name": "ChargerInputFrequency",
+        "enable": true,
+        "modules": [
+            "SOBDM"
+        ],
+        "packing": "B",
+        "states": [
+            {
+                "name": "charger_input_freq",
+                "value": 100
+            }
+        ]
+    },
+    {
+        "did": 18529,
+        "name": "ChargerPilotDutyCycle",
+        "enable": true,
+        "modules": [
+            "SOBDM"
+        ],
+        "packing": "B",
+        "states": [
+            {
+                "name": "charger_pilot_duty_cycle",
+                "value": 100
+            }
+        ]
+    },
+    {
+        "did": 18614,
+        "name": "ChargerPilotVoltage",
+        "enable": true,
+        "modules": [
+            "SOBDM"
+        ],
+        "packing": "B",
+        "states": [
+            {
+                "name": "charger_pilot_voltage",
+                "value": 100
+            }
+        ]
+    },
+    {
+        "did": 18620,
+        "name": "HvbMaxChargeCurrent",
+        "enable": true,
+        "modules": [
+            "OBCC",
+            "SOBDM",
+            "BECM"
+        ],
+        "packing": "h",
+        "states": [
+            {
+                "name": "hvb_max_charge_current",
+                "value": 100
+            }
+        ]
+    },
+    {
+        "did": 18628,
+        "name": "ChargerMaxPower",
+        "enable": true,
+        "modules": [
+            "OBCC",
+            "SOBDM",
+            "BECM"
+        ],
+        "packing": "H",
+        "states": [
+            {
+                "name": "ChargerMaxPower",
+                "value": 100
+            }
+        ]
+    },
+    {
+        "did": 18681,
+        "name": "HvbCurrent",
+        "enable": true,
+        "modules": [
+            "BECM"
+        ],
+        "packing": "h",
+        "states": [
+            {
+                "name": "hvb_current",
+                "value": 82
+            }
+        ]
+    },
+    {
+        "did": 18683,
+        "name": "ChargerPowerLimit",
+        "enable": true,
+        "modules": [
+            "BECM"
+        ],
+        "packing": "h",
+        "states": [
+            {
+                "name": "charger_power_limit",
+                "value": -1
+            }
+        ]
+    },
+    {
+        "did": 18700,
+        "name": "HvbSoh",
+        "enable": true,
+        "modules": [
+            "BECM"
+        ],
+        "packing": "B",
+        "states": [
+            {
+                "name": "hvb_soh",
+                "value": 200
+            }
+        ]
+    },
+    {
+        "did": 25360,
+        "name": "GearDisplayed",
+        "enable": true,
+        "modules": [
+            "APIM",
+            "IPC"
+        ],
+        "packing": "B",
+        "states": [
+            {
+                "name": "gear_displayed",
+                "value": 0
+            }
+        ]
+    },
+    {
+        "did": 32786,
+        "name": "GPS",
+        "enable": true,
+        "modules": [
+            "APIM"
+        ],
+        "packing": "HllBHH",
+        "states": [
+            {
+                "name": "elevation",
+                "value": 100
+            },
+            {
+                "name": "latitude",
+                "value": 2577
+            },
+            {
+                "name": "longitude",
+                "value": -4610
+            },
+            {
+                "name": "fix",
+                "value": 4
+            },
+            {
+                "name": "speed",
+                "value": 12
+            },
+            {
+                "name": "heading",
+                "value": 256
+            }
+        ]
+    },
+    {
+        "did": 56576,
+        "name": "Time",
+        "enable": true,
+        "modules": [
+            "SODCMC",
+            "SODCMD",
+            "OBCC",
+            "IPMA",
+            "SCCM",
+            "BCM",
+            "PSCM",
+            "RCM",
+            "DCDC",
+            "ABS",
+            "SCMF",
+            "CCM",
+            "GFM",
+            "DCME",
+            "DCMG",
+            "DCMH",
+            "CMR",
+            "SODL",
+            "SODR",
+            "ACCM",
+            "PCM",
+            "SOBDM",
+            "BECM",
+            "SOBDMC",
+            "SOBDMB"
+        ],
+        "packing": "I",
+        "states": [
+            {
+                "name": "time",
+                "value": 0
+            }
+        ]
+    },
+    {
+        "did": 56580,
+        "name": "InteriorTemp",
+        "enable": true,
+        "modules": [
+            "DCDC",
+            "SOBDM"
+        ],
+        "packing": "B",
+        "states": [
+            {
+                "name": "interior_temp",
+                "value": 50
+            }
+        ]
+    },
+    {
+        "did": 56581,
+        "name": "ExteriorTemp",
+        "enable": true,
+        "modules": [
+            "SODCMC",
+            "SODCMD",
+            "OBCC",
+            "IPMA",
+            "ABS",
+            "CCM",
+            "SODL",
+            "SODR",
+            "ACCM",
+            "SOBDM",
+            "SOBDMC",
+            "SOBDMB"
+        ],
+        "packing": "B",
+        "states": [
+            {
+                "name": "exterior_temp",
+                "value": 50
+            }
+        ]
+    }
+]
