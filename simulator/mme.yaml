@@ -1,7 +1,0 @@
-# YAML configuraton file for the Mustang Mach-E CANbus Simulator
-mme:
-    # You can control the loading of the builtin modules and DIDs using
-    # these controls.
-    builtin:
-        modules:    True
-        dids:       True

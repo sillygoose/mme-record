@@ -6,7 +6,7 @@ from typing import List
 
 from module import Module, builtin_modules
 from did import DID, builtin_dids
-from playback import Playback
+from pbengine import PlaybackEngine
 
 import version
 import logfiles

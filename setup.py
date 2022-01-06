@@ -8,7 +8,7 @@ VERSION = "0.4.7"
 URL = "https://github.com/sillygoose/cs_esphome.git"
 
 setup(
-    name="MME Playback",
+    name="Playback",
     version=VERSION,
     description="MME CAN bus module playback",
     long_description=Path("README.md").read_text(),

@@ -253,32 +253,12 @@ def check_config(config):
 
     required_keys = [
         {
-            'mme': {'required': True, 'keys': [
-                {'builtin': {'required': True, 'keys': [
-                    {'modules': {'required': True, 'keys': [], 'type': bool}},
-                    {'dids': {'required': True, 'keys': [], 'type': bool}},
-                ]}},
-                {'custom': {'required': False, 'keys': [
-                    {'modules': {'required': False, 'keys': [
-                        {'module': {'required': True, 'keys': [
-                            {'name': {'required': True, 'keys': [], 'type': str}},
-                            {'channel': {'required': True, 'keys': [], 'type': str}},
-                            {'arbitration_id': {'required': True, 'keys': [], 'type': int}},
-                        ]}},
-                    ]}},
-                    {'dids': {'required': False, 'keys': [
-                        {'did': {'required': True, 'keys': [
-                            {'id': {'required': True, 'keys': [], 'type': int}},
-                            {'name': {'required': True, 'keys': [], 'type': str}},
-                            {'packing': {'required': True, 'keys': [], 'type': str}},
-                            {'modules': {'required': True, 'keys': [
-                            ]}},
-                            {'states': {'required': True, 'keys': [
-                            ]}},
-                        ]}},
-                    ]}},
-                ]}},
-            ]},
+            {'record': {'required': True, 'keys': [
+            ]}},
+            {'playback': {'required': True, 'keys': [
+                {'speed': {'required': True, 'keys': [], 'type': int}},
+                {'from': {'required': True, 'keys': [], 'type': str}},
+            ]}},
         },
     ]
 

@@ -5,11 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: MME Sim",
+            "name": "Playback",
             "type": "python",
             "request": "launch",
-            "cwd": "${workspaceFolder}/simulator",
-            "module": "mme"
+            "cwd": "${workspaceFolder}/playback",
+            "module": "playback"
+        },
+        {
+            "name": "Record",
+            "type": "python",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/record",
+            "module": "record"
         },
         {
             "name": "Python: Current File",

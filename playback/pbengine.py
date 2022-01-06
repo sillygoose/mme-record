@@ -1,6 +1,6 @@
 import sys
 import threading
-from queue import Queue, Full, Empty
+from queue import Queue, Full
 
 #import logging
 from time import time, sleep
@@ -38,7 +38,7 @@ modules_by_name = modules_organized_by_name(modules)
 modules_by_id = modules_organized_by_id(modules)
 
 
-class Playback:
+class PlaybackEngine:
 
     def __init__(self, file: str, queues: dict, start_at: int=0) -> None:
         self._playback_file = file
