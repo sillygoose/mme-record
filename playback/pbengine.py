@@ -9,6 +9,8 @@ import json
 
 from typing import List
 
+from exceptions import RuntimeError
+
 
 _LOGGER = logging.getLogger('mme')
 
@@ -49,6 +51,8 @@ class PlaybackEngine:
         self._speed = config.get('speed', 1)
         self._exit_requested = False
         self._time_zero = int(time())
+        self._currrent_position = None
+        self._current_playback = None
 
     def _get_playback_files(self, source_dir: str, source_file: str) -> List:
         playback_files = []
@@ -64,8 +68,7 @@ class PlaybackEngine:
 
     def start(self) -> None:
         self._exit_requested = False
-        self._playback = self._load_playback(file=self._playback_file)
-        self._currrent_playback = 0
+        """
         if self._start_at > 0:
             offset = 0
             for event in self._playback:
@@ -75,33 +78,38 @@ class PlaybackEngine:
                 break
             self._currrent_playback = offset
             self._time_zero -= event.get('time')
+        """
         self._thread = threading.Thread(target=self._event_task, name='playback')
         self._thread.start()
         self._thread.join()
 
     def _event_task(self) -> None:
-        while self._exit_requested == False:
-            event = self._next_event()
-            if event is None:
-                return
-            current_time = round(time() - self._time_zero, ndigits=2)
-            event_time = event.get('time')
-            if current_time < event_time:
-                sleep_for = event_time - current_time
-                if sleep_for > 0:
-                    if sleep_for > 5:
-                        print(f"sleeping for {sleep_for} seconds")
-                    sleep(sleep_for)
-            current_time = round(time() - self._time_zero, ndigits=2)
-            arbitration_id = event.get('id')
-            name = modules_by_id.get(arbitration_id).get('name')
-            destination = self._queues.get(name)
-            if destination:
-                try:
-                    destination.put(event, block=False, timeout=2)
-                    #print(f"{current_time:.02f}: {self._decode_event(event)}")
-                except Full:
-                    _LOGGER.error(f"Queue {arbitration_id:04X} is full")
+        try:
+            while self._exit_requested == False:
+                event = self._next_event()
+                if event is None:
+                    return
+                current_time = round(time() - self._time_zero, ndigits=2)
+                event_time = event.get('time')
+                if current_time < event_time:
+                    sleep_for = event_time - current_time
+                    if sleep_for > 0:
+                        if sleep_for > 5:
+                            print(f"sleeping for {sleep_for} seconds")
+                        sleep(sleep_for)
+                current_time = round(time() - self._time_zero, ndigits=2)
+                arbitration_id = event.get('id')
+                name = modules_by_id.get(arbitration_id).get('name')
+                destination = self._queues.get(name)
+                if destination:
+                    try:
+                        destination.put(event, block=False, timeout=2)
+                        #print(f"{current_time:.02f}: {self._decode_event(event)}")
+                    except Full:
+                        _LOGGER.error(f"Queue {arbitration_id:04X} is full")
+        except RuntimeError as e:
+            _LOGGER.error(f"Run time error: {e}")
+            return
 
     def stop(self) -> None:
         self._exit_requested = True
@@ -109,10 +117,13 @@ class PlaybackEngine:
             self._thread.join()
 
     def _next_event(self) -> dict:
-        if self._currrent_playback == len(self._playback):
-            return None
-        event = self._playback[self._currrent_playback]
-        self._currrent_playback += 1
+        if self._currrent_position is None or self._currrent_position == len(self._current_playback):
+            if self._playback_files == []:
+                return
+            next_file = self._playback_files.pop(0)
+            self._load_playback(file=next_file)
+        event = self._current_playback[self._currrent_position]
+        self._currrent_position += 1
         return event
 
     def _decode_event(self, event: dict) -> str:
@@ -121,16 +132,13 @@ class PlaybackEngine:
         event['payload'] = bytearray(event['payload'])
         return str(event)
 
-    def _load_playback(self, file: str) -> dict:
-        if file is None:
-            return None
+    def _load_playback(self, file: str) -> None:
         with open(file) as infile:
-            raw_playback = json.load(infile)
-            playback = []
-            for file_save in raw_playback:
-                for record in file_save:
-                    playback.append(record)
-        return playback
+            try:
+                self._current_playback = json.load(infile)
+            except json.JSONDecodeError as e:
+                raise RuntimeError(f"JSON error in '{file}' at line {e.lineno}")
+        self._currrent_position = 0                
 
     def _dump_playback(self, file: str, playback: dict) -> None:
         json_playback = json.dumps(playback, indent = 4, sort_keys=False)

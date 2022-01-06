@@ -9,7 +9,11 @@ class AbnormalCompletion(Exception):
 
 
 class FailedInitialization(Exception):
-    """Simulator initialization failed."""
+    """Record/Playback initialization failed."""
+
+
+class RuntimeError(Exception):
+    """Record/Playback run-time error."""
 
 
 class TerminateSignal(Exception):

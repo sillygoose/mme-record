@@ -15,7 +15,7 @@ import version
 import logfiles
 from readconfig import read_config
 
-from exceptions import FailedInitialization
+from exceptions import FailedInitialization, RuntimeError
 
 
 _LOGGER = logging.getLogger('mme')
@@ -111,6 +111,8 @@ def main() -> None:
         mme.start()
         #pb.start()
     except KeyboardInterrupt:
+        pass
+    except RunTimeError:
         pass
     except Exception as e:
         _LOGGER.error(f"Unexpected exception: {e}")

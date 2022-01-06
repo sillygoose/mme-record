@@ -1,6 +1,7 @@
 # Ignore files and folders
 *.csv
 log/
+playback/
 
 # Ignore any secrets files
 *secrets.yaml
