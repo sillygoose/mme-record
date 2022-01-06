@@ -1,15 +1,16 @@
 import sys
+import os
 import threading
 from queue import Queue, Full
 
-#import logging
+import logging
 from time import time, sleep
 import json
 
 from typing import List
 
 
-#_LOGGER = logging.getLogger('mme')
+_LOGGER = logging.getLogger('mme')
 
 
 def modules_organized_by_name(modules: List[dict]) -> dict:
@@ -40,12 +41,26 @@ modules_by_id = modules_organized_by_id(modules)
 
 class PlaybackEngine:
 
-    def __init__(self, file: str, queues: dict, start_at: int=0) -> None:
-        self._playback_file = file
+    def __init__(self, config: dict, queues: dict) -> None:
+        self._config = config
         self._queues = queues
-        self._start_at = start_at
+        self._playback_files = self._get_playback_files(config.get('source_dir'), config.get('source_file'))
+        self._start_at = config.get('start_at', 0)
+        self._speed = config.get('speed', 1)
         self._exit_requested = False
         self._time_zero = int(time())
+
+    def _get_playback_files(self, source_dir: str, source_file: str) -> List:
+        playback_files = []
+        find_file = source_dir + '/' + source_file
+        count = 0
+        while True:
+            if not os.path.exists(find_file):
+                break
+            playback_files.append(find_file)
+            count += 1
+            find_file = f"{source_dir}/{source_file}_{count:03d}"
+        return playback_files
 
     def start(self) -> None:
         self._exit_requested = False
@@ -86,7 +101,7 @@ class PlaybackEngine:
                     destination.put(event, block=False, timeout=2)
                     #print(f"{current_time:.02f}: {self._decode_event(event)}")
                 except Full:
-                    print(f"Queue {arbitration_id:04X} has timed out")
+                    _LOGGER.error(f"Queue {arbitration_id:04X} is full")
 
     def stop(self) -> None:
         self._exit_requested = True

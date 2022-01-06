@@ -23,18 +23,17 @@ _LOGGER = logging.getLogger('mme')
 
 class Playback:
     def __init__(self, config: dict, modules: List[dict], dids: List[dict]) -> None:
-        self._config = config.mme.playback
-        self._speed = config.mme.playback.speed
-        self._source_dir = config.mme.playback.source_dir
+        self._config = dict(config.mme.playback)
         self._modules = None
         self._module_event_queues = None
-
         self._add_modules(modules)
         self._add_dids(dids)
+        self._playback_engine = PlaybackEngine(config=self._config, queues=self._module_event_queues)
 
     def start(self) -> None:
         for module in self._modules.values():
             module.start()
+        self._playback_engine.start()
 
     def stop(self) -> None:
         for module in self._modules.values():
@@ -100,24 +99,17 @@ def main() -> None:
 
     try:
         mme = Playback(config=config, modules=module.modules(), dids=did.dids())
-        """
-        list_of_modules = module.modules()
-        mme.add_modules(modules=list_of_modules)
-        list_of_dids = did.dids()
-        mme.add_dids(list_of_dids)
-        """
-
     except FailedInitialization as e:
         _LOGGER.error(f"{e}")
         return
     except Exception as e:
-        _LOGGER.error(f"Unexpected exception: {e}")
+        _LOGGER.error(f"Unexpected exception setting up Playback: {e}")
         return
 
     try:
-        pb = PlaybackEngine(file='json/playback.json', queues=mme.event_queues(), start_at=0)
+        #pb = PlaybackEngine(file='json/playback.json', queues=mme.event_queues(), start_at=0)
         mme.start()
-        pb.start()
+        #pb.start()
     except KeyboardInterrupt:
         pass
     except Exception as e:

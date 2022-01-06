@@ -1,4 +1,4 @@
-# YAML configuraton file for the Mustang Mach-E CANbus Simulator
+# YAML configuraton file for the Mustang Mach-E CANbus Record/Playback apps
 mme:
     record:
         # You can control the recorder options here
@@ -6,5 +6,7 @@ mme:
 
     playback:
         # You can control the playback options here
-        speed:      1
-        source_dir: 'playback'
+        start_at:       0
+        speed:          1
+        source_dir:     'playback'
+        source_file:    'playback.json'

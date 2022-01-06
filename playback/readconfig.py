@@ -254,8 +254,10 @@ def check_config(config):
                 {'record': {'required': True, 'keys': [
                 ]}},
                 {'playback': {'required': True, 'keys': [
-                    {'speed': {'required': True, 'keys': [], 'type': int}},
+                    {'start_at': {'required': False, 'keys': [], 'type': int}},
+                    {'speed': {'required': False, 'keys': [], 'type': int}},
                     {'source_dir': {'required': True, 'keys': [], 'type': str}},
+                    {'source_file': {'required': True, 'keys': [], 'type': str}},
                 ]}},
             ]},
         },
