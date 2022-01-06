@@ -7,7 +7,7 @@ import logging
 
 def start():
     """Create the application log."""
-    _DEFAULT_LOG_FILE = 'log/playback.log'
+    _DEFAULT_LOG_FILE = 'log/record.log'
     _DEFAULT_LOG_FORMAT = '[%(asctime)s] [%(module)s] [%(levelname)s] %(message)s'
     _DEFAULT_LOG_LEVEL = logging.INFO
 

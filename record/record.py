@@ -1,14 +1,15 @@
 import sys
+import os
 from queue import Queue
 import logging
 from typing import List
 
-import module
-from module import Module
+#import module
+#from module import Module
 
-import did
-from did import DID
-from pbengine import PlaybackEngine
+#import did
+#from did import DID
+#from rcengine import RecordEngine
 
 import version
 import logfiles
@@ -20,14 +21,14 @@ from exceptions import FailedInitialization, RuntimeError
 _LOGGER = logging.getLogger('mme')
 
 
-class Playback:
+class Record:
     def __init__(self, config: dict, modules: List[dict], dids: List[dict]) -> None:
         self._config = dict(config.mme.playback)
         self._modules = None
         self._module_event_queues = None
         self._add_modules(modules)
         self._add_dids(dids)
-        self._playback_engine = PlaybackEngine(config=self._config, queues=self._module_event_queues)
+        self._playback_engine = RecordEngine(config=self._config, queues=self._module_event_queues)
 
     def start(self) -> None:
         for module in self._modules.values():
@@ -83,7 +84,7 @@ class Playback:
 def main() -> None:
 
     logfiles.start()
-    _LOGGER.info(f"Mustang Mach E Playback Utility version {version.get_version()}")
+    _LOGGER.info(f"Mustang Mach E Record Utility version {version.get_version()}")
 
     try:
         config = read_config(yaml_file='mme.yaml')
@@ -97,7 +98,7 @@ def main() -> None:
         return
 
     try:
-        mme = Playback(config=config, modules=module.modules(), dids=did.dids())
+        mme = Record(config=config, modules=module.modules(), dids=did.dids())
     except FailedInitialization as e:
         _LOGGER.error(f"{e}")
         return
@@ -106,7 +107,9 @@ def main() -> None:
         return
 
     try:
+        #pb = RecordEngine(file='json/playback.json', queues=mme.event_queues(), start_at=0)
         mme.start()
+        #pb.start()
     except KeyboardInterrupt:
         pass
     except RuntimeError:

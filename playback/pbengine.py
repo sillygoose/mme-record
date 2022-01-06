@@ -56,14 +56,14 @@ class PlaybackEngine:
 
     def _get_playback_files(self, source_dir: str, source_file: str) -> List:
         playback_files = []
-        find_file = source_dir + '/' + source_file
         count = 0
+        find_file = f"{source_dir}/{source_file}_{count:03d}.json"
         while True:
             if not os.path.exists(find_file):
                 break
             playback_files.append(find_file)
             count += 1
-            find_file = f"{source_dir}/{source_file}_{count:03d}"
+            find_file = f"{source_dir}/{source_file}_{count:03d}.json"
         return playback_files
 
     def start(self) -> None:
@@ -136,6 +136,7 @@ class PlaybackEngine:
         with open(file) as infile:
             try:
                 self._current_playback = json.load(infile)
+                _LOGGER.info(f"Loaded playback file '{file}'")
             except json.JSONDecodeError as e:
                 raise RuntimeError(f"JSON error in '{file}' at line {e.lineno}")
         self._currrent_position = 0                
