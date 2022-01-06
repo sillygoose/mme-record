@@ -1,6 +1,5 @@
 import sys
 import os
-import time
 from queue import Queue
 import logging
 from typing import List

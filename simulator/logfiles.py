@@ -29,7 +29,7 @@ def start():
     filename = os.path.abspath(filename)
 
     # Log to a file
-    file_handler = logging.FileHandler(filename, encoding='utf-8')
+    file_handler = logging.FileHandler(filename, mode='w', encoding='utf-8')
     file_handler.setLevel(log_level)
     file_handler.setFormatter(logging.Formatter(fmt=log_format))
 

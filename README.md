@@ -1,4 +1,4 @@
-# **Mustang Mach-E CANbus Module Simulator**
+# **Mustang Mach-E CANbus Playback Utility**
 
 ## Table of Contents
 
@@ -13,26 +13,14 @@
 
 ## Overview
 
-The **MME_SIM** is a simple CAN bus module simulator designed to test CAN bus code without connecting to a physical vehicle.
+The **MME-Playback** is a simple CAN bus module simulator designed to test CAN bus code without having to connect to a physical vehicle. It accepts files from the **MME-Recorder** and updates the supported state variables as they were originally recorded.
 
-This is all organized in a YAML file that has entries similar to these:
-
-```
-  modules:
-    - module:
-        name:           'BCM'
-        arbitration_id: 0x123
-    ...
-    - module:
-        name:           'IPC'
-        arbitration_id: 0x456
-```
 
 <a id='whats-new'></a>
 
 ## What's new
 
-- everything is new at this point
+- everything is new at this point so just basic functionality
 
 #
 
@@ -46,6 +34,8 @@ This is all organized in a YAML file that has entries similar to these:
   - python-dateutil
   - python-configuration
   - pyyaml
+  - python-can
+  - can-isotp
 
 #
 
@@ -53,7 +43,7 @@ This is all organized in a YAML file that has entries similar to these:
 
 ## Installation
 
-1.  Clone the **MME_SIM** repository and install the Python packages:
+1.  Clone the **MME-Playback** repository and install the Python packages:
 
 ```
     git clone https://github.com/sillygoose/mache-simulator.git
@@ -82,4 +72,7 @@ This is also required if you wish to use the debugging options that automaticall
 
 Thanks for the following packages used to build this software:
 
+- [CAN bus on Python](https://github.com/hardbyte/python-can)
+- [UDS](https://github.com/pylessard/python-udsoncan)
+- [ISO-TP](https://github.com/pylessard/python-can-isotp)
 - [YAML configuration file support](https://python-configuration.readthedocs.io)
