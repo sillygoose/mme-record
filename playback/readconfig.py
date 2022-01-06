@@ -15,9 +15,6 @@ from typing import Any, Dict, List, TextIO, TypeVar, Union
 from exceptions import FailedInitialization
 
 
-CONFIG_YAML = 'mme.yaml'
-SECRET_YAML = 'mme_secrets.yaml'
-
 JSON_TYPE = Union[List, Dict, str]      # pylint: disable=invalid-name
 DICT_T = TypeVar("DICT_T", bound=Dict)  # pylint: disable=invalid-name
 
@@ -97,7 +94,7 @@ def parse_yaml(content: Union[str, TextIO]) -> JSON_TYPE:
 
 def _load_secret_yaml(secret_path: str) -> JSON_TYPE:
     """Load the secrets yaml from path."""
-    secret_path = os.path.join(secret_path, SECRET_YAML)
+    secret_path = os.path.join(secret_path, '###')
     if secret_path in _SECRET_CACHE:
         return _SECRET_CACHE[secret_path]
 
@@ -116,8 +113,8 @@ def _load_secret_yaml(secret_path: str) -> JSON_TYPE:
 
 def secret_yaml(loader: FullLineLoader, node: yaml.nodes.Node) -> JSON_TYPE:
     """Load secrets and embed it into the configuration YAML."""
-    if os.path.basename(loader.name) == SECRET_YAML:
-        raise ConfigError(f"{SECRET_YAML}: attempt to load secret from within secrets file")
+    if os.path.basename(loader.name) == '###':
+        raise ConfigError(f"{'###'}: attempt to load secret from within secrets file")
 
     secret_path = os.path.dirname(loader.name)
     home_path = str(Path.home())
@@ -126,7 +123,7 @@ def secret_yaml(loader: FullLineLoader, node: yaml.nodes.Node) -> JSON_TYPE:
     while True:
         secrets = _load_secret_yaml(secret_path)
         if node.value in secrets:
-            _LOGGER.debug(f"Secret '{node.value}' retrieved from {secret_path}/{SECRET_YAML}")
+            _LOGGER.debug(f"Secret '{node.value}' retrieved from {secret_path}/{'###'}")
             return secrets[node.value]
 
         if not do_walk or (secret_path == home_path):
@@ -253,12 +250,14 @@ def check_config(config):
 
     required_keys = [
         {
-            {'record': {'required': True, 'keys': [
-            ]}},
-            {'playback': {'required': True, 'keys': [
-                {'speed': {'required': True, 'keys': [], 'type': int}},
-                {'from': {'required': True, 'keys': [], 'type': str}},
-            ]}},
+            'mme': {'required': True, 'keys': [
+                {'record': {'required': True, 'keys': [
+                ]}},
+                {'playback': {'required': True, 'keys': [
+                    {'speed': {'required': True, 'keys': [], 'type': int}},
+                    {'source_dir': {'required': True, 'keys': [], 'type': str}},
+                ]}},
+            ]},
         },
     ]
 
@@ -272,12 +271,30 @@ def check_config(config):
     return config if result else None
 
 
-def read_config():
+def find_yaml_file(yaml_file: str) -> str:
+    find_file = os.path.abspath(yaml_file)
+    yaml_head, _ = os.path.split(find_file)
+    home_path = str(Path.home())
+    yaml = None
+    while yaml_head != home_path:
+        if os.path.exists(find_file):
+            yaml = find_file
+            break
+        yaml_head, _ = os.path.split(os.path.abspath(yaml_head))
+        find_file = yaml_head + '/' + yaml_file
+    return yaml
+
+
+def read_config(yaml_file: str = None) -> None:
     """Open the YAML configuration file and check the contents"""
     try:
+        yaml_path = find_yaml_file(yaml_file)
+        if yaml_path is None:
+            raise FailedInitialization(f"Unable to find the YAML configuration file '{yaml_file}'")
+
+        secret_yaml = 'secret_' + yaml_file
         yaml.FullLoader.add_constructor('!secret', secret_yaml)
-        yaml_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), CONFIG_YAML)
-        config = config_from_yaml(data=yaml_file, read_from_file=True)
+        config = config_from_yaml(data=yaml_path, read_from_file=True)
         if config:
             config = check_config(config)
         return config
@@ -316,6 +333,6 @@ def retrieve_options(config, key, option_list) -> dict:
 
 if __name__ == '__main__':
     if sys.version_info[0] >= 3 and sys.version_info[1] >= 8:
-        config = read_config()
+        config = read_config('mme.yaml')
     else:
         print("python 3.8 or better required")

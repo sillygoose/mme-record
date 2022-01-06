@@ -1,9 +1,0 @@
-# YAML configuraton file for the Mustang Mach-E CANbus Simulator
-recorder:
-    # You can control the recorder options here
-
-
-playback:
-    # You can control the playback options here
-    speed:  1
-    from:   playback

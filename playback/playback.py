@@ -4,8 +4,11 @@ from queue import Queue
 import logging
 from typing import List
 
-from module import Module, builtin_modules
-from did import DID, builtin_dids
+import module
+from module import Module
+
+import did
+from did import DID
 from pbengine import PlaybackEngine
 
 import version
@@ -18,13 +21,16 @@ from exceptions import FailedInitialization
 _LOGGER = logging.getLogger('mme')
 
 
-class MustangMachE:
-    def __init__(self, config: dict) -> None:
-        self._modules = {}
-        self._config = config.mme
-        self._modules = {}
-        self._module_event_queues = {}
-        self._dids_by_id = {}
+class Playback:
+    def __init__(self, config: dict, modules: List[dict], dids: List[dict]) -> None:
+        self._config = config.mme.playback
+        self._speed = config.mme.playback.speed
+        self._source_dir = config.mme.playback.source_dir
+        self._modules = None
+        self._module_event_queues = None
+
+        self._add_modules(modules)
+        self._add_dids(dids)
 
     def start(self) -> None:
         for module in self._modules.values():
@@ -37,40 +43,43 @@ class MustangMachE:
     def event_queues(self) -> dict:
         return self._module_event_queues
 
-    def add_builtin_modules(self, modules: List[dict]) -> None:
-        for module in modules:
-            name = module.get('name')
-            channel = module.get('channel')
-            arbitration_id = module.get('arbitration_id')
-            enable = module.get('enable')
+    def _add_modules(self, modules: List[dict]) -> None:
+        self._modules = {}
+        self._module_event_queues = {}
+        for module_record in modules:
+            name = module_record.get('name')
+            channel = module_record.get('channel')
+            arbitration_id = module_record.get('arbitration_id')
+            enable = module_record.get('enable')
             if enable:
                 #if self._modules.get(module, None) is not None:
                 #    raise FailedInitialization(f"Module {module} is defined more than once")
                 event_queue = Queue(maxsize=10)
                 self._module_event_queues[name] = event_queue
                 self._modules[name] = Module(name=name, event_queue=event_queue, channel=channel, arbitration_id=arbitration_id)
-                _LOGGER.debug(f"Added builtin module '{module}' to simulator")
+                _LOGGER.debug(f"Added module '{module}' to playback")
 
-    def add_builtin_dids(self, dids: List[int]) -> None:
+    def _add_dids(self, dids: List[dict]) -> None:
+        self._dids_by_id = {}
         for did_item in dids:
             did = did_item.get('did')
             name = did_item.get('name')
-            modules = did_item.get('modules')
+            used_in_modules = did_item.get('modules')
             packing = did_item.get('packing')
             states = did_item.get('states')
             enable = did_item.get('enable')
             if enable:
                 if self._dids_by_id.get(did, None) is not None:
                     raise FailedInitialization(f"DID {did:04X} is defined more than once")
-                did_object = DID(did=did, name=name, packing=packing, modules=modules, states=states)
+                did_object = DID(did=did, name=name, packing=packing, modules=used_in_modules, states=states)
                 self._dids_by_id[did] = did_object
 
-                for module in modules:
+                for module in used_in_modules:
                     module_object = self._modules.get(module, None)
                     if module_object is not None:
                         module_object.add_did(did_object)
 
-                _LOGGER.debug(f"Added DID {did:04X} to simulator")
+                _LOGGER.debug(f"Added DID {did:04X}")
 
 
 def main() -> None:
@@ -79,7 +88,7 @@ def main() -> None:
     _LOGGER.info(f"Mustang Mach E Simulator version {version.get_version()}, PID is {os.getpid()}")
 
     try:
-        config = read_config()
+        config = read_config(yaml_file='mme.yaml')
         if config is None:
             return
     except FailedInitialization as e:
@@ -90,12 +99,13 @@ def main() -> None:
         return
 
     try:
-        mme = MustangMachE(config=config)
-
-        list_of_modules = builtin_modules()
-        mme.add_builtin_modules(modules=list_of_modules)
-        list_of_dids = builtin_dids()
-        mme.add_builtin_dids(list_of_dids)
+        mme = Playback(config=config, modules=module.modules(), dids=did.dids())
+        """
+        list_of_modules = module.modules()
+        mme.add_modules(modules=list_of_modules)
+        list_of_dids = did.dids()
+        mme.add_dids(list_of_dids)
+        """
 
     except FailedInitialization as e:
         _LOGGER.error(f"{e}")
@@ -105,7 +115,7 @@ def main() -> None:
         return
 
     try:
-        pb = Playback(file='json/playback.json', queues=mme.event_queues(), start_at=0)
+        pb = PlaybackEngine(file='json/playback.json', queues=mme.event_queues(), start_at=0)
         mme.start()
         pb.start()
     except KeyboardInterrupt:

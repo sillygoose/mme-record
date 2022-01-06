@@ -130,7 +130,7 @@ def main() -> None:
         q = Queue(maxsize=10)
         queues[arbitration_id] = q
 
-    pb = Playback(file='playback.json', queues=queues)
+    pb = PlaybackEngine(file='playback.json', queues=queues)
     try:
         pb.start()
         while True:

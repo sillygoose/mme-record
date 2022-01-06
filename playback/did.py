@@ -180,5 +180,5 @@ class DID:
     """
 
 
-def builtin_dids() -> List[dict]:
+def dids() -> List[dict]:
     return DID.supported_dids

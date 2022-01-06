@@ -161,7 +161,7 @@ class Module:
     modules_by_id = _modules_organized_by_id(modules)
 
 
-def builtin_modules() -> List[dict]:
+def modules() -> List[dict]:
     return Module.modules
 
 def arbitration_id(name: str) -> int:
