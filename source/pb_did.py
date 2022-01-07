@@ -59,7 +59,7 @@ _DIDS = {
 """
 
 
-class DID:
+class PlaybackDID:
 
     def __init__(self, did: int, name: str, packing: str, modules: List[str], states: List[dict]) -> None:
         self._did = did
@@ -143,5 +143,5 @@ class DID:
     # DID static data
     _supported_dids = _load_dids(file='json/mme_dids.json')
 
-    def pb_dids() -> List[dict]:
-        return DID._supported_dids
+    def dids() -> List[dict]:
+        return PlaybackDID._supported_dids

@@ -3,8 +3,8 @@ from queue import Queue
 import logging
 from typing import List
 
-from pb_module import Module
-from pb_did import DID
+from pb_module import PlaybackModule
+from pb_did import PlaybackDID
 from pb_engine import PlaybackEngine
 
 import version
@@ -51,7 +51,7 @@ class Playback:
                     raise FailedInitialization(f"Module {name} is defined more than once")
                 event_queue = Queue(maxsize=12)
                 self._module_event_queues[name] = event_queue
-                self._modules[name] = Module(name=name, event_queue=event_queue, channel=channel, arbitration_id=arbitration_id)
+                self._modules[name] = PlaybackModule(name=name, event_queue=event_queue, channel=channel, arbitration_id=arbitration_id)
                 _LOGGER.debug(f"Added module '{name}' to playback")
 
     def _add_dids(self, dids: List[dict]) -> None:
@@ -66,7 +66,7 @@ class Playback:
             if enable:
                 if self._dids_by_id.get(did, None) is not None:
                     raise FailedInitialization(f"DID {did:04X} is defined more than once")
-                did_object = DID(did=did, name=name, packing=packing, modules=used_in_modules, states=states)
+                did_object = PlaybackDID(did=did, name=name, packing=packing, modules=used_in_modules, states=states)
                 self._dids_by_id[did] = did_object
 
                 for module in used_in_modules:
@@ -94,7 +94,7 @@ def main() -> None:
         return
 
     try:
-        mme = Playback(config=config, modules=Module.modules(), dids=DID.pb_dids())
+        mme = Playback(config=config, modules=PlaybackModule.modules(), dids=PlaybackDID.dids())
     except FailedInitialization as e:
         _LOGGER.error(f"{e}")
         return

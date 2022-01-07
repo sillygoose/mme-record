@@ -10,14 +10,14 @@ from typing import List
 import isotp
 from can.interfaces.socketcan import SocketcanBus
 
-from pb_did import DID
+from pb_did import PlaybackDID
 from exceptions import FailedInitialization
 
 
 _LOGGER = logging.getLogger('mme')
 
 
-class Module:
+class PlaybackModule:
 
     isotp_timeout = 5.0
     isotp_params = {
@@ -34,7 +34,7 @@ class Module:
     }
 
     def __init__(self, name: str, event_queue: Queue, channel: str = None, arbitration_id: int = None) -> None:
-        module_lookup = Module._modules_by_name.get(name, None)
+        module_lookup = PlaybackModule._modules_by_name.get(name, None)
         if module_lookup is None and (channel is None or arbitration_id is None):
             raise FailedInitialization(f"The module '{name}' is not supported by the simulator or cannot be created")
 
@@ -53,7 +53,7 @@ class Module:
         _LOGGER.debug(f"Starting module '{self._name}' on channel '{self._channel}' with arbitration ID {self._rxid:03X}")
         addr = isotp.Address(isotp.AddressingMode.Normal_11bits, rxid=self._rxid, txid=self._txid)
         self._bus = SocketcanBus(channel=self._channel)
-        self._stack = isotp.CanStack(bus=self._bus, address=addr, error_handler=self.error_handler, params=Module.isotp_params)
+        self._stack = isotp.CanStack(bus=self._bus, address=addr, error_handler=self.error_handler, params=PlaybackModule.isotp_params)
         self._did_thread = threading.Thread(target=self._did_task, name=self._name)
         self._did_thread.start()
 
@@ -66,7 +66,7 @@ class Module:
             self._bus.shutdown()
             self._bus = None
 
-    def add_did(self, did: DID) -> None:
+    def add_did(self, did: PlaybackDID) -> None:
         did_id = did.did()
         self._dids[did_id] = did
 
@@ -99,7 +99,7 @@ class Module:
 
             if not self._event_queue.empty():
                 event = self._event_queue.get(block='False')
-                _LOGGER.debug(f"Dequeued event {event} on queue {module_name(event.get('arbitration_id'))}")
+                _LOGGER.debug(f"Dequeued event {event} on queue {PlaybackModule.module_name(event.get('arbitration_id'))}")
                 did_handler = self._dids.get(event.get('did'), None)
                 if did_handler:
                     did_handler.new_event(event)
@@ -117,7 +117,7 @@ class Module:
     def arbitration_id(self) -> int:
         return self._rxid
 
-    def dids(self) -> List[DID]:
+    def dids(self) -> List[PlaybackDID]:
         return self._dids
 
 
@@ -147,19 +147,18 @@ class Module:
         with open(file, "w") as outfile:
             outfile.write(json_modules)
 
-    # Module static data
+    # PlaybackModule static
     _modules = _load_modules(file='json/mme_modules.json')
     _modules_by_name = _modules_organized_by_name(_modules)
     _modules_by_id = _modules_organized_by_id(_modules)
 
-
     def modules() -> List[dict]:
-        return Module._modules
+        return PlaybackModule._modules
 
-def arbitration_id(name: str) -> int:
-    module_record = Module._modules_by_name.get(name, None)
-    return module_record.get('arbitration_id')
+    def arbitration_id(name: str) -> int:
+        module_record = PlaybackModule._modules_by_name.get(name, None)
+        return module_record.get('arbitration_id')
 
-def module_name(arbitration_id: int) -> str:
-    module_record = Module._modules_by_id.get(arbitration_id, None)
-    return module_record.get('name')
+    def module_name(arbitration_id: int) -> str:
+        module_record = PlaybackModule._modules_by_id.get(arbitration_id, None)
+        return module_record.get('name')
