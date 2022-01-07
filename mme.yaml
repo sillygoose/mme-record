@@ -8,6 +8,7 @@ mme:
 
     playback:
         # You can control the playback options here
+        loop:           true
         start_at:       0
         speed:          1.0
         source_dir:     'playback_files'

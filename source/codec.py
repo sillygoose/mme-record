@@ -27,7 +27,6 @@ class CodecId(Enum):
         EvseType = auto()
 
 
-class Codec(udsoncan.Did):
+class Codec(udsoncan.DidCodec):
     def encode(self, val):
         return val
-

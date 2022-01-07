@@ -20,7 +20,8 @@ class PlaybackEngine:
     def __init__(self, config: dict, queues: dict) -> None:
         self._config = config
         self._queues = queues
-        self._playback_files = self._get_playback_files(config.get('source_dir'), config.get('source_file'))
+        self._playback_files_master = self._get_playback_files(config.get('source_dir'), config.get('source_file'))
+        self._playback_files = self._playback_files_master.copy()
         self._start_at = config.get('start_at', 0)
         if self._start_at < 0:
             raise FailedInitialization(f"'start_at' option must be a non-negative integer")
@@ -28,6 +29,8 @@ class PlaybackEngine:
         if speed < 1:
             raise FailedInitialization(f"'speed' option must be a floating point number greater than 1.0")
         self._speed = 1.0 / speed
+
+        self._loop = config.get('loop', False)
         self._exit_requested = False
         self._currrent_position = None
         self._current_playback = None
@@ -68,15 +71,15 @@ class PlaybackEngine:
                 self._playback_time = event_time
 
                 arbitration_id = event.get('arbitration_id')
-                name = PlaybackModule.module_name(arbitration_id)
-                destination = self._queues.get(name)
+                module_name = PlaybackModule.module_name(arbitration_id)
+                destination = self._queues.get(module_name)
                 if destination:
                     try:
-                        _LOGGER.debug(f"Queuing event {event} on queue {name}")
+                        _LOGGER.debug(f"Queuing event {event} on queue {module_name}")
                         destination.put(event, block=False, timeout=2)
                         _LOGGER.debug(f"{self._playback_time:.1f}: {self._decode_event(event)}")
                     except Full:
-                        _LOGGER.error(f"Queue {name}/{arbitration_id:04X} is full")
+                        _LOGGER.error(f"Queue {module_name}/{arbitration_id:04X} is full")
                         return
         except RuntimeError as e:
             _LOGGER.error(f"Run time error: {e}")
@@ -114,7 +117,9 @@ class PlaybackEngine:
 
     def _next_file(self) -> str:
         if self._playback_files == []:
-            return None
+            if self._loop == False:
+                return None
+            self._playback_files = self._playback_files_master.copy()
         next_file = self._playback_files.pop(0)
         self._load_playback(file=next_file)
         self._currrent_position = 0

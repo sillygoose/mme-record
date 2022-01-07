@@ -1,20 +1,14 @@
 import sys
-import os
-from queue import Queue
 import logging
-from typing import List
-
-#import module
-#from module import Module
-
-#import did
-#from did import DID
-#from rcengine import RecordEngine
+from queue import Queue
+#from typing import List
 
 import version
 import logfiles
 from readconfig import read_config
 
+from rec_modmgr import RecordModuleManager
+from rec_engine import RecordEngine
 from exceptions import FailedInitialization, RuntimeError
 
 
@@ -24,15 +18,18 @@ _LOGGER = logging.getLogger('mme')
 class Record:
     def __init__(self, config: dict) -> None:
         self._config = dict(config.mme.record)
+        self._module_manager = RecordModuleManager(config=self._config)
+        self._work_queue = Queue(maxsize=10)
+        self._record_engine = RecordEngine(config=self._config, work_queue=self._work_queue)
 
     def start(self) -> None:
-        pass
+        self._module_manager.start()
+        self._record_engine.start()
 
     def stop(self) -> None:
-        pass
+        self._record_engine.stop()
+        self._module_manager.stop()
 
-    def event_queues(self) -> dict:
-        return None
 
 
 def main() -> None:
@@ -48,28 +45,28 @@ def main() -> None:
         _LOGGER.error(f"{e}")
         return
     except Exception as e:
-        _LOGGER.error(f"Unexpected exception: {e}")
+        _LOGGER.exception(f"Unexpected exception: {e}")
         return
 
     try:
-        mme = Record(config=config)
+        recorder = Record(config=config)
     except FailedInitialization as e:
         _LOGGER.error(f"{e}")
         return
     except Exception as e:
-        _LOGGER.error(f"Unexpected exception setting up Record: {e}")
+        _LOGGER.exception(f"Unexpected exception setting up Record: {e}")
         return
 
     try:
-        mme.start()
+        recorder.start()
     except KeyboardInterrupt:
-        pass
-    except RuntimeError:
-        pass
+        print()
+    except RuntimeError as e:
+        _LOGGER.exception(f"Run time error: {e}")
     except Exception as e:
-        _LOGGER.error(f"Unexpected exception: {e}")
+        _LOGGER.exception(f"Unexpected exception: {e}")
     finally:
-        mme.stop()
+        recorder.stop()
 
 
 if __name__ == '__main__':

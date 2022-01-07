@@ -94,7 +94,7 @@ def main() -> None:
         return
 
     try:
-        mme = Playback(config=config, modules=PlaybackModule.modules(), dids=PlaybackDID.dids())
+        playback = Playback(config=config, modules=PlaybackModule.modules(), dids=PlaybackDID.dids())
     except FailedInitialization as e:
         _LOGGER.error(f"{e}")
         return
@@ -103,15 +103,15 @@ def main() -> None:
         return
 
     try:
-        mme.start()
+        playback.start()
     except KeyboardInterrupt:
         print()
-    except RuntimeError:
-        pass
+    except RuntimeError as e:
+        _LOGGER.exception(f"Run time error: {e}")
     except Exception as e:
         _LOGGER.exception(f"Unexpected exception: {e}")
     finally:
-        mme.stop()
+        playback.stop()
 
 
 if __name__ == '__main__':
