@@ -1,0 +1,387 @@
+[
+    {
+        "time": 3,
+        "arbitration_id": 2018,
+        "did": 56576,
+        "payload": [
+            10,
+            197,
+            86,
+            128
+        ]
+    },
+    {
+        "time": 4,
+        "arbitration_id": 2020,
+        "did": 18504,
+        "payload": [
+            120,
+            242
+        ]
+    },
+    {
+        "time": 5,
+        "arbitration_id": 2020,
+        "did": 18445,
+        "payload": [
+            142,
+            143
+        ]
+    },
+    {
+        "time": 5,
+        "arbitration_id": 2018,
+        "did": 56576,
+        "payload": [
+            10,
+            197,
+            86,
+            151
+        ]
+    },
+    {
+        "time": 7,
+        "arbitration_id": 2018,
+        "did": 56576,
+        "payload": [
+            10,
+            197,
+            86,
+            163
+        ]
+    },
+    {
+        "time": 9,
+        "arbitration_id": 2020,
+        "did": 18504,
+        "payload": [
+            120,
+            241
+        ]
+    },
+    {
+        "time": 10,
+        "arbitration_id": 2018,
+        "did": 56576,
+        "payload": [
+            10,
+            197,
+            86,
+            186
+        ]
+    },
+    {
+        "time": 11,
+        "arbitration_id": 2020,
+        "did": 18445,
+        "payload": [
+            142,
+            131
+        ]
+    },
+    {
+        "time": 12,
+        "arbitration_id": 2018,
+        "did": 56576,
+        "payload": [
+            10,
+            197,
+            86,
+            210
+        ]
+    },
+    {
+        "time": 13,
+        "arbitration_id": 2020,
+        "did": 18445,
+        "payload": [
+            142,
+            143
+        ]
+    },
+    {
+        "time": 14,
+        "arbitration_id": 2020,
+        "did": 18681,
+        "payload": [
+            0,
+            33
+        ]
+    },
+    {
+        "time": 14,
+        "arbitration_id": 2018,
+        "did": 56576,
+        "payload": [
+            10,
+            197,
+            86,
+            234
+        ]
+    },
+    {
+        "time": 15,
+        "arbitration_id": 2020,
+        "did": 18504,
+        "payload": [
+            120,
+            240
+        ]
+    },
+    {
+        "time": 16,
+        "arbitration_id": 2018,
+        "did": 56576,
+        "payload": [
+            10,
+            197,
+            87,
+            1
+        ]
+    },
+    {
+        "time": 18,
+        "arbitration_id": 2018,
+        "did": 56576,
+        "payload": [
+            10,
+            197,
+            87,
+            25
+        ]
+    },
+    {
+        "time": 20,
+        "arbitration_id": 2020,
+        "did": 18445,
+        "payload": [
+            142,
+            131
+        ]
+    },
+    {
+        "time": 21,
+        "arbitration_id": 2018,
+        "did": 56576,
+        "payload": [
+            10,
+            197,
+            87,
+            48
+        ]
+    },
+    {
+        "time": 22,
+        "arbitration_id": 2020,
+        "did": 18504,
+        "payload": [
+            120,
+            239
+        ]
+    },
+    {
+        "time": 22,
+        "arbitration_id": 2020,
+        "did": 18681,
+        "payload": [
+            0,
+            34
+        ]
+    },
+    {
+        "time": 23,
+        "arbitration_id": 2018,
+        "did": 56576,
+        "payload": [
+            10,
+            197,
+            87,
+            60
+        ]
+    },
+    {
+        "time": 24,
+        "arbitration_id": 2020,
+        "did": 18445,
+        "payload": [
+            142,
+            143
+        ]
+    },
+    {
+        "time": 25,
+        "arbitration_id": 2018,
+        "did": 56576,
+        "payload": [
+            10,
+            197,
+            87,
+            84
+        ]
+    },
+    {
+        "time": 27,
+        "arbitration_id": 2020,
+        "did": 18445,
+        "payload": [
+            142,
+            131
+        ]
+    },
+    {
+        "time": 27,
+        "arbitration_id": 2020,
+        "did": 18681,
+        "payload": [
+            0,
+            33
+        ]
+    },
+    {
+        "time": 27,
+        "arbitration_id": 2018,
+        "did": 56576,
+        "payload": [
+            10,
+            197,
+            87,
+            107
+        ]
+    },
+    {
+        "time": 60,
+        "arbitration_id": 2020,
+        "did": 18504,
+        "payload": [
+            120,
+            238
+        ]
+    },
+    {
+        "time": 60,
+        "arbitration_id": 2020,
+        "did": 18681,
+        "payload": [
+            0,
+            34
+        ]
+    },
+    {
+        "time": 61,
+        "arbitration_id": 2018,
+        "did": 56576,
+        "payload": [
+            10,
+            197,
+            87,
+            131
+        ]
+    },
+    {
+        "time": 62,
+        "arbitration_id": 2020,
+        "did": 18445,
+        "payload": [
+            142,
+            143
+        ]
+    },
+    {
+        "time": 63,
+        "arbitration_id": 2018,
+        "did": 56576,
+        "payload": [
+            10,
+            197,
+            87,
+            155
+        ]
+    },
+    {
+        "time": 64,
+        "arbitration_id": 2020,
+        "did": 18445,
+        "payload": [
+            142,
+            131
+        ]
+    },
+    {
+        "time": 65,
+        "arbitration_id": 2018,
+        "did": 56576,
+        "payload": [
+            10,
+            197,
+            87,
+            178
+        ]
+    },
+    {
+        "time": 66,
+        "arbitration_id": 2020,
+        "did": 18504,
+        "payload": [
+            120,
+            237
+        ]
+    },
+    {
+        "time": 67,
+        "arbitration_id": 2018,
+        "did": 56576,
+        "payload": [
+            10,
+            197,
+            87,
+            202
+        ]
+    },
+    {
+        "time": 69,
+        "arbitration_id": 2020,
+        "did": 18445,
+        "payload": [
+            142,
+            155
+        ]
+    },
+    {
+        "time": 69,
+        "arbitration_id": 2020,
+        "did": 18681,
+        "payload": [
+            0,
+            8
+        ]
+    },
+    {
+        "time": 69,
+        "arbitration_id": 2018,
+        "did": 56576,
+        "payload": [
+            10,
+            197,
+            87,
+            214
+        ]
+    },
+    {
+        "time": 71,
+        "arbitration_id": 2020,
+        "did": 18445,
+        "payload": [
+            142,
+            143
+        ]
+    },
+    {
+        "time": 71,
+        "arbitration_id": 2020,
+        "did": 18681,
+        "payload": [
+            0,
+            9
+        ]
+    }
+]

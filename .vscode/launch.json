@@ -8,21 +8,21 @@
             "name": "Playback",
             "type": "python",
             "request": "launch",
-            "cwd": "${workspaceFolder}/playback",
+            "cwd": "${workspaceFolder}/source",
             "module": "playback"
         },
         {
             "name": "Record",
             "type": "python",
             "request": "launch",
-            "cwd": "${workspaceFolder}/record",
+            "cwd": "${workspaceFolder}/source",
             "module": "record"
         },
         {
             "name": "Python: Current File",
             "type": "python",
             "request": "launch",
-            "cwd": "${workspaceFolder}/simulator",
+            "cwd": "${workspaceFolder}/source",
             "program": "${file}",
             "console": "integratedTerminal"
         }

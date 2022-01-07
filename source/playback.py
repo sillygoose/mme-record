@@ -1,15 +1,14 @@
 import sys
-import os
 from queue import Queue
 import logging
 from typing import List
 
-#import module
-#from module import Module
+import pbmodule
+from pbmodule import Module
 
-#import did
-#from did import DID
-#from rcengine import RecordEngine
+import pbdid
+from pbdid import DID
+from pbengine import PlaybackEngine
 
 import version
 import logfiles
@@ -21,19 +20,19 @@ from exceptions import FailedInitialization, RuntimeError
 _LOGGER = logging.getLogger('mme')
 
 
-class Record:
+class Playback:
     def __init__(self, config: dict, modules: List[dict], dids: List[dict]) -> None:
-        self._config = dict(config.mme.record)
+        self._config = dict(config.mme.playback)
         self._modules = None
         self._module_event_queues = None
         self._add_modules(modules)
         self._add_dids(dids)
-        self._record_engine = RecordEngine(config=self._config, queues=self._module_event_queues)
+        self._playback_engine = PlaybackEngine(config=self._config, queues=self._module_event_queues)
 
     def start(self) -> None:
         for module in self._modules.values():
             module.start()
-        self._record_engine.start()
+        self._playback_engine.start()
 
     def stop(self) -> None:
         for module in self._modules.values():
@@ -51,12 +50,12 @@ class Record:
             arbitration_id = module_record.get('arbitration_id')
             enable = module_record.get('enable')
             if enable:
-                if self._modules.get(module, None) is not None:
-                    raise FailedInitialization(f"Module {module} is defined more than once")
-                event_queue = Queue(maxsize=10)
+                if self._modules.get(name, None) is not None:
+                    raise FailedInitialization(f"Module {name} is defined more than once")
+                event_queue = Queue(maxsize=12)
                 self._module_event_queues[name] = event_queue
                 self._modules[name] = Module(name=name, event_queue=event_queue, channel=channel, arbitration_id=arbitration_id)
-                _LOGGER.debug(f"Added module '{module}' to playback")
+                _LOGGER.debug(f"Added module '{name}' to playback")
 
     def _add_dids(self, dids: List[dict]) -> None:
         self._dids_by_id = {}
@@ -84,7 +83,7 @@ class Record:
 def main() -> None:
 
     logfiles.start()
-    _LOGGER.info(f"Mustang Mach E Record Utility version {version.get_version()}")
+    _LOGGER.info(f"Mustang Mach E Playback Utility version {version.get_version()}")
 
     try:
         config = read_config(yaml_file='mme.yaml')
@@ -98,7 +97,7 @@ def main() -> None:
         return
 
     try:
-        mme = Record(config=config, modules=module.modules(), dids=did.dids())
+        mme = Playback(config=config, modules=pbmodule.modules(), dids=pbdid.dids())
     except FailedInitialization as e:
         _LOGGER.error(f"{e}")
         return

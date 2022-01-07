@@ -10,7 +10,7 @@ from typing import List
 import isotp
 from can.interfaces.socketcan import SocketcanBus
 
-from did import DID
+from pbdid import DID
 from exceptions import FailedInitialization
 
 

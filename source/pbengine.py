@@ -8,7 +8,7 @@ import json
 
 from typing import List
 
-import module
+import pbmodule
 from exceptions import FailedInitialization, RuntimeError
 
 
@@ -67,7 +67,7 @@ class PlaybackEngine:
                 self._playback_time = event_time
 
                 arbitration_id = event.get('arbitration_id')
-                name = module.module_name(arbitration_id)
+                name = pbmodule.module_name(arbitration_id)
                 destination = self._queues.get(name)
                 if destination:
                     try:
@@ -120,7 +120,7 @@ class PlaybackEngine:
         return next_file
 
     def _decode_event(self, event: dict) -> str:
-        module_name = module.module_name(event.get('arbitration_id'))
+        module_name = pbmodule.module_name(event.get('arbitration_id'))
         event['name'] = module_name
         event['payload'] = bytearray(event['payload'])
         return str(event)
