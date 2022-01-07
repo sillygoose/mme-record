@@ -8,7 +8,7 @@ import logfiles
 from readconfig import read_config
 
 from rec_modmgr import RecordModuleManager
-from rec_engine import RecordEngine
+from rec_canmgr import RecordCanbusManager
 from exceptions import FailedInitialization, RuntimeError
 
 
@@ -19,15 +19,16 @@ class Record:
     def __init__(self, config: dict) -> None:
         self._config = dict(config.mme.record)
         self._module_manager = RecordModuleManager(config=self._config)
-        self._work_queue = Queue(maxsize=10)
-        self._record_engine = RecordEngine(config=self._config, work_queue=self._work_queue)
+        self._input_queue = Queue(maxsize=10)
+        self._output_queue = Queue(maxsize=10)
+        self._canbus_manager = RecordCanbusManager(config=self._config, input_jobs=self._input_queue, output_jobs=self._output_queue)
 
     def start(self) -> None:
         self._module_manager.start()
-        self._record_engine.start()
+        self._canbus_manager.start()
 
     def stop(self) -> None:
-        self._record_engine.stop()
+        self._canbus_manager.stop()
         self._module_manager.stop()
 
 

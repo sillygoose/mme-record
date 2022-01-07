@@ -17,7 +17,7 @@ from rec_modmgr import RecordModuleManager
 _LOGGER = logging.getLogger('mme')
 
 
-class RecordEngine:
+class RecordCanbusManager:
     mach_e = [
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
                 {'did': 0x411F, 'codec': rec_codecs.CodecKeyState},            # Ignition state
@@ -26,13 +26,6 @@ class RecordEngine:
                 {'did': 0x8012, 'codec': rec_codecs.CodecGPS},                 # GPS data
             ]},
     ]
-
-    _TIMEOUT = 2.0
-    config = dict(udsoncan.configs.default_client_config)
-    config['request_timeout'] = _TIMEOUT
-    config['p2_timeout'] = _TIMEOUT
-    config['p2_star_timeout'] = _TIMEOUT
-    config['logger_name'] = 'mach-e'
 
     def __init__(self, config: dict, input_jobs: Queue, output_jobs: Queue) -> None:
         self._config = config
@@ -51,12 +44,21 @@ class RecordEngine:
         self._thread = threading.Thread(target=self._work_task, name='record')
         self._thread.start()
         while True:
-            sleep(2)
+            sleep(1)
             try:
-                self._input_jobs.put(RecordEngine.mach_e, block=True, timeout=1)
+                #_LOGGER.info(f"input job queue is {self._input_jobs.empty()}")
+                self._input_jobs.put(RecordCanbusManager.mach_e, block=True, timeout=1)
             except Full:
-                _LOGGER.info("no space in the work queue")
-        self._thread.join()
+                _LOGGER.error(f"no space in the work queue")
+                self._exit_requested = True
+            try:
+                #_LOGGER.info(f"input job queue is {self._input_jobs.empty()}")
+                work_product = self._output_jobs.get(block=True)
+                print(work_product.get('decoded'))
+            except Full:
+                _LOGGER.error(f"no space in the work queue")
+                self._exit_requested = True
+        self._thread.join() ###
 
     def stop(self) -> None:
         self._exit_requested = True
@@ -67,7 +69,9 @@ class RecordEngine:
         try:
             while self._exit_requested == False:
                 try:
-                    job = self._input_jobs.get(block=True, timeout=20.0)
+                    #_LOGGER.info(f"input job queue empty is {self._input_jobs.empty()}")
+                    job = self._input_jobs.get(block=True, timeout=5)
+                    #_LOGGER.info(f"input job queue empty is {self._input_jobs.empty()}")
                 except Empty:
                     continue
 
@@ -93,7 +97,7 @@ class RecordEngine:
                                 payload = response.service_data.values[did].get('payload')
                                 decoded = response.service_data.values[did].get('decoded')
                                 key = f"{txid:04X} {did:04X}"
-                                print(decoded)
+                                #print(decoded)
                                 self._output_jobs.put(response.service_data.values[did])
 
                         except ValueError as e:
