@@ -23,12 +23,13 @@ class PlaybackEngine:
         self._queues = queues
         self._playback_files = self._get_playback_files(config.get('source_dir'), config.get('source_file'))
         self._start_at = config.get('start_at', 0)
+        if self._start_at < 0:
+            raise FailedInitialization(f"'start_at' option must be a non-negative integer")
         speed = config.get('speed', 1.0)
         if speed < 1:
-            raise FailedInitialization(f"'speed' option must be a value greater than 1.0")
+            raise FailedInitialization(f"'speed' option must be a floating point number greater than 1.0")
         self._speed = 1.0 / speed 
         self._exit_requested = False
-        self._time_zero = int(time())
         self._currrent_position = None
         self._current_playback = None
 
@@ -97,15 +98,36 @@ class PlaybackEngine:
         if self._thread.is_alive():
             self._thread.join()
 
+    def _zoom_ahead(self, start_at: int) -> None:
+        event_time = 0
+        while event_time < start_at:
+            if self._currrent_position is None or self._currrent_position == len(self._current_playback):
+                next_file = self._next_file()
+                if next_file is None:
+                    raise RuntimeError(f"'start_at' option is larger than the largest playback file - nothing to playback")
+            event = self._current_playback[self._currrent_position]
+            event_time = event.get('time')
+            self._currrent_position += 1
+
     def _next_event(self) -> dict:
+        if self._start_at > 0:
+            self._zoom_ahead(self._start_at)
+            self._start_at = 0
         if self._currrent_position is None or self._currrent_position == len(self._current_playback):
-            if self._playback_files == []:
-                return
-            next_file = self._playback_files.pop(0)
-            self._load_playback(file=next_file)
+            next_file = self._next_file()
+            if next_file is None:
+                return None
         event = self._current_playback[self._currrent_position]
         self._currrent_position += 1
         return event
+
+    def _next_file(self) -> str:
+        if self._playback_files == []:
+            return None
+        next_file = self._playback_files.pop(0)
+        self._load_playback(file=next_file)
+        self._currrent_position = 0
+        return next_file
 
     def _decode_event(self, event: dict) -> str:
         module_name = module.module_name(event.get('arbitration_id'))
