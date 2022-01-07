@@ -10,7 +10,7 @@ import json
 from typing import List
 
 import module
-from exceptions import RuntimeError
+from exceptions import FailedInitialization, RuntimeError
 
 
 _LOGGER = logging.getLogger('mme')
@@ -23,8 +23,10 @@ class PlaybackEngine:
         self._queues = queues
         self._playback_files = self._get_playback_files(config.get('source_dir'), config.get('source_file'))
         self._start_at = config.get('start_at', 0)
-        self._speed = config.get('speed', 1.0)
-        self._speed = 1.0 if self._speed == 0.0 else 1.0 / self._speed
+        speed = config.get('speed', 1.0)
+        if speed < 1:
+            raise FailedInitialization(f"'speed' option must be a value greater than 1.0")
+        self._speed = 1.0 / speed 
         self._exit_requested = False
         self._time_zero = int(time())
         self._currrent_position = None
@@ -71,7 +73,7 @@ class PlaybackEngine:
                     sleep_for = (event_time - self._playback_time) * self._speed
                     if sleep_for > 0:
                         if sleep_for > 3:
-                            print(f"sleeping for {sleep_for} seconds")
+                            _LOGGER.info(f"sleeping for {sleep_for:.1f} seconds")
                         sleep(sleep_for)
                 self._playback_time = event_time
 
@@ -80,7 +82,7 @@ class PlaybackEngine:
                 destination = self._queues.get(name)
                 if destination:
                     try:
-                        _LOGGER.info(f"Queuing event {event} on queue {name}")
+                        _LOGGER.debug(f"Queuing event {event} on queue {name}")
                         destination.put(event, block=False, timeout=2)
                         #print(f"{current_time:.02f}: {self._decode_event(event)}")
                     except Full:

@@ -99,7 +99,7 @@ class Module:
 
             if not self._event_queue.empty():
                 event = self._event_queue.get(block='False')
-                _LOGGER.info(f"Dequeued event {event} on queue {module_name(event.get('arbitration_id'))}")
+                _LOGGER.debug(f"Dequeued event {event} on queue {module_name(event.get('arbitration_id'))}")
                 did_handler = self._dids.get(event.get('did'), None)
                 if did_handler:
                     did_handler.new_event(event)
