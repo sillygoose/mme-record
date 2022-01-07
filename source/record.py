@@ -37,7 +37,7 @@ class Record:
 
 def main() -> None:
 
-    logfiles.start()
+    logfiles.start('log/record.log')
     _LOGGER.info(f"Mustang Mach E Record Utility version {version.get_version()}")
 
     try:

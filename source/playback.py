@@ -82,7 +82,7 @@ class Playback:
 
 def main() -> None:
 
-    logfiles.start()
+    logfiles.start('log/playback.log')
     _LOGGER.info(f"Mustang Mach E Playback Utility version {version.get_version()}")
 
     try:

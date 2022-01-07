@@ -5,9 +5,8 @@ import sys
 import logging
 
 
-def start():
+def start(log_file: str):
     """Create the application log."""
-    _DEFAULT_LOG_FILE = 'log/playback.log'
     _DEFAULT_LOG_FORMAT = '[%(asctime)s] [%(module)s] [%(levelname)s] %(message)s'
     _DEFAULT_LOG_LEVEL = logging.INFO
 
@@ -17,7 +16,6 @@ def start():
     _DEBUG_ENV_VAR = 'MME_DEBUG'
     debug_mode = os.getenv(_DEBUG_ENV_VAR, 'False').lower() in ('true', '1', 't')
 
-    log_file = _DEFAULT_LOG_FILE
     log_format = _DEFAULT_LOG_FORMAT
     log_level = _DEFAULT_LOG_LEVEL if not debug_mode else logging.DEBUG
 
