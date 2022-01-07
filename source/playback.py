@@ -3,12 +3,9 @@ from queue import Queue
 import logging
 from typing import List
 
-import pbmodule
-from pbmodule import Module
-
-import pbdid
-from pbdid import DID
-from pbengine import PlaybackEngine
+from pb_module import Module
+from pb_did import DID
+from pb_engine import PlaybackEngine
 
 import version
 import logfiles
@@ -93,26 +90,26 @@ def main() -> None:
         _LOGGER.error(f"{e}")
         return
     except Exception as e:
-        _LOGGER.error(f"Unexpected exception: {e}")
+        _LOGGER.exception(f"Unexpected exception: {e}")
         return
 
     try:
-        mme = Playback(config=config, modules=pbmodule.modules(), dids=pbdid.dids())
+        mme = Playback(config=config, modules=Module.modules(), dids=DID.pb_dids())
     except FailedInitialization as e:
         _LOGGER.error(f"{e}")
         return
     except Exception as e:
-        _LOGGER.error(f"Unexpected exception setting up Playback: {e}")
+        _LOGGER.exception(f"Unexpected exception setting up Playback: {e}")
         return
 
     try:
         mme.start()
     except KeyboardInterrupt:
-        pass
+        print()
     except RuntimeError:
         pass
     except Exception as e:
-        _LOGGER.error(f"Unexpected exception: {e}")
+        _LOGGER.exception(f"Unexpected exception: {e}")
     finally:
         mme.stop()
 

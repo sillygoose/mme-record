@@ -10,7 +10,7 @@ from typing import List
 import isotp
 from can.interfaces.socketcan import SocketcanBus
 
-from pbdid import DID
+from pb_did import DID
 from exceptions import FailedInitialization
 
 
@@ -34,7 +34,7 @@ class Module:
     }
 
     def __init__(self, name: str, event_queue: Queue, channel: str = None, arbitration_id: int = None) -> None:
-        module_lookup = Module.modules_by_name.get(name, None)
+        module_lookup = Module._modules_by_name.get(name, None)
         if module_lookup is None and (channel is None or arbitration_id is None):
             raise FailedInitialization(f"The module '{name}' is not supported by the simulator or cannot be created")
 
@@ -148,18 +148,18 @@ class Module:
             outfile.write(json_modules)
 
     # Module static data
-    modules = _load_modules(file='json/mme_modules.json')
-    modules_by_name = _modules_organized_by_name(modules)
-    modules_by_id = _modules_organized_by_id(modules)
+    _modules = _load_modules(file='json/mme_modules.json')
+    _modules_by_name = _modules_organized_by_name(_modules)
+    _modules_by_id = _modules_organized_by_id(_modules)
 
 
-def modules() -> List[dict]:
-    return Module.modules
+    def modules() -> List[dict]:
+        return Module._modules
 
 def arbitration_id(name: str) -> int:
-    module_record = Module.modules_by_name.get(name, None)
+    module_record = Module._modules_by_name.get(name, None)
     return module_record.get('arbitration_id')
 
 def module_name(arbitration_id: int) -> str:
-    module_record = Module.modules_by_id.get(arbitration_id, None)
+    module_record = Module._modules_by_id.get(arbitration_id, None)
     return module_record.get('name')

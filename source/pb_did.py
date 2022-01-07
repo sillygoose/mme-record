@@ -140,11 +140,8 @@ class DID:
         with open(file, "w") as outfile:
             outfile.write(json_dids)
 
-
     # DID static data
-    supported_dids = _load_dids(file='json/mme_dids.json')
-    dids_by_id = _dids_organized_by_did(supported_dids)
+    _supported_dids = _load_dids(file='json/mme_dids.json')
 
-
-def dids() -> List[dict]:
-    return DID.supported_dids
+    def pb_dids() -> List[dict]:
+        return DID._supported_dids

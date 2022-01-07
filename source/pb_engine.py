@@ -8,7 +8,7 @@ import json
 
 from typing import List
 
-import pbmodule
+import pb_module
 from exceptions import FailedInitialization, RuntimeError
 
 
@@ -27,7 +27,7 @@ class PlaybackEngine:
         speed = config.get('speed', 1.0)
         if speed < 1:
             raise FailedInitialization(f"'speed' option must be a floating point number greater than 1.0")
-        self._speed = 1.0 / speed 
+        self._speed = 1.0 / speed
         self._exit_requested = False
         self._currrent_position = None
         self._current_playback = None
@@ -62,12 +62,12 @@ class PlaybackEngine:
                     sleep_for = (event_time - self._playback_time) * self._speed
                     if sleep_for > 0:
                         if sleep_for > 3:
-                            _LOGGER.info(f"sleeping for {sleep_for:.1f} seconds")
+                            _LOGGER.info(f"At time {self._playback_time}, sleeping for ~{sleep_for:.0f} seconds")
                         sleep(sleep_for)
                 self._playback_time = event_time
 
                 arbitration_id = event.get('arbitration_id')
-                name = pbmodule.module_name(arbitration_id)
+                name = pb_module.module_name(arbitration_id)
                 destination = self._queues.get(name)
                 if destination:
                     try:
@@ -120,7 +120,7 @@ class PlaybackEngine:
         return next_file
 
     def _decode_event(self, event: dict) -> str:
-        module_name = pbmodule.module_name(event.get('arbitration_id'))
+        module_name = pb_module.module_name(event.get('arbitration_id'))
         event['name'] = module_name
         event['payload'] = bytearray(event['payload'])
         return str(event)
@@ -132,7 +132,7 @@ class PlaybackEngine:
                 _LOGGER.info(f"Loaded playback file '{file}'")
             except json.JSONDecodeError as e:
                 raise RuntimeError(f"JSON error in '{file}' at line {e.lineno}")
-        self._currrent_position = 0                
+        self._currrent_position = 0
 
     def _dump_playback(self, file: str, playback: dict) -> None:
         json_playback = json.dumps(playback, indent = 4, sort_keys=False)
