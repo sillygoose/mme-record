@@ -87,7 +87,8 @@ class Module:
                         response += struct.pack('>H', did)
                         did_handler = self._dids.get(did, None)
                         if did_handler is None:
-                            pass ### response = struct.pack('>BBB', 0x7F, 0x22, 0x31)
+                            response = struct.pack('>BBB', 0x7F, 0x22, 0x31)
+                            break
                         else:
                             response += did_handler.response()
 
@@ -98,6 +99,7 @@ class Module:
 
             if not self._event_queue.empty():
                 event = self._event_queue.get(block='False')
+                _LOGGER.info(f"Dequeued event {event} on queue {module_name(event.get('arbitration_id'))}")
                 did_handler = self._dids.get(event.get('did'), None)
                 if did_handler:
                     did_handler.new_event(event)
@@ -118,19 +120,6 @@ class Module:
     def dids(self) -> List[DID]:
         return self._dids
 
-    def module_id(self, name: str) -> int:
-        arbitration_id = None
-        module = Module.modules_by_name.get(name, None)
-        if module is not None:
-            arbitration_id = module.get('arbitration_id', None)
-        return arbitration_id
-
-    def module_name(self, arbitration_id: int) -> str:
-        module_name = None
-        module = Module.modules_by_id.get(arbitration_id, None)
-        if module is not None:
-            module.get('name', None)
-        return module_name
 
     # Static functions and data
     def _modules_organized_by_name(modules: List[dict]) -> dict:
@@ -147,7 +136,10 @@ class Module:
 
     def _load_modules(file: str) -> dict:
         with open(file) as infile:
-            modules = json.load(infile)
+            try:
+                modules = json.load(infile)
+            except json.JSONDecodeError as e:
+                raise RuntimeError(f"JSON error in '{file}' at line {e.lineno}")
         return modules
 
     def _dump_modules(file: str, modules: dict) -> None:
@@ -165,7 +157,9 @@ def modules() -> List[dict]:
     return Module.modules
 
 def arbitration_id(name: str) -> int:
-    return Module.modules_by_name.get(name, None)
+    module_record = Module.modules_by_name.get(name, None)
+    return module_record.get('arbitration_id')
 
 def module_name(arbitration_id: int) -> str:
-    return Module.modules_by_id.get(arbitration_id, None)
+    module_record = Module.modules_by_id.get(arbitration_id, None)
+    return module_record.get('name')

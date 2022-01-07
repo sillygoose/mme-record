@@ -1,13 +1,13 @@
 import struct
 import json
-import logging
+#import logging
 
 from typing import List
 
-from exceptions import FailedInitialization
+from exceptions import RuntimeError
 
 
-_LOGGER = logging.getLogger('mme')
+#_LOGGER = logging.getLogger('mme')
 
 """
 _DIDS = {
@@ -56,9 +56,6 @@ _DIDS = {
     0xDD04: { 'name': 'InteriorTemp',           'packing': 'B',     'modules': ['SOBDM'],       'states': [{ 'name': 'interior_temp', 'value': 50}] },
     0xDD05: { 'name': 'ExteriorTemp',           'packing': 'B',     'modules': ['SOBDM'],       'states': [{ 'name': 'exterior_temp', 'value': 50}] },
 }
-
-def builtin_dids() -> List[int]:
-    return _DIDS.keys()
 """
 
 
@@ -102,7 +99,7 @@ class DID:
         if self._packing.find('T') >= 0:
             unpacked_values[0] = unpacked_values[0] * 256 + unpacked_values[1]
         index = 0
-        for state in self._states:
+        for _ in self._states:
             self._states[index] = unpacked_values[index]
             index += 1
 
@@ -132,7 +129,10 @@ class DID:
 
     def _load_dids(file: str) -> dict:
         with open(file) as infile:
-            dids = json.load(infile)
+            try:
+                dids = json.load(infile)
+            except json.JSONDecodeError as e:
+                raise RuntimeError(f"JSON error in '{file}' at line {e.lineno}")
         return dids
 
     def _dump_dids(file: str, dids: dict) -> None:
@@ -140,44 +140,10 @@ class DID:
         with open(file, "w") as outfile:
             outfile.write(json_dids)
 
-    def _modules_organized_by_name(modules: List[dict]) -> dict:
-        modules_by_names = {}
-        for module in modules:
-            modules_by_names[module.get('name')] = module
-        return modules_by_names
-
-    def _modules_organized_by_id(modules: List[dict]) -> dict:
-        modules_by_id = {}
-        for module in modules:
-            modules_by_id[module.get('arbitration_id')] = module
-        return modules_by_id
-
-    def _load_modules(file: str) -> dict:
-        with open(file) as infile:
-            modules = json.load(infile)
-        return modules
-
 
     # DID static data
     supported_dids = _load_dids(file='json/mme_dids.json')
     dids_by_id = _dids_organized_by_did(supported_dids)
-    """
-    modules = _load_modules(file='json/mme_modules.json')
-    modules_by_id = _modules_organized_by_id(modules)
-
-    local_dids = []
-    for did, did_def in _DIDS.items():
-        name = did_def.get('name')
-        packing = did_def.get('packing')
-        states = did_def.get('states')
-        did_lookup = dids_by_id.get(did)
-        modules = did_lookup.get('modules')
-        module_names = []
-        for module in modules:
-            module_names.append(modules_by_id.get(module).get('name'))
-        local_dids.append({ 'did': did, 'name': name, 'enable': True, 'modules': module_names, 'packing': packing, 'states': states})
-    _dump_dids(file='dids.json', dids=local_dids)
-    """
 
 
 def dids() -> List[dict]:

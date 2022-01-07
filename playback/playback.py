@@ -50,9 +50,9 @@ class Playback:
             arbitration_id = module_record.get('arbitration_id')
             enable = module_record.get('enable')
             if enable:
-                #if self._modules.get(module, None) is not None:
-                #    raise FailedInitialization(f"Module {module} is defined more than once")
-                event_queue = Queue(maxsize=10)
+                if self._modules.get(module, None) is not None:
+                    raise FailedInitialization(f"Module {module} is defined more than once")
+                event_queue = Queue(maxsize=12)
                 self._module_event_queues[name] = event_queue
                 self._modules[name] = Module(name=name, event_queue=event_queue, channel=channel, arbitration_id=arbitration_id)
                 _LOGGER.debug(f"Added module '{module}' to playback")
