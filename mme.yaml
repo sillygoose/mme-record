@@ -8,7 +8,7 @@ mme:
 
     playback:
         # You can control the playback options here
-        start_at:       1200
+        start_at:       85
         speed:          10.0
         source_dir:     'playback'
         source_file:    'trip1'

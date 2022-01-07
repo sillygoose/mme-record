@@ -108,6 +108,8 @@ class PlaybackEngine:
             event = self._current_playback[self._currrent_position]
             event_time = event.get('time')
             self._currrent_position += 1
+        self._playback_time = event_time
+        _LOGGER.info(f"Starting at time {event_time} in file '{next_file}'")
 
     def _next_event(self) -> dict:
         if self._start_at > 0:
