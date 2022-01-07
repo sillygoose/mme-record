@@ -3,12 +3,12 @@ mme:
     record:
         # You can control the record options here
         file_writes:    60
-        dest_dir:       'record'
+        dest_dir:       'record_files'
         dest_file:      'trip2'
 
     playback:
         # You can control the playback options here
         start_at:       0
         speed:          1.0
-        source_dir:     'playback'
+        source_dir:     'playback_files'
         source_file:    'trip1'
