@@ -73,7 +73,7 @@ class PlaybackEngine:
                     try:
                         _LOGGER.debug(f"Queuing event {event} on queue {name}")
                         destination.put(event, block=False, timeout=2)
-                        #print(f"{current_time:.02f}: {self._decode_event(event)}")
+                        _LOGGER.debug(f"{self._playback_time:.1f}: {self._decode_event(event)}")
                     except Full:
                         _LOGGER.error(f"Queue {name}/{arbitration_id:04X} is full")
                         return
@@ -121,7 +121,7 @@ class PlaybackEngine:
 
     def _decode_event(self, event: dict) -> str:
         module_name = module.module_name(event.get('arbitration_id'))
-        event['id'] = module_name
+        event['name'] = module_name
         event['payload'] = bytearray(event['payload'])
         return str(event)
 
