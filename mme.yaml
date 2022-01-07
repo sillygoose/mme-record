@@ -1,14 +1,14 @@
 # YAML configuraton file for the Mustang Mach-E CANbus Record/Playback apps
 mme:
     record:
-        # You can control the recorder options here
-        file_writes:   1
-        dest_dir:     'record'
-        dest_file:    'trip2'
+        # You can control the record options here
+        file_writes:    60
+        dest_dir:       'record'
+        dest_file:      'trip2'
 
     playback:
         # You can control the playback options here
-        start_at:       85
-        speed:          10.0
+        start_at:       0
+        speed:          1.0
         source_dir:     'playback'
         source_file:    'trip1'

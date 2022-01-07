@@ -23,17 +23,17 @@ _LOGGER = logging.getLogger('mme')
 
 class Record:
     def __init__(self, config: dict, modules: List[dict], dids: List[dict]) -> None:
-        self._config = dict(config.mme.playback)
+        self._config = dict(config.mme.record)
         self._modules = None
         self._module_event_queues = None
         self._add_modules(modules)
         self._add_dids(dids)
-        self._playback_engine = RecordEngine(config=self._config, queues=self._module_event_queues)
+        self._record_engine = RecordEngine(config=self._config, queues=self._module_event_queues)
 
     def start(self) -> None:
         for module in self._modules.values():
             module.start()
-        self._playback_engine.start()
+        self._record_engine.start()
 
     def stop(self) -> None:
         for module in self._modules.values():
@@ -51,8 +51,8 @@ class Record:
             arbitration_id = module_record.get('arbitration_id')
             enable = module_record.get('enable')
             if enable:
-                #if self._modules.get(module, None) is not None:
-                #    raise FailedInitialization(f"Module {module} is defined more than once")
+                if self._modules.get(module, None) is not None:
+                    raise FailedInitialization(f"Module {module} is defined more than once")
                 event_queue = Queue(maxsize=10)
                 self._module_event_queues[name] = event_queue
                 self._modules[name] = Module(name=name, event_queue=event_queue, channel=channel, arbitration_id=arbitration_id)
@@ -107,9 +107,7 @@ def main() -> None:
         return
 
     try:
-        #pb = RecordEngine(file='json/playback.json', queues=mme.event_queues(), start_at=0)
         mme.start()
-        #pb.start()
     except KeyboardInterrupt:
         pass
     except RuntimeError:
