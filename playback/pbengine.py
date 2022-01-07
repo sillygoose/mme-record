@@ -1,10 +1,9 @@
-import sys
 import os
 import threading
-from queue import Queue, Full
+from queue import Full
 
 import logging
-from time import time, sleep
+from time import sleep
 import json
 
 from typing import List
@@ -48,17 +47,6 @@ class PlaybackEngine:
     def start(self) -> None:
         self._exit_requested = False
         self._playback_time = 0
-        """
-        if self._start_at > 0:
-            offset = 0
-            for event in self._playback:
-                if event.get('time') < self._start_at:
-                    offset += 1
-                    continue
-                break
-            self._currrent_playback = offset
-            self._time_zero -= event.get('time')
-        """
         self._thread = threading.Thread(target=self._event_task, name='playback')
         self._thread.start()
         self._thread.join()
@@ -150,5 +138,3 @@ class PlaybackEngine:
         json_playback = json.dumps(playback, indent = 4, sort_keys=False)
         with open(file, "w") as outfile:
             outfile.write(json_playback)
-
-
