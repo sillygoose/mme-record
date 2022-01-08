@@ -1,14 +1,13 @@
-import threading
 import logging
-from time import sleep, time
+from typing import List
+
+from  threading import Thread
 from queue import Empty, Full, Queue
-#from typing import List
 
 import udsoncan.configs
 from udsoncan.client import Client
 from udsoncan.exceptions import *
 
-import rec_codecs
 from rec_modmgr import RecordModuleManager
 
 #from exceptions import FailedInitialization, RuntimeError
@@ -18,19 +17,11 @@ _LOGGER = logging.getLogger('mme')
 
 
 class RecordCanbusManager:
-    mach_e = [
-        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0x411F, 'codec': rec_codecs.CodecKeyState},            # Ignition state
-            ]},
-        {'module': 'APIM', 'address': 0x7D0, 'bus': 'can1', 'dids': [
-                {'did': 0x8012, 'codec': rec_codecs.CodecGPS},                 # GPS data
-            ]},
-    ]
 
-    def __init__(self, config: dict, input_jobs: Queue, output_jobs: Queue) -> None:
+    def __init__(self, config: dict, request_queue: Queue, response_queue: Queue) -> None:
         self._config = config
-        self._input_jobs = input_jobs
-        self._output_jobs = output_jobs
+        self.request_queue = request_queue
+        self.response_queue = response_queue
         self._exit_requested = False
         self._timeout = 2.0
         self._iso_tp_config = dict(udsoncan.configs.default_client_config)
@@ -39,40 +30,25 @@ class RecordCanbusManager:
         self._iso_tp_config['p2_star_timeout'] = self._timeout
         self._iso_tp_config['logger_name'] = 'mme'
 
-    def start(self) -> None:
+    def start(self) -> List[Thread]:
         self._exit_requested = False
-        self._thread = threading.Thread(target=self._work_task, name='record')
+        self._thread = Thread(target=self._canbus_task, name='canbus')
         self._thread.start()
-        while True:
-            sleep(1)
-            try:
-                #_LOGGER.info(f"input job queue is {self._input_jobs.empty()}")
-                self._input_jobs.put(RecordCanbusManager.mach_e, block=True, timeout=1)
-            except Full:
-                _LOGGER.error(f"no space in the work queue")
-                self._exit_requested = True
-            try:
-                #_LOGGER.info(f"input job queue is {self._input_jobs.empty()}")
-                work_product = self._output_jobs.get(block=True)
-                print(work_product.get('decoded'))
-            except Full:
-                _LOGGER.error(f"no space in the work queue")
-                self._exit_requested = True
-        self._thread.join() ###
+        return [self._thread]
 
     def stop(self) -> None:
         self._exit_requested = True
         if self._thread.is_alive():
             self._thread.join()
 
-    def _work_task(self) -> None:
+    def _canbus_task(self) -> None:
         try:
             while self._exit_requested == False:
                 try:
-                    #_LOGGER.info(f"input job queue empty is {self._input_jobs.empty()}")
-                    job = self._input_jobs.get(block=True, timeout=5)
-                    #_LOGGER.info(f"input job queue empty is {self._input_jobs.empty()}")
+                    job = self.request_queue.get(block=True, timeout=None)
+                    #_LOGGER.info(f"Received request")
                 except Empty:
+                    _LOGGER.error(f"timeout on the request queue")
                     continue
 
                 for module in job:
@@ -93,13 +69,6 @@ class RecordCanbusManager:
                     with Client(conn, request_timeout=self._timeout, config=self._iso_tp_config) as client:
                         try:
                             response = client.read_data_by_identifier(did_list)
-                            for did in did_list:
-                                payload = response.service_data.values[did].get('payload')
-                                decoded = response.service_data.values[did].get('decoded')
-                                key = f"{txid:04X} {did:04X}"
-                                #print(decoded)
-                                self._output_jobs.put(response.service_data.values[did])
-
                         except ValueError as e:
                             _LOGGER.error(f"{txid:04X}: {e}")
                         except ConfigError as e:
@@ -114,6 +83,18 @@ class RecordCanbusManager:
                             _LOGGER.error(f"{txid:04X}: {e}")
                         except Exception as e:
                             _LOGGER.error(f"Unexpected excpetion: {e}")
+
+                        for did in did_list:
+                            #payload = response.service_data.values[did].get('payload')
+                            #decoded = response.service_data.values[did].get('decoded')
+                            #key = f"{txid:04X} {did:04X}"
+                            try:
+                                #_LOGGER.info(f"Sending response")
+                                self.response_queue.put(response.service_data.values[did])
+                            except Full:
+                                _LOGGER.error(f"no space in the response queue")
+                                continue
+
         except RuntimeError as e:
             _LOGGER.error(f"Run time error: {e}")
             return

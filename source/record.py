@@ -9,6 +9,7 @@ from readconfig import read_config
 
 from rec_modmgr import RecordModuleManager
 from rec_canmgr import RecordCanbusManager
+from rec_statemgr import RecordStateManager
 from exceptions import FailedInitialization, RuntimeError
 
 
@@ -19,16 +20,23 @@ class Record:
     def __init__(self, config: dict) -> None:
         self._config = dict(config.mme.record)
         self._module_manager = RecordModuleManager(config=self._config)
-        self._input_queue = Queue(maxsize=10)
-        self._output_queue = Queue(maxsize=10)
-        self._canbus_manager = RecordCanbusManager(config=self._config, input_jobs=self._input_queue, output_jobs=self._output_queue)
+        self._request_queue = Queue(maxsize=10)
+        self._response_queue = Queue(maxsize=10)
+        self._canbus_manager = RecordCanbusManager(config=self._config, request_queue=self._request_queue, response_queue=self._response_queue)
+        self._state_manager = RecordStateManager(config=self._config, request_queue=self._request_queue, response_queue=self._response_queue)
 
     def start(self) -> None:
         self._module_manager.start()
-        self._canbus_manager.start()
+        threads = []
+        threads.append(self._state_manager.start())
+        threads.append(self._canbus_manager.start())
+        for thread_list in threads:
+            for thread in thread_list:
+                thread.join()
 
     def stop(self) -> None:
         self._canbus_manager.stop()
+        self._state_manager.start()
         self._module_manager.stop()
 
 
