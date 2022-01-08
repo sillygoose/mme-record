@@ -8,8 +8,6 @@ from typing import List
 from rec_filemgr import RecordFileManager
 import rec_codecs
 
-#from exceptions import FailedInitialization, RuntimeError
-
 
 _LOGGER = logging.getLogger('mme')
 
@@ -57,8 +55,6 @@ class RecordStateManager:
             ]},
     ]
 
-    did_state_cache = {}
-
     def __init__(self, config: dict, request_queue: Queue, response_queue: Queue) -> None:
         self._config = config
         self._request_queue = request_queue
@@ -68,6 +64,7 @@ class RecordStateManager:
         self._response_thread = Thread(target=self._response_task, name='state_response')
         self._file_manager = RecordFileManager(config)
         self._start_time = int(time())
+        self._did_state_cache = {}
 
     def start(self) -> List[Thread]:
         fm_thread = self._file_manager.start()
@@ -113,13 +110,13 @@ class RecordStateManager:
                 for did in response.service_data.values:
                     key = f"{arbitration_id:04X} {did:04X}"
                     payload = response.service_data.values[did].get('payload')
-                    if RecordStateManager.did_state_cache.get(key, None) is None:
-                        RecordStateManager.did_state_cache[key] = {'time': current_time, 'payload': payload}
+                    if self._did_state_cache.get(key, None) is None:
+                        self._did_state_cache[key] = {'time': current_time, 'payload': payload}
                         self._file_manager.put({'time': current_time, 'arbitration_id': arbitration_id, 'did': did, 'payload': list(payload)})
                         _LOGGER.info(f"{response.service_data.values[did].get('decoded')}")
                     else:
-                        if RecordStateManager.did_state_cache.get(key).get('payload') != payload:
-                            RecordStateManager.did_state_cache[key] = {'time': current_time, 'payload': payload}
+                        if self._did_state_cache.get(key).get('payload') != payload:
+                            self._did_state_cache[key] = {'time': current_time, 'payload': payload}
                             self._file_manager.put({'time': current_time, 'arbitration_id': arbitration_id, 'did': did, 'payload': list(payload)})
                             _LOGGER.info(f"{response.service_data.values[did].get('decoded')}")
         except RuntimeError as e:

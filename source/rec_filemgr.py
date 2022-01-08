@@ -54,7 +54,6 @@ class RecordFileManager:
                     sleep(0.5)
                     slept_for += 0.5
                 self._write_file()
-
         except RuntimeError as e:
             _LOGGER.error(f"Run time error: {e}")
             return
