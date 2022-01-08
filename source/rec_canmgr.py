@@ -84,16 +84,11 @@ class RecordCanbusManager:
                         except Exception as e:
                             _LOGGER.error(f"Unexpected excpetion: {e}")
 
-                        for did in did_list:
-                            #payload = response.service_data.values[did].get('payload')
-                            #decoded = response.service_data.values[did].get('decoded')
-                            #key = f"{txid:04X} {did:04X}"
-                            try:
-                                #_LOGGER.info(f"Sending response")
-                                self.response_queue.put(response.service_data.values[did])
-                            except Full:
-                                _LOGGER.error(f"no space in the response queue")
-                                continue
+                        try:
+                            self.response_queue.put({'arbitration_id': txid, 'response': response})
+                        except Full:
+                            _LOGGER.error(f"no space in the response queue")
+                            continue
 
         except RuntimeError as e:
             _LOGGER.error(f"Run time error: {e}")

@@ -7,7 +7,6 @@ from typing import List
 
 
 import rec_codecs
-#from rec_modmgr import RecordModuleManager
 
 #from exceptions import FailedInitialization, RuntimeError
 
@@ -48,15 +47,17 @@ class RecordStateManager:
                 {'did': 0x48F9, 'codec': rec_codecs.CodecHvbCurrent},          # HVB Current
             ]},
         {'module': 'BECM', 'address': 0x7E4, 'bus': 'can0', 'dids': [
-            #    {'did': 0x484F, 'codec': rec_codecs.CodecChargerStatus},       # Charger status
-            #    {'did': 0x4851, 'codec': rec_codecs.CodecEvseType},            # EVSE type
+                {'did': 0x484F, 'codec': rec_codecs.CodecChargerStatus},       # Charger status
+                {'did': 0x4851, 'codec': rec_codecs.CodecEvseType},            # EVSE type
             ]},
         {'module': 'BCM', 'address': 0x726, 'bus': 'can0', 'dids': [
-            #    {'did': 0x4028, 'codec': rec_codecs.CodecLvbSoc},              # LVB State of Charge
-            #    {'did': 0x402A, 'codec': rec_codecs.CodecLvbVoltage},          # LVB Voltage
-            #    {'did': 0x402B, 'codec': rec_codecs.CodecLvbCurrent},          # LVB Current
+                {'did': 0x4028, 'codec': rec_codecs.CodecLvbSoc},              # LVB State of Charge
+                {'did': 0x402A, 'codec': rec_codecs.CodecLvbVoltage},          # LVB Voltage
+                {'did': 0x402B, 'codec': rec_codecs.CodecLvbCurrent},          # LVB Current
             ]},
     ]
+
+    did_state_cache = {}
 
     def __init__(self, config: dict, request_queue: Queue, response_queue: Queue) -> None:
         self._config = config
@@ -83,9 +84,8 @@ class RecordStateManager:
         try:
             while self._exit_requested == False:
                 try:
-                    #_LOGGER.info(f"Sending request")
                     self._request_queue.put(RecordStateManager.mach_e, block=True)
-                    #sleep(2)
+                    sleep(0.5)
                 except Full:
                     _LOGGER.error(f"no space in the request queue")
                     self._exit_requested = True
@@ -97,11 +97,22 @@ class RecordStateManager:
         try:
             while self._exit_requested == False:
                 try:
-                    response = self._response_queue.get(block=True, timeout=None)
-                    #_LOGGER.info(f"Received response {response.get('decoded')}")
-                    _LOGGER.info(f"{response.get('decoded')}")
+                    response_record = self._response_queue.get(block=True, timeout=None)
+                    arbitration_id = response_record.get('arbitration_id')
+                    response = response_record.get('response')
+                    for did in response.service_data.values:
+                        key = f"{arbitration_id:04X} {did:04X}"
+                        payload = response.service_data.values[did].get('payload')
+                        if RecordStateManager.did_state_cache.get(key, None) is None:
+                            RecordStateManager.did_state_cache[key] = payload
+                            _LOGGER.info(f"{response.service_data.values[did].get('decoded')}")
+                        else:
+                            if RecordStateManager.did_state_cache.get(key) != payload:
+                                RecordStateManager.did_state_cache[key] = payload
+                                _LOGGER.info(f"{response.service_data.values[did].get('decoded')}")
                 except Empty:
                     _LOGGER.error(f"timed out waiting on a response")
+                    continue
         except RuntimeError as e:
             _LOGGER.error(f"Run time error: {e}")
             return
