@@ -20,7 +20,7 @@ class PlaybackEngine:
     def __init__(self, config: dict, queues: dict) -> None:
         self._config = config
         self._queues = queues
-        self._playback_files_master = self._get_playback_files(config.get('source_dir'), config.get('source_file'))
+        self._playback_files_master = self._get_playback_files(source_path=config.get('source_path'), source_file=config.get('source_file'))
         self._playback_files = self._playback_files_master.copy()
         self._start_at = config.get('start_at', 0)
         if self._start_at < 0:
@@ -35,16 +35,16 @@ class PlaybackEngine:
         self._currrent_position = None
         self._current_playback = None
 
-    def _get_playback_files(self, source_dir: str, source_file: str) -> List:
+    def _get_playback_files(self, source_path: str, source_file: str) -> List:
         playback_files = []
         count = 0
-        find_file = f"{source_dir}/{source_file}_{count:03d}.json"
+        find_file = f"{source_path}/{source_file}_{count:03d}.json"
         while True:
             if not os.path.exists(find_file):
                 break
             playback_files.append(find_file)
             count += 1
-            find_file = f"{source_dir}/{source_file}_{count:03d}.json"
+            find_file = f"{source_path}/{source_file}_{count:03d}.json"
         return playback_files
 
     def start(self) -> None:
