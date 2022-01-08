@@ -23,6 +23,7 @@ setup(
         "pyyaml",
         "can-isotp",
         "python-can",
+        "udsoncan",
     ],
     zip_safe=True,
 )

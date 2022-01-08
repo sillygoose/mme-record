@@ -260,7 +260,7 @@ def check_config(config):
                     {'loop': {'required': False, 'keys': [], 'type': bool}},
                     {'start_at': {'required': False, 'keys': [], 'type': int}},
                     {'speed': {'required': False, 'keys': [], 'type': float}},
-                    {'source_dir': {'required': True, 'keys': [], 'type': str}},
+                    {'source_path': {'required': True, 'keys': [], 'type': str}},
                     {'source_file': {'required': True, 'keys': [], 'type': str}},
                 ]}},
             ]},
