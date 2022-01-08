@@ -46,7 +46,6 @@ class RecordCanbusManager:
             while self._exit_requested == False:
                 try:
                     job = self.request_queue.get(block=True, timeout=None)
-                    #_LOGGER.info(f"Received request")
                 except Empty:
                     _LOGGER.error(f"timeout on the request queue")
                     continue

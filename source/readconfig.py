@@ -252,9 +252,9 @@ def check_config(config):
         {
             'mme': {'required': True, 'keys': [
                 {'record': {'required': True, 'keys': [
-                    {'file_writes': {'required': False, 'keys': [], 'type': int}},
-                    {'dest_dir': {'required': True, 'keys': [], 'type': str}},
+                    {'dest_path': {'required': True, 'keys': [], 'type': str}},
                     {'dest_file': {'required': True, 'keys': [], 'type': str}},
+                    {'file_writes': {'required': False, 'keys': [], 'type': int}},
                 ]}},
                 {'playback': {'required': True, 'keys': [
                     {'loop': {'required': False, 'keys': [], 'type': bool}},
