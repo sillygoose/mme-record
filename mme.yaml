@@ -2,7 +2,7 @@
 mme:
     record:
         # You can control the record options here
-        file_writes:    20
+        file_writes:    120
         dest_path:      'record_files'
         dest_file:      'trip2'
 

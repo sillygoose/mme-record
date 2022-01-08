@@ -36,7 +36,7 @@ class Record:
 
     def stop(self) -> None:
         self._canbus_manager.stop()
-        self._state_manager.start()
+        self._state_manager.stop()
         self._module_manager.stop()
 
 

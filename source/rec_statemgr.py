@@ -70,11 +70,11 @@ class RecordStateManager:
         self._start_time = int(time())
 
     def start(self) -> List[Thread]:
-        self._file_manager.start()
+        fm_thread = self._file_manager.start()
         self._exit_requested = False
         self._request_thread.start()
         self._response_thread.start()
-        return [self._request_thread, self._response_thread]
+        return [self._request_thread, self._response_thread,fm_thread[0]]
 
     def stop(self) -> None:
         self._file_manager.stop()
@@ -101,25 +101,27 @@ class RecordStateManager:
         try:
             while self._exit_requested == False:
                 try:
-                    response_record = self._response_queue.get(block=True, timeout=None)
-                    arbitration_id = response_record.get('arbitration_id')
-                    response = response_record.get('response')
-                    current_time = round(time() - self._start_time, ndigits=1)
-                    for did in response.service_data.values:
-                        key = f"{arbitration_id:04X} {did:04X}"
-                        payload = response.service_data.values[did].get('payload')
-                        if RecordStateManager.did_state_cache.get(key, None) is None:
-                            RecordStateManager.did_state_cache[key] = payload
+                    response_record = self._response_queue.get(block=True, timeout=0.5)
+                except Empty:
+                    if self._exit_requested == False:
+                        continue
+                    return
+
+                arbitration_id = response_record.get('arbitration_id')
+                response = response_record.get('response')
+                current_time = round(time() - self._start_time, ndigits=1)
+                for did in response.service_data.values:
+                    key = f"{arbitration_id:04X} {did:04X}"
+                    payload = response.service_data.values[did].get('payload')
+                    if RecordStateManager.did_state_cache.get(key, None) is None:
+                        RecordStateManager.did_state_cache[key] = {'time': current_time, 'payload': payload}
+                        self._file_manager.put({'time': current_time, 'arbitration_id': arbitration_id, 'did': did, 'payload': list(payload)})
+                        _LOGGER.info(f"{response.service_data.values[did].get('decoded')}")
+                    else:
+                        if RecordStateManager.did_state_cache.get(key).get('payload') != payload:
+                            RecordStateManager.did_state_cache[key] = {'time': current_time, 'payload': payload}
                             self._file_manager.put({'time': current_time, 'arbitration_id': arbitration_id, 'did': did, 'payload': list(payload)})
                             _LOGGER.info(f"{response.service_data.values[did].get('decoded')}")
-                        else:
-                            if RecordStateManager.did_state_cache.get(key) != payload:
-                                RecordStateManager.did_state_cache[key] = payload
-                                self._file_manager.put({'time': current_time, 'arbitration_id': arbitration_id, 'did': did, 'payload': list(payload)})
-                                _LOGGER.info(f"{response.service_data.values[did].get('decoded')}")
-                except Empty:
-                    _LOGGER.error(f"timed out waiting on a response")
-                    continue
         except RuntimeError as e:
             _LOGGER.error(f"Run time error: {e}")
             return
