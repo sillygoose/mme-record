@@ -5,16 +5,78 @@ import threading
 import struct
 import json
 
-from typing import List
+from typing import List, Any
 
 import isotp
 from can.interfaces.socketcan import SocketcanBus
 
-from pb_did import PlaybackDID
+from pb_didmgr import PlaybackDID
 from exceptions import FailedInitialization
 
 
 _LOGGER = logging.getLogger('mme')
+
+
+class PlaybackModuleManager:
+
+    _modules = None
+    _modules_by_name = None
+    _modules_by_id = None
+
+    def modules() -> List[dict]:
+        return PlaybackModuleManager._modules
+
+    def module(value: Any) -> dict:
+        if type(value) is str:
+            return PlaybackModuleManager._modules_by_name.get(value, None)
+        elif type(value) is int:
+            return PlaybackModuleManager._modules_by_id.get(value, None)
+        return None
+
+    def arbitration_id(name: str) -> int:
+        module_record = PlaybackModuleManager._modules_by_name.get(name, None)
+        return module_record.get('arbitration_id')
+
+    def module_name(arbitration_id: int) -> str:
+        module_record = PlaybackModuleManager._modules_by_id.get(arbitration_id, None)
+        return module_record.get('name')
+
+    def __init__(self, config: dict) -> None:
+        self._config = config
+        PlaybackModuleManager._modules = self._load_modules(file='json/mme_modules.json')
+        PlaybackModuleManager._modules_by_name = self._modules_organized_by_name(PlaybackModuleManager._modules)
+        PlaybackModuleManager._modules_by_id = self._modules_organized_by_id(PlaybackModuleManager._modules)
+
+    def start(self) -> None:
+        pass
+
+    def stop(self) -> None:
+        pass
+
+    def _modules_organized_by_name(self, modules: List[dict]) -> dict:
+        modules_by_names = {}
+        for module in modules:
+            modules_by_names[module.get('name')] = module
+        return modules_by_names
+
+    def _modules_organized_by_id(self, modules: List[dict]) -> dict:
+        modules_by_id = {}
+        for module in modules:
+            modules_by_id[module.get('arbitration_id')] = module
+        return modules_by_id
+
+    def _load_modules(self, file: str) -> dict:
+        with open(file) as infile:
+            try:
+                modules = json.load(infile)
+            except json.JSONDecodeError as e:
+                raise RuntimeError(f"JSON error in '{file}' at line {e.lineno}")
+        return modules
+
+    def _dump_modules(self, file: str, modules: dict) -> None:
+        json_modules = json.dumps(modules, indent = 4, sort_keys=False)
+        with open(file, "w") as outfile:
+            outfile.write(json_modules)
 
 
 class PlaybackModule:
@@ -34,9 +96,9 @@ class PlaybackModule:
     }
 
     def __init__(self, name: str, event_queue: Queue, channel: str = None, arbitration_id: int = None) -> None:
-        module_lookup = PlaybackModule._modules_by_name.get(name, None)
+        module_lookup = PlaybackModuleManager.module(name)
         if module_lookup is None and (channel is None or arbitration_id is None):
-            raise FailedInitialization(f"The module '{name}' is not supported by the simulator or cannot be created")
+            raise FailedInitialization(f"The module '{name}' is not supported by Playback or cannot be created")
 
         self._name = name
         self._event_queue = event_queue
@@ -46,6 +108,7 @@ class PlaybackModule:
         self._exit_requested = False
         self._bus = None
         self._stack = None
+        self._did_thread = None
         self._dids = {}
 
     def start(self) -> None:
@@ -99,7 +162,7 @@ class PlaybackModule:
 
             if not self._event_queue.empty():
                 event = self._event_queue.get(block='False')
-                _LOGGER.debug(f"Dequeued event {event} on queue {PlaybackModule.module_name(event.get('arbitration_id'))}")
+                _LOGGER.debug(f"Dequeued event {event} on queue {PlaybackModuleManager.module_name(event.get('arbitration_id'))}")
                 did_handler = self._dids.get(event.get('did'), None)
                 if did_handler:
                     did_handler.new_event(event)
@@ -119,46 +182,3 @@ class PlaybackModule:
 
     def dids(self) -> List[PlaybackDID]:
         return self._dids
-
-
-    # Static functions and data
-    def _modules_organized_by_name(modules: List[dict]) -> dict:
-        modules_by_names = {}
-        for module in modules:
-            modules_by_names[module.get('name')] = module
-        return modules_by_names
-
-    def _modules_organized_by_id(modules: List[dict]) -> dict:
-        modules_by_id = {}
-        for module in modules:
-            modules_by_id[module.get('arbitration_id')] = module
-        return modules_by_id
-
-    def _load_modules(file: str) -> dict:
-        with open(file) as infile:
-            try:
-                modules = json.load(infile)
-            except json.JSONDecodeError as e:
-                raise RuntimeError(f"JSON error in '{file}' at line {e.lineno}")
-        return modules
-
-    def _dump_modules(file: str, modules: dict) -> None:
-        json_modules = json.dumps(modules, indent = 4, sort_keys=False)
-        with open(file, "w") as outfile:
-            outfile.write(json_modules)
-
-    # PlaybackModule static
-    _modules = _load_modules(file='json/mme_modules.json')
-    _modules_by_name = _modules_organized_by_name(_modules)
-    _modules_by_id = _modules_organized_by_id(_modules)
-
-    def modules() -> List[dict]:
-        return PlaybackModule._modules
-
-    def arbitration_id(name: str) -> int:
-        module_record = PlaybackModule._modules_by_name.get(name, None)
-        return module_record.get('arbitration_id')
-
-    def module_name(arbitration_id: int) -> str:
-        module_record = PlaybackModule._modules_by_id.get(arbitration_id, None)
-        return module_record.get('name')

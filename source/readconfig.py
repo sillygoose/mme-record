@@ -255,9 +255,11 @@ def check_config(config):
                     {'dest_path': {'required': True, 'keys': [], 'type': str}},
                     {'dest_file': {'required': True, 'keys': [], 'type': str}},
                     {'file_writes': {'required': False, 'keys': [], 'type': int}},
+                    {'born_on': {'required': False, 'keys': [], 'type': int}},
                 ]}},
                 {'playback': {'required': True, 'keys': [
                     {'loop': {'required': False, 'keys': [], 'type': bool}},
+                    {'show_dids': {'required': False, 'keys': [], 'type': bool}},
                     {'start_at': {'required': False, 'keys': [], 'type': int}},
                     {'speed': {'required': False, 'keys': [], 'type': float}},
                     {'source_path': {'required': True, 'keys': [], 'type': str}},

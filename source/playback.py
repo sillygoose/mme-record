@@ -3,8 +3,8 @@ from queue import Queue
 import logging
 from typing import List
 
-from pb_module import PlaybackModule
-from pb_did import PlaybackDID
+from pb_modmgr import PlaybackModuleManager, PlaybackModule
+from pb_didmgr import PlaybackDIDManager, PlaybackDID
 from pb_engine import PlaybackEngine
 
 import version
@@ -18,15 +18,20 @@ _LOGGER = logging.getLogger('mme')
 
 
 class Playback:
-    def __init__(self, config: dict, modules: List[dict], dids: List[dict]) -> None:
-        self._config = dict(config.mme.playback)
-        self._modules = None
+    def __init__(self, config: dict) -> None:
+        self._config = config
         self._module_event_queues = None
-        self._add_modules(modules)
-        self._add_dids(dids)
+        self._module_manager = PlaybackModuleManager(config=self._config)
+        self._modules = PlaybackModuleManager.modules()
+        self._did_manager = PlaybackDIDManager(config=self._config)
+        self._dids = PlaybackDIDManager.dids()
+        self._add_modules(self._modules)
+        self._add_dids(self._dids)
         self._playback_engine = PlaybackEngine(config=self._config, queues=self._module_event_queues)
 
     def start(self) -> None:
+        self._module_manager.start()
+        self._did_manager.start()
         for module in self._modules.values():
             module.start()
         self._playback_engine.start()
@@ -34,6 +39,9 @@ class Playback:
     def stop(self) -> None:
         for module in self._modules.values():
             module.stop()
+        self._did_manager.start()
+        self._module_manager.start()
+
 
     def event_queues(self) -> dict:
         return self._module_event_queues
@@ -94,7 +102,8 @@ def main() -> None:
         return
 
     try:
-        playback = Playback(config=config, modules=PlaybackModule.modules(), dids=PlaybackDID.dids())
+        playback_config = dict(config.mme.playback)
+        playback = Playback(config=playback_config)
     except FailedInitialization as e:
         _LOGGER.error(f"{e}")
         return
