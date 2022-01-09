@@ -13,6 +13,127 @@ _LOGGER = logging.getLogger('mme')
 
 
 class RecordStateManager:
+
+    gwm = [
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0x411F, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0x6035, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0x6037, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0x6038, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0xC014, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0xC015, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0xD021, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0xD023, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0xD07A, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0xD07B, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0xD100, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0xD111, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0xDE0A, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0xDE0B, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0xDE0C, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0xDE0D, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0xDE2C, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0xEEE1, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0xF163, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0xFD21, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0xFD29, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0x6036, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0x6039, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0xDE2D, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0xDE2E, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0xDE31, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0xEEE0, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0xFD19, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0x0479, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0x602F, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0x603A, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+            #    {'did': 0xC011, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0xDE11, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0xDE18, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0xDE1B, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0xD04F, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0xDE0E, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0xF166, 'codec': rec_codecs.CodecNull},
+            ]},
+        {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
+                {'did': 0xFD20, 'codec': rec_codecs.CodecNull},
+            ]},
+    ]
+
     mach_e = [
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
                 {'did': 0x411F, 'codec': rec_codecs.CodecKeyState},            # Ignition state
@@ -113,12 +234,12 @@ class RecordStateManager:
                     if self._did_state_cache.get(key, None) is None:
                         self._did_state_cache[key] = {'time': current_time, 'payload': payload}
                         self._file_manager.put({'time': current_time, 'arbitration_id': arbitration_id, 'did': did, 'payload': list(payload)})
-                        _LOGGER.info(f"{response.service_data.values[did].get('decoded')}")
+                        _LOGGER.info(f"{arbitration_id:04X}/{did:04X}: {response.service_data.values[did].get('decoded')}")
                     else:
                         if self._did_state_cache.get(key).get('payload') != payload:
                             self._did_state_cache[key] = {'time': current_time, 'payload': payload}
                             self._file_manager.put({'time': current_time, 'arbitration_id': arbitration_id, 'did': did, 'payload': list(payload)})
-                            _LOGGER.info(f"{response.service_data.values[did].get('decoded')}")
+                            _LOGGER.info(f"{arbitration_id:04X}/{did:04X}: {response.service_data.values[did].get('decoded')}")
         except RuntimeError as e:
             _LOGGER.error(f"Run time error: {e}")
             return
