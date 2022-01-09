@@ -1,4 +1,4 @@
-"""Exceptions used in the simulator."""
+"""Exceptions used in Playback and Record."""
 
 class NormalCompletion(Exception):
     """Normal completion, no errors."""

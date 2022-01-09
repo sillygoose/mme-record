@@ -95,15 +95,15 @@ class PlaybackModule:
         'max_frame_size' : 4095                                         # Limit the size of receive frame.
     }
 
-    def __init__(self, name: str, event_queue: Queue, channel: str = None, arbitration_id: int = None) -> None:
+    def __init__(self, name: str, arbitration_id: int, channel: str, event_queue: Queue) -> None:
         module_lookup = PlaybackModuleManager.module(name)
-        if module_lookup is None and (channel is None or arbitration_id is None):
+        if module_lookup is None:
             raise FailedInitialization(f"The module '{name}' is not supported by Playback or cannot be created")
 
         self._name = name
         self._event_queue = event_queue
-        self._channel = module_lookup.get('channel') if channel is None else channel
-        self._rxid = module_lookup.get('arbitration_id') if arbitration_id is None else arbitration_id
+        self._channel = channel
+        self._rxid = arbitration_id
         self._txid = self._rxid + 8
         self._exit_requested = False
         self._bus = None

@@ -59,7 +59,7 @@ class Playback:
                     raise FailedInitialization(f"Module {name} is defined more than once")
                 event_queue = Queue(maxsize=12)
                 self._module_event_queues[name] = event_queue
-                self._modules[name] = PlaybackModule(name=name, event_queue=event_queue, channel=channel, arbitration_id=arbitration_id)
+                self._modules[name] = PlaybackModule(name=name, arbitration_id=arbitration_id, channel=channel, event_queue=event_queue)
                 _LOGGER.debug(f"Added module '{name}' to playback")
 
     def _add_dids(self, dids: List[dict]) -> None:
