@@ -50,6 +50,7 @@ class RecordCanbusManager:
                     _LOGGER.error(f"timeout on the request queue")
                     continue
 
+                responses = []
                 for module in job:
                     module_name = module.get('module')
                     txid = module.get('address')
@@ -68,6 +69,7 @@ class RecordCanbusManager:
                     with Client(conn, request_timeout=self._timeout, config=self._iso_tp_config) as client:
                         try:
                             response = client.read_data_by_identifier(did_list)
+                            responses.append({'arbitration_id': txid, 'response': response})
                         except ValueError as e:
                             _LOGGER.error(f"{txid:04X}: {e}")
                         except ConfigError as e:
@@ -82,12 +84,11 @@ class RecordCanbusManager:
                             _LOGGER.error(f"{txid:04X}: {e}")
                         except Exception as e:
                             _LOGGER.error(f"Unexpected excpetion: {e}")
-
-                        try:
-                            self.response_queue.put({'arbitration_id': txid, 'response': response})
-                        except Full:
-                            _LOGGER.error(f"no space in the response queue")
-                            continue
+                try:
+                    self.response_queue.put(responses)
+                except Full:
+                    _LOGGER.error(f"no space in the response queue")
+                    return
 
         except RuntimeError as e:
             _LOGGER.error(f"Run time error: {e}")
