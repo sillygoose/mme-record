@@ -6,7 +6,7 @@ from queue import Empty, Full, Queue
 from typing import List
 
 from rec_filemgr import RecordFileManager
-import rec_codecs
+from codecmgr import *
 
 
 _LOGGER = logging.getLogger('mme')
@@ -16,163 +16,163 @@ class RecordStateManager:
 
     gwm = [
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0x411F, 'codec': rec_codecs.CodecNull},
+                {'did': 0x411F, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0x6035, 'codec': rec_codecs.CodecNull},
+                {'did': 0x6035, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0x6037, 'codec': rec_codecs.CodecNull},
+                {'did': 0x6037, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0x6038, 'codec': rec_codecs.CodecNull},
+                {'did': 0x6038, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0xC014, 'codec': rec_codecs.CodecNull},
+                {'did': 0xC014, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0xC015, 'codec': rec_codecs.CodecNull},
+                {'did': 0xC015, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0xD021, 'codec': rec_codecs.CodecNull},
+                {'did': 0xD021, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0xD023, 'codec': rec_codecs.CodecNull},
+                {'did': 0xD023, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0xD07A, 'codec': rec_codecs.CodecNull},
+                {'did': 0xD07A, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0xD07B, 'codec': rec_codecs.CodecNull},
+                {'did': 0xD07B, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0xD100, 'codec': rec_codecs.CodecNull},
+                {'did': 0xD100, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0xD111, 'codec': rec_codecs.CodecNull},
+                {'did': 0xD111, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0xDE0A, 'codec': rec_codecs.CodecNull},
+                {'did': 0xDE0A, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0xDE0B, 'codec': rec_codecs.CodecNull},
+                {'did': 0xDE0B, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0xDE0C, 'codec': rec_codecs.CodecNull},
+                {'did': 0xDE0C, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0xDE0D, 'codec': rec_codecs.CodecNull},
+                {'did': 0xDE0D, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0xDE2C, 'codec': rec_codecs.CodecNull},
+                {'did': 0xDE2C, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0xEEE1, 'codec': rec_codecs.CodecNull},
+                {'did': 0xEEE1, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0xF163, 'codec': rec_codecs.CodecNull},
+                {'did': 0xF163, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0xFD21, 'codec': rec_codecs.CodecNull},
+                {'did': 0xFD21, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0xFD29, 'codec': rec_codecs.CodecNull},
+                {'did': 0xFD29, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0x6036, 'codec': rec_codecs.CodecNull},
+                {'did': 0x6036, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0x6039, 'codec': rec_codecs.CodecNull},
+                {'did': 0x6039, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0xDE2D, 'codec': rec_codecs.CodecNull},
+                {'did': 0xDE2D, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0xDE2E, 'codec': rec_codecs.CodecNull},
+                {'did': 0xDE2E, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0xDE31, 'codec': rec_codecs.CodecNull},
+                {'did': 0xDE31, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0xEEE0, 'codec': rec_codecs.CodecNull},
+                {'did': 0xEEE0, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0xFD19, 'codec': rec_codecs.CodecNull},
+                {'did': 0xFD19, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0x0479, 'codec': rec_codecs.CodecNull},
+                {'did': 0x0479, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0x602F, 'codec': rec_codecs.CodecNull},
+                {'did': 0x602F, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0x603A, 'codec': rec_codecs.CodecNull},
+                {'did': 0x603A, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-            #    {'did': 0xC011, 'codec': rec_codecs.CodecNull},
+            #    {'did': 0xC011, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0xDE11, 'codec': rec_codecs.CodecNull},
+                {'did': 0xDE11, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0xDE18, 'codec': rec_codecs.CodecNull},
+                {'did': 0xDE18, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0xDE1B, 'codec': rec_codecs.CodecNull},
+                {'did': 0xDE1B, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0xD04F, 'codec': rec_codecs.CodecNull},
+                {'did': 0xD04F, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0xDE0E, 'codec': rec_codecs.CodecNull},
+                {'did': 0xDE0E, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0xF166, 'codec': rec_codecs.CodecNull},
+                {'did': 0xF166, 'codec': CodecNull},
             ]},
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0xFD20, 'codec': rec_codecs.CodecNull},
+                {'did': 0xFD20, 'codec': CodecNull},
             ]},
     ]
 
     mach_e = [
         {'module': 'GWM', 'address': 0x716, 'bus': 'can0', 'dids': [
-                {'did': 0x411F, 'codec': rec_codecs.CodecKeyState},            # Ignition state
+                {'did': 0x411F, 'codec': CodecKeyState},            # Ignition state
             ]},
         {'module': 'IPC', 'address': 0x720, 'bus': 'can1', 'dids': [
-                {'did': 0x404C, 'codec': rec_codecs.CodecOdometer},            # Odometer
-                {'did': 0x6310, 'codec': rec_codecs.CodecGearDisplayed},       # Gear displayed
+                {'did': 0x404C, 'codec': CodecOdometer},            # Odometer
+                {'did': 0x6310, 'codec': CodecGearDisplayed},       # Gear displayed
             ]},
         {'module': 'SOBDM', 'address': 0x7E2, 'bus': 'can0', 'dids': [
-                {'did': 0xDD00, 'codec': rec_codecs.CodecTime},                # Time
-                #{'did': 0xDD04, 'codec': rec_codecs.CodecInteriorTemp},        # Interior temp
-                {'did': 0xDD05, 'codec': rec_codecs.CodecExteriorTemp},        # External temp
-                {'did': 0x1E12, 'codec': rec_codecs.CodecGearCommanded},       # Gear commanded
-                #{'did': 0x48B7, 'codec': rec_codecs.CodecEVSEDigitalMode},     # EVSE digital mode
+                {'did': 0xDD00, 'codec': CodecTime},                # Time
+                #{'did': 0xDD04, 'codec': CodecInteriorTemp},        # Interior temp
+                {'did': 0xDD05, 'codec': CodecExteriorTemp},        # External temp
+                {'did': 0x1E12, 'codec': CodecGearCommanded},       # Gear commanded
+                #{'did': 0x48B7, 'codec': CodecEVSEDigitalMode},     # EVSE digital mode
             ]},
         {'module': 'APIM', 'address': 0x7D0, 'bus': 'can1', 'dids': [
-                {'did': 0x8012, 'codec': rec_codecs.CodecGPS},                 # GPS data
+                {'did': 0x8012, 'codec': CodecGPS},                 # GPS data
             ]},
         {'module': 'PCM', 'address': 0x7E0, 'bus': 'can0', 'dids': [
-                {'did': 0x1505, 'codec': rec_codecs.CodecHiresSpeed},          # Speed
+                {'did': 0x1505, 'codec': CodecHiresSpeed},          # Speed
             ]},
         {'module': 'BECM', 'address': 0x7E4, 'bus': 'can0', 'dids': [
-                {'did': 0x4801, 'codec': rec_codecs.CodecHvbSoc},              # HVB SOC
-                {'did': 0x4845, 'codec': rec_codecs.CodecHvbSocD},             # HVB SOC displayed
-                {'did': 0x4848, 'codec': rec_codecs.CodecHvbEte},              # HVB Energy to empty
+                {'did': 0x4801, 'codec': CodecHvbSoc},              # HVB SOC
+                {'did': 0x4845, 'codec': CodecHvbSocD},             # HVB SOC displayed
+                {'did': 0x4848, 'codec': CodecHvbEte},              # HVB Energy to empty
             ]},
         {'module': 'BECM', 'address': 0x7E4, 'bus': 'can0', 'dids': [
-                {'did': 0x4800, 'codec': rec_codecs.CodecHvbTemp},             # HVB temp
-                {'did': 0x480D, 'codec': rec_codecs.CodecHvbVoltage},          # HVB Voltage
-                {'did': 0x48F9, 'codec': rec_codecs.CodecHvbCurrent},          # HVB Current
+                {'did': 0x4800, 'codec': CodecHvbTemp},             # HVB temp
+                {'did': 0x480D, 'codec': CodecHvbVoltage},          # HVB Voltage
+                {'did': 0x48F9, 'codec': CodecHvbCurrent},          # HVB Current
             ]},
         {'module': 'BECM', 'address': 0x7E4, 'bus': 'can0', 'dids': [
-                {'did': 0x484F, 'codec': rec_codecs.CodecChargerStatus},       # Charger status
-                {'did': 0x4851, 'codec': rec_codecs.CodecEvseType},            # EVSE type
+                {'did': 0x484F, 'codec': CodecChargerStatus},       # Charger status
+                {'did': 0x4851, 'codec': CodecEvseType},            # EVSE type
             ]},
         {'module': 'BCM', 'address': 0x726, 'bus': 'can0', 'dids': [
-                {'did': 0x4028, 'codec': rec_codecs.CodecLvbSoc},              # LVB State of Charge
-                {'did': 0x402A, 'codec': rec_codecs.CodecLvbVoltage},          # LVB Voltage
-                {'did': 0x402B, 'codec': rec_codecs.CodecLvbCurrent},          # LVB Current
+                {'did': 0x4028, 'codec': CodecLvbSoc},              # LVB State of Charge
+                {'did': 0x402A, 'codec': CodecLvbVoltage},          # LVB Voltage
+                {'did': 0x402B, 'codec': CodecLvbCurrent},          # LVB Current
             ]},
     ]
 

@@ -1,6 +1,6 @@
 import os
-import threading
-from queue import Full
+from threading import Thread
+from queue import Full, Queue
 
 import logging
 from time import sleep
@@ -8,7 +8,7 @@ import json
 
 from typing import List
 
-from pb_modmgr import PlaybackModule, PlaybackModuleManager
+from pb_modmgr import PlaybackModuleManager
 from exceptions import FailedInitialization, RuntimeError
 
 
@@ -17,9 +17,9 @@ _LOGGER = logging.getLogger('mme')
 
 class PlaybackEngine:
 
-    def __init__(self, config: dict, queues: dict) -> None:
+    def __init__(self, config: dict, module_event_queues: dict) -> None:
         self._config = config
-        self._queues = queues
+        self._module_event_queues = module_event_queues
         self._playback_files_master = self._get_playback_files(source_path=config.get('source_path'), source_file=config.get('source_file'))
         self._playback_files = self._playback_files_master.copy()
         self._start_at = config.get('start_at', 0)
@@ -35,26 +35,14 @@ class PlaybackEngine:
         self._currrent_position = None
         self._current_playback = None
 
-    def _get_playback_files(self, source_path: str, source_file: str) -> List:
-        playback_files = []
-        count = 0
-        find_file = f"{source_path}/{source_file}_{count:03d}.json"
-        while True:
-            if not os.path.exists(find_file):
-                break
-            playback_files.append(find_file)
-            count += 1
-            find_file = f"{source_path}/{source_file}_{count:03d}.json"
-        return playback_files
-
     def start(self) -> None:
         self._exit_requested = False
         self._playback_time = 0
-        self._thread = threading.Thread(target=self._event_task, name='playback')
+        self._thread = Thread(target=self._playback_engine, name='playback_engine')
         self._thread.start()
-        self._thread.join()
+        return [self._thread]
 
-    def _event_task(self) -> None:
+    def _playback_engine(self) -> None:
         try:
             while self._exit_requested == False:
                 event = self._next_event()
@@ -72,7 +60,7 @@ class PlaybackEngine:
 
                 arbitration_id = event.get('arbitration_id')
                 module_name = PlaybackModuleManager.module_name(arbitration_id)
-                destination = self._queues.get(module_name)
+                destination = self._module_event_queues.get(module_name)
                 if destination:
                     try:
                         _LOGGER.debug(f"Queuing event {event} on queue {module_name}")
@@ -130,6 +118,18 @@ class PlaybackEngine:
         event['name'] = module_name
         event['payload'] = bytearray(event['payload'])
         return str(event)
+
+    def _get_playback_files(self, source_path: str, source_file: str) -> List:
+        playback_files = []
+        count = 0
+        find_file = f"{source_path}/{source_file}_{count:03d}.json"
+        while True:
+            if not os.path.exists(find_file):
+                break
+            playback_files.append(find_file)
+            count += 1
+            find_file = f"{source_path}/{source_file}_{count:03d}.json"
+        return playback_files
 
     def _load_playback(self, file: str) -> None:
         with open(file) as infile:

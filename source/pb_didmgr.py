@@ -27,7 +27,6 @@ class PlaybackDIDManager:
     def stop(self) -> None:
         pass
 
-
     def _dids_organized_by_name(self, dids: List[dict]) -> dict:
         dids_by_names = {}
         for did in dids:

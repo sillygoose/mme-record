@@ -5,6 +5,7 @@ from typing import List
 
 from pb_modmgr import PlaybackModuleManager, PlaybackModule
 from pb_didmgr import PlaybackDIDManager, PlaybackDID
+from pb_statemgr import PlaybackStateManager
 from pb_engine import PlaybackEngine
 
 import version
@@ -20,28 +21,35 @@ _LOGGER = logging.getLogger('mme')
 class Playback:
     def __init__(self, config: dict) -> None:
         self._config = config
+        self._state_update_queue = Queue(maxsize=20)
         self._module_event_queues = None
+        self._state_manager = PlaybackStateManager(config=self._config, state_queue=self._state_update_queue)
         self._module_manager = PlaybackModuleManager(config=self._config)
         self._modules = PlaybackModuleManager.modules()
         self._did_manager = PlaybackDIDManager(config=self._config)
         self._dids = PlaybackDIDManager.dids()
         self._add_modules(self._modules)
         self._add_dids(self._dids)
-        self._playback_engine = PlaybackEngine(config=self._config, queues=self._module_event_queues)
+        self._playback_engine = PlaybackEngine(config=self._config, module_event_queues=self._module_event_queues)
 
     def start(self) -> None:
         self._module_manager.start()
         self._did_manager.start()
+        threads = []
+        threads.append(self._state_manager.start())
         for module in self._modules.values():
-            module.start()
-        self._playback_engine.start()
+            threads.append(module.start())
+        threads.append(self._playback_engine.start())
+        for thread_list in threads:
+            for thread in thread_list:
+                thread.join()
 
     def stop(self) -> None:
         for module in self._modules.values():
             module.stop()
-        self._did_manager.start()
-        self._module_manager.start()
-
+        self._did_manager.stop()
+        self._module_manager.stop()
+        self._state_manager.stop()
 
     def event_queues(self) -> dict:
         return self._module_event_queues
@@ -59,7 +67,7 @@ class Playback:
                     raise FailedInitialization(f"Module {name} is defined more than once")
                 event_queue = Queue(maxsize=12)
                 self._module_event_queues[name] = event_queue
-                self._modules[name] = PlaybackModule(name=name, arbitration_id=arbitration_id, channel=channel, event_queue=event_queue)
+                self._modules[name] = PlaybackModule(name=name, arbitration_id=arbitration_id, channel=channel, event_queue=event_queue, state_queue=self._state_update_queue)
                 _LOGGER.debug(f"Added module '{name}' to playback")
 
     def _add_dids(self, dids: List[dict]) -> None:

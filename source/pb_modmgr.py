@@ -1,7 +1,7 @@
 import time
 import logging
+from threading import Thread
 from queue import Queue
-import threading
 import struct
 import json
 
@@ -95,13 +95,14 @@ class PlaybackModule:
         'max_frame_size' : 4095                                         # Limit the size of receive frame.
     }
 
-    def __init__(self, name: str, arbitration_id: int, channel: str, event_queue: Queue) -> None:
+    def __init__(self, name: str, arbitration_id: int, channel: str, event_queue: Queue, state_queue: Queue) -> None:
         module_lookup = PlaybackModuleManager.module(name)
         if module_lookup is None:
             raise FailedInitialization(f"The module '{name}' is not supported by Playback or cannot be created")
 
         self._name = name
         self._event_queue = event_queue
+        self._state_queue = state_queue
         self._channel = channel
         self._rxid = arbitration_id
         self._txid = self._rxid + 8
@@ -111,14 +112,15 @@ class PlaybackModule:
         self._did_thread = None
         self._dids = {}
 
-    def start(self) -> None:
+    def start(self) -> List[Thread]:
         self._exit_requested = False
         _LOGGER.debug(f"Starting module '{self._name}' on channel '{self._channel}' with arbitration ID {self._rxid:03X}")
         addr = isotp.Address(isotp.AddressingMode.Normal_11bits, rxid=self._rxid, txid=self._txid)
         self._bus = SocketcanBus(channel=self._channel)
         self._stack = isotp.CanStack(bus=self._bus, address=addr, error_handler=self.error_handler, params=PlaybackModule.isotp_params)
-        self._did_thread = threading.Thread(target=self._did_task, name=self._name)
+        self._did_thread = Thread(target=self._did_task, name=self._name)
         self._did_thread.start()
+        return [self._did_thread]
 
     def stop(self) -> None:
         _LOGGER.debug(f"Stopping module {self._name}")
@@ -166,7 +168,7 @@ class PlaybackModule:
                 did_handler = self._dids.get(event.get('did'), None)
                 if did_handler:
                     did_handler.new_event(event)
-
+                    self._state_queue.put(event)
 
     def error_handler(self, error) -> None:
         _LOGGER.error('%s IsoTp error happened : %s - %s' % (self._name, error.__class__.__name__, str(error)))
