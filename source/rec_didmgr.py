@@ -21,7 +21,7 @@ class RecordDIDManager:
 
     def did_name(did_id: int) -> str:
         did_record = RecordDIDManager._dids_by_id.get(did_id, None)
-        return None if did_record is None else did_record.get('name')
+        return '???' if did_record is None else did_record.get('name')
 
     def __init__(self, config: dict) -> None:
         self._config = config
