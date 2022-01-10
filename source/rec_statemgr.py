@@ -6,8 +6,9 @@ from queue import Empty, Full, Queue
 from typing import List
 import json
 
+from did_manager import DIDManager
+
 from rec_filemgr import RecordFileManager
-from rec_didmgr import RecordDIDManager
 
 from codecmgr import *
 
@@ -19,6 +20,7 @@ class RecordStateManager:
 
     def __init__(self, config: dict, request_queue: Queue, response_queue: Queue) -> None:
         self._config = config
+        self._did_manager = DIDManager(config=self._config)
         self._codec_manager = CodecManager(config=self._config)
         self._request_queue = request_queue
         self._response_queue = response_queue
@@ -103,7 +105,7 @@ class RecordStateManager:
             dids = module.get('dids')
             for did in dids:
                 did_id = did.get('did')
-                name = RecordDIDManager.did_name(did_id)
+                name = self._did_manager.did_name(did_id)
                 codec_id = did_id
                 output_dids.append({'did_name': name, 'did_id': did_id, 'did_id_hex': f"{did_id:04X}", 'codec_id': codec_id})
             new_module = {'module': module_name, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'dids': output_dids}

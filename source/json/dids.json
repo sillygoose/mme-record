@@ -1,8 +1,9 @@
 [
     {
-        "did": 5381,
-        "name": "HiresSpeed",
+        "did_id": 5381,
+        "did_id_hex": "1505",
         "enable": true,
+        "did_name": "HiresSpeed",
         "modules": [
             "ACM",
             "PACM",
@@ -18,9 +19,10 @@
         ]
     },
     {
-        "did": 7698,
-        "name": "GearCommanded",
+        "did_id": 7698,
+        "did_id_hex": "1E12",
         "enable": true,
+        "did_name": "GearCommanded",
         "modules": [
             "GSM",
             "SOBDM",
@@ -36,9 +38,10 @@
         ]
     },
     {
-        "did": 16424,
-        "name": "LvbSoc",
+        "did_id": 16424,
+        "did_id_hex": "4028",
         "enable": true,
+        "did_name": "LvbSoc",
         "modules": [
             "BCM"
         ],
@@ -51,9 +54,10 @@
         ]
     },
     {
-        "did": 16426,
-        "name": "LvbVoltage",
+        "did_id": 16426,
+        "did_id_hex": "402A",
         "enable": true,
+        "did_name": "LvbVoltage",
         "modules": [
             "BECMB",
             "SCCM",
@@ -68,9 +72,10 @@
         ]
     },
     {
-        "did": 16427,
-        "name": "LvbCurrent",
+        "did_id": 16427,
+        "did_id_hex": "402B",
         "enable": true,
+        "did_name": "LvbCurrent",
         "modules": [
             "BCM"
         ],
@@ -83,9 +88,10 @@
         ]
     },
     {
-        "did": 16460,
-        "name": "HiresOdometer",
+        "did_id": 16460,
+        "did_id_hex": "404C",
         "enable": true,
+        "did_name": "HiresOdometer",
         "modules": [
             "IPC"
         ],
@@ -98,9 +104,10 @@
         ]
     },
     {
-        "did": 16671,
-        "name": "KeyState",
+        "did_id": 16671,
+        "did_id_hex": "411F",
         "enable": true,
+        "did_name": "KeyState",
         "modules": [
             "GWM",
             "WACM",
@@ -122,9 +129,10 @@
         ]
     },
     {
-        "did": 18432,
-        "name": "HvbTemp",
+        "did_id": 18432,
+        "did_id_hex": "4800",
         "enable": true,
+        "did_name": "HvbTemp",
         "modules": [
             "BECM"
         ],
@@ -137,9 +145,10 @@
         ]
     },
     {
-        "did": 18433,
-        "name": "HvbSoc",
+        "did_id": 18433,
+        "did_id_hex": "4801",
         "enable": true,
+        "did_name": "HvbSoc",
         "modules": [
             "BECM"
         ],
@@ -152,9 +161,10 @@
         ]
     },
     {
-        "did": 18445,
-        "name": "HvbVoltage",
+        "did_id": 18445,
+        "did_id_hex": "480D",
         "enable": true,
+        "did_name": "HvbVoltage",
         "modules": [
             "OBCC",
             "SOBDM",
@@ -171,9 +181,10 @@
         ]
     },
     {
-        "did": 18486,
-        "name": "LvbLvCurrent",
+        "did_id": 18486,
+        "did_id_hex": "4836",
         "enable": true,
+        "did_name": "LvbLvCurrent",
         "modules": [
             "DCDC"
         ],
@@ -186,9 +197,10 @@
         ]
     },
     {
-        "did": 18490,
-        "name": "LvbHvCurrent",
+        "did_id": 18490,
+        "did_id_hex": "483A",
         "enable": true,
+        "did_name": "LvbHvCurrent",
         "modules": [
             "DCDC"
         ],
@@ -201,9 +213,10 @@
         ]
     },
     {
-        "did": 18493,
-        "name": "LvbDcdcEnable",
+        "did_id": 18493,
+        "did_id_hex": "483D",
         "enable": true,
+        "did_name": "LvbDcdcEnable",
         "modules": [
             "DCDC",
             "SOBDM",
@@ -218,9 +231,10 @@
         ]
     },
     {
-        "did": 18498,
-        "name": "HvbChrgCurrentReqsted",
+        "did_id": 18498,
+        "did_id_hex": "4842",
         "enable": true,
+        "did_name": "HvbChrgCurrentReqsted",
         "modules": [
             "OBCC",
             "SOBDM",
@@ -235,9 +249,10 @@
         ]
     },
     {
-        "did": 18500,
-        "name": "HvbChrgVoltageReqsted",
+        "did_id": 18500,
+        "did_id_hex": "4844",
         "enable": true,
+        "did_name": "HvbChrgVoltageReqsted",
         "modules": [
             "OBCC",
             "SOBDM",
@@ -252,9 +267,10 @@
         ]
     },
     {
-        "did": 18501,
-        "name": "HvbSocD",
+        "did_id": 18501,
+        "did_id_hex": "4845",
         "enable": true,
+        "did_name": "HvbSocD",
         "modules": [
             "OBCC",
             "SOBDM",
@@ -269,9 +285,10 @@
         ]
     },
     {
-        "did": 18504,
-        "name": "EnergyToEmpty",
+        "did_id": 18504,
+        "did_id_hex": "4848",
         "enable": true,
+        "did_name": "EnergyToEmpty",
         "modules": [
             "BECM"
         ],
@@ -284,9 +301,10 @@
         ]
     },
     {
-        "did": 18506,
-        "name": "ChargerOutputVoltage",
+        "did_id": 18506,
+        "did_id_hex": "484A",
         "enable": true,
+        "did_name": "ChargerOutputVoltage",
         "modules": [
             "OBCC",
             "SOBDM",
@@ -301,9 +319,10 @@
         ]
     },
     {
-        "did": 18510,
-        "name": "ChargerInputPower",
+        "did_id": 18510,
+        "did_id_hex": "484E",
         "enable": true,
+        "did_name": "ChargerInputPower",
         "modules": [
             "SOBDM",
             "BECM"
@@ -317,9 +336,10 @@
         ]
     },
     {
-        "did": 18511,
-        "name": "ChargerStatus",
+        "did_id": 18511,
+        "did_id_hex": "484F",
         "enable": true,
+        "did_name": "ChargerStatus",
         "modules": [
             "OBCC",
             "SOBDM",
@@ -334,9 +354,10 @@
         ]
     },
     {
-        "did": 18512,
-        "name": "ChargerOutputCurrent",
+        "did_id": 18512,
+        "did_id_hex": "4850",
         "enable": true,
+        "did_name": "ChargerOutputCurrent",
         "modules": [
             "OBCC",
             "SOBDM",
@@ -351,9 +372,10 @@
         ]
     },
     {
-        "did": 18513,
-        "name": "EvseType",
+        "did_id": 18513,
+        "did_id_hex": "4851",
         "enable": true,
+        "did_name": "EvseType",
         "modules": [
             "OBCC",
             "SOBDM",
@@ -368,9 +390,10 @@
         ]
     },
     {
-        "did": 18526,
-        "name": "ChargerInputVoltage",
+        "did_id": 18526,
+        "did_id_hex": "485E",
         "enable": true,
+        "did_name": "ChargerInputVoltage",
         "modules": [
             "SOBDM"
         ],
@@ -383,9 +406,10 @@
         ]
     },
     {
-        "did": 18527,
-        "name": "ChargerInputCurrent",
+        "did_id": 18527,
+        "did_id_hex": "485F",
         "enable": true,
+        "did_name": "ChargerInputCurrent",
         "modules": [
             "SOBDM"
         ],
@@ -398,9 +422,10 @@
         ]
     },
     {
-        "did": 18528,
-        "name": "ChargerInputFrequency",
+        "did_id": 18528,
+        "did_id_hex": "4860",
         "enable": true,
+        "did_name": "ChargerInputFrequency",
         "modules": [
             "SOBDM"
         ],
@@ -413,9 +438,10 @@
         ]
     },
     {
-        "did": 18529,
-        "name": "ChargerPilotDutyCycle",
+        "did_id": 18529,
+        "did_id_hex": "4861",
         "enable": true,
+        "did_name": "ChargerPilotDutyCycle",
         "modules": [
             "SOBDM"
         ],
@@ -428,9 +454,10 @@
         ]
     },
     {
-        "did": 18614,
-        "name": "ChargerPilotVoltage",
+        "did_id": 18614,
+        "did_id_hex": "48B6",
         "enable": true,
+        "did_name": "ChargerPilotVoltage",
         "modules": [
             "SOBDM"
         ],
@@ -443,9 +470,10 @@
         ]
     },
     {
-        "did": 18615,
-        "name": "EvseDigitalMode",
+        "did_id": 18615,
+        "did_id_hex": "48B7",
         "enable": true,
+        "did_name": "EvseDigitalMode",
         "modules": [
             "SOBDM",
             "OBCC"
@@ -459,9 +487,10 @@
         ]
     },
     {
-        "did": 18620,
-        "name": "HvbMaxChargeCurrent",
+        "did_id": 18620,
+        "did_id_hex": "48BC",
         "enable": true,
+        "did_name": "HvbMaxChargeCurrent",
         "modules": [
             "OBCC",
             "SOBDM",
@@ -476,9 +505,10 @@
         ]
     },
     {
-        "did": 18628,
-        "name": "ChargerMaxPower",
+        "did_id": 18628,
+        "did_id_hex": "48C4",
         "enable": true,
+        "did_name": "ChargerMaxPower",
         "modules": [
             "OBCC",
             "SOBDM",
@@ -493,9 +523,10 @@
         ]
     },
     {
-        "did": 18681,
-        "name": "HvbCurrent",
+        "did_id": 18681,
+        "did_id_hex": "48F9",
         "enable": true,
+        "did_name": "HvbCurrent",
         "modules": [
             "BECM"
         ],
@@ -508,9 +539,10 @@
         ]
     },
     {
-        "did": 18683,
-        "name": "ChargerPowerLimit",
+        "did_id": 18683,
+        "did_id_hex": "48FB",
         "enable": true,
+        "did_name": "ChargerPowerLimit",
         "modules": [
             "BECM"
         ],
@@ -523,9 +555,10 @@
         ]
     },
     {
-        "did": 18700,
-        "name": "HvbSoh",
+        "did_id": 18700,
+        "did_id_hex": "490C",
         "enable": true,
+        "did_name": "HvbSoh",
         "modules": [
             "BECM"
         ],
@@ -538,9 +571,10 @@
         ]
     },
     {
-        "did": 25360,
-        "name": "GearDisplayed",
+        "did_id": 25360,
+        "did_id_hex": "6310",
         "enable": true,
+        "did_name": "GearDisplayed",
         "modules": [
             "APIM",
             "IPC"
@@ -554,9 +588,10 @@
         ]
     },
     {
-        "did": 32786,
-        "name": "GPS",
+        "did_id": 32786,
+        "did_id_hex": "8012",
         "enable": true,
+        "did_name": "GPS",
         "modules": [
             "APIM"
         ],
@@ -589,9 +624,10 @@
         ]
     },
     {
-        "did": 56576,
-        "name": "Time",
+        "did_id": 56576,
+        "did_id_hex": "DD00",
         "enable": true,
+        "did_name": "Time",
         "modules": [
             "SODCMC",
             "SODCMD",
@@ -628,9 +664,10 @@
         ]
     },
     {
-        "did": 56580,
-        "name": "InteriorTemp",
+        "did_id": 56580,
+        "did_id_hex": "DD04",
         "enable": true,
+        "did_name": "InteriorTemp",
         "modules": [
             "DCDC",
             "SOBDM"
@@ -644,9 +681,10 @@
         ]
     },
     {
-        "did": 56581,
-        "name": "ExteriorTemp",
+        "did_id": 56581,
+        "did_id_hex": "DD05",
         "enable": true,
+        "did_name": "ExteriorTemp",
         "modules": [
             "SODCMC",
             "SODCMD",

@@ -11,14 +11,11 @@ _LOGGER = logging.getLogger('mme')
 
 class DIDManager:
 
-    _supported_dids = None
-
-    def dids() -> List[dict]:
-        return DIDManager._supported_dids
-
     def __init__(self, config: dict) -> None:
         self._config = config
-        DIDManager._supported_dids = self._load_dids(file='json/mme_dids.json')
+        self._dids = self._load_dids(file='json/dids.json')
+        self._dids_by_name = self._dids_organized_by_name(self._dids)
+        self._dids_by_id = self._dids_organized_by_id(self._dids)
 
     def start(self) -> None:
         pass
@@ -26,16 +23,23 @@ class DIDManager:
     def stop(self) -> None:
         pass
 
+    def dids(self) -> List[dict]:
+        return self._dids
+
+    def did_name(self, did_id: int) -> str:
+        did_record = self._dids_by_id.get(did_id, None)
+        return None if did_record is None else did_record.get('did_name')
+
     def _dids_organized_by_name(self, dids: List[dict]) -> dict:
         dids_by_names = {}
         for did in dids:
-            dids_by_names[did.get('name')] = did
+            dids_by_names[did.get('did_name')] = did
         return dids_by_names
 
-    def _dids_organized_by_did(self, dids: List[dict]) -> dict:
+    def _dids_organized_by_id(self, dids: List[dict]) -> dict:
         dids_by_id = {}
         for did in dids:
-            dids_by_id[did.get('did')] = did
+            dids_by_id[did.get('did_id')] = did
         return dids_by_id
 
     def _load_dids(self, file: str) -> dict:
@@ -53,15 +57,15 @@ class DIDManager:
 
     def show_dids(self, show_json: bool = False) -> None:
         if show_json == False:
-            for did in DIDManager._supported_dids:
-                did_id = did.get('did', -1)
-                name = did.get('name', '???')
+            for did in self._dids:
+                did_id = did.get('did_id', -1)
+                did_name = did.get('did_name', '???')
                 enable = did.get('enable', False)
                 modules = did.get('modules', None)
                 packing = did.get('packing', '???')
                 states = did.get('states', None)
-                did_str = f"did_id: {did_id:04X}, name: {name}, enable: {enable}, modules: {modules}, packing: {packing}, states: {states}"
+                did_str = f"did_id: {did_id:04X}, did_name: {did_name}, enable: {enable}, modules: {modules}, packing: {packing}, states: {states}"
                 _LOGGER.info(did_str)
         else:
-            json_str = json.dumps(DIDManager._supported_dids, indent = 4, sort_keys=False)
+            json_str = json.dumps(self._supported_dids, indent = 4, sort_keys=False)
             _LOGGER.info(json_str)

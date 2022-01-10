@@ -6,7 +6,7 @@ from typing import List
 from did_manager import DIDManager
 
 from pb_modmgr import PlaybackModuleManager, PlaybackModule
-from pb_didmgr import PlaybackDID
+from pb_did import PlaybackDID
 from pb_statemgr import PlaybackStateManager
 from pb_engine import PlaybackEngine
 
@@ -29,7 +29,7 @@ class Playback:
         self._module_manager = PlaybackModuleManager(config=self._config)
         self._modules = PlaybackModuleManager.modules()
         self._did_manager = DIDManager(config=self._config)
-        self._dids = DIDManager.dids()
+        self._dids = self._did_manager.dids()
         self._add_modules(self._modules)
         self._add_dids(self._dids)
         self._playback_engine = PlaybackEngine(config=self._config, module_event_queues=self._module_event_queues)
@@ -76,8 +76,8 @@ class Playback:
     def _add_dids(self, dids: List[dict]) -> None:
         self._dids_by_id = {}
         for did_item in dids:
-            did = did_item.get('did')
-            name = did_item.get('name')
+            did = did_item.get('did_id')
+            name = did_item.get('did_name')
             used_in_modules = did_item.get('modules')
             packing = did_item.get('packing')
             states = did_item.get('states')

@@ -10,7 +10,7 @@ from typing import List, Any
 import isotp
 from can.interfaces.socketcan import SocketcanBus
 
-from pb_didmgr import PlaybackDID
+from pb_did import PlaybackDID
 from exceptions import FailedInitialization
 
 
@@ -132,7 +132,7 @@ class PlaybackModule:
             self._bus = None
 
     def add_did(self, did: PlaybackDID) -> None:
-        did_id = did.did()
+        did_id = did.did_id()
         self._dids[did_id] = did
 
     def _did_task(self) -> None:

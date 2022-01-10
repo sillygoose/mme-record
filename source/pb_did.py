@@ -11,6 +11,7 @@ class PlaybackDID:
 
     def __init__(self, did_id: int, did_name: str, packing: str, modules: List[str], states: List[dict]) -> None:
         self._did_id = did_id
+        self._did_id_hex = f"{did_id:04X}"
         self._did_name = did_name
         self._packing = packing
         self._modules = modules
@@ -20,6 +21,12 @@ class PlaybackDID:
             value = state.get('value', None)
             self._states.append(value)
         _LOGGER.debug(f"Created DID {self._did_name}:{self._did_id:04X}")
+
+    def did_id(self) -> int:
+        return self._did_id
+
+    def did_name(self) -> str:
+        return self._did_name
 
     def response(self) -> bytearray:
         response = bytearray()
@@ -52,14 +59,14 @@ class PlaybackDID:
             self._states[index] = unpacked_values[index]
             index += 1
 
-    def did(self) -> int:
+    def did_id(self) -> int:
         return self._did_id
 
-    def name(self) -> str:
+    def did_name(self) -> str:
         return self._did_name
 
-    def packing(self) -> str:
+    def did_packing(self) -> str:
         return self._packing
 
-    def used_in(self) -> List[str]:
+    def did_used_in(self) -> List[str]:
         return self._modules
