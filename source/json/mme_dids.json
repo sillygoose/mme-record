@@ -443,6 +443,22 @@
         ]
     },
     {
+        "did": 18615,
+        "name": "EvseDigitalMode",
+        "enable": true,
+        "modules": [
+            "SOBDM",
+            "OBCC"
+        ],
+        "packing": "B",
+        "states": [
+            {
+                "name": "evse_digital_mode",
+                "value": 0
+            }
+        ]
+    },
+    {
         "did": 18620,
         "name": "HvbMaxChargeCurrent",
         "enable": true,

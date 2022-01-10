@@ -4,9 +4,13 @@ from time import sleep, time
 from threading import Thread
 from queue import Empty, Full, Queue
 from typing import List
+import json
 
 from rec_filemgr import RecordFileManager
+from rec_didmgr import RecordDIDManager
+
 from codecmgr import *
+from codec import CodecId
 
 
 _LOGGER = logging.getLogger('mme')
@@ -144,10 +148,10 @@ class RecordStateManager:
             ]},
         {'module': 'SOBDM', 'address': 0x7E2, 'bus': 'can0', 'dids': [
                 {'did': 0xDD00, 'codec': CodecTime},                # Time
-                #{'did': 0xDD04, 'codec': CodecInteriorTemp},        # Interior temp
+                {'did': 0xDD04, 'codec': CodecInteriorTemp},        # Interior temp
                 {'did': 0xDD05, 'codec': CodecExteriorTemp},        # External temp
                 {'did': 0x1E12, 'codec': CodecGearCommanded},       # Gear commanded
-                #{'did': 0x48B7, 'codec': CodecEVSEDigitalMode},     # EVSE digital mode
+                {'did': 0x48B7, 'codec': CodecEvseDigitalMode},     # EVSE digital mode
             ]},
         {'module': 'APIM', 'address': 0x7D0, 'bus': 'can1', 'dids': [
                 {'did': 0x8012, 'codec': CodecGPS},                 # GPS data
@@ -176,8 +180,43 @@ class RecordStateManager:
             ]},
     ]
 
+    def _write_state_dids(self, state_dids: List, file: str) -> None:
+        output_modules = []
+        for module in state_dids:
+            module_name = module.get('module')
+            arbitration_id = module.get('address')
+            output_dids = []
+            dids = module.get('dids')
+            for did in dids:
+                did_id = did.get('did')
+                name = RecordDIDManager.did_name(did_id)
+                codec_id = did_id
+                output_dids.append({'did_name': name, 'did_id': did_id, 'did_id_hex': f"{did_id:04X}", 'codec_id': codec_id})
+            new_module = {'module': module_name, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'dids': output_dids}
+            output_modules.append(new_module)
+        json_dids = json.dumps(output_modules, indent = 4, sort_keys=False)
+        with open(file, "w") as outfile:
+            outfile.write(json_dids)
+
+    def _load_state_definition(self, file: str) -> List[dict]:
+        with open(file) as infile:
+            try:
+                state_definition = json.load(infile)
+            except json.JSONDecodeError as e:
+                raise RuntimeError(f"JSON error in '{file}' at line {e.lineno}")
+
+        for module in state_definition:
+            dids = module.get('dids')
+            for did in dids:
+                codec_id = did.get('codec_id')
+                codec = self._codec_manager.codec(codec_id)
+                did['codec'] = codec
+        return state_definition
+
     def __init__(self, config: dict, request_queue: Queue, response_queue: Queue) -> None:
+        #self._write_state_dids(state_dids=RecordStateManager.mach_e, file='log/test.json')
         self._config = config
+        self._codec_manager = CodecManager(config=self._config)
         self._request_queue = request_queue
         self._response_queue = response_queue
         self._exit_requested = False
@@ -187,15 +226,19 @@ class RecordStateManager:
         self._file_manager = RecordFileManager(config)
         self._start_time = int(time())
         self._did_state_cache = {}
+        self._state = None
 
     def start(self) -> List[Thread]:
-        fm_thread = self._file_manager.start()
         self._exit_requested = False
+        self._current_state_definition = self._load_state_definition('log/test.json')
+        self._codec_manager.start()
+        fm_thread = self._file_manager.start()
         self._request_thread.start()
         self._response_thread.start()
         return [self._request_thread, self._response_thread, fm_thread[0]]
 
     def stop(self) -> None:
+        self._codec_manager.stop()
         self._file_manager.stop()
         self._exit_requested = True
         if self._request_thread.is_alive():
@@ -207,7 +250,7 @@ class RecordStateManager:
         try:
             while self._exit_requested == False:
                 try:
-                    self._request_queue.put(RecordStateManager.mach_e, block=True)
+                    self._request_queue.put(self._current_state_definition, block=True)
                     sync_queue.get()
                 except Full:
                     _LOGGER.error(f"no space in the request queue")

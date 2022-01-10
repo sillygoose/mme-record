@@ -57,11 +57,11 @@ class PlaybackDIDManager:
             for did in PlaybackDIDManager._supported_dids:
                 did_id = did.get('did', -1)
                 name = did.get('name', '???')
-                enable = did.get('enable', '???')
-                modules = did.get('modules', '???')
+                enable = did.get('enable', False)
+                modules = did.get('modules', None)
                 packing = did.get('packing', '???')
-                states = did.get('states', '???')
-                did_str = f"did: {did_id:04X}, name: {name}, enable: {enable}, modules: {modules}, packing: {packing}, states: {states}"
+                states = did.get('states', None)
+                did_str = f"did_id: {did_id:04X}, name: {name}, enable: {enable}, modules: {modules}, packing: {packing}, states: {states}"
                 _LOGGER.info(did_str)
         else:
             json_str = json.dumps(PlaybackDIDManager._supported_dids, indent = 4, sort_keys=False)

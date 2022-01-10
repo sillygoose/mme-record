@@ -53,13 +53,13 @@ class RecordCanbusManager:
                 responses = []
                 for module in job:
                     module_name = module.get('module')
-                    txid = module.get('address')
+                    txid = module.get('arbitration_id')
                     conn = RecordModuleManager.connection(module_name)
 
                     did_list = []
                     data_identifiers = {}
                     for did_dict in module.get('dids'):
-                        did = did_dict.get('did')
+                        did = did_dict.get('did_id')
                         did_list.append(did)
                         data_identifiers[did] = did_dict.get('codec')
                     if len(did_list) == 0:
