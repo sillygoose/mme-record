@@ -45,6 +45,7 @@ class Playback:
                 thread.join()
 
     def stop(self) -> None:
+        self._playback_engine.stop()
         for module in self._modules.values():
             module.stop()
         self._did_manager.stop()

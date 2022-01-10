@@ -39,7 +39,7 @@ class PlaybackStateManager:
     def start(self) -> List[Thread]:
         self._exit_requested = False
         self._codec_manager.start()
-        self._state_thread = Thread(target=self._update_state, name='playback_state')
+        self._state_thread = Thread(target=self._update_state, name='state_manager')
         self._state_thread.start()
         return [self._state_thread]
 
