@@ -84,12 +84,12 @@ class RecordStateManager:
                         payload = response.service_data.values[did].get('payload')
                         if self._did_state_cache.get(key, None) is None:
                             self._did_state_cache[key] = {'time': current_time, 'payload': payload}
-                            self._file_manager.put({'time': current_time, 'arbitration_id': arbitration_id, 'did_id': did, 'did_id_hex': f"{did:04X}", 'payload': list(payload)})
+                            self._file_manager.put({'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did, 'did_id_hex': f"{did:04X}", 'payload': list(payload)})
                             _LOGGER.info(f"{arbitration_id:04X}/{did:04X}: {response.service_data.values[did].get('decoded')}")
                         else:
                             if self._did_state_cache.get(key).get('payload') != payload:
                                 self._did_state_cache[key] = {'time': current_time, 'payload': payload}
-                                self._file_manager.put({'time': current_time, 'arbitration_id': arbitration_id, 'did_id': did, 'did_id_hex': f"{did:04X}", 'payload': list(payload)})
+                                self._file_manager.put({'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did, 'did_id_hex': f"{did:04X}", 'payload': list(payload)})
                                 _LOGGER.info(f"{arbitration_id:04X}/{did:04X}: {response.service_data.values[did].get('decoded')}")
 
         except RuntimeError as e:

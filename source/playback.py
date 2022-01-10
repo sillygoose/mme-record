@@ -6,9 +6,9 @@ from typing import List
 from module_manager import ModuleManager
 from did_manager import DIDManager
 
-from pb_modmgr import PlaybackModule
+from pb_module import PlaybackModule
 from pb_did import PlaybackDID
-from pb_statemgr import PlaybackStateManager
+from pb_state_manager import PlaybackStateManager
 from pb_engine import PlaybackEngine
 
 import version
