@@ -3,9 +3,10 @@ from queue import Queue
 import logging
 from typing import List
 
+from module_manager import ModuleManager
 from did_manager import DIDManager
 
-from pb_modmgr import PlaybackModuleManager, PlaybackModule
+from pb_modmgr import PlaybackModule
 from pb_did import PlaybackDID
 from pb_statemgr import PlaybackStateManager
 from pb_engine import PlaybackEngine
@@ -26,8 +27,8 @@ class Playback:
         self._state_update_queue = Queue(maxsize=20)
         self._module_event_queues = None
         self._state_manager = PlaybackStateManager(config=self._config, state_queue=self._state_update_queue)
-        self._module_manager = PlaybackModuleManager(config=self._config)
-        self._modules = PlaybackModuleManager.modules()
+        self._module_manager = ModuleManager(config=self._config)
+        self._modules = self._module_manager.modules()
         self._did_manager = DIDManager(config=self._config)
         self._dids = self._did_manager.dids()
         self._add_modules(self._modules)
@@ -70,7 +71,7 @@ class Playback:
                     raise FailedInitialization(f"Module {name} is defined more than once")
                 event_queue = Queue(maxsize=12)
                 self._module_event_queues[name] = event_queue
-                self._modules[name] = PlaybackModule(name=name, arbitration_id=arbitration_id, channel=channel, event_queue=event_queue, state_queue=self._state_update_queue)
+                self._modules[name] = PlaybackModule(name=name, arbitration_id=arbitration_id, channel=channel, event_queue=event_queue, state_queue=self._state_update_queue, module_manager=self._module_manager)
                 _LOGGER.debug(f"Added module '{name}' to playback")
 
     def _add_dids(self, dids: List[dict]) -> None:

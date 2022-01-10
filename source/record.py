@@ -5,9 +5,10 @@ from queue import Queue
 import version
 import logfiles
 from readconfig import read_config
-from did_manager import DIDManager
 
-from rec_modmgr import RecordModuleManager
+from did_manager import DIDManager
+from module_manager import ModuleManager
+
 from rec_canmgr import RecordCanbusManager
 from rec_statemgr import RecordStateManager
 
@@ -20,7 +21,7 @@ _LOGGER = logging.getLogger('mme')
 class Record:
     def __init__(self, config: dict) -> None:
         self._config = config
-        self._module_manager = RecordModuleManager(config=self._config)
+        self._module_manager = ModuleManager(config=self._config)
         self._did_manager = DIDManager(config=self._config)
         self._request_queue = Queue(maxsize=10)
         self._response_queue = Queue(maxsize=10)

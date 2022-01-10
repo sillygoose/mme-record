@@ -8,7 +8,7 @@ import json
 
 from typing import List
 
-from pb_modmgr import PlaybackModuleManager
+from module_manager import ModuleManager
 from exceptions import FailedInitialization, RuntimeError
 
 
@@ -19,6 +19,7 @@ class PlaybackEngine:
 
     def __init__(self, config: dict, module_event_queues: dict) -> None:
         self._config = config
+        self._module_manager = ModuleManager(config=self._config)
         self._module_event_queues = module_event_queues
         self._playback_files_master = self._get_playback_files(source_path=config.get('source_path'), source_file=config.get('source_file'))
         self._playback_files = self._playback_files_master.copy()
@@ -64,7 +65,7 @@ class PlaybackEngine:
                 self._playback_time = event_time
 
                 arbitration_id = event.get('arbitration_id')
-                module_name = PlaybackModuleManager.module_name(arbitration_id)
+                module_name = self._module_manager.module_name(arbitration_id)
                 destination = self._module_event_queues.get(module_name)
                 if destination:
                     try:
@@ -114,7 +115,7 @@ class PlaybackEngine:
         return next_file
 
     def _decode_event(self, event: dict) -> str:
-        module_name = PlaybackModuleManager.module_name(event.get('arbitration_id'))
+        module_name = self._module_manager.module_name(event.get('arbitration_id'))
         event['name'] = module_name
         event['payload'] = bytearray(event['payload'])
         return str(event)

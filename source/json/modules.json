@@ -3,270 +3,315 @@
         "name": "ABS",
         "channel": "can0",
         "arbitration_id": 1888,
-        "enable": false
+        "enable": false,
+        "arbitration_id_hex": "0760"
     },
     {
         "name": "ACCM",
         "channel": "can0",
         "arbitration_id": 1991,
-        "enable": false
+        "enable": false,
+        "arbitration_id_hex": "07C7"
     },
     {
         "name": "ACM",
         "channel": "can1",
         "arbitration_id": 1831,
-        "enable": false
+        "enable": false,
+        "arbitration_id_hex": "0727"
     },
     {
         "name": "APIM",
         "channel": "can1",
         "arbitration_id": 2000,
-        "enable": true
+        "enable": true,
+        "arbitration_id_hex": "07D0"
     },
     {
         "name": "BCM",
         "channel": "can0",
         "arbitration_id": 1830,
-        "enable": true
+        "enable": true,
+        "arbitration_id_hex": "0726"
     },
     {
         "name": "BCMC",
         "channel": "can0",
         "arbitration_id": 1776,
-        "enable": false
+        "enable": false,
+        "arbitration_id_hex": "06F0"
     },
     {
         "name": "BECM",
         "channel": "can0",
         "arbitration_id": 2020,
-        "enable": true
+        "enable": true,
+        "arbitration_id_hex": "07E4"
     },
     {
         "name": "BECMB",
         "channel": "can0",
         "arbitration_id": 1827,
-        "enable": false
+        "enable": false,
+        "arbitration_id_hex": "0723"
     },
     {
         "name": "CCM",
         "channel": "can0",
         "arbitration_id": 1892,
-        "enable": false
+        "enable": false,
+        "arbitration_id_hex": "0764"
     },
     {
         "name": "CMR",
         "channel": "can0",
         "arbitration_id": 1985,
-        "enable": false
+        "enable": false,
+        "arbitration_id_hex": "07C1"
     },
     {
         "name": "DCDC",
         "channel": "can0",
         "arbitration_id": 1862,
-        "enable": true
+        "enable": true,
+        "arbitration_id_hex": "0746"
     },
     {
         "name": "DCME",
         "channel": "can1",
         "arbitration_id": 1954,
-        "enable": false
+        "enable": false,
+        "arbitration_id_hex": "07A2"
     },
     {
         "name": "DCMG",
         "channel": "can1",
         "arbitration_id": 1971,
-        "enable": false
+        "enable": false,
+        "arbitration_id_hex": "07B3"
     },
     {
         "name": "DCMH",
         "channel": "can1",
         "arbitration_id": 1972,
-        "enable": false
+        "enable": false,
+        "arbitration_id_hex": "07B4"
     },
     {
         "name": "DDM",
         "channel": "can0",
         "arbitration_id": 1856,
-        "enable": false
+        "enable": false,
+        "arbitration_id_hex": "0740"
     },
     {
         "name": "DSM",
         "channel": "can1",
         "arbitration_id": 1860,
-        "enable": false
+        "enable": false,
+        "arbitration_id_hex": "0744"
     },
     {
         "name": "DSP",
         "channel": "can1",
         "arbitration_id": 1923,
-        "enable": false
+        "enable": false,
+        "arbitration_id_hex": "0783"
     },
     {
         "name": "GFM",
         "channel": "can1",
         "arbitration_id": 1953,
-        "enable": false
+        "enable": false,
+        "arbitration_id_hex": "07A1"
     },
     {
         "name": "GSM",
         "channel": "can1",
         "arbitration_id": 1842,
-        "enable": false
+        "enable": false,
+        "arbitration_id_hex": "0732"
     },
     {
         "name": "GWM",
         "channel": "can0",
         "arbitration_id": 1814,
-        "enable": true
+        "enable": true,
+        "arbitration_id_hex": "0716"
     },
     {
         "name": "HCM",
         "channel": "can1",
         "arbitration_id": 1844,
-        "enable": false
+        "enable": false,
+        "arbitration_id_hex": "0734"
     },
     {
         "name": "HVAC",
         "channel": "can1",
         "arbitration_id": 1843,
-        "enable": false
+        "enable": false,
+        "arbitration_id_hex": "0733"
     },
     {
         "name": "IPC",
         "channel": "can1",
         "arbitration_id": 1824,
-        "enable": true
+        "enable": true,
+        "arbitration_id_hex": "0720"
     },
     {
         "name": "IPMA",
         "channel": "can0",
         "arbitration_id": 1798,
-        "enable": false
+        "enable": false,
+        "arbitration_id_hex": "0706"
     },
     {
         "name": "OBCC",
         "channel": "can0",
         "arbitration_id": 1781,
-        "enable": false
+        "enable": false,
+        "arbitration_id_hex": "06F5"
     },
     {
         "name": "OCS",
         "channel": "can1",
         "arbitration_id": 1893,
-        "enable": false
+        "enable": false,
+        "arbitration_id_hex": "0765"
     },
     {
         "name": "PACM",
         "channel": "can0",
         "arbitration_id": 1872,
-        "enable": false
+        "enable": false,
+        "arbitration_id_hex": "0750"
     },
     {
         "name": "PCM",
         "channel": "can0",
         "arbitration_id": 2016,
-        "enable": true
+        "enable": true,
+        "arbitration_id_hex": "07E0"
     },
     {
         "name": "PDM",
         "channel": "can1",
         "arbitration_id": 1857,
-        "enable": false
+        "enable": false,
+        "arbitration_id_hex": "0741"
     },
     {
         "name": "PSCM",
         "channel": "can0",
         "arbitration_id": 1840,
-        "enable": false
+        "enable": false,
+        "arbitration_id_hex": "0730"
     },
     {
         "name": "RCM",
         "channel": "can1",
         "arbitration_id": 1847,
-        "enable": false
+        "enable": false,
+        "arbitration_id_hex": "0737"
     },
     {
         "name": "RFA",
         "channel": "can1",
         "arbitration_id": 1841,
-        "enable": false
+        "enable": false,
+        "arbitration_id_hex": "0731"
     },
     {
         "name": "RGTM",
         "channel": "can1",
         "arbitration_id": 1909,
-        "enable": false
+        "enable": false,
+        "arbitration_id_hex": "0775"
     },
     {
         "name": "SCCM",
         "channel": "can1",
         "arbitration_id": 1828,
-        "enable": false
+        "enable": false,
+        "arbitration_id_hex": "0724"
     },
     {
         "name": "SCMF",
         "channel": "can1",
         "arbitration_id": 1890,
-        "enable": false
+        "enable": false,
+        "arbitration_id_hex": "0762"
     },
     {
         "name": "SOBDM",
         "channel": "can0",
         "arbitration_id": 2018,
-        "enable": true
+        "enable": true,
+        "arbitration_id_hex": "07E2"
     },
     {
         "name": "SOBDMB",
         "channel": "can0",
         "arbitration_id": 2023,
-        "enable": false
+        "enable": false,
+        "arbitration_id_hex": "07E7"
     },
     {
         "name": "SOBDMC",
         "channel": "can0",
         "arbitration_id": 2022,
-        "enable": false
+        "enable": false,
+        "arbitration_id_hex": "07E6"
     },
     {
         "name": "SODCMC",
         "channel": "can0",
         "arbitration_id": 1778,
-        "enable": false
+        "enable": false,
+        "arbitration_id_hex": "06F2"
     },
     {
         "name": "SODCMD",
         "channel": "can0",
         "arbitration_id": 1779,
-        "enable": false
+        "enable": false,
+        "arbitration_id_hex": "06F3"
     },
     {
         "name": "SODL",
         "channel": "can0",
         "arbitration_id": 1988,
-        "enable": false
+        "enable": false,
+        "arbitration_id_hex": "07C4"
     },
     {
         "name": "SODR",
         "channel": "can0",
         "arbitration_id": 1990,
-        "enable": false
+        "enable": false,
+        "arbitration_id_hex": "07C6"
     },
     {
         "name": "TCU",
         "channel": "can1",
         "arbitration_id": 1876,
-        "enable": false
+        "enable": false,
+        "arbitration_id_hex": "0754"
     },
     {
         "name": "VDM",
         "channel": "can0",
         "arbitration_id": 1825,
-        "enable": false
+        "enable": false,
+        "arbitration_id_hex": "0721"
     },
     {
         "name": "WACM",
         "channel": "can1",
         "arbitration_id": 1829,
-        "enable": false
+        "enable": false,
+        "arbitration_id_hex": "0725"
     }
 ]
