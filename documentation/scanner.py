@@ -16,8 +16,8 @@ def message_length(data: bytearray) -> int:
     return length - 3
 
 
-def test_one(can0: Bus, can1: Bus, did: int) -> dict:
-    request_msg = Message(arbitration_id=0x7df, data=[3, 0x22, did >> 8, did & 0xff, 0, 0, 0, 0], is_extended_id=False)
+def test_one(can0: Bus, can1: Bus, did_id: int) -> dict:
+    request_msg = Message(arbitration_id=0x7df, data=[3, 0x22, did_id >> 8, did_id & 0xff, 0, 0, 0, 0], is_extended_id=False)
     max_length = -1
     timeout = 0.5
     responding_modules = []
@@ -54,7 +54,7 @@ def test_one(can0: Bus, can1: Bus, did: int) -> dict:
         logger.info(msg)
 
     responding_modules.sort()
-    return {'did': did, 'length': max_length, 'modules': responding_modules}
+    return {'did_id': did_id, 'did_id_hex': f"{did_id:04X}", 'length': max_length, 'modules': responding_modules}
 
 
 def main() -> None:

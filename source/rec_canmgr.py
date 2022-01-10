@@ -8,18 +8,17 @@ import udsoncan.configs
 from udsoncan.client import Client
 from udsoncan.exceptions import *
 
+#from module_manager import ModuleManager
 from rec_modmgr import RecordModuleManager
-
-#from exceptions import FailedInitialization, RuntimeError
-
 
 _LOGGER = logging.getLogger('mme')
 
 
 class RecordCanbusManager:
 
-    def __init__(self, config: dict, request_queue: Queue, response_queue: Queue) -> None:
+    def __init__(self, config: dict, request_queue: Queue, response_queue: Queue, module_manager: RecordModuleManager) -> None:
         self._config = config
+        self._module_manager = module_manager
         self.request_queue = request_queue
         self.response_queue = response_queue
         self._exit_requested = False
@@ -54,7 +53,7 @@ class RecordCanbusManager:
                 for module in job:
                     module_name = module.get('module')
                     txid = module.get('arbitration_id')
-                    conn = RecordModuleManager.connection(module_name)
+                    conn = self._module_manager.connection(module_name)
 
                     did_list = []
                     data_identifiers = {}

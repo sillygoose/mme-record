@@ -17,9 +17,9 @@ _LOGGER = logging.getLogger('mme')
 
 class PlaybackEngine:
 
-    def __init__(self, config: dict, module_event_queues: dict) -> None:
+    def __init__(self, config: dict, module_event_queues: dict, module_manager: ModuleManager) -> None:
         self._config = config
-        self._module_manager = ModuleManager(config=self._config)
+        self._module_manager = module_manager
         self._module_event_queues = module_event_queues
         self._playback_files_master = self._get_playback_files(source_path=config.get('source_path'), source_file=config.get('source_file'))
         self._playback_files = self._playback_files_master.copy()

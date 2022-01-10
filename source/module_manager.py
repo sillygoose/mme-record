@@ -50,6 +50,8 @@ class ModuleManager:
         with open(file) as infile:
             try:
                 modules = json.load(infile)
+            except FileNotFoundError as e:
+                raise RuntimeError(f"{e}")
             except json.JSONDecodeError as e:
                 raise RuntimeError(f"JSON error in '{file}' at line {e.lineno}")
         return modules

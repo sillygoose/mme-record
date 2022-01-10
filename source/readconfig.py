@@ -256,6 +256,7 @@ def check_config(config):
                     {'dest_file': {'required': True, 'keys': [], 'type': str}},
                     {'file_writes': {'required': False, 'keys': [], 'type': int}},
                     {'born_on': {'required': False, 'keys': [], 'type': int}},
+                    {'isotp_timeout': {'required': False, 'keys': [], 'type': float}},
                 ]}},
                 {'playback': {'required': True, 'keys': [
                     {'loop': {'required': False, 'keys': [], 'type': bool}},
@@ -264,6 +265,7 @@ def check_config(config):
                     {'speed': {'required': False, 'keys': [], 'type': float}},
                     {'source_path': {'required': True, 'keys': [], 'type': str}},
                     {'source_file': {'required': True, 'keys': [], 'type': str}},
+                    {'isotp_timeout': {'required': False, 'keys': [], 'type': float}},
                 ]}},
             ]},
         },

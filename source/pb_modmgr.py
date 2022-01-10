@@ -19,25 +19,28 @@ _LOGGER = logging.getLogger('mme')
 
 class PlaybackModule:
 
-    isotp_timeout = 5.0
     isotp_params = {
-        'stmin' : 2,                                                    # Will request the sender to wait 2ms between consecutive frame. 0-127ms or 100-900ns with values from 0xF1-0xF9
-        'blocksize' : 8,                                                # Request the sender to send 8 consecutives frames before sending a new flow control message
-        'wftmax' : 0,                                                   # Number of wait frame allowed before triggering an error
-        'tx_data_length' : 8,                                           # Link layer (CAN layer) works with 8 byte payload (CAN 2.0)
-        'tx_data_min_length' : 8,                                       # Minimum length of CAN messages. When different from None, messages are padded to meet this length. Works with CAN 2.0 and CAN FD.
-        'tx_padding' : 0x00,                                            # Will pad all transmitted CAN messages with byte 0x00.
-        'rx_flowcontrol_timeout' : int(isotp_timeout * 1000),           # Triggers a timeout if a flow control is awaited for more than 1000 milliseconds
-        'rx_consecutive_frame_timeout' : int(isotp_timeout * 1000),     # Triggers a timeout if a consecutive frame is awaited for more than 1000 milliseconds
-        'squash_stmin_requirement' : False,                             # When sending, respect the stmin requirement of the receiver. If set to True, go as fast as possible.
-        'max_frame_size' : 4095                                         # Limit the size of receive frame.
+        'stmin' : 2,                               # Will request the sender to wait 2ms between consecutive frame. 0-127ms or 100-900ns with values from 0xF1-0xF9
+        'blocksize' : 8,                           # Request the sender to send 8 consecutives frames before sending a new flow control message
+        'wftmax' : 0,                              # Number of wait frame allowed before triggering an error
+        'tx_data_length' : 8,                      # Link layer (CAN layer) works with 8 byte payload (CAN 2.0)
+        'tx_data_min_length' : 8,                  # Minimum length of CAN messages. When different from None, messages are padded to meet this length. Works with CAN 2.0 and CAN FD.
+        'tx_padding' : 0x00,                       # Will pad all transmitted CAN messages with byte 0x00.
+        'rx_flowcontrol_timeout' : 2000,           # Triggers a timeout if a flow control is awaited for more than 1000 milliseconds
+        'rx_consecutive_frame_timeout' : 2000,     # Triggers a timeout if a consecutive frame is awaited for more than 1000 milliseconds
+        'squash_stmin_requirement' : False,        # When sending, respect the stmin requirement of the receiver. If set to True, go as fast as possible.
+        'max_frame_size' : 4095                    # Limit the size of receive frame.
     }
 
-    def __init__(self, name: str, arbitration_id: int, channel: str, event_queue: Queue, state_queue: Queue, module_manager: ModuleManager) -> None:
+    def __init__(self, config: dict, name: str, arbitration_id: int, channel: str, event_queue: Queue, state_queue: Queue, module_manager: ModuleManager) -> None:
         self._module_manager = module_manager
         module_lookup = self._module_manager.module(name)
         if module_lookup is None:
             raise FailedInitialization(f"The module '{name}' is not supported by Playback or cannot be created")
+
+        isotp_timeout = config.get('isotp_timeout', 2.0)
+        PlaybackModule.isotp_params['rx_flowcontrol_timeout'] = int(isotp_timeout * 1000)
+        PlaybackModule.isotp_params['rx_consecutive_frame_timeout'] = int(isotp_timeout * 1000)
 
         self._name = name
         self._event_queue = event_queue
@@ -62,7 +65,7 @@ class PlaybackModule:
         return [self._did_thread]
 
     def stop(self) -> None:
-        _LOGGER.info(f"Stopping module {self._name}")
+        _LOGGER.debug(f"Stopping module {self._name}")
         self._exit_requested = True
         if self._did_thread.is_alive():
             self._did_thread.join()
@@ -105,7 +108,7 @@ class PlaybackModule:
             if not self._event_queue.empty():
                 event = self._event_queue.get(block=False)
                 _LOGGER.debug(f"Dequeued event {event} on queue {self._module_manager.module_name(event.get('arbitration_id'))}")
-                did_handler = self._dids.get(event.get('did'), None)
+                did_handler = self._dids.get(event.get('did_id'), None)
                 if did_handler:
                     did_handler.new_event(event)
                     self._state_queue.put(event)

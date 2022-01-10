@@ -57,7 +57,7 @@ class PlaybackStateManager:
             while self._exit_requested == False:
                 state_change = self._state_queue.get()
                 _LOGGER.debug(f"New state change: {state_change}")
-                did_id = state_change.get('did', None)
+                did_id = state_change.get('did_id', None)
                 if did_id:
                     try:
                         state_did = PlaybackStateDID(did_id)
