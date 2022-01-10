@@ -1,5 +1,20 @@
 [
     {
+        "module": "GWM",
+        "arbitration_id": 1814,
+        "arbitration_id_hex": "0716",
+        "enable": false,
+        "period": 3,
+        "dids": [
+            {
+                "did_name": "KeyState",
+                "did_id": 16671,
+                "did_id_hex": "411F",
+                "codec_id": 16671
+            }
+        ]
+    },
+    {
         "module": "BECM",
         "arbitration_id": 2020,
         "arbitration_id_hex": "07E4",

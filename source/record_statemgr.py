@@ -56,9 +56,11 @@ class RecordStateManager(StateManager):
 
     def _load_queue(self, module_read_commands: List[dict]) -> None:
         for module in module_read_commands:
-            period = module.get('period', 5)
-            payload = (time(), period, [module])
-            self._command_queue.put(payload)
+            enable = module.get('enable', True)
+            if enable:
+                period = module.get('period', 5)
+                payload = (time(), period, [module])
+                self._command_queue.put(payload)
 
     def _request_task(self, sync_queue: Queue) -> None:
         try:
