@@ -1,4 +1,4 @@
-import time
+from time import time, sleep
 import logging
 from threading import Thread
 from queue import Queue
@@ -62,11 +62,12 @@ class PlaybackModule:
         return [self._did_thread]
 
     def stop(self) -> None:
-        _LOGGER.debug(f"Stopping module {self._name}")
+        _LOGGER.info(f"Stopping module {self._name}")
         self._exit_requested = True
         if self._did_thread.is_alive():
             self._did_thread.join()
         if self._bus:
+            sleep(0.1)
             self._bus.shutdown()
             self._bus = None
 
@@ -76,7 +77,7 @@ class PlaybackModule:
 
     def _did_task(self) -> None:
         while self._exit_requested == False:
-            time.sleep(self._stack.sleep_time())
+            sleep(self._stack.sleep_time())
             self._stack.process()
             if self._stack.available():
                 payload = self._stack.recv()

@@ -16,12 +16,6 @@ class ModuleManager:
         self._modules_by_id = self._modules_organized_by_id(self._modules)
         _LOGGER.debug("ModuleManager initialized")
 
-    def start(self) -> None:
-        pass
-
-    def stop(self) -> None:
-        pass
-
     def modules(self) -> List[dict]:
         return self._modules
 

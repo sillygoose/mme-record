@@ -35,6 +35,7 @@ class PlaybackEngine:
         self._exit_requested = False
         self._currrent_position = None
         self._current_playback = None
+        self._thread = None
 
     def start(self) -> List[Queue]:
         self._exit_requested = False

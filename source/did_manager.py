@@ -17,12 +17,6 @@ class DIDManager:
         self._dids_by_name = self._dids_organized_by_name(self._dids)
         self._dids_by_id = self._dids_organized_by_id(self._dids)
 
-    def start(self) -> None:
-        pass
-
-    def stop(self) -> None:
-        pass
-
     def dids(self) -> List[dict]:
         return self._dids
 
