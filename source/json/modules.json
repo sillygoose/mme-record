@@ -45,7 +45,7 @@
         "name": "BECM",
         "channel": "can0",
         "arbitration_id": 2020,
-        "enable": true,
+        "enable": false,
         "arbitration_id_hex": "07E4"
     },
     {

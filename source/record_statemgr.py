@@ -65,14 +65,14 @@ class RecordStateManager(StateManager):
             while self._exit_requested == False:
                 try:
                     request = self._command_queue.get()
-                    current_time = time()
+                    current_time = round(time(), 2)
                     trigger_at = request[0]
                     period = request[1]
                     module_list = request[2]
                     if current_time < trigger_at:
                         sleep(trigger_at - current_time)
                     self._request_queue.put(module_list)
-                    next_trigger = time() + period
+                    next_trigger = round(time(), 2) + period
                     payload = (next_trigger, period, module_list)
                     self._command_queue.put(payload)
                     sync_queue.get()
@@ -97,10 +97,14 @@ class RecordStateManager(StateManager):
                 for response_record in response_batch:
                     arbitration_id = response_record.get('arbitration_id')
                     response = response_record.get('response')
+                    if type(response) is str:
+                        _LOGGER.info(f"The request from {response_record.get('arbitration_id'):04X} returned the following response: {response}")
+                        continue
+
                     for did in response.service_data.values:
                         key = f"{arbitration_id:04X} {did:04X}"
                         payload = response.service_data.values[did].get('payload')
-                        current_time = time()
+                        current_time = round(time(), 2)
                         if self._did_state_cache.get(key, None) is None:
                             self._did_state_cache[key] = {'time': current_time, 'payload': payload}
                             self._file_manager.put({'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did, 'did_id_hex': f"{did:04X}", 'payload': list(payload)})

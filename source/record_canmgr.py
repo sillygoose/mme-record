@@ -54,6 +54,9 @@ class RecordCanbusManager:
                     module_name = module.get('module')
                     txid = module.get('arbitration_id')
                     conn = self._module_manager.connection(module_name)
+                    if conn is None:
+                        responses.append({'arbitration_id': txid, 'arbitration_id_hex': f"{txid:04X}", 'response': 'The module connection does not exist'})
+                        continue
 
                     did_list = []
                     data_identifiers = {}
