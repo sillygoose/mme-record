@@ -3,8 +3,10 @@ from queue import Queue
 import logging
 from typing import List
 
+from did_manager import DIDManager
+
 from pb_modmgr import PlaybackModuleManager, PlaybackModule
-from pb_didmgr import PlaybackDIDManager, PlaybackDID
+from pb_didmgr import PlaybackDID
 from pb_statemgr import PlaybackStateManager
 from pb_engine import PlaybackEngine
 
@@ -26,8 +28,8 @@ class Playback:
         self._state_manager = PlaybackStateManager(config=self._config, state_queue=self._state_update_queue)
         self._module_manager = PlaybackModuleManager(config=self._config)
         self._modules = PlaybackModuleManager.modules()
-        self._did_manager = PlaybackDIDManager(config=self._config)
-        self._dids = PlaybackDIDManager.dids()
+        self._did_manager = DIDManager(config=self._config)
+        self._dids = DIDManager.dids()
         self._add_modules(self._modules)
         self._add_dids(self._dids)
         self._playback_engine = PlaybackEngine(config=self._config, module_event_queues=self._module_event_queues)
@@ -83,7 +85,7 @@ class Playback:
             if enable:
                 if self._dids_by_id.get(did, None) is not None:
                     raise FailedInitialization(f"DID {did:04X} is defined more than once")
-                did_object = PlaybackDID(did=did, name=name, packing=packing, modules=used_in_modules, states=states)
+                did_object = PlaybackDID(did_id=did, did_name=name, packing=packing, modules=used_in_modules, states=states)
                 self._dids_by_id[did] = did_object
 
                 for module in used_in_modules:

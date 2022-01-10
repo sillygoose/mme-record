@@ -1,78 +1,17 @@
 import struct
-import json
 import logging
 
 from typing import List
-
-from exceptions import RuntimeError
 
 
 _LOGGER = logging.getLogger('mme')
 
 
-class PlaybackDIDManager:
-
-    _supported_dids = None
-
-    def dids() -> List[dict]:
-        return PlaybackDIDManager._supported_dids
-
-    def __init__(self, config: dict) -> None:
-        self._config = config
-        PlaybackDIDManager._supported_dids = self._load_dids(file='json/mme_dids.json')
-
-    def start(self) -> None:
-        pass
-
-    def stop(self) -> None:
-        pass
-
-    def _dids_organized_by_name(self, dids: List[dict]) -> dict:
-        dids_by_names = {}
-        for did in dids:
-            dids_by_names[did.get('name')] = did
-        return dids_by_names
-
-    def _dids_organized_by_did(self, dids: List[dict]) -> dict:
-        dids_by_id = {}
-        for did in dids:
-            dids_by_id[did.get('did')] = did
-        return dids_by_id
-
-    def _load_dids(self, file: str) -> dict:
-        with open(file) as infile:
-            try:
-                dids = json.load(infile)
-            except json.JSONDecodeError as e:
-                raise RuntimeError(f"JSON error in '{file}' at line {e.lineno}")
-        return dids
-
-    def _dump_dids(self, file: str, dids: dict) -> None:
-        json_dids = json.dumps(dids, indent = 4, sort_keys=False)
-        with open(file, "w") as outfile:
-            outfile.write(json_dids)
-
-    def show_dids(self, show_json: bool = False) -> None:
-        if show_json == False:
-            for did in PlaybackDIDManager._supported_dids:
-                did_id = did.get('did', -1)
-                name = did.get('name', '???')
-                enable = did.get('enable', False)
-                modules = did.get('modules', None)
-                packing = did.get('packing', '???')
-                states = did.get('states', None)
-                did_str = f"did_id: {did_id:04X}, name: {name}, enable: {enable}, modules: {modules}, packing: {packing}, states: {states}"
-                _LOGGER.info(did_str)
-        else:
-            json_str = json.dumps(PlaybackDIDManager._supported_dids, indent = 4, sort_keys=False)
-            _LOGGER.info(json_str)
-
-
 class PlaybackDID:
 
-    def __init__(self, did: int, name: str, packing: str, modules: List[str], states: List[dict]) -> None:
-        self._did = did
-        self._name = name
+    def __init__(self, did_id: int, did_name: str, packing: str, modules: List[str], states: List[dict]) -> None:
+        self._did_id = did_id
+        self._did_name = did_name
         self._packing = packing
         self._modules = modules
         self._states = []
@@ -80,6 +19,7 @@ class PlaybackDID:
             # variable = state.get('name', None)
             value = state.get('value', None)
             self._states.append(value)
+        _LOGGER.debug(f"Created DID {self._did_name}:{self._did_id:04X}")
 
     def response(self) -> bytearray:
         response = bytearray()
@@ -113,10 +53,10 @@ class PlaybackDID:
             index += 1
 
     def did(self) -> int:
-        return self._did
+        return self._did_id
 
     def name(self) -> str:
-        return self._name
+        return self._did_name
 
     def packing(self) -> str:
         return self._packing

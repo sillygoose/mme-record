@@ -10,7 +10,6 @@ from rec_filemgr import RecordFileManager
 from rec_didmgr import RecordDIDManager
 
 from codecmgr import *
-from codec import CodecId
 
 
 _LOGGER = logging.getLogger('mme')

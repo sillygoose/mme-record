@@ -1,16 +1,16 @@
 import sys
 import logging
 from queue import Queue
-#from typing import List
 
 import version
 import logfiles
 from readconfig import read_config
+from did_manager import DIDManager
 
 from rec_modmgr import RecordModuleManager
-from rec_didmgr import RecordDIDManager
 from rec_canmgr import RecordCanbusManager
 from rec_statemgr import RecordStateManager
+
 from exceptions import FailedInitialization, RuntimeError
 
 
@@ -19,9 +19,9 @@ _LOGGER = logging.getLogger('mme')
 
 class Record:
     def __init__(self, config: dict) -> None:
-        self._config = dict(config.mme.record)
+        self._config = config
         self._module_manager = RecordModuleManager(config=self._config)
-        self._did_manager = RecordDIDManager(config=self._config)
+        self._did_manager = DIDManager(config=self._config)
         self._request_queue = Queue(maxsize=10)
         self._response_queue = Queue(maxsize=10)
         self._canbus_manager = RecordCanbusManager(config=self._config, request_queue=self._request_queue, response_queue=self._response_queue)
@@ -62,7 +62,8 @@ def main() -> None:
         return
 
     try:
-        recorder = Record(config=config)
+        record_config = dict(config.mme.record)
+        record = Record(config=record_config)
     except FailedInitialization as e:
         _LOGGER.error(f"{e}")
         return
@@ -71,7 +72,7 @@ def main() -> None:
         return
 
     try:
-        recorder.start()
+        record.start()
     except KeyboardInterrupt:
         print()
     except RuntimeError as e:
@@ -79,7 +80,7 @@ def main() -> None:
     except Exception as e:
         _LOGGER.exception(f"Unexpected exception: {e}")
     finally:
-        recorder.stop()
+        record.stop()
 
 
 if __name__ == '__main__':
