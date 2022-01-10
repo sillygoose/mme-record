@@ -35,12 +35,17 @@ class PlaybackEngine:
         self._currrent_position = None
         self._current_playback = None
 
-    def start(self) -> None:
+    def start(self) -> List[Queue]:
         self._exit_requested = False
         self._playback_time = 0
         self._thread = Thread(target=self._playback_engine, name='playback_engine')
         self._thread.start()
         return [self._thread]
+
+    def stop(self) -> None:
+        self._exit_requested = True
+        if self._thread.is_alive():
+            self._thread.join()
 
     def _playback_engine(self) -> None:
         try:
@@ -72,11 +77,6 @@ class PlaybackEngine:
         except RuntimeError as e:
             _LOGGER.error(f"Run time error: {e}")
             return
-
-    def stop(self) -> None:
-        self._exit_requested = True
-        if self._thread.is_alive():
-            self._thread.join()
 
     def _zoom_ahead(self, start_at: int) -> None:
         event_time = 0

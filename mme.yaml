@@ -24,7 +24,7 @@ mme:
         # show_dids:                display the DIDs loaded from the JSON file
         loop:           true
         start_at:       0
-        speed:          5.0
+        speed:          2.0
         source_path:    'playback_files'
         source_file:    'trip1'
         show_dids:      true

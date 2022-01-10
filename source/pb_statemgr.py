@@ -14,7 +14,7 @@ _LOGGER = logging.getLogger('mme')
 
 
 @unique
-class PlaybackStates(Enum):
+class PlaybackState(Enum):
         Unknown = 0
         Sleeping = 1
         Off = 2
@@ -34,7 +34,7 @@ class PlaybackStateManager:
         self._codec_manager = CodecManager(config=self._config)
         self._exit_requested = False
         self._state_queue = state_queue
-        self._state = PlaybackStates.Unknown
+        self._state = PlaybackState.Unknown
 
     def start(self) -> List[Thread]:
         self._exit_requested = False
@@ -48,6 +48,9 @@ class PlaybackStateManager:
         self._codec_manager.stop()
         if self._state_thread.is_alive():
             self._state_thread.join()
+
+    def state(self) -> PlaybackState:
+        return self._state
 
     def _update_state(self) -> None:
         try:
@@ -67,13 +70,13 @@ class PlaybackStateManager:
                                 value = states[0].get('key_state', None)
                                 if value:
                                     if value == 0:
-                                        self._state = PlaybackStates.Off
+                                        self._state = PlaybackState.Off
                                     elif value == 3:
-                                        self._state = PlaybackStates.On
+                                        self._state = PlaybackState.On
                                     elif value == 4:
-                                        self._state = PlaybackStates.Starting
+                                        self._state = PlaybackState.Starting
                                     elif value == 5:
-                                        self._state = PlaybackStates.Sleeping
+                                        self._state = PlaybackState.Sleeping
                                     _LOGGER.info(decoded.get('decoded'))
                     except ValueError:
                         pass
