@@ -3,13 +3,33 @@
         "module": "GWM",
         "arbitration_id": 1814,
         "arbitration_id_hex": "0716",
-        "period": 3,
+        "period": 2,
         "dids": [
             {
                 "did_name": "KeyState",
                 "did_id": 16671,
                 "did_id_hex": "411F",
                 "codec_id": 16671
+            }
+        ]
+    },
+    {
+        "module": "IPC",
+        "arbitration_id": 1824,
+        "arbitration_id_hex": "0720",
+        "period": 5,
+        "dids": [
+            {
+                "did_name": "HiresOdometer",
+                "did_id": 16460,
+                "did_id_hex": "404C",
+                "codec_id": 16460
+            },
+            {
+                "did_name": "GearDisplayed",
+                "did_id": 25360,
+                "did_id_hex": "6310",
+                "codec_id": 25360
             }
         ]
     }
