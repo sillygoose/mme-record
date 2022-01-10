@@ -11,9 +11,9 @@ mme:
         # isotp_timeout:            timeout for ISO-TP protocol, 2 seconds if nt defined
         dest_path:      'record_files'
         dest_file:      'trip2'
-        file_writes:    120
+        file_writes:    20
         born_on:        1623167753
-        isotp_timeout:  1.5
+        isotp_timeout:  1.0
 
     playback:
         # You can control the playback options here, playback files follow the same naming convention as Record,
@@ -27,7 +27,7 @@ mme:
         # show_dids:                display the DIDs loaded from the JSON file
         loop:           true
         start_at:       0
-        speed:          1.5
+        speed:          1.0
         source_path:    'playback_files'
         source_file:    'trip1'
         isotp_timeout:  2.0

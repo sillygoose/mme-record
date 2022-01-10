@@ -55,9 +55,9 @@ class DIDManager:
                 did_id = did.get('did_id', -1)
                 did_name = did.get('did_name', '???')
                 enable = did.get('enable', False)
-                modules = did.get('modules', None)
-                packing = did.get('packing', '???')
-                states = did.get('states', None)
+                modules = did.get('modules', [])
+                packing = did.get('packing', '?')
+                states = did.get('states', [])
                 did_str = f"did_id: {did_id:04X}, did_name: {did_name}, enable: {enable}, modules: {modules}, packing: {packing}, states: {states}"
                 _LOGGER.info(did_str)
         else:

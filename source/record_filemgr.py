@@ -21,11 +21,11 @@ class RecordFileManager:
         self._file_count = 0
         self._exit_requested = False
 
-    def start(self) -> List[Thread]:
+    def start(self) -> Thread:
         self._exit_requested = False
         self._thread = Thread(target=self._file_manager_task, name='file_manager')
         self._thread.start()
-        return [self._thread]
+        return self._thread
 
     def stop(self) -> None:
         self._exit_requested = True

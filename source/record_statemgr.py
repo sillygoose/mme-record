@@ -1,46 +1,49 @@
 import logging
-from time import sleep, time
+from time import time, sleep
 
 from threading import Thread
-from queue import Empty, Full, Queue
+from queue import Empty, Full, Queue, PriorityQueue
 from typing import List
 import json
 
 from did_manager import DIDManager
 
-from rec_filemgr import RecordFileManager
-
-from codecmgr import *
-
+from record_filemgr import RecordFileManager
+from codec_manager import *
+from state_manager import StateManager
 
 _LOGGER = logging.getLogger('mme')
 
 
-class RecordStateManager:
-
+class RecordStateManager(StateManager):
+    """
+        config:                 dictionary of YAML file settings
+        request_queue:          queue to place ReadDID service requests
+        response_queue:         queue to retrieve ReadDID responses
+    """
     def __init__(self, config: dict, request_queue: Queue, response_queue: Queue) -> None:
-        self._config = config
-        self._did_manager = DIDManager(config=self._config)
-        self._codec_manager = CodecManager(config=self._config)
+        super().__init__(config)
+        self._exit_requested = False
         self._request_queue = request_queue
         self._response_queue = response_queue
-        self._exit_requested = False
-        self._sync_queue = Queue(maxsize=2)
-        self._request_thread = Thread(target=self._request_task, args=(self._sync_queue,), name='state_request')
-        self._response_thread = Thread(target=self._response_task, args=(self._sync_queue,), name='state_response')
+        self._did_manager = DIDManager(config=config)
+        self._codec_manager = CodecManager(config=config)
+        sync_queue = Queue()
+        self._request_thread = Thread(target=self._request_task, args=(sync_queue,), name='state_request')
+        self._response_thread = Thread(target=self._response_task, args=(sync_queue,), name='state_response')
         self._file_manager = RecordFileManager(config)
-        self._start_time = int(time())
+        #self._current_time = self._start_time = time()
         self._did_state_cache = {}
-        self._state = None
+        self._command_queue = PriorityQueue()
 
     def start(self) -> List[Thread]:
         self._exit_requested = False
-        self._current_state_definition = self._load_state_definition('json/running_state.json')
+        self._current_state_definition = self._load_state_definition(self.get_current_state_file())
+        self._load_queue(self._current_state_definition)
         self._codec_manager.start()
-        fm_thread = self._file_manager.start()
         self._request_thread.start()
         self._response_thread.start()
-        return [self._request_thread, self._response_thread, fm_thread[0]]
+        return [self._request_thread, self._response_thread, self._file_manager.start()]
 
     def stop(self) -> None:
         self._codec_manager.stop()
@@ -51,11 +54,27 @@ class RecordStateManager:
         if self._response_thread.is_alive():
             self._response_thread.join()
 
+    def _load_queue(self, module_read_commands: List[dict]) -> None:
+        for module in module_read_commands:
+            period = module.get('period', 5)
+            payload = (time(), period, [module])
+            self._command_queue.put(payload)
+
     def _request_task(self, sync_queue: Queue) -> None:
         try:
             while self._exit_requested == False:
                 try:
-                    self._request_queue.put(self._current_state_definition, block=True)
+                    request = self._command_queue.get()
+                    current_time = time()
+                    trigger_at = request[0]
+                    period = request[1]
+                    module_list = request[2]
+                    if current_time < trigger_at:
+                        sleep(trigger_at - current_time)
+                    self._request_queue.put(module_list)
+                    next_trigger = time() + period
+                    payload = (next_trigger, period, module_list)
+                    self._command_queue.put(payload)
                     sync_queue.get()
                 except Full:
                     _LOGGER.error(f"no space in the request queue")
@@ -78,19 +97,20 @@ class RecordStateManager:
                 for response_record in response_batch:
                     arbitration_id = response_record.get('arbitration_id')
                     response = response_record.get('response')
-                    current_time = round(time() - self._start_time, ndigits=1)
                     for did in response.service_data.values:
                         key = f"{arbitration_id:04X} {did:04X}"
                         payload = response.service_data.values[did].get('payload')
+                        current_time = time()
                         if self._did_state_cache.get(key, None) is None:
                             self._did_state_cache[key] = {'time': current_time, 'payload': payload}
                             self._file_manager.put({'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did, 'did_id_hex': f"{did:04X}", 'payload': list(payload)})
-                            _LOGGER.info(f"{arbitration_id:04X}/{did:04X}: {response.service_data.values[did].get('decoded')}")
+                            #_LOGGER.info(f"{arbitration_id:04X}/{did:04X}: {response.service_data.values[did].get('decoded')}")
                         else:
                             if self._did_state_cache.get(key).get('payload') != payload:
                                 self._did_state_cache[key] = {'time': current_time, 'payload': payload}
                                 self._file_manager.put({'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did, 'did_id_hex': f"{did:04X}", 'payload': list(payload)})
-                                _LOGGER.info(f"{arbitration_id:04X}/{did:04X}: {response.service_data.values[did].get('decoded')}")
+                                #_LOGGER.info(f"{arbitration_id:04X}/{did:04X}: {response.service_data.values[did].get('decoded')}")
+                        _LOGGER.info(f"{arbitration_id:04X}/{did:04X}: {response.service_data.values[did].get('decoded')}")
 
         except RuntimeError as e:
             _LOGGER.error(f"Run time error: {e}")
@@ -120,6 +140,8 @@ class RecordStateManager:
                 state_definition = json.load(infile)
             except json.JSONDecodeError as e:
                 raise RuntimeError(f"JSON error in '{file}' at line {e.lineno}")
+            except FileNotFoundError as e:
+                raise RuntimeError(f"{e}")
 
         for module in state_definition:
             dids = module.get('dids')

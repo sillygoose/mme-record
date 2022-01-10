@@ -5,22 +5,14 @@ from enum import Enum, unique
 
 from typing import List
 
-from codecmgr import CodecManager
+from codec_manager import CodecManager
+from state_manager import VehicleState
 
 from exceptions import RuntimeError
 
 
 _LOGGER = logging.getLogger('mme')
 
-
-@unique
-class PlaybackState(Enum):
-        Unknown = 0
-        Sleeping = 1
-        Off = 2
-        On = 3
-        Starting = 4
-        Charging = 5
 
 @unique
 class PlaybackStateDID(Enum):
@@ -34,7 +26,7 @@ class PlaybackStateManager:
         self._codec_manager = CodecManager(config=self._config)
         self._exit_requested = False
         self._state_queue = state_queue
-        self._state = PlaybackState.Unknown
+        self._state = VehicleState.Unknown
 
     def start(self) -> List[Thread]:
         self._exit_requested = False
@@ -49,7 +41,7 @@ class PlaybackStateManager:
         if self._state_thread.is_alive():
             self._state_thread.join()
 
-    def state(self) -> PlaybackState:
+    def state(self) -> VehicleState:
         return self._state
 
     def _update_state(self) -> None:
@@ -70,13 +62,13 @@ class PlaybackStateManager:
                                 value = states[0].get('key_state', None)
                                 if value:
                                     if value == 0:
-                                        self._state = PlaybackState.Off
+                                        self._state = VehicleState.Off
                                     elif value == 3:
-                                        self._state = PlaybackState.On
+                                        self._state = VehicleState.On
                                     elif value == 4:
-                                        self._state = PlaybackState.Starting
+                                        self._state = VehicleState.Starting
                                     elif value == 5:
-                                        self._state = PlaybackState.Sleeping
+                                        self._state = VehicleState.Sleeping
                                     _LOGGER.info(decoded.get('decoded'))
                     except ValueError:
                         pass

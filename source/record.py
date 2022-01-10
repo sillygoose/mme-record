@@ -9,9 +9,9 @@ from readconfig import read_config
 from did_manager import DIDManager
 #from module_manager import ModuleManager
 
-from rec_modmgr import RecordModuleManager
-from rec_canmgr import RecordCanbusManager
-from rec_statemgr import RecordStateManager
+from record_modmgr import RecordModuleManager
+from record_canmgr import RecordCanbusManager
+from record_statemgr import RecordStateManager
 
 from exceptions import FailedInitialization, RuntimeError
 

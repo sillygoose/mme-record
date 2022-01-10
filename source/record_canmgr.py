@@ -8,8 +8,8 @@ import udsoncan.configs
 from udsoncan.client import Client
 from udsoncan.exceptions import *
 
-#from module_manager import ModuleManager
-from rec_modmgr import RecordModuleManager
+from record_modmgr import RecordModuleManager
+
 
 _LOGGER = logging.getLogger('mme')
 
