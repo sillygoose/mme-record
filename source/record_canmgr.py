@@ -6,6 +6,7 @@ from queue import Empty, Full, Queue
 
 import udsoncan.configs
 from udsoncan.client import Client
+from udsoncan import Response
 from udsoncan.exceptions import *
 
 from record_modmgr import RecordModuleManager
@@ -22,11 +23,10 @@ class RecordCanbusManager:
         self.request_queue = request_queue
         self.response_queue = response_queue
         self._exit_requested = False
-        self._timeout = 2.0
         self._iso_tp_config = dict(udsoncan.configs.default_client_config)
-        self._iso_tp_config['request_timeout'] = self._timeout
-        self._iso_tp_config['p2_timeout'] = self._timeout
-        self._iso_tp_config['p2_star_timeout'] = self._timeout
+        self._iso_tp_config['request_timeout'] = config.get('request_timeout', 1.0)
+        self._iso_tp_config['p2_timeout'] = config.get('p2_timeout', 1.0)
+        self._iso_tp_config['p2_star_timeout'] = config.get('p2_star_timeout', 1.0)
         self._iso_tp_config['logger_name'] = 'mme'
 
     def start(self) -> List[Thread]:
@@ -53,9 +53,12 @@ class RecordCanbusManager:
                 for module in job:
                     module_name = module.get('module')
                     txid = module.get('arbitration_id')
-                    conn = self._module_manager.connection(module_name)
-                    if conn is None:
-                        responses.append({'arbitration_id': txid, 'arbitration_id_hex': f"{txid:04X}", 'response': 'The module connection does not exist'})
+                    connection = self._module_manager.connection(module_name)
+                    if connection is None:
+                        no_connection = Response(service=None, code=0x10, data=None)
+                        no_connection.valid = False
+                        no_connection.invalid_reason = "Module has no connection"
+                        responses.append({'arbitration_id': txid, 'arbitration_id_hex': f"{txid:04X}", 'response': no_connection})
                         continue
 
                     did_list = []
@@ -68,10 +71,10 @@ class RecordCanbusManager:
                         continue
                     self._iso_tp_config['data_identifiers'] = data_identifiers
 
-                    with Client(conn, request_timeout=self._timeout, config=self._iso_tp_config) as client:
+                    with Client(connection, config=self._iso_tp_config) as client:
                         try:
                             response = client.read_data_by_identifier(did_list)
-                            responses.append({'arbitration_id': txid, 'response': response})
+                            responses.append({'arbitration_id': txid, 'arbitration_id_hex': f"{txid:04X}", 'response': response})
                         except ValueError as e:
                             _LOGGER.error(f"{txid:04X}: {e}")
                         except ConfigError as e:
@@ -85,7 +88,7 @@ class RecordCanbusManager:
                         except InvalidResponseException as e:
                             _LOGGER.error(f"{txid:04X}: {e}")
                         except Exception as e:
-                            _LOGGER.error(f"Unexpected excpetion: {e}")
+                            _LOGGER.error(f"Unexpected exception: {e}")
                 try:
                     self.response_queue.put(responses)
                 except Full:

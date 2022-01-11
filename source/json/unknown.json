@@ -3,7 +3,7 @@
         "module": "GWM",
         "arbitration_id": 1814,
         "arbitration_id_hex": "0716",
-        "enable": false,
+        "enable": true,
         "period": 3,
         "dids": [
             {

@@ -256,7 +256,9 @@ def check_config(config):
                     {'dest_file': {'required': True, 'keys': [], 'type': str}},
                     {'file_writes': {'required': False, 'keys': [], 'type': int}},
                     {'born_on': {'required': False, 'keys': [], 'type': int}},
-                    {'isotp_timeout': {'required': False, 'keys': [], 'type': float}},
+                    {'request_timeout': {'required': False, 'keys': [], 'type': float}},
+                    {'p2_timeout': {'required': False, 'keys': [], 'type': float}},
+                    {'p2_star_timeout': {'required': False, 'keys': [], 'type': float}},
                 ]}},
                 {'playback': {'required': True, 'keys': [
                     {'loop': {'required': False, 'keys': [], 'type': bool}},

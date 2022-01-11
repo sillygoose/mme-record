@@ -36,9 +36,22 @@ class StateManager:
     def __init__(self, config: dict) -> None:
         self._config = config
         self._state = VehicleState.Unknown
+        self._state_function = self.unknown
 
     def get_current_state_file(self) -> str:
         return StateManager._state_file_lookup.get(self._state, None)
 
     def get_state_file(self, state:VehicleState) -> str:
         return StateManager._state_file_lookup.get(state, None)
+
+    def unknown(self) -> None:
+        pass
+
+    def sleeping(self) -> None:
+        pass
+
+    def off(self) -> None:
+        pass
+
+    def on(self) -> None:
+        pass

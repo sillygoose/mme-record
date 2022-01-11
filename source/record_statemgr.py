@@ -32,7 +32,6 @@ class RecordStateManager(StateManager):
         self._request_thread = Thread(target=self._request_task, args=(sync_queue,), name='state_request')
         self._response_thread = Thread(target=self._response_task, args=(sync_queue,), name='state_response')
         self._file_manager = RecordFileManager(config)
-        #self._current_time = self._start_time = time()
         self._did_state_cache = {}
         self._command_queue = PriorityQueue()
 
@@ -66,17 +65,13 @@ class RecordStateManager(StateManager):
         try:
             while self._exit_requested == False:
                 try:
-                    request = self._command_queue.get()
+                    trigger_at, period, module_list = self._command_queue.get()
                     current_time = round(time(), 2)
-                    trigger_at = request[0]
-                    period = request[1]
-                    module_list = request[2]
                     if current_time < trigger_at:
                         sleep(trigger_at - current_time)
                     self._request_queue.put(module_list)
-                    next_trigger = round(time(), 2) + period
-                    payload = (next_trigger, period, module_list)
-                    self._command_queue.put(payload)
+                    current_time = round(time(), 2)
+                    self._command_queue.put((current_time + period, period, module_list))
                     sync_queue.get()
                 except Full:
                     _LOGGER.error(f"no space in the request queue")
@@ -89,34 +84,36 @@ class RecordStateManager(StateManager):
         try:
             while self._exit_requested == False:
                 try:
-                    response_batch = self._response_queue.get(block=True, timeout=0.5)
+                    responses = self._response_queue.get(block=True, timeout=0.5)
                     sync_queue.put(1)
                 except Empty:
                     if self._exit_requested == False:
                         continue
                     return
 
-                for response_record in response_batch:
+                for response_record in responses:
                     arbitration_id = response_record.get('arbitration_id')
                     response = response_record.get('response')
-                    if type(response) is str:
-                        _LOGGER.info(f"The request from {response_record.get('arbitration_id'):04X} returned the following response: {response}")
+                    if response.positive == False:
+                        _LOGGER.info(f"The request from {arbitration_id:04X} returned the following response: {response.invalid_reason}")
                         continue
 
-                    for did in response.service_data.values:
-                        key = f"{arbitration_id:04X} {did:04X}"
-                        payload = response.service_data.values[did].get('payload')
+                    for did_id in response.service_data.values:
+                        key = f"{arbitration_id:04X} {did_id:04X}"
+                        payload = response.service_data.values[did_id].get('payload')
                         current_time = round(time(), 2)
                         if self._did_state_cache.get(key, None) is None:
                             self._did_state_cache[key] = {'time': current_time, 'payload': payload}
-                            self._file_manager.put({'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did, 'did_id_hex': f"{did:04X}", 'payload': list(payload)})
-                            #_LOGGER.info(f"{arbitration_id:04X}/{did:04X}: {response.service_data.values[did].get('decoded')}")
+                            self._file_manager.put({'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did_id, 'did_id_hex': f"{did_id:04X}", 'payload': list(payload)})
+                            self._state_function()
+                            _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: {response.service_data.values[did_id].get('decoded')}")
                         else:
                             if self._did_state_cache.get(key).get('payload') != payload:
                                 self._did_state_cache[key] = {'time': current_time, 'payload': payload}
-                                self._file_manager.put({'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did, 'did_id_hex': f"{did:04X}", 'payload': list(payload)})
-                                #_LOGGER.info(f"{arbitration_id:04X}/{did:04X}: {response.service_data.values[did].get('decoded')}")
-                        _LOGGER.info(f"{arbitration_id:04X}/{did:04X}: {response.service_data.values[did].get('decoded')}")
+                                self._file_manager.put({'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did_id, 'did_id_hex': f"{did_id:04X}", 'payload': list(payload)})
+                                self._state_function()
+                                _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: {response.service_data.values[did_id].get('decoded')}")
+                        #_LOGGER.info(f"{arbitration_id:04X}/{did:04X}: {response.service_data.values[did_id].get('decoded')}")
 
         except RuntimeError as e:
             _LOGGER.error(f"Run time error: {e}")
