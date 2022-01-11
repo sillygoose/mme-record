@@ -138,6 +138,8 @@ class PlaybackEngine:
             try:
                 self._current_playback = json.load(infile)
                 _LOGGER.info(f"Loaded playback file '{file}'")
+            except FileNotFoundError as e:
+                raise RuntimeError(f"{e}")
             except json.JSONDecodeError as e:
                 raise RuntimeError(f"JSON error in '{file}' at line {e.lineno}")
         self._currrent_position = 0

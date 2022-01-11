@@ -4,6 +4,7 @@ import json
 from typing import List
 
 from exceptions import RuntimeError
+from module_manager import ModuleManager
 
 
 _LOGGER = logging.getLogger('mme')
@@ -11,8 +12,9 @@ _LOGGER = logging.getLogger('mme')
 
 class DIDManager:
 
-    def __init__(self, config: dict) -> None:
+    def __init__(self, config: dict, module_manager: ModuleManager) -> None:
         self._config = config
+        self._module_manager = module_manager
         self._dids = self._load_dids(file='json/dids.json')
         self._dids_by_name = self._dids_organized_by_name(self._dids)
         self._dids_by_id = self._dids_organized_by_id(self._dids)
@@ -40,11 +42,13 @@ class DIDManager:
         with open(file) as infile:
             try:
                 dids = json.load(infile)
+            except FileNotFoundError as e:
+                raise RuntimeError(f"{e}")
             except json.JSONDecodeError as e:
                 raise RuntimeError(f"JSON error in '{file}' at line {e.lineno}")
         return dids
 
-    def _dump_dids(self, file: str, dids: dict) -> None:
+    def _save_dids(self, file: str, dids: dict) -> None:
         json_dids = json.dumps(dids, indent = 4, sort_keys=False)
         with open(file, "w") as outfile:
             outfile.write(json_dids)

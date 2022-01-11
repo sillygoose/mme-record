@@ -71,20 +71,8 @@ class RecordModuleManager(ModuleManager):
     def arbitration_id(self) -> int:
         return self._rxid
 
-
-
-
     def connection(self, name: str) -> PythonIsoTpConnection:
         return self._isotp_connections.get(name, None)
 
     def modules(self) -> List[dict]:
         return self._modules
-
-    # Static
-    def arbitration_id(name: str) -> int:
-        module_record = RecordModuleManager._modules_by_name.get(name, None)
-        return module_record.get('arbitration_id')
-
-    def module_name(arbitration_id: int) -> str:
-        module_record = RecordModuleManager._modules_by_id.get(arbitration_id, None)
-        return module_record.get('name')
