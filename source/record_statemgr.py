@@ -9,7 +9,7 @@ import json
 from did_manager import DIDManager
 
 from record_filemgr import RecordFileManager
-from codec_manager import *
+#from codec_manager import *
 from state_manager import StateManager
 
 _LOGGER = logging.getLogger('mme')
@@ -27,7 +27,6 @@ class RecordStateManager(StateManager):
         self._request_queue = request_queue
         self._response_queue = response_queue
         self._did_manager = DIDManager(config=config)
-        self._codec_manager = CodecManager(config=config)
         sync_queue = Queue()
         self._request_thread = Thread(target=self._request_task, args=(sync_queue,), name='state_request')
         self._response_thread = Thread(target=self._response_task, args=(sync_queue,), name='state_response')
@@ -39,13 +38,11 @@ class RecordStateManager(StateManager):
         self._exit_requested = False
         self._current_state_definition = self._load_state_definition(self.get_current_state_file())
         self._load_queue(self._current_state_definition)
-        self._codec_manager.start()
         self._request_thread.start()
         self._response_thread.start()
         return [self._request_thread, self._response_thread, self._file_manager.start()]
 
     def stop(self) -> None:
-        self._codec_manager.stop()
         self._file_manager.stop()
         self._exit_requested = True
         if self._request_thread.is_alive():
@@ -109,8 +106,8 @@ class RecordStateManager(StateManager):
                             self._did_state_cache[key] = {'time': current_time, 'payload': payload}
                             details = {'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did_id, 'did_id_hex': f"{did_id:04X}", 'payload': list(payload)}
                             self._file_manager.put(details)
+                            self._state_function(details)
                         _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: {response.service_data.values[did_id].get('decoded')}")
-                        self._state_function(details)
 
         except RuntimeError as e:
             _LOGGER.error(f"Run time error: {e}")
