@@ -1,7 +1,11 @@
 """
 State definitions
 """
+import logging
 from enum import Enum, unique
+
+
+_LOGGER = logging.getLogger('mme')
 
 
 @unique
@@ -45,7 +49,7 @@ class StateManager:
         return StateManager._state_file_lookup.get(state, None)
 
     def unknown(self, state_change: dict) -> None:
-        print(state_change)
+        _LOGGER.info(state_change)
 
     def sleeping(self) -> None:
         pass
