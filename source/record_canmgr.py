@@ -53,23 +53,24 @@ class RecordCanbusManager:
                 for module in job:
                     module_name = module.get('module')
                     txid = module.get('arbitration_id')
-                    connection = self._module_manager.connection(module_name)
-                    if connection is None:
-                        no_connection = Response(service=None, code=0x10, data=None)
-                        no_connection.valid = False
-                        no_connection.invalid_reason = "Module has no connection"
-                        responses.append({'arbitration_id': txid, 'arbitration_id_hex': f"{txid:04X}", 'response': no_connection})
-                        continue
 
                     did_list = []
                     data_identifiers = {}
                     for did_dict in module.get('dids'):
-                        did = did_dict.get('did_id')
-                        did_list.append(did)
-                        data_identifiers[did] = did_dict.get('codec')
+                        did_id = did_dict.get('did_id')
+                        did_list.append(did_id)
+                        data_identifiers[did_id] = did_dict.get('codec')
                     if len(did_list) == 0:
                         continue
                     self._iso_tp_config['data_identifiers'] = data_identifiers
+
+                    connection = self._module_manager.connection(module_name)
+                    if connection is None:
+                        no_connection = Response(service=None, code=0x10, data=None)
+                        no_connection.valid = False
+                        no_connection.invalid_reason = "module has no connection"
+                        responses.append({'arbitration_id': txid, 'arbitration_id_hex': f"{txid:04X}", 'did_list': did_list, 'response': no_connection})
+                        continue
 
                     with Client(connection, config=self._iso_tp_config) as client:
                         try:
@@ -80,7 +81,11 @@ class RecordCanbusManager:
                         except ConfigError as e:
                             _LOGGER.error(f"{txid:04X}: {e}")
                         except TimeoutException as e:
-                            _LOGGER.error(f"{txid:04X}: {e}")
+                            #_LOGGER.error(f"{txid:04X}: {e}")
+                            timeout = Response(service=None, code=0x10, data=None)
+                            timeout.valid = False
+                            timeout.invalid_reason = "request timed out"
+                            responses.append({'arbitration_id': txid, 'arbitration_id_hex': f"{txid:04X}", 'did_list': did_list, 'response': timeout})
                         except NegativeResponseException as e:
                             _LOGGER.error(f"{txid:04X}: {e}")
                         except UnexpectedResponseException as e:

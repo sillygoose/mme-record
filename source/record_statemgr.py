@@ -95,8 +95,9 @@ class RecordStateManager(StateManager):
                     arbitration_id = response_record.get('arbitration_id')
                     response = response_record.get('response')
                     if response.positive == False:
+                        did_list = response_record.get('did_list')
                         _LOGGER.debug(f"The request from {arbitration_id:04X} returned the following response: {response.invalid_reason}")
-                        details = {'type': 'NegativeResponse', 'time': round(time(), 2), 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}"}
+                        details = {'type': 'NegativeResponse', 'time': round(time(), 2), 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_list': did_list}
                         self._state_function(details)
                         continue
 
