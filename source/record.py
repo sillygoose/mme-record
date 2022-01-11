@@ -23,7 +23,7 @@ class Record:
     def __init__(self, config: dict) -> None:
         self._config = config
         self._module_manager = RecordModuleManager(config=self._config)
-        self._did_manager = DIDManager(config=self._config, module_manager=self._module_manager)
+        self._did_manager = DIDManager(config=self._config)
         self._request_queue = Queue(maxsize=10)
         self._response_queue = Queue(maxsize=10)
         self._canbus_manager = RecordCanbusManager(config=self._config, request_queue=self._request_queue, response_queue=self._response_queue, module_manager=self._module_manager)

@@ -14,16 +14,8 @@ class CodecNull(Codec):
 class CodecKeyState(Codec):
     def decode(self, payload):
         key_state = struct.unpack('>B', payload)[0]
-        if key_state == 0x00:
-            state_string = 'Ignition state: Sleeping'
-        elif key_state == 0x05:
-            state_string = 'Ignition state: Off'
-        elif key_state == 0x03:
-            state_string = 'Ignition state: On'
-        elif key_state == 0x04:
-            state_string = 'Ignition state: Starting'
-        else:
-            state_string = 'ERROR: Unsupported decode'
+        key_states = {3: 'On', 4: 'Starting', 5: 'Sleeping'}
+        state_string = 'Ignition state: ' + key_states.get(key_state, 'Unknown')
         states = [{'key_state': key_state}]
         return {'payload': payload, 'states': states, 'decoded': state_string}
 
@@ -33,16 +25,11 @@ class CodecKeyState(Codec):
 
 class CodecGearDisplayed(Codec):
     def decode(self, payload):
-        # LOOKUP(A) 0=‘P’, 1=‘R’, 2=’N’, 3=‘D’, 4='L'
-        gears = ['Park', 'Reverse', 'Neutral', 'Drive', 'Low']
-        gear = 'Gear selected: '
         gear_displayed = struct.unpack('>B', payload)[0]
-        if gear_displayed >= len(gears):
-            gear += 'Unknown'
-        else:
-            gear += gears[gear_displayed]
+        gears = {0: 'Park', 1: 'Reverse', 2: 'Neutral', 3: 'Drive', 4: 'Low'}
+        gear_string = 'Gear displayed: ' + gears.get(gear_displayed, 'Unknown')
         states = [{'gear_displayed': gear_displayed}]
-        return {'payload': payload, 'states': states, 'decoded': gear}
+        return {'payload': payload, 'states': states, 'decoded': gear_string}
 
     def __len__(self):
         return 1
@@ -51,8 +38,8 @@ class CodecGearDisplayed(Codec):
 class CodecGearCommanded(Codec):
     def decode(self, payload):
         # LOOKUP(A) 70=‘P’, 60=‘R’, 50=’N’, 40=‘D’, 20='L'
-        gears = {70: 'Park', 60: 'Reverse', 50: 'Neutral', 40: 'Drive', 20: 'Low', 255: 'Fault'}
         gear_commanded = struct.unpack('>B', payload)[0]
+        gears = {70: 'Park', 60: 'Reverse', 50: 'Neutral', 40: 'Drive', 20: 'Low', 255: 'Fault'}
         gear = 'Gear selected: ' + gears.get(gear_commanded, 'Unknown')
         states = [{'gear_commanded': gear_commanded}]
         return {'payload': payload, 'states': states, 'decoded': gear}
@@ -244,14 +231,14 @@ class CodecChargerStatus(Codec):
 
 class CodecEvseType(Codec):
     def decode(self, payload):
-        type = struct.unpack('>B', payload)[0]
+        evse_type = struct.unpack('>B', payload)[0]
         evse_types = {
             0: 'None', 1: 'Level 1', 2: 'Level 2', 3: 'DC', 4: 'Bas', 5: 'HL',
             6: 'BasAC', 7: 'HLAC', 8: 'HLDC', 9: 'Unknown', 10: 'NCom',
             11: 'FAULT', 12: 'HEnd'
         }
         type_string = 'EVSE type: ' + evse_types.get(type, 'unknown')
-        states = [{'evse_types': type}]
+        states = [{'evse_type': evse_type}]
         return {'payload': payload, 'states': states, 'decoded': type_string}
 
     def __len__(self):

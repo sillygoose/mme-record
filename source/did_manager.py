@@ -4,7 +4,6 @@ import json
 from typing import List
 
 from exceptions import RuntimeError
-from module_manager import ModuleManager
 
 
 _LOGGER = logging.getLogger('mme')
@@ -12,9 +11,8 @@ _LOGGER = logging.getLogger('mme')
 
 class DIDManager:
 
-    def __init__(self, config: dict, module_manager: ModuleManager) -> None:
+    def __init__(self, config: dict) -> None:
         self._config = config
-        self._module_manager = module_manager
         self._dids = self._load_dids(file='json/dids.json')
         self._dids_by_name = self._dids_organized_by_name(self._dids)
         self._dids_by_id = self._dids_organized_by_id(self._dids)
