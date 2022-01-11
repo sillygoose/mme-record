@@ -44,8 +44,8 @@ class StateManager:
     def get_state_file(self, state:VehicleState) -> str:
         return StateManager._state_file_lookup.get(state, None)
 
-    def unknown(self) -> None:
-        pass
+    def unknown(self, state_change: dict) -> None:
+        print(state_change)
 
     def sleeping(self) -> None:
         pass

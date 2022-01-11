@@ -84,7 +84,7 @@ class RecordStateManager(StateManager):
         try:
             while self._exit_requested == False:
                 try:
-                    responses = self._response_queue.get(block=True, timeout=0.5)
+                    responses = self._response_queue.get(timeout=0.5)
                     sync_queue.put(1)
                 except Empty:
                     if self._exit_requested == False:
@@ -95,7 +95,9 @@ class RecordStateManager(StateManager):
                     arbitration_id = response_record.get('arbitration_id')
                     response = response_record.get('response')
                     if response.positive == False:
-                        _LOGGER.info(f"The request from {arbitration_id:04X} returned the following response: {response.invalid_reason}")
+                        _LOGGER.debug(f"The request from {arbitration_id:04X} returned the following response: {response.invalid_reason}")
+                        details = {'type': 'NegativeResponse', 'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}"}
+                        self._state_function(details)
                         continue
 
                     for did_id in response.service_data.values:
@@ -104,14 +106,16 @@ class RecordStateManager(StateManager):
                         current_time = round(time(), 2)
                         if self._did_state_cache.get(key, None) is None:
                             self._did_state_cache[key] = {'time': current_time, 'payload': payload}
-                            self._file_manager.put({'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did_id, 'did_id_hex': f"{did_id:04X}", 'payload': list(payload)})
-                            self._state_function()
+                            details = {'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did_id, 'did_id_hex': f"{did_id:04X}", 'payload': list(payload)}
+                            self._file_manager.put(details)
+                            self._state_function(details)
                             _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: {response.service_data.values[did_id].get('decoded')}")
                         else:
                             if self._did_state_cache.get(key).get('payload') != payload:
                                 self._did_state_cache[key] = {'time': current_time, 'payload': payload}
-                                self._file_manager.put({'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did_id, 'did_id_hex': f"{did_id:04X}", 'payload': list(payload)})
-                                self._state_function()
+                                details = {'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did_id, 'did_id_hex': f"{did_id:04X}", 'payload': list(payload)}
+                                self._file_manager.put(details)
+                                self._state_function(details)
                                 _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: {response.service_data.values[did_id].get('decoded')}")
                         #_LOGGER.info(f"{arbitration_id:04X}/{did:04X}: {response.service_data.values[did_id].get('decoded')}")
 
