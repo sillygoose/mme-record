@@ -37,12 +37,13 @@ class RecordFileManager:
         self._data_points.append(data_point)
 
     def _write_file(self) -> None:
-        full_filename = f"{self._dest_path}/{self._dest_file}_{self._file_count:03d}.json"
-        json_data = json.dumps(self._data_points, indent = 4, sort_keys=False)
-        with open(full_filename, "w") as outfile:
-            outfile.write(json_data)
-        self._file_count += 1
-        self._data_points = []
+        if len(self._data_points) > 0:
+            full_filename = f"{self._dest_path}/{self._dest_file}_{self._file_count:03d}.json"
+            json_data = json.dumps(self._data_points, indent = 4, sort_keys=False)
+            with open(full_filename, "w") as outfile:
+                outfile.write(json_data)
+            self._file_count += 1
+            self._data_points = []
 
     def _file_manager_task(self) -> None:
         try:

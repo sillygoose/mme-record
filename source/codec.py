@@ -15,6 +15,7 @@ class CodecId(Enum):
         InteriorTemp = 0xDD04
         Time = 0xDD00
         Gps = 0x8012
+        ChargingStatus = 0x484D
         HvbSoc = 0x4801
         HvbSocD = 0x4845
         HvbEte = 0x4848

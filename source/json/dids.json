@@ -319,6 +319,23 @@
         ]
     },
     {
+        "did_id": 18509,
+        "did_id_hex": "484D",
+        "enable": true,
+        "did_name": "ChargingStatus",
+        "modules": [
+            "SOBDM",
+            "BECM"
+        ],
+        "packing": "B",
+        "states": [
+            {
+                "name": "charging_status",
+                "value": 1000
+            }
+        ]
+    },
+    {
         "did_id": 18510,
         "did_id_hex": "484E",
         "enable": true,

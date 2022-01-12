@@ -84,7 +84,7 @@ class RecordStateManager(StateManager):
                         did_list = response_record.get('did_list')
                         _LOGGER.debug(f"The request from {arbitration_id:04X} returned the following response: {response.invalid_reason}")
                         details = {'type': 'NegativeResponse', 'time': round(time(), 2), 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_list': did_list}
-                        self._state_function(details)
+                        self.update_vehicle_state(details)
                         continue
 
                     for did_id in response.service_data.values:
@@ -95,7 +95,7 @@ class RecordStateManager(StateManager):
                             self._did_state_cache[key] = {'time': current_time, 'payload': payload}
                             details = {'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did_id, 'did_id_hex': f"{did_id:04X}", 'payload': list(payload)}
                             self._file_manager.put(details)
-                            self._state_function(details)
+                            self.update_vehicle_state(details)
                         _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: {response.service_data.values[did_id].get('decoded')}")
 
                 self._response_queue.task_done()

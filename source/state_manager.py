@@ -33,17 +33,19 @@ class StateManager:
             On = 5                      # the vehicle start button was pressed with the brake depressed
             Trip = 6                    # the vehicle is in a gear other than Park
             Preconditioning = 7         # the vehicle is preconditioning
-            AC_Charging = 8             # the vehicle is AC charging (Level 1 or Level 2)
-            DC_Charging = 9             # the vehicle is DC fast charging
+            Charging = 8                # the vehicle has plugged in
+            AC_Charging = 9             # the vehicle is AC charging
+            DC_Charging = 10            # the vehicle is DC fast charging
 
     _state_file_lookup = {
-        VehicleState.Unknown:           {'state_file': 'json/unknown.json', 'state_function': None},
-        VehicleState.Sleeping:          {'state_file': 'json/sleeping.json', 'state_function': None},
-        VehicleState.Off:               {'state_file': 'json/off.json', 'state_function': None},
-        VehicleState.On:                {'state_file': 'json/on.json', 'state_function': None},
+        VehicleState.Unknown:           {'state_file': 'json/unknown.json',     'state_keys': ['0716:411F:key_state']},
+        VehicleState.Sleeping:          {'state_file': 'json/sleeping.json',    'state_keys': ['0716:411F:key_state', '07E4:484D:charging_status']},
+        VehicleState.Off:               {'state_file': 'json/off.json',         'state_keys': ['0716:411F:key_state', '07E4:484D:charging_status']},
+        VehicleState.On:                {'state_file': 'json/on.json',          'state_keys': ['0716:411F:key_state', '07E4:484D:charging_status']},
+        VehicleState.Charging:          {'state_file': 'json/charging.json',    'state_keys': ['07E4:484D:charging_status', '07E4:4851:evse_type']},
+        VehicleState.AC_Charging:       {'state_file': 'json/ac_charging.json', 'state_keys': ['07E4:484D:charging_status']},
         #VehicleState.Trip:              'json/trip.json',
         #VehicleState.Preconditioning:   'json/preconditioning.json',
-        VehicleState.AC_Charging:       {'state_file': 'json/ac_charging.json', 'state_function': None},
         #VehicleState.DC_Charging:       'json/dc_charging.json',
     }
 
@@ -57,6 +59,7 @@ class StateManager:
             StateManager.VehicleState.Sleeping: self.sleeping,
             StateManager.VehicleState.Off: self.off,
             StateManager.VehicleState.On: self.on,
+            StateManager.VehicleState.Charging: self.charging,
             StateManager.VehicleState.AC_Charging: self.ac_charging,
         }
         for k, v in StateManager._state_file_lookup.items():
@@ -97,6 +100,9 @@ class StateManager:
     def get_state_file(self, state:VehicleState) -> str:
         return StateManager._state_file_lookup.get(state).get('state_file')
 
+    def _get_state_keys(self) -> List[str]:
+        return StateManager._state_file_lookup.get(self._state).get('state_keys')
+
     def change_state(self, new_state: VehicleState) -> None:
         self._state = new_state
         self._state_file = StateManager._state_file_lookup.get(
@@ -108,68 +114,119 @@ class StateManager:
             self._command_queue.task_done()
         queue_commands = self._load_state_definition(self._state_file)
         self._load_queue(queue_commands)
-        _LOGGER.info(f"Changed vehicle state to 'something'")
+        _LOGGER.info(f"Changed vehicle state to '{self._state}'")
 
-    def unknown(self, state_change: dict) -> None:
+    def update_vehicle_state(self, state_change: dict) -> None:
         if state_change.get('type', None) is None:
             did_id = state_change.get('did_id', None)
             if did_id:
                 codec = self._codec_manager.codec(did_id)
                 decoded_playload = codec.decode(None, bytearray(state_change.get('payload')))
+                arbitration_id = state_change.get('arbitration_id')
                 states = decoded_playload.get('states')
-                if StateManager.StateDID(did_id) == StateManager.StateDID.KeyState:
-                    self._vehicle_state[StateManager.StateDID(did_id)] = states[0].get('key_state', None)
-                    if self._vehicle_state[StateManager.StateDID(did_id)] == 5:
-                        self.change_state(StateManager.VehicleState.Sleeping)
-                    elif self._vehicle_state[StateManager.StateDID(did_id)] == 3:
+                for state in states:
+                    for k, v in state.items():
+                        self._last_state_change = f"{arbitration_id:04X}:{did_id:04X}:{k}"
+                        self._vehicle_state[self._last_state_change] = v
+                _LOGGER.debug(self._last_state_change)
+                self._state_function()
+
+    def unknown(self) -> None:
+        for key in self._get_state_keys():
+            if self._last_state_change == key and key == '0716:411F:key_state':
+                key_state = self._vehicle_state.get('0716:411F:key_state')
+                if key_state == 0 or key_state == 5:
+                    self.change_state(StateManager.VehicleState.Off)
+                elif key_state == 3:
+                    self.change_state(StateManager.VehicleState.On)
+                else:
+                    _LOGGER.info(f"While {self._state}, 'KeyState' returned an unexpected response: {key_state}")
+
+    def sleeping(self) -> None:
+        for key in self._get_state_keys():
+            if self._last_state_change == key and key == '0716:411F:key_state':
+                key_state = self._vehicle_state.get('0716:411F:key_state')
+                if key_state == 0 or key_state == 5:
+                    pass
+                elif key_state == 3:
+                    self.change_state(StateManager.VehicleState.On)
+                else:
+                    _LOGGER.info(f"While {self._state}, 'KeyState' returned an unexpected response: {key_state}")
+            elif self._last_state_change == key and key == '07E4:484D:charging_status':
+                charging_status = self._vehicle_state.get('07E4:484D:charging_status')
+                if charging_status == 3:
+                    self.change_state(StateManager.VehicleState.AC_Charging)
+                elif charging_status != 0:
+                    _LOGGER.info(f"While {self._state}, 'ChargingStatus' returned an unexpected response: {charging_status}")
+
+    def off(self) -> None:
+        for key in self._get_state_keys():
+            if self._last_state_change == key and key == '0716:411F:key_state':
+                key_state = self._vehicle_state.get('0716:411F:key_state')
+                if key_state == 0 or key_state == 5:
+                    pass
+                elif key_state == 3:
+                    self.change_state(StateManager.VehicleState.On)
+                else:
+                    _LOGGER.info(f"While {self._state}, 'KeyState' returned an unexpected response: {key_state}")
+            elif self._last_state_change == key and key == '07E4:484D:charging_status':
+                charging_status = self._vehicle_state.get('07E4:484D:charging_status')
+                if charging_status == 3:
+                    self.change_state(StateManager.VehicleState.AC_Charging)
+                elif charging_status != 0:
+                    _LOGGER.info(f"While {self._state}, 'ChargingStatus' returned an unexpected response: {charging_status}")
+
+    def on(self) -> None:
+        for key in self._get_state_keys():
+            if self._last_state_change == key and key == '0716:411F:key_state':
+                key_state = self._vehicle_state.get('0716:411F:key_state')
+                if key_state == 0 or key_state == 5:
+                    self.change_state(StateManager.VehicleState.Off)
+                elif key_state == 3:
+                    pass
+                else:
+                    _LOGGER.info(f"KeyState returned an unexpected response: {key_state}")
+            elif self._last_state_change == key and key == '07E4:484D:charging_status':
+                charging_status = self._vehicle_state.get('07E4:484D:charging_status')
+                if charging_status == 3:
+                    self.change_state(StateManager.VehicleState.AC_Charging)
+                elif charging_status != 0:
+                    _LOGGER.info(f"While {self._state}, 'ChargingStatus' returned an unexpected response: {charging_status}")
+
+    def charging(self) -> None:
+        for key in self._get_state_keys():
+            if self._last_state_change == key and key == '07E4:484D:charging_status':
+                charging_status = self._vehicle_state.get('07E4:484D:charging_status')
+                if charging_status == 3:
+                    pass
+                elif charging_status == 0 or charging_status == 4:
+                    key_state = self._vehicle_state.get('0716:411F:key_state')
+                    if key_state == 0 or key_state == 5:
+                        self.change_state(StateManager.VehicleState.Off)
+                    elif key_state == 3:
                         self.change_state(StateManager.VehicleState.On)
                     else:
-                        _LOGGER.info(
-                            f"KeyState returned an unexpected response: {self._vehicle_state[StateManager.StateDID(did_id)]}")
+                        _LOGGER.info(f"While {self._state}, 'KeyState' returned an unexpected response: {key_state}")
+                else:
+                    _LOGGER.info(f"While {self._state}, 'ChargingStatus' returned an unexpected response: {charging_status}")
+            elif self._last_state_change == key and key == '07E4:4851:evse_type':
+                evse_type = self._vehicle_state.get('07E4:4851:evse_type')
+                if evse_type == 6:
+                    self.change_state(StateManager.VehicleState.AC_Charging)
+                elif charging_status != 0:
+                    _LOGGER.info(f"While {self._state}, 'EvseType' returned an unexpected response: {charging_status}")
 
-        else:
-            _LOGGER.info(
-                f"Vehicle returned an unexpected response: {state_change}")
-
-    def sleeping(self, state_change: dict) -> None:
-        if state_change.get('type', None) is None:
-            did_id = state_change.get('did_id', None)
-            if did_id:
-                codec = self._codec_manager.codec(did_id)
-                decoded_playload = codec.decode(
-                    None, bytearray(state_change.get('payload')))
-                states = decoded_playload.get('states')
-                if StateManager.StateDID(did_id) == StateManager.StateDID.KeyState:
-                    self._vehicle_state[StateManager.StateDID(
-                        did_id)] = states[0].get('key_state', None)
-                    if self._vehicle_state[StateManager.StateDID(did_id)] == 3:
+    def ac_charging(self) -> None:
+        for key in self._get_state_keys():
+            if self._last_state_change == key and key == '07E4:484D:charging_status':
+                charging_status = self._vehicle_state.get('07E4:484D:charging_status')
+                if charging_status == 0 or charging_status == 4:
+                    key_state = self._vehicle_state.get('0716:411F:key_state')
+                    if key_state == 0 or key_state == 5:
+                        self.change_state(StateManager.VehicleState.Off)
+                    elif key_state == 3:
                         self.change_state(StateManager.VehicleState.On)
-                elif StateManager.StateDID(did_id) == StateManager.StateDID.EvseType:
-                    self._vehicle_state[StateManager.StateDID(
-                        did_id)] = states[0].get('evse_type', None)
-                    if self._vehicle_state[StateManager.StateDID(did_id)] == 6:
-                        self.change_state(StateManager.VehicleState.AC_Charging)
-        else:
-            _LOGGER.info(
-                f"Vehicle returned an unexpected response: {state_change}")
-
-    def off(self, state_change: dict) -> None:
-        if state_change.get('type', None) is None:
-            did_id = state_change.get('did_id', None)
-        else:
-            _LOGGER.info(
-                f"Vehicle returned an unexpected response: {state_change}")
-
-    def on(self, state_change: dict) -> None:
-        if state_change.get('type', None) is None:
-            did_id = state_change.get('did_id', None)
-        else:
-            _LOGGER.info(
-                f"Vehicle returned an unexpected response: {state_change}")
-
-    def ac_charging(self, state_change: dict) -> None:
-        if state_change.get('type', None) is None:
-            did_id = state_change.get('did_id', None)
-        else:
-            _LOGGER.info(
-                f"Vehicle returned an unexpected response: {state_change}")
+                    else:
+                        _LOGGER.info(f"While {self._state}, 'KeyState' returned an unexpected response: {key_state}")
+                else:
+                    _LOGGER.info(f"While {self._state}, 'ChargingStatus' returned an unexpected response: {charging_status}")

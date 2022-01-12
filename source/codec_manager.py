@@ -37,7 +37,6 @@ class CodecGearDisplayed(Codec):
 
 class CodecGearCommanded(Codec):
     def decode(self, payload):
-        # LOOKUP(A) 70=‘P’, 60=‘R’, 50=’N’, 40=‘D’, 20='L'
         gear_commanded = struct.unpack('>B', payload)[0]
         gears = {70: 'Park', 60: 'Reverse', 50: 'Neutral', 40: 'Drive', 20: 'Low', 255: 'Fault'}
         gear = 'Gear selected: ' + gears.get(gear_commanded, 'Unknown')
@@ -173,7 +172,6 @@ class CodecLvbSoc(Codec):
 
 class CodecLvbVoltage(Codec):
     def decode(self, payload):
-        # A*0.05+6
         voltage = struct.unpack('>B', payload)[0] * 0.05 + 6.0
         states = [{'lvb_voltage': voltage}]
         return {'payload': payload, 'states': states, 'decoded': f"LVB voltage is {voltage:.2f} V"}
@@ -183,7 +181,6 @@ class CodecLvbVoltage(Codec):
 
 class CodecLvbCurrent(Codec):
     def decode(self, payload):
-        # A*0.05+6
         current = struct.unpack('>B', payload)[0] - 127
         states = [{'lvb_current': current}]
         return {'payload': payload, 'states': states, 'decoded': f"LVB current is {current} A"}
@@ -203,7 +200,6 @@ class CodecHvbVoltage(Codec):
 
 
 class CodecHvbCurrent(Codec):
-    # ((signed(A)*256)+B)*0.1
     def decode(self, payload):
         current_msb, current_lsb = struct.unpack('>bB', payload)
         current = (current_msb * 256 + current_lsb) * 0.1
@@ -214,15 +210,29 @@ class CodecHvbCurrent(Codec):
         return 2
 
 
+class CodecChargingStatus(Codec):
+    def decode(self, payload):
+        charging_status = struct.unpack('>B', payload)[0]
+        charging_statuses = {
+            0: 'Not Ready', 1: 'Wait', 2: 'Ready', 3: 'Charging', 4: 'Done', 5: 'Fault',
+        }
+        status_string = 'Charger status: ' + charging_statuses.get(charging_status, f"unknown ({charging_status:02X})")
+        states = [{'charging_status': charging_status}]
+        return {'payload': payload, 'states': states, 'decoded': status_string}
+
+    def __len__(self):
+        return 1
+
+
 class CodecChargerStatus(Codec):
     def decode(self, payload):
-        status = struct.unpack('>B', payload)[0]
+        charger_status = struct.unpack('>B', payload)[0]
         charger_statuses = {
             0: 'Not Ready', 1: 'Ready', 2: 'Fault', 3: 'WChk', 4: 'PreC', 5: 'Charging',
             6: 'Done', 7: 'ExtC', 8: 'Init',
         }
-        status_string = 'Charger status: ' + charger_statuses.get(status, 'unknown')
-        states = [{'charger_status': status}]
+        status_string = 'Charger status: ' + charger_statuses.get(charger_status, f"unknown ({charger_status:02X})")
+        states = [{'charger_status': charger_status}]
         return {'payload': payload, 'states': states, 'decoded': status_string}
 
     def __len__(self):
@@ -447,10 +457,11 @@ class CodecManager:
         CodecId.HvbTemp:                        CodecHvbTemp,
         CodecId.HvbVoltage:                     CodecHvbVoltage,
         CodecId.HvbCurrent:                     CodecHvbCurrent,
-        CodecId.ChargerStatus:                  CodecChargerStatus,
+        CodecId.ChargingStatus:                 CodecChargingStatus,
         CodecId.EvseType:                       CodecEvseType,
         CodecId.EvseDigitalMode:                CodecEvseDigitalMode,
         CodecId.HvbSOH:                         CodecHvbSOH,
+        CodecId.ChargerStatus:                  CodecChargerStatus,
         CodecId.ChargerInputVoltage:            CodecChargerInputVoltage,
         CodecId.ChargerInputCurrent:            CodecChargerInputCurrent,
         CodecId.ChargerInputFrequency:          CodecChargerInputFrequency,
