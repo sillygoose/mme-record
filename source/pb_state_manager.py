@@ -6,7 +6,7 @@ from enum import Enum, unique
 from typing import List
 
 from codec_manager import CodecManager
-from state_manager import StateManager
+from state_manager import VehicleState
 
 from exceptions import RuntimeError
 
@@ -26,7 +26,7 @@ class PlaybackStateManager:
         self._codec_manager = CodecManager(config=self._config)
         self._exit_requested = False
         self._state_queue = state_queue
-        self._state = StateManager.VehicleState.Unknown
+        self._state = VehicleState.Unknown
 
     def start(self) -> List[Thread]:
         self._exit_requested = False
@@ -39,7 +39,7 @@ class PlaybackStateManager:
         if self._state_thread.is_alive():
             self._state_thread.join()
 
-    def state(self) -> StateManager.VehicleState:
+    def state(self) -> VehicleState:
         return self._state
 
     def _update_state(self) -> None:
@@ -59,14 +59,10 @@ class PlaybackStateManager:
                                 states = decoded.get('states')
                                 value = states[0].get('key_state', None)
                                 if value:
-                                    if value == 0:
-                                        self._state = StateManager.VehicleState.Off
-                                    elif value == 3:
-                                        self._state = StateManager.VehicleState.On
-                                    elif value == 4:
-                                        self._state = StateManager.VehicleState.Starting
-                                    elif value == 5:
-                                        self._state = StateManager.VehicleState.Sleeping
+                                    if value == 0 or value == 5:
+                                        self._state = VehicleState.Off
+                                    elif value == 3 or value == 4:
+                                        self._state = VehicleState.On
                                     _LOGGER.info(decoded.get('decoded'))
                     except ValueError:
                         pass

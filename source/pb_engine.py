@@ -62,7 +62,8 @@ class PlaybackEngine:
                         if sleep_for < 3:
                             sleep(sleep_for * self._speed)
                         else:
-                            _LOGGER.info(f"At time {self._playback_time}, no data for over 3 seconds, skipping to next event")
+                            sleep(3)
+                            _LOGGER.info(f"At time {self._playback_time}, no data for over 3 seconds, sleeping 4 seconds")
                 self._playback_time = event_time
 
                 arbitration_id = event.get('arbitration_id')

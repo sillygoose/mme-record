@@ -33,6 +33,6 @@ mme:
         start_at:       0
         speed:          1.0
         source_path:    'playback_files'
-        source_file:    'trip1'
+        source_file:    'new_format'
         isotp_timeout:  2.0
         show_dids:      true

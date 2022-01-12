@@ -112,6 +112,7 @@ class PlaybackModule:
                 if did_handler:
                     did_handler.new_event(event)
                     self._state_queue.put(event)
+                self._event_queue.task_done()
 
     def error_handler(self, error) -> None:
         _LOGGER.error('%s IsoTp error happened : %s - %s' % (self._name, error.__class__.__name__, str(error)))

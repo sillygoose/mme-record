@@ -4,7 +4,7 @@
         "arbitration_id": 1814,
         "arbitration_id_hex": "0716",
         "enable": true,
-        "period": 5,
+        "period": 10,
         "dids": [
             {
                 "did_name": "KeyState",
@@ -19,7 +19,7 @@
         "arbitration_id": 2020,
         "arbitration_id_hex": "07E4",
         "enable": true,
-        "period": 10,
+        "period": 15,
         "dids": [
             {
                 "did_name": "ChargingStatus",

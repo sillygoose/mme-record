@@ -1,0 +1,176 @@
+[
+    {
+        "module": "SOBDM",
+        "arbitration_id": 2018,
+        "arbitration_id_hex": "07E2",
+        "enable": true,
+        "period": 5,
+        "dids": [
+            {
+                "did_name": "GearCommanded",
+                "did_id": 7698,
+                "did_id_hex": "1E12",
+                "codec_id": 7698
+            }
+        ]
+    },
+    {
+        "module": "SOBDM",
+        "arbitration_id": 2018,
+        "arbitration_id_hex": "07E2",
+        "enable": true,
+        "period": 60,
+        "dids": [
+            {
+                "did_name": "InteriorTemp",
+                "did_id": 56580,
+                "did_id_hex": "DD04",
+                "codec_id": 56580
+            },
+            {
+                "did_name": "ExteriorTemp",
+                "did_id": 56581,
+                "did_id_hex": "DD05",
+                "codec_id": 56581
+            }
+        ]
+    },
+    {
+        "module": "BECM",
+        "arbitration_id": 2020,
+        "arbitration_id_hex": "07E4",
+        "enable": true,
+        "period": 30,
+        "dids": [
+            {
+                "did_name": "EnergyToEmpty",
+                "did_id": 18504,
+                "did_id_hex": "4848",
+                "codec_id": 18504
+            },
+            {
+                "did_name": "HvbSocD",
+                "did_id": 18501,
+                "did_id_hex": "4845",
+                "codec_id": 18501
+            }
+        ]
+    },
+    {
+        "module": "BECM",
+        "arbitration_id": 2020,
+        "arbitration_id_hex": "07E4",
+        "enable": true,
+        "period": 2,
+        "dids": [
+            {
+                "did_name": "HvbVoltage",
+                "did_id": 18445,
+                "did_id_hex": "480D",
+                "codec_id": 18445
+            },
+            {
+                "did_name": "HvbCurrent",
+                "did_id": 18681,
+                "did_id_hex": "48F9",
+                "codec_id": 18681
+            }
+        ]
+    },
+    {
+        "module": "BECM",
+        "arbitration_id": 2020,
+        "arbitration_id_hex": "07E4",
+        "enable": true,
+        "period": 30,
+        "dids": [
+            {
+                "did_name": "HvbTemp",
+                "did_id": 18432,
+                "did_id_hex": "4800",
+                "codec_id": 18432
+            }
+        ]
+    },
+    {
+        "module": "PCM",
+        "arbitration_id": 2016,
+        "arbitration_id_hex": "07E0",
+        "enable": true,
+        "period": 2,
+        "dids": [
+            {
+                "did_name": "HiresSpeed",
+                "did_id": 5381,
+                "did_id_hex": "1505",
+                "codec_id": 5381
+            }
+        ]
+    },
+    {
+        "module": "APIM",
+        "arbitration_id": 2000,
+        "arbitration_id_hex": "07D0",
+        "enable": true,
+        "period": 10,
+        "dids": [
+            {
+                "did_name": "GPS",
+                "did_id": 32786,
+                "did_id_hex": "8012",
+                "codec_id": 32786
+            }
+        ]
+    },
+    {
+        "module": "IPC",
+        "arbitration_id": 1824,
+        "arbitration_id_hex": "0720",
+        "enable": true,
+        "period": 10,
+        "dids": [
+            {
+                "did_name": "HiresOdometer",
+                "did_id": 16460,
+                "did_id_hex": "404C",
+                "codec_id": 16460
+            }
+        ]
+    },
+    {
+        "module": "BCM",
+        "arbitration_id": 1830,
+        "arbitration_id_hex": "0726",
+        "enable": true,
+        "period": 10,
+        "dids": [
+            {
+                "did_name": "LvbVoltage",
+                "did_id": 16426,
+                "did_id_hex": "402A",
+                "codec_id": 16426
+            },
+            {
+                "did_name": "LvbCurrent",
+                "did_id": 16427,
+                "did_id_hex": "402B",
+                "codec_id": 16427
+            }
+        ]
+    },
+    {
+        "module": "BCM",
+        "arbitration_id": 1830,
+        "arbitration_id_hex": "0726",
+        "enable": true,
+        "period": 60,
+        "dids": [
+            {
+                "did_name": "LvbSoc",
+                "did_id": 16424,
+                "did_id_hex": "4028",
+                "codec_id": 16424
+            }
+        ]
+    }
+]

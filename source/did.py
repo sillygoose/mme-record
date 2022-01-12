@@ -52,6 +52,14 @@ class KeyState(Enum):
     Off = 5
 
 @unique
+class GearCommanded(Enum):
+    Park = 70
+    Reverse = 60
+    Neutral = 50
+    Drive = 40
+    Low = 20
+
+@unique
 class ChargingStatus(Enum):
     NotReady = 0
     Wait = 1

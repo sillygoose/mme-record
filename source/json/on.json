@@ -30,6 +30,21 @@
         ]
     },
     {
+        "module": "SOBDM",
+        "arbitration_id": 2018,
+        "arbitration_id_hex": "07E2",
+        "enable": true,
+        "period": 5,
+        "dids": [
+            {
+                "did_name": "GearCommanded",
+                "did_id": 7698,
+                "did_id_hex": "1E12",
+                "codec_id": 7698
+            }
+        ]
+    },
+    {
         "module": "BECM",
         "arbitration_id": 2020,
         "arbitration_id_hex": "07E4",
@@ -45,18 +60,33 @@
         ]
     },
     {
-        "module": "BCM",
-        "arbitration_id": 1830,
-        "arbitration_id_hex": "0726",
+        "module": "SOBDM",
+        "arbitration_id": 2018,
+        "arbitration_id_hex": "07E2",
         "enable": true,
         "period": 60,
         "dids": [
             {
-                "did_name": "LvbSoc",
-                "did_id": 16424,
-                "did_id_hex": "4028",
-                "codec_id": 16424
+                "did_name": "InteriorTemp",
+                "did_id": 56580,
+                "did_id_hex": "DD04",
+                "codec_id": 56580
             },
+            {
+                "did_name": "ExteriorTemp",
+                "did_id": 56581,
+                "did_id_hex": "DD05",
+                "codec_id": 56581
+            }
+        ]
+    },
+    {
+        "module": "BCM",
+        "arbitration_id": 1830,
+        "arbitration_id_hex": "0726",
+        "enable": true,
+        "period": 10,
+        "dids": [
             {
                 "did_name": "LvbVoltage",
                 "did_id": 16426,
@@ -68,6 +98,21 @@
                 "did_id": 16427,
                 "did_id_hex": "402B",
                 "codec_id": 16427
+            }
+        ]
+    },
+    {
+        "module": "BCM",
+        "arbitration_id": 1830,
+        "arbitration_id_hex": "0726",
+        "enable": true,
+        "period": 60,
+        "dids": [
+            {
+                "did_name": "LvbSoc",
+                "did_id": 16424,
+                "did_id_hex": "4028",
+                "codec_id": 16424
             }
         ]
     }

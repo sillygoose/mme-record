@@ -10,7 +10,7 @@ from enum import Enum, unique
 from typing import List
 
 from codec_manager import *
-from did import KeyState, ChargingStatus, EvseType
+from did import KeyState, ChargingStatus, EvseType, GearCommanded
 
 
 _LOGGER = logging.getLogger('mme')
@@ -36,6 +36,7 @@ class Signature(Enum):
     KeyState = '0716:411F:key_state'
     EvseType = '07E4:4851:evse_type'
     ChargingStatus = '07E4:484D:charging_status'
+    GearCommanded = '07E2:1E12:gear_commanded'
 
 
 class StateManager:
@@ -48,12 +49,12 @@ class StateManager:
     _state_file_lookup = {
         VehicleState.Unknown:           {'state_file': 'json/unknown.json',     'state_keys': [Signature.KeyState]},
         VehicleState.Off:               {'state_file': 'json/off.json',         'state_keys': [Signature.KeyState, Signature.ChargingStatus]},
-        VehicleState.On:                {'state_file': 'json/on.json',          'state_keys': [Signature.KeyState, Signature.ChargingStatus]},
+        VehicleState.On:                {'state_file': 'json/on.json',          'state_keys': [Signature.KeyState, Signature.ChargingStatus, Signature.GearCommanded]},
         VehicleState.Charging:          {'state_file': 'json/charging.json',    'state_keys': [Signature.ChargingStatus, Signature.EvseType]},
         VehicleState.AC_Charging:       {'state_file': 'json/ac_charging.json', 'state_keys': [Signature.ChargingStatus]},
+        VehicleState.Trip:              {'state_file': 'json/trip.json',        'state_keys': [Signature.GearCommanded]},
 
         #VehicleState.Sleeping:          {'state_file': 'json/sleeping.json',    'state_keys': ['0716:411F:key_state', '07E4:484D:charging_status']},
-        #VehicleState.Trip:              'json/trip.json',
         #VehicleState.Preconditioning:   'json/preconditioning.json',
         #VehicleState.DC_Charging:       'json/dc_charging.json',
     }
@@ -69,6 +70,7 @@ class StateManager:
             VehicleState.On: self.on,
             VehicleState.Charging: self.charging,
             VehicleState.AC_Charging: self.ac_charging,
+            VehicleState.Trip: self.trip,
         }
         for k, v in StateManager._state_file_lookup.items():
             v['state_function'] = state_functions.get(k)
@@ -142,86 +144,145 @@ class StateManager:
     def unknown(self) -> None:
         for key in self._get_state_keys():
             if self._last_state_change == key.value and key == Signature.KeyState:
-                key_state = KeyState(self._vehicle_state.get(Signature.KeyState.value))
+                try:
+                    key_state = KeyState(self._vehicle_state.get(Signature.KeyState.value))
+                except ValueError:
+                    _LOGGER.info(f"While in '{self._state.name}', 'KeyState' had an unexpected value: {self._vehicle_state.get(Signature.KeyState.value)}")
+                    continue
                 if key_state == KeyState.Sleeping or key_state == KeyState.Off:
                     self.change_state(VehicleState.Off)
                 elif key_state == KeyState.On:
                     self.change_state(VehicleState.On)
                 else:
-                    _LOGGER.info(f"While {self._state}, 'KeyState' returned an unexpected response: {key_state}")
+                    _LOGGER.info(f"While '{self._state.name}', 'KeyState' returned an unexpected response: {key_state}")
 
     def off(self) -> None:
         for key in self._get_state_keys():
             if self._last_state_change == key.value and key == Signature.KeyState:
-                key_state = KeyState(self._vehicle_state.get(Signature.KeyState.value))
+                try:
+                    key_state = KeyState(self._vehicle_state.get(Signature.KeyState.value))
+                except ValueError:
+                    _LOGGER.info(f"While in '{self._state.name}', 'KeyState' had an unexpected value: {self._vehicle_state.get(Signature.KeyState.value)}")
+                    continue
                 if key_state == KeyState.Sleeping or key_state == KeyState.Off:
                     pass
                 elif key_state == KeyState.On or key_state == KeyState.Cranking:
                     self.change_state(VehicleState.On)
                 else:
-                    _LOGGER.info(f"While {self._state}, 'KeyState' returned an unexpected response: {key_state}")
+                    _LOGGER.info(f"While '{self._state.name}', 'KeyState' returned an unexpected response: {key_state}")
             elif self._last_state_change == key.value and key == Signature.ChargingStatus:
-                charging_status = ChargingStatus(self._vehicle_state.get(Signature.ChargingStatus.value))
+                try:
+                    charging_status = ChargingStatus(self._vehicle_state.get(Signature.ChargingStatus.value))
+                except ValueError:
+                    _LOGGER.info(f"While in '{self._state.name}', 'ChargingStatus' had an unexpected value: {self._vehicle_state.get(Signature.ChargingStatus.value)}")
+                    continue
                 if charging_status == ChargingStatus.Charging:
                     self.change_state(VehicleState.AC_Charging)
                 elif charging_status == ChargingStatus.Wait:
                     pass
                 elif charging_status != ChargingStatus.NotReady:
-                    _LOGGER.info(f"While {self._state}, 'ChargingStatus' returned an unexpected response: {charging_status}")
+                    _LOGGER.info(f"While '{self._state.name}', 'ChargingStatus' returned an unexpected response: {charging_status}")
 
     def on(self) -> None:
         for key in self._get_state_keys():
             if self._last_state_change == key.value and key == Signature.KeyState:
-                key_state = KeyState(self._vehicle_state.get(Signature.KeyState.value))
+                try:
+                    key_state = KeyState(self._vehicle_state.get(Signature.KeyState.value))
+                except ValueError:
+                    _LOGGER.info(f"While in '{self._state.name}', 'KeyState' had an unexpected value: {self._vehicle_state.get(Signature.KeyState.value)}")
+                    continue
                 if key_state == KeyState.Sleeping or key_state == KeyState.Off:
                     self.change_state(VehicleState.Off)
                 elif key_state == KeyState.On or key_state == KeyState.Cranking:
                     pass
                 else:
-                    _LOGGER.info(f"While {self._state}, 'KeyState' returned an unexpected response: {key_state}")
+                    _LOGGER.info(f"While '{self._state.name}', 'KeyState' returned an unexpected response: {key_state}")
             elif self._last_state_change == key.value and key == Signature.ChargingStatus:
-                charging_status = ChargingStatus(self._vehicle_state.get(Signature.ChargingStatus.value))
+                try:
+                    charging_status = ChargingStatus(self._vehicle_state.get(Signature.ChargingStatus.value))
+                except ValueError:
+                    _LOGGER.info(f"While in '{self._state.name}', 'ChargingStatus' had an unexpected value: {self._vehicle_state.get(Signature.ChargingStatus.value)}")
+                    continue
                 if charging_status == ChargingStatus.Charging:
                     self.change_state(VehicleState.AC_Charging)
                 elif charging_status == ChargingStatus.Wait:
                     pass
                 elif charging_status != ChargingStatus.NotReady:
-                    _LOGGER.info(f"While {self._state}, 'ChargingStatus' returned an unexpected response: {charging_status}")
+                    _LOGGER.info(f"While '{self._state.name}', 'ChargingStatus' returned an unexpected response: {charging_status}")
+            elif self._last_state_change == key.value and key == Signature.GearCommanded:
+                try:
+                    gear_commanded = GearCommanded(self._vehicle_state.get(Signature.GearCommanded.value))
+                except ValueError:
+                    _LOGGER.info(f"While in '{self._state.name}', 'GearCommanded' had an unexpected value: {self._vehicle_state.get(Signature.GearCommanded.value)}")
+                    continue
+                if gear_commanded != GearCommanded.Park:
+                    self.change_state(VehicleState.Trip)
+
+    def trip(self) -> None:
+        for key in self._get_state_keys():
+            if self._last_state_change == key.value and key == Signature.GearCommanded:
+                try:
+                    gear_commanded = GearCommanded(self._vehicle_state.get(Signature.GearCommanded.value))
+                except ValueError:
+                    _LOGGER.info(f"While in '{self._state.name}', 'GearCommanded' had an unexpected value: {self._vehicle_state.get(Signature.GearCommanded.value)}")
+                    continue
+                if gear_commanded == GearCommanded.Park:
+                    self.change_state(VehicleState.On)
 
     def charging(self) -> None:
         for key in self._get_state_keys():
             if self._last_state_change == key.value and key == Signature.ChargingStatus:
-                charging_status = ChargingStatus(self._vehicle_state.get(Signature.ChargingStatus.value))
+                try:
+                    charging_status = ChargingStatus(self._vehicle_state.get(Signature.ChargingStatus.value))
+                except ValueError:
+                    _LOGGER.info(f"While in '{self._state.name}', 'ChargingStatus' had an unexpected value: {self._vehicle_state.get(Signature.ChargingStatus.value)}")
+                    continue
                 if charging_status == ChargingStatus.Charging:
                     pass
                 elif charging_status == ChargingStatus.NotReady or charging_status == ChargingStatus.Done:
-                    key_state = KeyState(self._vehicle_state.get(Signature.KeyState.value))
+                    try:
+                        key_state = KeyState(self._vehicle_state.get(Signature.KeyState.value))
+                    except ValueError:
+                        _LOGGER.info(f"While in '{self._state.name}', 'KeyState' had an unexpected value: {self._vehicle_state.get(Signature.KeyState.value)}")
+                        continue
                     if key_state == KeyState.Sleeping or key_state == KeyState.Off:
                         self.change_state(VehicleState.Off)
                     elif key_state == KeyState.On or key_state == KeyState.Cranking:
                         self.change_state(VehicleState.On)
                     else:
-                        _LOGGER.info(f"While {self._state}, 'KeyState' returned an unexpected response: {key_state}")
+                        _LOGGER.info(f"While '{self._state.name}', 'KeyState' returned an unexpected response: {key_state}")
                 else:
                     _LOGGER.info(f"While {self._state}, 'ChargingStatus' returned an unexpected response: {charging_status}")
             elif self._last_state_change == key.value and key == Signature.EvseType:
-                evse_type = EvseType(self._vehicle_state.get(Signature.EvseType.value))
+                try:
+                    evse_type = EvseType(self._vehicle_state.get(Signature.EvseType.value))
+                except ValueError:
+                    _LOGGER.info(f"While in '{self._state.name}', 'EvseType' had an unexpected value: {self._vehicle_state.get(Signature.EvseType.value)}")
+                    continue
                 if evse_type == EvseType.BasAC:
                     self.change_state(VehicleState.AC_Charging)
                 elif charging_status != EvseType.NoType:
-                    _LOGGER.info(f"While {self._state}, 'EvseType' returned an unexpected response: {charging_status}")
+                    _LOGGER.info(f"While '{self._state.name}', 'EvseType' returned an unexpected response: {charging_status}")
 
     def ac_charging(self) -> None:
         for key in self._get_state_keys():
             if self._last_state_change == key.value and key == Signature.ChargingStatus:
-                charging_status = ChargingStatus(self._vehicle_state.get(Signature.ChargingStatus.value))
+                try:
+                    charging_status = ChargingStatus(self._vehicle_state.get(Signature.ChargingStatus.value))
+                except ValueError:
+                    _LOGGER.info(f"While in '{self._state.name}', 'ChargingStatus' had an unexpected value: {self._vehicle_state.get(Signature.ChargingStatus.value)}")
+                    continue
                 if charging_status == ChargingStatus.NotReady or charging_status == ChargingStatus.Done:
-                    key_state = KeyState(self._vehicle_state.get(Signature.KeyState.value))
+                    try:
+                        key_state = KeyState(self._vehicle_state.get(Signature.KeyState.value))
+                    except ValueError:
+                        _LOGGER.info(f"While in '{self._state.name}', 'KeyState' had an unexpected value: {self._vehicle_state.get(Signature.KeyState.value)}")
+                        continue
                     if key_state == KeyState.Sleeping or key_state == KeyState.Off:
                         self.change_state(VehicleState.Off)
                     elif key_state == KeyState.On or key_state == KeyState.Cranking:
                         self.change_state(VehicleState.On)
                     else:
-                        _LOGGER.info(f"While {self._state}, 'KeyState' returned an unexpected response: {key_state}")
+                        _LOGGER.info(f"While '{self._state.name}', 'KeyState' returned an unexpected response: {key_state}")
                 else:
-                    _LOGGER.info(f"While {self._state}, 'ChargingStatus' returned an unexpected response: {charging_status}")
+                    _LOGGER.info(f"While '{self._state.name}', 'ChargingStatus' returned an unexpected response: {charging_status}")
