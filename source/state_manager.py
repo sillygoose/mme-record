@@ -114,7 +114,7 @@ class StateManager:
             self._command_queue.task_done()
         queue_commands = self._load_state_definition(self._state_file)
         self._load_queue(queue_commands)
-        _LOGGER.info(f"Changed vehicle state to '{self._state}'")
+        _LOGGER.info(f"Vehicle state changed to '{self._state}'")
 
     def update_vehicle_state(self, state_change: dict) -> None:
         if state_change.get('type', None) is None:
@@ -165,7 +165,7 @@ class StateManager:
                 key_state = self._vehicle_state.get('0716:411F:key_state')
                 if key_state == 0 or key_state == 5:
                     pass
-                elif key_state == 3:
+                elif key_state == 3 or key_state == 4:
                     self.change_state(StateManager.VehicleState.On)
                 else:
                     _LOGGER.info(f"While {self._state}, 'KeyState' returned an unexpected response: {key_state}")
@@ -173,6 +173,8 @@ class StateManager:
                 charging_status = self._vehicle_state.get('07E4:484D:charging_status')
                 if charging_status == 3:
                     self.change_state(StateManager.VehicleState.AC_Charging)
+                elif charging_status == 1:
+                    pass
                 elif charging_status != 0:
                     _LOGGER.info(f"While {self._state}, 'ChargingStatus' returned an unexpected response: {charging_status}")
 
@@ -182,14 +184,16 @@ class StateManager:
                 key_state = self._vehicle_state.get('0716:411F:key_state')
                 if key_state == 0 or key_state == 5:
                     self.change_state(StateManager.VehicleState.Off)
-                elif key_state == 3:
+                elif key_state == 3 or key_state == 4:
                     pass
                 else:
-                    _LOGGER.info(f"KeyState returned an unexpected response: {key_state}")
+                    _LOGGER.info(f"While {self._state}, 'KeyState' returned an unexpected response: {key_state}")
             elif self._last_state_change == key and key == '07E4:484D:charging_status':
                 charging_status = self._vehicle_state.get('07E4:484D:charging_status')
                 if charging_status == 3:
                     self.change_state(StateManager.VehicleState.AC_Charging)
+                elif charging_status == 1:
+                    pass
                 elif charging_status != 0:
                     _LOGGER.info(f"While {self._state}, 'ChargingStatus' returned an unexpected response: {charging_status}")
 
@@ -203,7 +207,7 @@ class StateManager:
                     key_state = self._vehicle_state.get('0716:411F:key_state')
                     if key_state == 0 or key_state == 5:
                         self.change_state(StateManager.VehicleState.Off)
-                    elif key_state == 3:
+                    elif key_state == 3 or key_state == 4:
                         self.change_state(StateManager.VehicleState.On)
                     else:
                         _LOGGER.info(f"While {self._state}, 'KeyState' returned an unexpected response: {key_state}")
@@ -224,7 +228,7 @@ class StateManager:
                     key_state = self._vehicle_state.get('0716:411F:key_state')
                     if key_state == 0 or key_state == 5:
                         self.change_state(StateManager.VehicleState.Off)
-                    elif key_state == 3:
+                    elif key_state == 3 or key_state == 4:
                         self.change_state(StateManager.VehicleState.On)
                     else:
                         _LOGGER.info(f"While {self._state}, 'KeyState' returned an unexpected response: {key_state}")
