@@ -4,7 +4,7 @@
         "arbitration_id": 1814,
         "arbitration_id_hex": "0716",
         "enable": true,
-        "period": 1,
+        "period": 5,
         "dids": [
             {
                 "did_name": "KeyState",

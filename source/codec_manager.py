@@ -1,6 +1,13 @@
 import struct
 
-from codec import Codec, CodecId
+from udsoncan import DidCodec
+
+from did import DidId
+
+
+class Codec(DidCodec):
+    def encode(self, val):
+        return val
 
 
 class CodecNull(Codec):
@@ -14,7 +21,7 @@ class CodecNull(Codec):
 class CodecKeyState(Codec):
     def decode(self, payload):
         key_state = struct.unpack('>B', payload)[0]
-        key_states = {3: 'On', 4: 'Starting', 5: 'Sleeping'}
+        key_states = {0: 'Sleeping', 3: 'On', 4: 'Starting', 5: 'Off'}
         state_string = 'Ignition state: ' + key_states.get(key_state, 'Unknown')
         states = [{'key_state': key_state}]
         return {'payload': payload, 'states': states, 'decoded': state_string}
@@ -68,12 +75,12 @@ class CodecGPS(Codec):
         return 15
 
 
-class CodecOdometer(Codec):
+class CodecHiresOdometer(Codec):
     def decode(self, payload):
         odometer_high, odometer_low = struct.unpack('>HB', payload)
         odometer = (odometer_high * 256 + odometer_low) * 0.1
-        states = [{'odometer': odometer}]
-        return {'payload': payload, 'states': states, 'decoded': f"Odometer: {odometer:.1f} km"}
+        states = [{'hires_odometer': odometer}]
+        return {'payload': payload, 'states': states, 'decoded': f"Hires odometer: {odometer:.1f} km"}
 
     def __len__(self):
         return 3
@@ -440,47 +447,47 @@ class CodecLvbDcDcLVCurrent(Codec):
 class CodecManager:
 
     _codec_lookup = {
-        CodecId.Null:                           CodecNull,
-        CodecId.KeyState:                       CodecKeyState,
-        CodecId.GearDisplayed:                  CodecGearDisplayed,
-        CodecId.GearCommanded:                  CodecGearCommanded,
-        CodecId.Odometer:                       CodecOdometer,
-        CodecId.HiresSpeed:                     CodecHiresSpeed,
-        CodecId.ExteriorTemp:                   CodecExteriorTemp,
-        CodecId.InteriorTemp:                   CodecInteriorTemp,
-        CodecId.Time:                           CodecTime,
-        CodecId.Gps:                            CodecGPS,
-        CodecId.HvbSoc:                         CodecHvbSoc,
-        CodecId.HvbSocD:                        CodecHvbSocD,
-        CodecId.HvbEte:                         CodecHvbEte,
-        CodecId.HvbSOH:                         CodecHvbSOH,
-        CodecId.HvbTemp:                        CodecHvbTemp,
-        CodecId.HvbVoltage:                     CodecHvbVoltage,
-        CodecId.HvbCurrent:                     CodecHvbCurrent,
-        CodecId.ChargingStatus:                 CodecChargingStatus,
-        CodecId.EvseType:                       CodecEvseType,
-        CodecId.EvseDigitalMode:                CodecEvseDigitalMode,
-        CodecId.HvbSOH:                         CodecHvbSOH,
-        CodecId.ChargerStatus:                  CodecChargerStatus,
-        CodecId.ChargerInputVoltage:            CodecChargerInputVoltage,
-        CodecId.ChargerInputCurrent:            CodecChargerInputCurrent,
-        CodecId.ChargerInputFrequency:          CodecChargerInputFrequency,
-        CodecId.ChargerPilotVoltage:            CodecChargerPilotVoltage,
-        CodecId.ChargerPilotDutyCycle:          CodecChargerPilotDutyCycle,
-        CodecId.ChargerInputPower:              CodecChargerInputPower,
-        CodecId.ChargerMaxPower:                CodecChargerMaxPower,
-        CodecId.ChargerOutputVoltage:           CodecChargerOutputVoltage,
-        CodecId.ChargerOutputCurrent:           CodecChargerOutputCurrent,
-        CodecId.ChargePowerLimit:               CodecChargePowerLimit,
-        CodecId.HvbChargeCurrentRequested:      CodecHvbChargeCurrentRequested,
-        CodecId.HvbChargeVoltageRequested:      CodecHvbChargeVoltageRequested,
-        CodecId.HvbMaximumChargeCurrent:        CodecHvbMaximumChargeCurrent,
-        CodecId.LvbSoc:                         CodecLvbSoc,
-        CodecId.LvbVoltage:                     CodecLvbVoltage,
-        CodecId.LvbCurrent:                     CodecLvbCurrent,
-        CodecId.LvbDcDcEnable:                  CodecLvbDcDcEnable,
-        CodecId.LvbDcDcHVCurrent:               CodecLvbDcDcHVCurrent,
-        CodecId.LvbDcDcLVCurrent:               CodecLvbDcDcLVCurrent,
+        DidId.Null:                           CodecNull,
+        DidId.KeyState:                       CodecKeyState,
+        DidId.GearDisplayed:                  CodecGearDisplayed,
+        DidId.GearCommanded:                  CodecGearCommanded,
+        DidId.HiresOdometer:                  CodecHiresOdometer,
+        DidId.HiresSpeed:                     CodecHiresSpeed,
+        DidId.ExteriorTemp:                   CodecExteriorTemp,
+        DidId.InteriorTemp:                   CodecInteriorTemp,
+        DidId.Time:                           CodecTime,
+        DidId.Gps:                            CodecGPS,
+        DidId.HvbSoc:                         CodecHvbSoc,
+        DidId.HvbSocD:                        CodecHvbSocD,
+        DidId.HvbEte:                         CodecHvbEte,
+        DidId.HvbSOH:                         CodecHvbSOH,
+        DidId.HvbTemp:                        CodecHvbTemp,
+        DidId.HvbVoltage:                     CodecHvbVoltage,
+        DidId.HvbCurrent:                     CodecHvbCurrent,
+        DidId.ChargingStatus:                 CodecChargingStatus,
+        DidId.EvseType:                       CodecEvseType,
+        DidId.EvseDigitalMode:                CodecEvseDigitalMode,
+        DidId.HvbSOH:                         CodecHvbSOH,
+        DidId.ChargerStatus:                  CodecChargerStatus,
+        DidId.ChargerInputVoltage:            CodecChargerInputVoltage,
+        DidId.ChargerInputCurrent:            CodecChargerInputCurrent,
+        DidId.ChargerInputFrequency:          CodecChargerInputFrequency,
+        DidId.ChargerPilotVoltage:            CodecChargerPilotVoltage,
+        DidId.ChargerPilotDutyCycle:          CodecChargerPilotDutyCycle,
+        DidId.ChargerInputPower:              CodecChargerInputPower,
+        DidId.ChargerMaxPower:                CodecChargerMaxPower,
+        DidId.ChargerOutputVoltage:           CodecChargerOutputVoltage,
+        DidId.ChargerOutputCurrent:           CodecChargerOutputCurrent,
+        DidId.ChargePowerLimit:               CodecChargePowerLimit,
+        DidId.HvbChargeCurrentRequested:      CodecHvbChargeCurrentRequested,
+        DidId.HvbChargeVoltageRequested:      CodecHvbChargeVoltageRequested,
+        DidId.HvbMaximumChargeCurrent:        CodecHvbMaximumChargeCurrent,
+        DidId.LvbSoc:                         CodecLvbSoc,
+        DidId.LvbVoltage:                     CodecLvbVoltage,
+        DidId.LvbCurrent:                     CodecLvbCurrent,
+        DidId.LvbDcDcEnable:                  CodecLvbDcDcEnable,
+        DidId.LvbDcDcHVCurrent:               CodecLvbDcDcHVCurrent,
+        DidId.LvbDcDcLVCurrent:               CodecLvbDcDcLVCurrent,
     }
 
     def __init__(self, config: dict) -> None:
@@ -488,4 +495,4 @@ class CodecManager:
         self._codec_lookup = CodecManager._codec_lookup
 
     def codec(self, did_id: int) -> Codec:
-        return self._codec_lookup.get(CodecId(did_id), None)
+        return self._codec_lookup.get(DidId(did_id), None)

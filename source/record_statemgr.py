@@ -34,9 +34,10 @@ class RecordStateManager(StateManager):
 
     def start(self) -> List[Thread]:
         self._exit_requested = False
+        self._file_manager.start()
         self._request_thread.start()
         self._response_thread.start()
-        return [self._request_thread, self._response_thread, self._file_manager.start()]
+        return [self._request_thread, self._response_thread]
 
     def stop(self) -> None:
         self._file_manager.stop()
