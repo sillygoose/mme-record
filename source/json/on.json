@@ -81,6 +81,27 @@
         ]
     },
     {
+        "module": "BECM",
+        "arbitration_id": 2020,
+        "arbitration_id_hex": "07E4",
+        "enable": true,
+        "period": 10,
+        "dids": [
+            {
+                "did_name": "HvbVoltage",
+                "did_id": 18445,
+                "did_id_hex": "480D",
+                "codec_id": 18445
+            },
+            {
+                "did_name": "HvbCurrent",
+                "did_id": 18681,
+                "did_id_hex": "48F9",
+                "codec_id": 18681
+            }
+        ]
+    },
+    {
         "module": "BCM",
         "arbitration_id": 1830,
         "arbitration_id_hex": "0726",

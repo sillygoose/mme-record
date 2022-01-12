@@ -169,9 +169,9 @@ class CodecHvbTemp(Codec):
 
 class CodecLvbSoc(Codec):
     def decode(self, payload):
-        soc = struct.unpack('>B', payload)[0]
-        states = [{'lvb_soc': soc}]
-        return {'payload': payload, 'states': states, 'decoded': f"LVB SOC is {soc}%"}
+        lvb_soc = struct.unpack('>B', payload)[0]
+        states = [{'lvb_soc': lvb_soc}]
+        return {'payload': payload, 'states': states, 'decoded': f"LVB SOC is {lvb_soc}%"}
 
     def __len__(self):
         return 1
@@ -179,18 +179,18 @@ class CodecLvbSoc(Codec):
 
 class CodecLvbVoltage(Codec):
     def decode(self, payload):
-        voltage = struct.unpack('>B', payload)[0] * 0.05 + 6.0
-        states = [{'lvb_voltage': voltage}]
-        return {'payload': payload, 'states': states, 'decoded': f"LVB voltage is {voltage:.2f} V"}
+        lvb_voltage = struct.unpack('>B', payload)[0] * 0.05 + 6.0
+        states = [{'lvb_voltage': lvb_voltage}]
+        return {'payload': payload, 'states': states, 'decoded': f"LVB voltage is {lvb_voltage:.2f} V"}
 
     def __len__(self):
         return 1
 
 class CodecLvbCurrent(Codec):
     def decode(self, payload):
-        current = struct.unpack('>B', payload)[0] - 127
-        states = [{'lvb_current': current}]
-        return {'payload': payload, 'states': states, 'decoded': f"LVB current is {current} A"}
+        lvb_current = struct.unpack('>B', payload)[0] - 127
+        states = [{'lvb_current': lvb_current}]
+        return {'payload': payload, 'states': states, 'decoded': f"LVB current is {lvb_current} A"}
 
     def __len__(self):
         return 1
@@ -198,9 +198,9 @@ class CodecLvbCurrent(Codec):
 
 class CodecHvbVoltage(Codec):
     def decode(self, payload):
-        voltage = struct.unpack('>H', payload)[0] * 0.01
-        states = [{'hvb_voltage': voltage}]
-        return {'payload': payload, 'states': states, 'decoded': f"HVB voltage is {voltage:.2f} V"}
+        hvb_voltage = struct.unpack('>H', payload)[0] * 0.01
+        states = [{'hvb_voltage': hvb_voltage}]
+        return {'payload': payload, 'states': states, 'decoded': f"HVB voltage is {hvb_voltage:.2f} V"}
 
     def __len__(self):
         return 2
@@ -209,9 +209,9 @@ class CodecHvbVoltage(Codec):
 class CodecHvbCurrent(Codec):
     def decode(self, payload):
         current_msb, current_lsb = struct.unpack('>bB', payload)
-        current = (current_msb * 256 + current_lsb) * 0.1
-        states = [{'hvb_current': current}]
-        return {'payload': payload, 'states': states, 'decoded': f"HVB current is {current:.1f} A"}
+        hvb_current = (current_msb * 256 + current_lsb) * 0.1
+        states = [{'hvb_current': hvb_current}]
+        return {'payload': payload, 'states': states, 'decoded': f"HVB current is {hvb_current:.1f} A"}
 
     def __len__(self):
         return 2
