@@ -38,9 +38,8 @@ class PlaybackModule:
         if module_lookup is None:
             raise FailedInitialization(f"The module '{name}' is not supported by Playback or cannot be created")
 
-        isotp_timeout = config.get('isotp_timeout', 2.0)
-        PlaybackModule.isotp_params['rx_flowcontrol_timeout'] = int(isotp_timeout * 1000)
-        PlaybackModule.isotp_params['rx_consecutive_frame_timeout'] = int(isotp_timeout * 1000)
+        PlaybackModule.isotp_params['rx_flowcontrol_timeout'] = int(config.get('rx_flowcontrol_timeout', 1.0) * 1000)
+        PlaybackModule.isotp_params['rx_consecutive_frame_timeout'] = int(config.get('rx_consecutive_frame_timeout', 1.0) * 1000)
 
         self._name = name
         self._event_queue = event_queue

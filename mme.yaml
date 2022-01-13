@@ -22,17 +22,17 @@ mme:
     playback:
         # You can control the playback options here, playback files follow the same naming convention as Record,
         # 'source_path/source_file_000.json', 'source_path/source_file_001.json', etc will played back
-        # loop:                     will loop over the same input file seqeunce if true
-        # start_at:                 specify a time to start playback at
-        # speed:                    specify a playback speed (greater or equal to 1.0)
-        # source_path:              source path to find the playback files
-        # source_file:              source file name for the playback files
-        # isotp_timeout:            timeout for ISO-TP protocol, 2 seconds if nt defined
-        # show_dids:                display the DIDs loaded from the JSON file
-        loop:           true
-        start_at:       0
-        speed:          1.0
-        source_path:    'playback_files'
-        source_file:    'new_format'
-        isotp_timeout:  2.0
-        show_dids:      true
+        # loop:                             will loop over the same input file seqeunce if true
+        # start_at:                         specify a time to start playback at
+        # speed:                            specify a playback speed (greater or equal to 1.0)
+        # source_path:                      source path to find the playback files
+        # source_file:                      source file name for the playback files
+        # rx_consecutive_frame_timeout:     triggers a timeout if a consecutive frame is not received (default is 1.0 seconds)
+        # rx_flowcontrol_timeout:           triggers a timeout if a flow control is not received (default is 1.0 seconds)
+        loop:                           true
+        start_at:                       0
+        speed:                          1.0
+        source_path:                    'playback_files'
+        source_file:                    'new_format'
+        rx_consecutive_frame_timeout:   1.0
+        rx_consecutive_frame_timeout:   1.0
