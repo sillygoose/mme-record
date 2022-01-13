@@ -4,13 +4,15 @@ mme:
         # You can control the record options here.  Record writes a series of output files in the
         # format 'dest_path/dest_file_nnn.json' where 'nnn'is the sequence '000', '001', etc.  When the
         # time period specified in 'file_writes' option is over, a file is written.
+        #
         # dest_path:                path where the output files are written
         # dest_file:                filename for the output file series
-        # file_writes:              number of records collected before writing an output file
-        # born_on:                  timestamp added to DID 0xDD00 to get current GMT time
-        # request_timeout:          maximum amount of time in seconds to wait for a response of any kind, positive or negative, after sending a request
-        # p2_timeout:               maximum amount of time in seconds to wait for a first response (positive, negative, or NRC 0x78)
-        # p2_star_timeout:          maximum amount of time in seconds to wait for a response (positive, negative, or NRC0x78) after the reception of a negative response with code 0x78 (requestCorrectlyReceived-ResponsePending)
+        # file_writes:              number of records collected before writing an output file, set to 0 to disable file writes (default: 200)
+        # born_on:                  timestamp added to DID 0xDD00 to get current GMT time (not used at this time)
+        # request_timeout:          max time in seconds to wait for a response of any kind, positive or negative, after sending a request (default: 1.0)
+        # p2_timeout:               max time in seconds to wait for a first response (positive, negative, or NRC 0x78) (default: 1.0)
+        # p2_star_timeout:          max time in seconds to wait for a response (positive, negative, or NRC0x78) after the reception of
+        #                           a negative response with code 0x78 (requestCorrectlyReceived-ResponsePending) (default: 1.0)
         dest_path:          'record_files'
         dest_file:          'trip2'
         file_writes:        100
@@ -21,18 +23,19 @@ mme:
 
     playback:
         # You can control the playback options here, playback files follow the same naming convention as Record,
+        #
         # 'source_path/source_file_000.json', 'source_path/source_file_001.json', etc will played back
-        # loop:                             will loop over the same input file seqeunce if true
-        # start_at:                         specify a time to start playback at
-        # speed:                            specify a playback speed (greater or equal to 1.0)
+        # loop:                             will loop over the same input file seqeunce if true (default: false)
+        # start_at:                         specify a time to start playback at (default: 0)
+        # speed:                            specify a playback speed greater or equal to 1.0 (default: 1.0)
         # source_path:                      source path to find the playback files
         # source_file:                      source file name for the playback files
-        # rx_consecutive_frame_timeout:     triggers a timeout if a consecutive frame is not received (default is 1.0 seconds)
-        # rx_flowcontrol_timeout:           triggers a timeout if a flow control is not received (default is 1.0 seconds)
-        loop:                           true
+        # rx_consecutive_frame_timeout:     triggers a timeout if a consecutive frame is not received (default: 1.0)
+        # rx_flowcontrol_timeout:           triggers a timeout if a flow control is not received (default: 1.0)
+        loop:                           false
         start_at:                       0
         speed:                          1.0
         source_path:                    'playback_files'
-        source_file:                    'new_format'
+        source_file:                    'sample'
         rx_consecutive_frame_timeout:   1.0
         rx_consecutive_frame_timeout:   1.0
