@@ -66,6 +66,7 @@ class PlaybackStateManager:
                                     _LOGGER.info(decoded.get('decoded'))
                     except ValueError:
                         pass
+                self._state_queue.task_done()
         except RuntimeError as e:
             _LOGGER.error(f"Run time error: {e}")
             return

@@ -37,8 +37,8 @@ class Hash(Enum):
     EvseType            = '07E4:4851:evse_type'
     ChargingStatus      = '07E4:484D:charging_status'
     GearCommanded       = '07E2:1E12:gear_commanded'
-    HvbVoltage          = '07E4:4851:hvb_voltage'
-    HvbCurrent          = '07E4:4851:hvb_current'
+    HvbVoltage          = '07E4:480D:hvb_voltage'
+    HvbCurrent          = '07E4:48F9:hvb_current'
     HvbPower            = 'hvb:hvb_power'
     LvbVoltage          = '0726:402A:lvb_voltage'
     LvbCurrent          = '0726:402B:lvb_current'
@@ -133,7 +133,13 @@ class StateManager:
                 hvb_current = self._vehicle_state.get(Hash.HvbCurrent.value, 0.0)
                 hvb_power = hvb_voltage * hvb_current
                 self._vehicle_state[Hash.HvbPower] = hvb_power
-                _LOGGER.info(f"Calculated 'HvbPower' is {hvb_power:.0f} from {hvb_voltage:.1f} {hvb_current:.1f}")
+                _LOGGER.info(f"Calculated 'HvbPower' is {hvb_power:.0f} W from {hvb_voltage:.1f} * {hvb_current:.1f}")
+            elif hash == Hash.LvbVoltage or hash == Hash.LvbCurrent:
+                lvb_voltage = self._vehicle_state.get(Hash.LvbVoltage.value, 0.0)
+                lvb_current = self._vehicle_state.get(Hash.LvbCurrent.value, 0.0)
+                lvb_power = lvb_voltage * lvb_current
+                self._vehicle_state[Hash.HvbPower] = lvb_power
+                _LOGGER.info(f"Calculated 'LvbPower' is {lvb_power:.0f} W from {lvb_voltage:.1f} * {lvb_current:.f}")
         except ValueError:
             pass
 

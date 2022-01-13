@@ -29,6 +29,8 @@ class PlaybackEngine:
         speed = config.get('speed', 1.0)
         if speed < 1:
             raise FailedInitialization(f"'speed' option must be a floating point number greater than 1.0")
+        elif speed > 1.25:
+            _LOGGER.info(f"Playback speed is {speed:.0f}x real-time")
         self._speed = 1.0 / speed
 
         self._loop = config.get('loop', False)
@@ -39,7 +41,7 @@ class PlaybackEngine:
 
     def start(self) -> List[Queue]:
         self._exit_requested = False
-        self._playback_time = 0
+        self._playback_time = None
         self._thread = Thread(target=self._playback_engine, name='playback_engine')
         self._thread.start()
         return [self._thread]
@@ -59,20 +61,19 @@ class PlaybackEngine:
                 if self._playback_time < event_time:
                     sleep_for = (event_time - self._playback_time)
                     if sleep_for > 0:
-                        if sleep_for < 3:
-                            sleep(sleep_for * self._speed)
-                        else:
-                            sleep(3)
-                            _LOGGER.info(f"At time {self._playback_time}, no data for over 3 seconds, sleeping 4 seconds")
+                        if sleep_for > 5:
+                            _LOGGER.info(f"At time {self._playback_time}, sleeping {sleep_for:.0f} seconds, skipping ahead")
+                            sleep_for = 1
+                        sleep(sleep_for * self._speed)
                 self._playback_time = event_time
 
                 arbitration_id = event.get('arbitration_id')
                 module_name = self._module_manager.module_name(arbitration_id)
-                destination = self._module_event_queues.get(module_name)
-                if destination:
+                module_event_queue = self._module_event_queues.get(module_name)
+                if module_event_queue:
                     try:
                         _LOGGER.debug(f"Queuing event {event} on queue {module_name}")
-                        destination.put(event, block=False, timeout=2)
+                        module_event_queue.put(event, block=False, timeout=2)
                         _LOGGER.debug(f"{self._playback_time:.1f}: {self._decode_event(event)}")
                     except Full:
                         _LOGGER.error(f"Queue {module_name}/{arbitration_id:04X} is full")
@@ -103,6 +104,8 @@ class PlaybackEngine:
             if next_file is None:
                 return None
         event = self._current_playback[self._currrent_position]
+        if self._playback_time is None:
+            self._playback_time = event.get('time')
         self._currrent_position += 1
         return event
 

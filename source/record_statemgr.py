@@ -60,6 +60,7 @@ class RecordStateManager(StateManager):
                     self._command_queue.put((current_time + period, period, module_list))
                     sync_queue.get()
                     sync_queue.task_done()
+                    self._command_queue.task_done()
                 except Full:
                     _LOGGER.error(f"no space in the request queue")
                     self._exit_requested = True
@@ -96,7 +97,7 @@ class RecordStateManager(StateManager):
                             self._did_state_cache[key] = {'time': current_time, 'payload': payload}
                             details = {'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did_id, 'did_id_hex': f"{did_id:04X}", 'payload': list(payload)}
                             self._file_manager.put(details)
-                            _LOGGER.info(f"{arbitration_id:04X}/{did_id:04X}: {response.service_data.values[did_id].get('decoded')}")
+                            _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: {response.service_data.values[did_id].get('decoded')}")
                             self.update_vehicle_state(details)
 
                 self._response_queue.task_done()
