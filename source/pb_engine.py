@@ -129,6 +129,8 @@ class PlaybackEngine:
         playback_files = []
         count = 0
         find_file = f"{source_path}/{source_file}_{count:03d}.json"
+        if not os.path.exists(find_file):
+            raise FailedInitialization(f"Can't find the playback file '{find_file}'")
         while True:
             if not os.path.exists(find_file):
                 break
