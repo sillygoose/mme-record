@@ -5,12 +5,12 @@ from pathlib import Path
 from setuptools import setup
 
 VERSION = "0.6.3"
-URL = "https://github.com/sillygoose/cs_esphome.git"
+URL = "https://github.com/sillygoose/mme-record.git"
 
 setup(
-    name="Playback",
+    name="MME Record",
     version=VERSION,
-    description="MME CAN bus module playback",
+    description="MME CAN bus module record utility",
     long_description=Path("README.md").read_text(),
     long_description_content_type="text/markdown",
     url=URL,

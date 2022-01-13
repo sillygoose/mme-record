@@ -1,9 +1,7 @@
 import logging
-from threading import Thread
-from time import time, sleep
 import json
 
-from typing import List
+from config.configuration import Configuration
 
 
 _LOGGER = logging.getLogger('mme')
@@ -11,12 +9,12 @@ _LOGGER = logging.getLogger('mme')
 
 class RecordFileManager:
 
-    def __init__(self, config: dict) -> None:
-        self._config = config
+    def __init__(self, config: Configuration) -> None:
+        config_record = dict(config)
         self._data_points = []
-        self._file_writes = config.get('file_writes', 200)
-        self._dest_path = config.get('dest_path', None)
-        self._dest_file = config.get('dest_file', None)
+        self._file_writes = config_record.get('file_writes', 200)
+        self._dest_path = config_record.get('dest_path', None)
+        self._dest_file = config_record.get('dest_file', None)
         self._file_count = 0
 
     def start(self) -> None:
@@ -25,10 +23,11 @@ class RecordFileManager:
     def stop(self) -> None:
         self._write_file()
 
-    def put(self, data_point: dict) -> None:
-        self._data_points.append(data_point)
-        if len(self._data_points) >= self._file_writes:
-            self._write_file()
+    def write_record(self, data_point: dict) -> None:
+        if self._file_writes > 0 :
+            self._data_points.append(data_point)
+            if len(self._data_points) >= self._file_writes:
+                self._write_file()
 
     def _write_file(self) -> None:
         if len(self._data_points) > 0:

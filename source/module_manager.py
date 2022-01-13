@@ -9,8 +9,7 @@ _LOGGER = logging.getLogger('mme')
 
 class ModuleManager:
 
-    def __init__(self, config: dict) -> None:
-        self._config = config
+    def __init__(self) -> None:
         self._modules = self._load_modules(file='json/modules.json')
         self._modules_by_name = self._modules_organized_by_name(self._modules)
         self._modules_by_id = self._modules_organized_by_id(self._modules)

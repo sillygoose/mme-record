@@ -5,11 +5,13 @@ from threading import Thread
 from queue import Empty, Full, Queue
 from typing import List
 import json
+from config.configuration import Configuration
 
 from did_manager import DIDManager
 
 from record_filemgr import RecordFileManager
 from state_manager import StateManager
+from influxdb import InfluxDB
 
 _LOGGER = logging.getLogger('mme')
 
@@ -20,19 +22,22 @@ class RecordStateManager(StateManager):
         request_queue:          queue to place ReadDID service requests
         response_queue:         queue to retrieve ReadDID responses
     """
-    def __init__(self, config: dict, request_queue: Queue, response_queue: Queue) -> None:
-        super().__init__(config)
+    def __init__(self, config: Configuration, request_queue: Queue, response_queue: Queue) -> None:
+        super().__init__()
         self._exit_requested = False
         self._request_queue = request_queue
         self._response_queue = response_queue
-        self._did_manager = DIDManager(config=config)
+        self._did_manager = DIDManager()
         sync_queue = Queue()
         self._request_thread = Thread(target=self._request_task, args=(sync_queue,), name='state_request')
         self._response_thread = Thread(target=self._response_task, args=(sync_queue,), name='state_response')
-        self._file_manager = RecordFileManager(config)
+        self._file_manager = RecordFileManager(config.record)
+        self._influxdb = InfluxDB(config.influxdb2, self._codec_manager)
         self._did_state_cache = {}
 
     def start(self) -> List[Thread]:
+        super().start()
+        self._influxdb.start()
         self._exit_requested = False
         self._file_manager.start()
         self._request_thread.start()
@@ -40,12 +45,14 @@ class RecordStateManager(StateManager):
         return [self._request_thread, self._response_thread]
 
     def stop(self) -> None:
+        super().stop()
         self._file_manager.stop()
         self._exit_requested = True
         if self._request_thread.is_alive():
             self._request_thread.join()
         if self._response_thread.is_alive():
             self._response_thread.join()
+        self._influxdb.stop()
 
     def _request_task(self, sync_queue: Queue) -> None:
         try:
@@ -96,7 +103,8 @@ class RecordStateManager(StateManager):
                             current_time = round(time(), 2)
                             self._did_state_cache[key] = {'time': current_time, 'payload': payload}
                             details = {'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did_id, 'did_id_hex': f"{did_id:04X}", 'payload': list(payload)}
-                            self._file_manager.put(details)
+                            self._file_manager.write_record(details)
+                            self._influxdb.write_record(details)
                             _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: {response.service_data.values[did_id].get('decoded')}")
                             self.update_vehicle_state(details)
 

@@ -21,9 +21,8 @@ class PlaybackStateDID(Enum):
 
 class PlaybackStateManager:
 
-    def __init__(self, config: dict, state_queue: Queue) -> None:
-        self._config = config
-        self._codec_manager = CodecManager(config=self._config)
+    def __init__(self, state_queue: Queue) -> None:
+        self._codec_manager = CodecManager()
         self._exit_requested = False
         self._state_queue = state_queue
         self._state = VehicleState.Unknown

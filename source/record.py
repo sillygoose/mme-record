@@ -6,13 +6,13 @@ import json
 import version
 import logfiles
 from readconfig import read_config
+from config.configuration import Configuration
 
 from did_manager import DIDManager
 
 from record_modmgr import RecordModuleManager
 from record_canmgr import RecordCanbusManager
 from record_statemgr import RecordStateManager
-from influxdb import InfluxDB
 
 from exceptions import FailedInitialization, RuntimeError
 
@@ -21,18 +21,15 @@ _LOGGER = logging.getLogger('mme')
 
 
 class Record:
-    def __init__(self, config: dict) -> None:
-        self._config = dict(config.get('record'))
-        self._influxdb = InfluxDB(config.get('influxdb2'))
-        self._module_manager = RecordModuleManager(config=self._config)
-        self._did_manager = DIDManager(config=self._config)
+    def __init__(self, config: Configuration) -> None:
         self._request_queue = Queue(maxsize=10)
         self._response_queue = Queue(maxsize=10)
-        self._canbus_manager = RecordCanbusManager(config=self._config, request_queue=self._request_queue, response_queue=self._response_queue, module_manager=self._module_manager)
-        self._state_manager = RecordStateManager(config=self._config, request_queue=self._request_queue, response_queue=self._response_queue)
+        self._module_manager = RecordModuleManager(config=config)
+        self._did_manager = DIDManager()
+        self._canbus_manager = RecordCanbusManager(config=config, request_queue=self._request_queue, response_queue=self._response_queue, module_manager=self._module_manager)
+        self._state_manager = RecordStateManager(config=config, request_queue=self._request_queue, response_queue=self._response_queue)
 
     def start(self) -> None:
-        self._influxdb.start()
         self._module_manager.start()
         threads = []
         threads.append(self._state_manager.start())
@@ -45,7 +42,6 @@ class Record:
         self._canbus_manager.stop()
         self._state_manager.stop()
         self._module_manager.stop()
-        self._influxdb.stop()
 
     def _load_json(self, file: str) -> None:
         with open(file) as infile:
@@ -76,8 +72,7 @@ def main() -> None:
         return
 
     try:
-        record_config = dict(config.mme)
-        record = Record(config=record_config)
+        record = Record(config=config.mme)
     except FailedInitialization as e:
         _LOGGER.error(f"{e}")
         return

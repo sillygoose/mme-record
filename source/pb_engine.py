@@ -9,6 +9,9 @@ import json
 from typing import List
 
 from module_manager import ModuleManager
+from config.configuration import Configuration
+
+
 from exceptions import FailedInitialization, RuntimeError
 
 
@@ -17,16 +20,18 @@ _LOGGER = logging.getLogger('mme')
 
 class PlaybackEngine:
 
-    def __init__(self, config: dict, module_event_queues: dict, module_manager: ModuleManager) -> None:
-        self._config = config
+    def __init__(self, config: Configuration, module_event_queues: dict, module_manager: ModuleManager) -> None:
+        playback_config = dict(config)
         self._module_manager = module_manager
         self._module_event_queues = module_event_queues
-        self._playback_files_master = self._get_playback_files(source_path=config.get('source_path'), source_file=config.get('source_file'))
+        source_path = playback_config.get('source_path')
+        source_file = playback_config.get('source_file')
+        self._playback_files_master = self._get_playback_files(source_path=source_path, source_file=source_file)
         self._playback_files = self._playback_files_master.copy()
-        self._start_at = config.get('start_at', 0)
+        self._start_at = playback_config.get('start_at', 0)
         if self._start_at < 0:
             raise FailedInitialization(f"'start_at' option must be a non-negative integer")
-        speed = config.get('speed', 1.0)
+        speed = playback_config.get('speed', 1.0)
         if speed < 1:
             raise FailedInitialization(f"'speed' option must be a floating point number greater than 1.0")
         elif speed > 1.25:
@@ -62,7 +67,7 @@ class PlaybackEngine:
                     sleep_for = (event_time - self._playback_time)
                     if sleep_for > 0:
                         if sleep_for > 5:
-                            _LOGGER.info(f"At time {self._playback_time}, sleeping {sleep_for:.0f} seconds, skipping ahead")
+                            _LOGGER.info(f"At time {self._playback_time:.02f}, sleeping {sleep_for:.0f} seconds, skipping ahead")
                             sleep_for = 1
                         sleep(sleep_for * self._speed)
                 self._playback_time = event_time

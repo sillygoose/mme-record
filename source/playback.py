@@ -14,6 +14,7 @@ from pb_engine import PlaybackEngine
 import version
 import logfiles
 from readconfig import read_config
+from config.configuration import Configuration
 
 from exceptions import FailedInitialization, RuntimeError
 
@@ -22,18 +23,18 @@ _LOGGER = logging.getLogger('mme')
 
 
 class Playback:
-    def __init__(self, config: dict) -> None:
+    def __init__(self, config: Configuration) -> None:
         self._config = config
         self._state_update_queue = Queue(maxsize=20)
         self._module_event_queues = None
-        self._module_manager = ModuleManager(config=self._config)
-        self._did_manager = DIDManager(config=self._config)
-        self._state_manager = PlaybackStateManager(config=self._config, state_queue=self._state_update_queue)
+        self._module_manager = ModuleManager()
+        self._did_manager = DIDManager()
+        self._state_manager = PlaybackStateManager(state_queue=self._state_update_queue)
         self._modules = self._module_manager.modules()
         self._dids = self._did_manager.dids()
         self._add_modules(self._modules)
         self._add_dids(self._dids)
-        self._playback_engine = PlaybackEngine(config=self._config, module_event_queues=self._module_event_queues, module_manager=self._module_manager)
+        self._playback_engine = PlaybackEngine(config=config, module_event_queues=self._module_event_queues, module_manager=self._module_manager)
 
     def start(self) -> None:
         threads = []
@@ -110,8 +111,7 @@ def main() -> None:
         return
 
     try:
-        playback_config = dict(config.mme.playback)
-        playback = Playback(config=playback_config)
+        playback = Playback(config=config.mme.playback)
     except FailedInitialization as e:
         _LOGGER.error(f"{e}")
         return

@@ -60,11 +60,9 @@ class StateManager:
         #VehicleState.DC_Charging:       'json/dc_charging.json',
     }
 
-    def __init__(self, config: dict) -> None:
-        self._config = config
-        self._codec_manager = CodecManager(config=self._config)
+    def __init__(self) -> None:
+        self._codec_manager = CodecManager()
         self._command_queue = PriorityQueue()
-
         state_functions = {
             VehicleState.Unknown: self.unknown,
             VehicleState.Off: self.off,
@@ -76,8 +74,12 @@ class StateManager:
         for k, v in StateManager._state_file_lookup.items():
             v['state_function'] = state_functions.get(k)
 
+    def start(self) -> None:
         self.change_state(VehicleState.Unknown)
         self._vehicle_state = {}
+
+    def stop(self) -> None:
+        pass
 
     def _load_state_definition(self, file: str) -> List[dict]:
         with open(file) as infile:
@@ -156,7 +158,7 @@ class StateManager:
                         hash = f"{arbitration_id:04X}:{did_id:04X}:{k}"
                         self._last_state_change = hash
                         self._vehicle_state[hash] = v
-                        self._calculate_synthetic(hash)
+                        self._calculate_synthetic(hash) ### b=never used?
                 _LOGGER.debug(self._last_state_change)
                 self._state_function()
 

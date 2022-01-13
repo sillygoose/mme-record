@@ -10,6 +10,7 @@ from udsoncan import Response
 from udsoncan.exceptions import *
 
 from record_modmgr import RecordModuleManager
+from config.configuration import Configuration
 
 
 _LOGGER = logging.getLogger('mme')
@@ -17,16 +18,16 @@ _LOGGER = logging.getLogger('mme')
 
 class RecordCanbusManager:
 
-    def __init__(self, config: dict, request_queue: Queue, response_queue: Queue, module_manager: RecordModuleManager) -> None:
-        self._config = config
+    def __init__(self, config: Configuration, request_queue: Queue, response_queue: Queue, module_manager: RecordModuleManager) -> None:
+        config_record = dict(config.record)
         self._module_manager = module_manager
         self.request_queue = request_queue
         self.response_queue = response_queue
         self._exit_requested = False
         self._iso_tp_config = dict(udsoncan.configs.default_client_config)
-        self._iso_tp_config['request_timeout'] = config.get('request_timeout', 1.0)
-        self._iso_tp_config['p2_timeout'] = config.get('p2_timeout', 1.0)
-        self._iso_tp_config['p2_star_timeout'] = config.get('p2_star_timeout', 1.0)
+        self._iso_tp_config['request_timeout'] = config_record.get('request_timeout', 1.0)
+        self._iso_tp_config['p2_timeout'] = config_record.get('p2_timeout', 1.0)
+        self._iso_tp_config['p2_star_timeout'] = config_record.get('p2_star_timeout', 1.0)
         self._iso_tp_config['logger_name'] = 'mme'
 
     def start(self) -> List[Thread]:

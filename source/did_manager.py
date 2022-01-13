@@ -11,8 +11,7 @@ _LOGGER = logging.getLogger('mme')
 
 class DIDManager:
 
-    def __init__(self, config: dict) -> None:
-        self._config = config
+    def __init__(self) -> None:
         self._dids = self._load_dids(file='json/dids.json')
         self._dids_by_name = self._dids_organized_by_name(self._dids)
         self._dids_by_id = self._dids_organized_by_id(self._dids)

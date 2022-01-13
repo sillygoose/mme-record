@@ -1,6 +1,4 @@
 import logging
-import json
-
 from typing import List
 
 import isotp
@@ -8,6 +6,7 @@ from udsoncan.connections import PythonIsoTpConnection
 from can.interfaces.socketcan import SocketcanBus
 
 from module_manager import ModuleManager
+from config.configuration import Configuration
 
 
 _LOGGER = logging.getLogger('mme')
@@ -28,14 +27,14 @@ class RecordModuleManager(ModuleManager):
         'max_frame_size' : 4095                    # Limit the size of receive frame.
     }
 
-    def __init__(self, config: dict) -> None:
+    def __init__(self, config: Configuration) -> None:
+        super().__init__()
         self._bus0 = None
         self._bus1 = None
         self._channel = None
-        isotp_timeout = config.get('isotp_timeout', 2.0)
-        RecordModuleManager.isotp_params['rx_flowcontrol_timeout'] = int(isotp_timeout * 1000)
-        RecordModuleManager.isotp_params['rx_consecutive_frame_timeout'] = int(isotp_timeout * 1000)
-        super().__init__(config)
+        config_record = config.record
+        RecordModuleManager.isotp_params['rx_flowcontrol_timeout'] = int(config_record.get('rx_flowcontrol_timeout', 1.0) * 1000)
+        RecordModuleManager.isotp_params['rx_consecutive_frame_timeout'] = int(config_record.get('rx_consecutive_frame_timeout', 1.0) * 1000)
 
     def start(self) -> None:
         self._bus0 = SocketcanBus(channel='can0')

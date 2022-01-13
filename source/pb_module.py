@@ -1,4 +1,4 @@
-from time import time, sleep
+from time import sleep
 import logging
 from threading import Thread
 from queue import Queue
@@ -11,6 +11,8 @@ from can.interfaces.socketcan import SocketcanBus
 
 from module_manager import ModuleManager
 from pb_did import PlaybackDID
+from config.configuration import Configuration
+
 from exceptions import FailedInitialization
 
 
@@ -32,14 +34,15 @@ class PlaybackModule:
         'max_frame_size' : 4095                    # Limit the size of receive frame.
     }
 
-    def __init__(self, config: dict, name: str, arbitration_id: int, channel: str, event_queue: Queue, state_queue: Queue, module_manager: ModuleManager) -> None:
+    def __init__(self, config: Configuration, name: str, arbitration_id: int, channel: str, event_queue: Queue, state_queue: Queue, module_manager: ModuleManager) -> None:
         self._module_manager = module_manager
         module_lookup = self._module_manager.module(name)
         if module_lookup is None:
             raise FailedInitialization(f"The module '{name}' is not supported by Playback or cannot be created")
 
-        PlaybackModule.isotp_params['rx_flowcontrol_timeout'] = int(config.get('rx_flowcontrol_timeout', 1.0) * 1000)
-        PlaybackModule.isotp_params['rx_consecutive_frame_timeout'] = int(config.get('rx_consecutive_frame_timeout', 1.0) * 1000)
+        playback_config = dict(config)
+        PlaybackModule.isotp_params['rx_flowcontrol_timeout'] = int(playback_config.get('rx_flowcontrol_timeout', 1.0) * 1000)
+        PlaybackModule.isotp_params['rx_consecutive_frame_timeout'] = int(playback_config.get('rx_consecutive_frame_timeout', 1.0) * 1000)
 
         self._name = name
         self._event_queue = event_queue
