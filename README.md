@@ -131,7 +131,7 @@ Create the environment variable MME_SIM_DEBUG and set to 1 or True to enable deb
 
 This is also required if you wish to use the debugging options that automatically delete or create the database. This is nice during development but would not want to accidentally cause somthing bad to happen when in production.
 
-I run both **Playback** and **Record** in VS Code on a Raspberry Pi with can0 bus tied to the can1 bus in a loopback mode, makes for easy testing of **Record** changes playing back recorded files from a trip or chnaging session.
+I run both **Playback** and **Record** in VS Code on a Raspberry Pi with CAN0 bus tied to the CAN1 bus in a loopback mode, makes for easy testing of **Record** changes playing back recorded files from a trip or chnaging session.
 
 #
 <a id='thanks'></a>
