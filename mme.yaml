@@ -38,4 +38,21 @@ mme:
         source_path:                    'playback_files'
         source_file:                    'sample'
         rx_consecutive_frame_timeout:   1.0
-        rx_consecutive_frame_timeout:   1.0
+        rx_flowcontrol_timeout:         1.0
+
+    influxdb2:
+        # InfluxDB setup
+        # The InfluxDB interface uses the newer 2.0 client which supports both the 2.0 and 1.8.x InfluxDB versions
+        # with just minor changes in the configuration making a future upgrade to v2 a simple change of options.
+        #
+        # InfluxDB configuration options:
+        #   enable          set to True to enable InfluxDB output ('bool')
+        #   bucket          set to the InfluxDB bucket (v2) or 'database/retention_policy' (v1.8)('str')
+        #   url             set to the InfluxDB server URL and port ('str')
+        #   org             set to the v2 organization or '-' if using v1.8.x ('str')
+        #   token           set to a valid v2 token or v1.8.x 'username:password' ('str')
+        enable: true
+        org:    !secret influxdb2_org
+        url:    !secret influxdb2_url
+        bucket: !secret influxdb2_bucket
+        token:  !secret influxdb2_token

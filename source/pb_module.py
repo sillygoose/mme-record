@@ -101,7 +101,7 @@ class PlaybackModule:
 
                     while self._stack.transmitting():
                         self._stack.process()
-                        time.sleep(self._stack.sleep_time())
+                        sleep(self._stack.sleep_time())
                     self._stack.send(response)
 
             if not self._event_queue.empty():

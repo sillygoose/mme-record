@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
-"""CS/ESPHome setup."""
+"""MME Record setup."""
 from pathlib import Path
 from setuptools import setup
 
-VERSION = "0.4.7"
+VERSION = "0.6.3"
 URL = "https://github.com/sillygoose/cs_esphome.git"
 
 setup(
@@ -21,9 +21,10 @@ setup(
     install_requires=[
         "python-configuration",
         "pyyaml",
-        "can-isotp",
         "python-can",
+        "can-isotp",
         "udsoncan",
+        "influxdb-client",
     ],
     zip_safe=True,
 )

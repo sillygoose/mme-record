@@ -91,29 +91,32 @@ Enable and start the service with
 ```
 You can check if it running by using the command line
 ```
-sudo systemctl status mme-record.service
+% sudo systemctl status mme-record.service
 ```
 You should see something simiar to this:
 ```
+% sudo systemctl status mme-record.service
 ● mme-record.service - MME Record
      Loaded: loaded (/etc/systemd/system/mme-record.service; enabled; vendor preset: enabled)
-     Active: active (running) since Thu 2022-01-13 10:06:00 EST; 6s ago
-   Main PID: 29520 (run_record.sh)
+     Active: active (running) since Thu 2022-01-13 11:07:31 EST; 4min 20s ago
+   Main PID: 12806 (run_record.sh)
       Tasks: 6 (limit: 9257)
      CGroup: /system.slice/mme-record.service
-             ├─29520 /bin/bash /home/sillygoose/mme-record/run_record.sh
-             └─29523 /home/sillygoose/.pyenv/versions/3.10.1/bin/python3 /home/sillygoose/mme-record/source/record.py
+             ├─12806 /bin/bash /home/sillygoose/mme-record/run_record.sh
+             └─12809 /home/sillygoose/.pyenv/versions/3.10.1/bin/python3 /home/sillygoose/mache-simulator/source/record.py
 
-Jan 13 10:06:00 greta systemd[1]: Started auto start Record at boot.
-Jan 13 10:06:01 greta run_record.sh[29523]: [2022-01-13 10:06:01,331] [logfiles] [INFO] Created application log /home/sillygoose/mache-simu>
-Jan 13 10:06:01 greta run_record.sh[29523]: [2022-01-13 10:06:01,360] [record] [INFO] Mustang Mach E Record Utility version 0.5.8
-Jan 13 10:06:01 greta run_record.sh[29523]: [2022-01-13 10:06:01,392] [state_manager] [INFO] Vehicle state changed to 'Unknown'
+Jan 13 11:07:31 greta systemd[1]: Started MME Record.
+Jan 13 11:07:32 greta run_record.sh[12809]: [2022-01-13 11:07:32,271] [logfiles] [INFO] Created application log /home/sillygoose/mme-record>
+Jan 13 11:07:32 greta run_record.sh[12809]: [2022-01-13 11:07:32,305] [record] [INFO] Mustang Mach E Record Utility version 0.6.0
+Jan 13 11:07:32 greta run_record.sh[12809]: [2022-01-13 11:07:32,339] [state_manager] [INFO] Vehicle state changed to 'Unknown'
+Jan 13 11:07:32 greta run_record.sh[12809]: [2022-01-13 11:07:32,558] [state_manager] [INFO] Vehicle state changed to 'On'
+Jan 13 11:10:48 greta run_record.sh[12809]: [2022-01-13 11:10:48,298] [state_manager] [INFO] Vehicle state changed to 'Trip'
 ```
 Now reboot and reconnect to a terminal and check that **Record** is running:
 ```
-sudo systemctl status mme-record.service
+% sudo systemctl status mme-record.service
 ```
-If you don't want **Record** to run automatically, disable the service and reboot, you can always use the start and stop commands from a termnal to control if **Record** runs in the background.
+If you don't want **Record** to run automatically, disable the service and reboot, you can always use the start and stop commands from a terminal to control if **Record** runs in the background.
 
 Other commands for controlling the new service are:
 ```
@@ -128,8 +131,6 @@ sudo systemctl status mme-record.service
 <a id='debugging'></a>
 ## Debugging
 Create the environment variable MME_SIM_DEBUG and set to 1 or True to enable debug output.
-
-This is also required if you wish to use the debugging options that automatically delete or create the database. This is nice during development but would not want to accidentally cause somthing bad to happen when in production.
 
 I run both **Playback** and **Record** in VS Code on a Raspberry Pi with CAN0 bus tied to the CAN1 bus in a loopback mode, makes for easy testing of **Record** changes playing back recorded files from a trip or chnaging session.
 

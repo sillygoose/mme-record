@@ -20,6 +20,7 @@ DICT_T = TypeVar("DICT_T", bound=Dict)  # pylint: disable=invalid-name
 
 _LOGGER = logging.getLogger('mme')
 _SECRET_CACHE: Dict[str, JSON_TYPE] = {}
+SECRET_YAML = None
 
 
 def buildYAMLExceptionString(exception, file='cs_esphome'):
@@ -94,7 +95,7 @@ def parse_yaml(content: Union[str, TextIO]) -> JSON_TYPE:
 
 def _load_secret_yaml(secret_path: str) -> JSON_TYPE:
     """Load the secrets yaml from path."""
-    secret_path = os.path.join(secret_path, '###')
+    secret_path = os.path.join(secret_path, SECRET_YAML)
     if secret_path in _SECRET_CACHE:
         return _SECRET_CACHE[secret_path]
 
@@ -113,8 +114,9 @@ def _load_secret_yaml(secret_path: str) -> JSON_TYPE:
 
 def secret_yaml(loader: FullLineLoader, node: yaml.nodes.Node) -> JSON_TYPE:
     """Load secrets and embed it into the configuration YAML."""
-    if os.path.basename(loader.name) == '###':
-        raise ConfigError(f"{'###'}: attempt to load secret from within secrets file")
+    """Load secrets and embed it into the configuration YAML."""
+    if os.path.basename(loader.name) == SECRET_YAML:
+        raise ConfigError(f"{SECRET_YAML}: attempt to load secret from within secrets file")
 
     secret_path = os.path.dirname(loader.name)
     home_path = str(Path.home())
@@ -123,7 +125,7 @@ def secret_yaml(loader: FullLineLoader, node: yaml.nodes.Node) -> JSON_TYPE:
     while True:
         secrets = _load_secret_yaml(secret_path)
         if node.value in secrets:
-            _LOGGER.debug(f"Secret '{node.value}' retrieved from {secret_path}/{'###'}")
+            _LOGGER.debug(f"Secret '{node.value}' retrieved from {secret_path}/{SECRET_YAML}")
             return secrets[node.value]
 
         if not do_walk or (secret_path == home_path):
@@ -269,6 +271,13 @@ def check_config(config):
                     {'rx_flowcontrol_timeout': {'required': False, 'keys': [], 'type': float}},
                     {'rx_consecutive_frame_timeout': {'required': False, 'keys': [], 'type': float}},
                 ]}},
+                {'influxdb2': {'required': False, 'keys': [
+                    {'enable': {'required': True, 'keys': [], 'type': bool}},
+                    {'org': {'required': True, 'keys': [], 'type': str}},
+                    {'url': {'required': True, 'keys': [], 'type': str}},
+                    {'bucket': {'required': True, 'keys': [], 'type': str}},
+                    {'token': {'required': True, 'keys': [], 'type': str}},
+                ]}},
             ]},
         },
     ]
@@ -304,7 +313,9 @@ def read_config(yaml_file: str = None) -> None:
         if yaml_path is None:
             raise FailedInitialization(f"Unable to find the YAML configuration file '{yaml_file}'")
 
-        secret_yaml = 'secret_' + yaml_file
+        global SECRET_YAML
+        index = yaml_file.find('.')
+        SECRET_YAML = yaml_file[:index] + '_secrets' + yaml_file[index:]
         yaml.FullLoader.add_constructor('!secret', secret_yaml)
         config = config_from_yaml(data=yaml_path, read_from_file=True)
         if config:
