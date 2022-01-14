@@ -68,19 +68,20 @@ class InfluxDB:
             self._client = None
 
     def write_record(self, data_point: dict) -> None:
-        lp_points = []
-        if data_point.get('type', None) is None:
-            did_id = data_point.get('did_id')
-            ts = int(data_point.get('time'))
-            codec = self._codec_manager.codec(did_id)
-            decoded_playload = codec.decode(None, bytearray(data_point.get('payload')))
-            arbitration_id = data_point.get('arbitration_id')
-            states = decoded_playload.get('states')
-            for state in states:
-                for k, v in state.items():
-                    # myMeasurement,tag1=value1,tag2=value2 fieldKey="fieldValue" 1556813561098000000
-                    lp_points.append(f"{k},aid={arbitration_id:04X},did={did_id:04X} state={v} {ts}")
-        try:
-            self._write_api.write(bucket=self._bucket, record=lp_points, write_precision=WritePrecision.S)
-        except Exception as e:
-            _LOGGER.error(f"Database write() call failed in write_points(): {e}")
+        if self._client:
+            lp_points = []
+            if data_point.get('type', None) is None:
+                did_id = data_point.get('did_id')
+                ts = int(data_point.get('time'))
+                codec = self._codec_manager.codec(did_id)
+                decoded_playload = codec.decode(None, bytearray(data_point.get('payload')))
+                arbitration_id = data_point.get('arbitration_id')
+                states = decoded_playload.get('states')
+                for state in states:
+                    for k, v in state.items():
+                        # myMeasurement,tag1=value1,tag2=value2 fieldKey="fieldValue" 1556813561098000000
+                        lp_points.append(f"{k},aid={arbitration_id:04X},did={did_id:04X} state={v} {ts}")
+            try:
+                self._write_api.write(bucket=self._bucket, record=lp_points, write_precision=WritePrecision.S)
+            except Exception as e:
+                _LOGGER.error(f"Database write() call failed in write_points(): {e}")

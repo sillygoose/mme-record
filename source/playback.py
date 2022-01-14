@@ -37,14 +37,16 @@ class Playback:
         self._playback_engine = PlaybackEngine(config=config, module_event_queues=self._module_event_queues, module_manager=self._module_manager)
 
     def start(self) -> None:
-        threads = []
         for module in self._modules.values():
-            threads.append(module.start())
-        threads.append(self._state_manager.start())
-        threads.append(self._playback_engine.start())
+            module.start()
+        self._state_manager.start()
+        playback_thread = self._playback_engine.start()
+        playback_thread.join()
+        """
         for thread_list in threads:
             for thread in thread_list:
                 thread.join()
+        """
 
     def stop(self) -> None:
         self._playback_engine.stop()

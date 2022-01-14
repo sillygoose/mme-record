@@ -44,12 +44,12 @@ class PlaybackEngine:
         self._current_playback = None
         self._thread = None
 
-    def start(self) -> List[Queue]:
+    def start(self) -> Thread:
         self._exit_requested = False
         self._playback_time = None
         self._thread = Thread(target=self._playback_engine, name='playback_engine')
         self._thread.start()
-        return [self._thread]
+        return self._thread
 
     def stop(self) -> None:
         self._exit_requested = True
@@ -79,7 +79,7 @@ class PlaybackEngine:
                     try:
                         _LOGGER.debug(f"Queuing event {event} on queue {module_name}")
                         module_event_queue.put(event, block=False, timeout=2)
-                        _LOGGER.debug(f"{self._playback_time:.1f}: {self._decode_event(event)}")
+                        _LOGGER.debug(f"{self._playback_time:.02f}: {self._decode_event(event)}")
                     except Full:
                         _LOGGER.error(f"Queue {module_name}/{arbitration_id:04X} is full")
                         return

@@ -56,7 +56,7 @@ class PlaybackModule:
         self._did_thread = None
         self._dids = {}
 
-    def start(self) -> List[Thread]:
+    def start(self) -> None:
         self._exit_requested = False
         _LOGGER.debug(f"Starting module '{self._name}' on channel '{self._channel}' with arbitration ID {self._rxid:03X}")
         addr = isotp.Address(isotp.AddressingMode.Normal_11bits, rxid=self._rxid, txid=self._txid)
@@ -64,7 +64,6 @@ class PlaybackModule:
         self._stack = isotp.CanStack(bus=self._bus, address=addr, error_handler=self.error_handler, params=PlaybackModule.isotp_params)
         self._did_thread = Thread(target=self._did_task, name=self._name)
         self._did_thread.start()
-        return [self._did_thread]
 
     def stop(self) -> None:
         _LOGGER.debug(f"Stopping module {self._name}")

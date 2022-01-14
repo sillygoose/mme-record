@@ -27,11 +27,10 @@ class PlaybackStateManager:
         self._state_queue = state_queue
         self._state = VehicleState.Unknown
 
-    def start(self) -> List[Thread]:
+    def start(self) -> None:
         self._exit_requested = False
         self._state_thread = Thread(target=self._update_state, name='state_manager')
         self._state_thread.start()
-        return [self._state_thread]
 
     def stop(self) -> None:
         self._exit_requested = True
