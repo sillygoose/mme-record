@@ -25,6 +25,7 @@ Both utilities can be configured via a YAML configuration file.  Definitions for
 <a id='whats-new'></a>
 ## What's new
 - everything is new at this point so just basic functionality in both **Playback** and **Record**
+- just added InfluxDB write support
 
 <a id='requirements'></a>
 ## Requirements
@@ -37,6 +38,7 @@ Both utilities can be configured via a YAML configuration file.  Definitions for
   - python-can
   - can-isotp
   - udsoncan
+  - influxdb-client
 
   Both **Record** and **Playback** use SocketCAN for the networking and use UDS and ISO-TP protocols on top of the SocketCAN connections.  You need to have access to both of the OBDII connector HSCAN and MSCAN buses if you wish to access all of the vehicle modules.  My hardware setup consists of:
   - Raspberry Pi 4
@@ -55,12 +57,14 @@ Both utilities can be configured via a YAML configuration file.  Definitions for
     pip3 install -e .
 ```
 
-2.  The YAML configuration search starts in the current directory and looks in each parent directory up to your home directory for it (or just the current directory if you are not running in a user profile).  Edit `mme.yaml` to set the desired **Playback** and **Record** options.
+2.  The YAML configuration search starts in the current directory and looks in each parent directory up to your home directory for it (or just the current directory if you are not running in a user profile).  Edit `mme.yaml` to set the desired **Playback** and **Record** options as well as InfluxDB options i yoy wish to log **Record** to a database.
 
 #
 <a id='running'></a>
 ## Running **Record**
-You can run **Record** from the command line via SSH, using a VS Code remote connection, or at startup using a script.  Using a script is the most useful since no internet connection is needed, the project has the script `run_record.sh` that can be used for this purpose.
+I use a Tailscale client on Raspberry Pi and on the InfluxDB host so you have a static IP.  Tailscale is an excellent WireGuard implementation and allows me to open an SSH session or write to the database server on my home network no matter where the car is.  At home I plug into a wired network or use WiFi, on the road I connect to a cell phone serving as a hotspot and nothing would work without the services provided by Tailscale.
+
+You can run **Record** from the command line via SSH, using a VS Code remote connection, or at startup using a script.  The project has the script `run_record.sh` that can be used for this purpose to allow data collection without an SSH or other connection.
 
 I run Ubuntu 20.04 LTS on my Raspberry Pi so the following instructions are tailored for this OS:
 
@@ -144,3 +148,4 @@ Thanks for the following packages used to build this software:
 - [UDS](https://github.com/pylessard/python-udsoncan)
 - [ISO-TP](https://github.com/pylessard/python-can-isotp)
 - [YAML configuration file support](https://python-configuration.readthedocs.io)
+- [InfluxDB Python API](https://influxdb-client.readthedocs.io/en/stable/api.html)

@@ -277,6 +277,7 @@ def check_config(config):
                     {'url': {'required': True, 'keys': [], 'type': str}},
                     {'bucket': {'required': True, 'keys': [], 'type': str}},
                     {'token': {'required': True, 'keys': [], 'type': str}},
+                    {'block_size': {'required': False, 'keys': [], 'type': int}},
                 ]}},
             ]},
         },

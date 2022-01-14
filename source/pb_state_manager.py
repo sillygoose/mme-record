@@ -3,8 +3,6 @@ from threading import Thread
 from queue import Queue
 from enum import Enum, unique
 
-from typing import List
-
 from codec_manager import CodecManager
 from state_manager import VehicleState
 

@@ -69,6 +69,7 @@ class PlaybackModule:
         _LOGGER.debug(f"Stopping module {self._name}")
         self._exit_requested = True
         if self._did_thread.is_alive():
+            sleep(0.1)
             self._did_thread.join()
         if self._bus:
             sleep(0.1)

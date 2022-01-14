@@ -32,7 +32,7 @@ class RecordStateManager(StateManager):
         self._request_thread = Thread(target=self._request_task, args=(sync_queue,), name='state_request')
         self._response_thread = Thread(target=self._response_task, args=(sync_queue,), name='state_response')
         self._file_manager = RecordFileManager(config.record)
-        self._influxdb = InfluxDB(config.influxdb2, self._codec_manager)
+        self._influxdb = InfluxDB(config.influxdb2)
         self._did_state_cache = {}
 
     def start(self) -> List[Thread]:
@@ -92,8 +92,8 @@ class RecordStateManager(StateManager):
                     if response.positive == False:
                         did_list = response_record.get('did_list')
                         _LOGGER.debug(f"The request from {arbitration_id:04X} returned the following response: {response.invalid_reason}")
-                        details = {'type': 'NegativeResponse', 'time': round(time(), 2), 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_list': did_list}
-                        self.update_vehicle_state(details)
+                        state_details = {'type': 'NegativeResponse', 'time': round(time(), 2), 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_list': did_list}
+                        self.update_vehicle_state(state_details)
                         continue
 
                     for did_id in response.service_data.values:
@@ -102,12 +102,11 @@ class RecordStateManager(StateManager):
                         if self._did_state_cache.get(key, None) is None or self._did_state_cache.get(key).get('payload', None) != payload:
                             current_time = round(time(), 2)
                             self._did_state_cache[key] = {'time': current_time, 'payload': payload}
-                            details = {'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did_id, 'did_id_hex': f"{did_id:04X}", 'payload': list(payload)}
-                            self._file_manager.write_record(details)
-                            self._influxdb.write_record(details)
+                            state_details = {'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did_id, 'did_id_hex': f"{did_id:04X}", 'payload': list(payload)}
+                            self._file_manager.write_record(state_details)
+                            influxdb_state_data = self.update_vehicle_state(state_details)
+                            self._influxdb.write_record(influxdb_state_data)
                             _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: {response.service_data.values[did_id].get('decoded')}")
-                            self.update_vehicle_state(details)
-
                 self._response_queue.task_done()
 
         except RuntimeError as e:

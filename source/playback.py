@@ -42,11 +42,6 @@ class Playback:
         self._state_manager.start()
         playback_thread = self._playback_engine.start()
         playback_thread.join()
-        """
-        for thread_list in threads:
-            for thread in thread_list:
-                thread.join()
-        """
 
     def stop(self) -> None:
         self._playback_engine.stop()

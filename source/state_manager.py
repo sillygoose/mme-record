@@ -39,10 +39,10 @@ class Hash(Enum):
     GearCommanded       = '07E2:1E12:gear_commanded'
     HvbVoltage          = '07E4:480D:hvb_voltage'
     HvbCurrent          = '07E4:48F9:hvb_current'
-    HvbPower            = 'hvb:hvb_power'
+    HvbPower            = '4096:4096:hvb_power'
     LvbVoltage          = '0726:402A:lvb_voltage'
     LvbCurrent          = '0726:402B:lvb_current'
-    LvbPower            = 'lvb:lvb_power'
+    LvbPower            = '4096:4097:lvb_power'
 
 
 class StateManager:
@@ -128,6 +128,7 @@ class StateManager:
         _LOGGER.info(f"Vehicle state changed to '{self._state.name}'")
 
     def _calculate_synthetic(self, hash: str) -> None:
+        synthetic = None
         try:
             hash = Hash(hash)
             if hash == Hash.HvbVoltage or hash == Hash.HvbCurrent:
@@ -135,17 +136,23 @@ class StateManager:
                 hvb_current = self._vehicle_state.get(Hash.HvbCurrent.value, 0.0)
                 hvb_power = hvb_voltage * hvb_current
                 self._vehicle_state[Hash.HvbPower] = hvb_power
+                hash_field = Hash.HvbPower.value.split(':')
+                synthetic = {'arbitration_id': int(hash_field[0]), 'did_id': int(hash_field[1]), 'name': hash_field[2], 'value': hvb_power}
                 _LOGGER.debug(f"Calculated 'HvbPower' is {hvb_power:.0f} W from {hvb_voltage:.1f} * {hvb_current:.1f}")
             elif hash == Hash.LvbVoltage or hash == Hash.LvbCurrent:
                 lvb_voltage = self._vehicle_state.get(Hash.LvbVoltage.value, 0.0)
                 lvb_current = self._vehicle_state.get(Hash.LvbCurrent.value, 0.0)
                 lvb_power = lvb_voltage * lvb_current
-                self._vehicle_state[Hash.HvbPower] = lvb_power
+                hash_field = Hash.LvbPower.value.split(':')
+                synthetic = {'arbitration_id': int(hash_field[0]), 'did_id': int(hash_field[1]), 'name': hash_field[2], 'value': lvb_power}
+                self._vehicle_state[Hash.LvbPower] = lvb_power
                 _LOGGER.debug(f"Calculated 'LvbPower' is {lvb_power:.0f} W from {lvb_voltage:.1f} * {lvb_current:.f}")
         except ValueError:
             pass
+        return synthetic
 
-    def update_vehicle_state(self, state_change: dict) -> None:
+    def update_vehicle_state(self, state_change: dict) -> List[dict]:
+        state_data = []
         if state_change.get('type', None) is None:
             did_id = state_change.get('did_id', None)
             if did_id:
@@ -154,13 +161,17 @@ class StateManager:
                 arbitration_id = state_change.get('arbitration_id')
                 states = decoded_playload.get('states')
                 for state in states:
-                    for k, v in state.items():
-                        hash = f"{arbitration_id:04X}:{did_id:04X}:{k}"
+                    for state_name, state_value in state.items():
+                        hash = f"{arbitration_id:04X}:{did_id:04X}:{state_name}"
                         self._last_state_change = hash
-                        self._vehicle_state[hash] = v
-                        self._calculate_synthetic(hash) ### b=never used?
+                        self._vehicle_state[hash] = state_value
+                        state_data.append({'arbitration_id': arbitration_id, 'did_id': did_id, 'name': state_name, 'value': state_value})
+                        synthetic = self._calculate_synthetic(hash)
+                        if synthetic:
+                            state_data.append(synthetic)
                 _LOGGER.debug(self._last_state_change)
                 self._state_function()
+        return state_data
 
     def unknown(self) -> None:
         for key in self._get_state_keys():

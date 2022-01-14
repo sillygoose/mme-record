@@ -11,7 +11,6 @@ from typing import List
 from module_manager import ModuleManager
 from config.configuration import Configuration
 
-
 from exceptions import FailedInitialization, RuntimeError
 
 

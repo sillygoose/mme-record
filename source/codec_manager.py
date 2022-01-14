@@ -56,18 +56,18 @@ class CodecGearCommanded(Codec):
 
 class CodecGPS(Codec):
     def decode(self, payload):
-        elevation, latitude, longitude, fix, speed, bearing = struct.unpack('>HllBHH', payload)
-        latitude /= 60.0
-        longitude /= 60.0
-        speed *= 3.6
-        gps_data = f"GPS: ({latitude:2.5f}, {longitude:2.5f}), elevation {elevation} m, bearing {bearing}°, speed {speed:3.1f} kph, fix is {fix}"
+        gps_elevation, gps_latitude, gps_longitude, gps_fix, gps_speed, gps_bearing = struct.unpack('>HllBHH', payload)
+        gps_latitude /= 60.0
+        gps_longitude /= 60.0
+        gps_speed *= 3.6
+        gps_data = f"GPS: ({gps_latitude:2.5f}, {gps_longitude:2.5f}), elevation {gps_elevation} m, bearing {gps_bearing}°, speed {gps_speed:3.1f} kph, fix is {gps_fix}"
         states = [
-                {'elevation': elevation},
-                {'latitude': latitude},
-                {'longitude': longitude},
-                {'fix': fix},
-                {'speed': speed},
-                {'bearing': bearing},
+                {'gps_elevation': gps_elevation},
+                {'gps_latitude': gps_latitude},
+                {'gps_ongitude': gps_longitude},
+                {'gps_fix': gps_fix},
+                {'gps_speed': gps_speed},
+                {'gps_bearing': gps_bearing},
             ]
         return {'payload': payload, 'states': states, 'decoded': gps_data}
 
@@ -89,9 +89,9 @@ class CodecHiresOdometer(Codec):
 class CodecHiresSpeed(Codec):
     def decode(self, payload):
         hires_speed = struct.unpack('>H', payload)[0]
-        speed = hires_speed / 128.0
-        states = [{'speed': speed}]
-        return {'payload': payload, 'states': states, 'decoded': f"Speed: {speed:.0f} kph"}
+        hires_speed = hires_speed / 128.0
+        states = [{'hires_speed': hires_speed}]
+        return {'payload': payload, 'states': states, 'decoded': f"Speed: {hires_speed:.0f} kph"}
 
     def __len__(self):
         return 2
