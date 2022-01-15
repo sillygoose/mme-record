@@ -32,7 +32,7 @@ class RecordCanbusManager:
 
     def start(self) -> List[Thread]:
         self._exit_requested = False
-        self._thread = Thread(target=self._canbus_task, name='canbus')
+        self._thread = Thread(target=self._canbus_task, name='canbus_manager')
         self._thread.start()
         return [self._thread]
 
