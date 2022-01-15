@@ -6,7 +6,7 @@ from queue import PriorityQueue
 from time import time
 import json
 
-from enum import Enum, unique
+from enum import Enum, unique, auto
 from typing import List
 
 from codec_manager import *
@@ -18,17 +18,17 @@ _LOGGER = logging.getLogger('mme')
 
 @unique
 class VehicleState(Enum):
-        Unknown = 0                 # initial state until another is determined
-        Sleeping = 1                # only the GWM responds to ReadDID requests
-        Off = 2                     # the vehicle was turned off (but modules are still responding)
-        Accessories = 3             # the vehicle start button was pressed with the brake not depressed
-        Starting = 4                # this is an intermediate state seen when the start button is held closed (likely insignificant)
-        On = 5                      # the vehicle start button was pressed with the brake depressed
-        Trip = 6                    # the vehicle is in a gear other than Park
-        Preconditioning = 7         # the vehicle is preconditioning
-        PluggedIn = 8               # the vehicle has plugged in
-        AC_Charging = 9             # the vehicle is AC charging
-        DC_Charging = 10            # the vehicle is DC fast charging
+        Unknown = auto()            # initial state until another is determined
+        Sleeping = auto()           # only the GWM responds to ReadDID requests
+        Off = auto()                # the vehicle was turned off (but modules are still responding)
+        Accessories = auto()        # the vehicle start button was pressed with the brake not depressed
+        Starting = auto()           # this is an intermediate state seen when the start button is held closed (likely insignificant)
+        On = auto()                 # the vehicle start button was pressed with the brake depressed
+        Trip = auto()               # the vehicle is in a gear other than Park
+        Preconditioning = auto()    # the vehicle is preconditioning
+        PluggedIn = auto()          # the vehicle has plugged in
+        Charging_AC = auto()        # the vehicle is AC charging
+        Charging_DCFC = auto()      # the vehicle is DC fast charging
 
 
 @unique
@@ -49,16 +49,15 @@ class Hash(Enum):
 class StateManager:
 
     _state_file_lookup = {
-        VehicleState.Unknown:           {'state_file': 'json/unknown.json',     'state_keys': [Hash.KeyState]},
-        VehicleState.Off:               {'state_file': 'json/off.json',         'state_keys': [Hash.KeyState, Hash.ChargingStatus, Hash.RemoteStart]},
-        VehicleState.On:                {'state_file': 'json/on.json',          'state_keys': [Hash.KeyState, Hash.ChargingStatus, Hash.GearCommanded]},
-        VehicleState.PluggedIn:         {'state_file': 'json/charging.json',    'state_keys': [Hash.ChargingStatus, Hash.EvseType]},
-        VehicleState.AC_Charging:       {'state_file': 'json/ac_charging.json', 'state_keys': [Hash.ChargingStatus]},
-        VehicleState.Trip:              {'state_file': 'json/trip.json',        'state_keys': [Hash.GearCommanded]},
-
-        #VehicleState.Sleeping:          {'state_file': 'json/sleeping.json',    'state_keys': ['0716:411F:key_state', '07E4:484D:charging_status']},
-        #VehicleState.Preconditioning:   'json/preconditioning.json',
-        #VehicleState.DC_Charging:       'json/dc_charging.json',
+        VehicleState.Unknown:           {'state_file': 'json/state/unknown.json',           'state_keys': [Hash.KeyState]},
+        VehicleState.Sleeping:          {'state_file': 'json/state/sleeping.json',          'state_keys': [Hash.KeyState, Hash.ChargingStatus, Hash.RemoteStart]},
+        VehicleState.Off:               {'state_file': 'json/state/off.json',               'state_keys': [Hash.KeyState, Hash.ChargingStatus, Hash.RemoteStart]},
+        VehicleState.On:                {'state_file': 'json/state/on.json',                'state_keys': [Hash.KeyState, Hash.ChargingStatus, Hash.GearCommanded]},
+        VehicleState.Trip:              {'state_file': 'json/state/trip.json',              'state_keys': [Hash.GearCommanded]},
+        VehicleState.Preconditioning:   {'state_file': 'json/state/preconditioning.json',   'state_keys': [Hash.ChargingStatus, Hash.EvseType]},
+        VehicleState.PluggedIn:         {'state_file': 'json/state/charging.json',          'state_keys': [Hash.ChargingStatus, Hash.EvseType]},
+        VehicleState.Charging_AC:       {'state_file': 'json/state/charging_ac.json',       'state_keys': [Hash.ChargingStatus, Hash.EvseType]},
+        VehicleState.Charging_DCFC:     {'state_file': 'json/state/charging_dcfc.json',     'state_keys': [Hash.ChargingStatus, Hash.EvseType]},
     }
 
     def __init__(self) -> None:
@@ -66,12 +65,16 @@ class StateManager:
         self._command_queue = PriorityQueue()
         state_functions = {
             VehicleState.Unknown: self.unknown,
+            VehicleState.Sleeping: self.sleeping,
             VehicleState.Off: self.off,
             VehicleState.On: self.on,
-            VehicleState.PluggedIn: self.plugged_in,
-            VehicleState.AC_Charging: self.ac_charging,
             VehicleState.Trip: self.trip,
+            VehicleState.Preconditioning: self.preconditioning,
+            VehicleState.PluggedIn: self.plugged_in,
+            VehicleState.Charging_AC: self.charging_ac,
+            VehicleState.Charging_DCFC: self.charging_dcfc,
         }
+        assert len(state_functions) == len(StateManager._state_file_lookup)
         for k, v in StateManager._state_file_lookup.items():
             v['state_function'] = state_functions.get(k)
 
@@ -222,11 +225,33 @@ class StateManager:
     def unknown(self) -> None:
         for key in self._get_state_keys():
             if key_state := self._get_KeyState(key):
-                if key_state == KeyState.Sleeping or key_state == KeyState.Off:
+                if key_state == KeyState.Sleeping:
+                    self.change_state(VehicleState.Sleeping)
+                elif key_state == KeyState.Off:
                     self.change_state(VehicleState.Off)
                 elif key_state == KeyState.On or key_state == KeyState.Cranking:
                     self.change_state(VehicleState.On)
         assert self._state != VehicleState.Unknown
+
+    def sleeping(self) -> None:
+        for key in self._get_state_keys():
+            if key_state := self._get_KeyState(key):
+                if key_state == KeyState.Sleeping:
+                    pass
+                elif key_state == KeyState.Off:
+                    self.change_state(VehicleState.Off)
+                elif key_state == KeyState.On or key_state == KeyState.Cranking:
+                    self.change_state(VehicleState.On)
+            elif charging_status := self._get_ChargingStatus(key):
+                if charging_status == ChargingStatus.Charging:
+                    self.change_state(VehicleState.PluggedIn)
+                elif charging_status == ChargingStatus.Wait:
+                    pass
+                elif charging_status != ChargingStatus.NotReady:
+                    _LOGGER.info(f"While in '{self._state.name}', 'ChargingStatus' returned an unexpected response: {charging_status}")
+            elif remote_start := self._get_RemoteStart(key):
+                if remote_start == RemoteStart.On:
+                    self.change_state(VehicleState.Preconditioning)
 
     def off(self) -> None:
         for key in self._get_state_keys():
@@ -244,7 +269,7 @@ class StateManager:
                     _LOGGER.info(f"While in '{self._state.name}', 'ChargingStatus' returned an unexpected response: {charging_status}")
             elif remote_start := self._get_RemoteStart(key):
                 if remote_start == RemoteStart.On:
-                    self.change_state(VehicleState.On)
+                    self.change_state(VehicleState.Preconditioning)
 
     def on(self) -> None:
         for key in self._get_state_keys():
@@ -270,6 +295,20 @@ class StateManager:
                 if gear_commanded == GearCommanded.Park:
                     self.change_state(VehicleState.On)
 
+    def preconditioning(self) -> None:
+        for key in self._get_state_keys():
+            if charging_status := self._get_ChargingStatus(key):
+                if charging_status == ChargingStatus.Charging:
+                    pass
+                elif charging_status == ChargingStatus.NotReady or charging_status == ChargingStatus.Done:
+                    if key_state := self._get_KeyState(Hash.KeyState):
+                        if key_state == KeyState.Sleeping or key_state == KeyState.Off:
+                            self.change_state(VehicleState.Off)
+                        elif key_state == KeyState.On or key_state == KeyState.Cranking:
+                            self.change_state(VehicleState.On)
+                else:
+                    _LOGGER.info(f"While {self._state}, 'ChargingStatus' returned an unexpected response: {charging_status}")
+
     def plugged_in(self) -> None:
         for key in self._get_state_keys():
             if charging_status := self._get_ChargingStatus(key):
@@ -285,11 +324,23 @@ class StateManager:
                     _LOGGER.info(f"While {self._state}, 'ChargingStatus' returned an unexpected response: {charging_status}")
             if evse_type := self._get_EvseType(key):
                 if evse_type == EvseType.BasAC:
-                    self.change_state(VehicleState.AC_Charging)
+                    self.change_state(VehicleState.Charging_AC)
                 elif evse_type != EvseType.NoType:
                     _LOGGER.info(f"While in '{self._state.name}', 'EvseType' returned an unexpected response: {evse_type}")
 
-    def ac_charging(self) -> None:
+    def charging_ac(self) -> None:
+        for key in self._get_state_keys():
+            if charging_status := self._get_ChargingStatus(key):
+                if charging_status == ChargingStatus.NotReady or charging_status == ChargingStatus.Done:
+                    if key_state := self._get_KeyState(Hash.KeyState):
+                        if key_state == KeyState.Sleeping or key_state == KeyState.Off:
+                            self.change_state(VehicleState.Off)
+                        elif key_state == KeyState.On or key_state == KeyState.Cranking:
+                            self.change_state(VehicleState.On)
+                else:
+                    _LOGGER.info(f"While in '{self._state.name}', 'ChargingStatus' returned an unexpected response: {charging_status}")
+
+    def charging_dcfc(self) -> None:
         for key in self._get_state_keys():
             if charging_status := self._get_ChargingStatus(key):
                 if charging_status == ChargingStatus.NotReady or charging_status == ChargingStatus.Done:
