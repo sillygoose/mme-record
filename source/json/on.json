@@ -109,6 +109,12 @@
         "period": 10,
         "dids": [
             {
+                "did_name": "RemoteStart",
+                "did_id": 16825,
+                "did_id_hex": "41B9",
+                "codec_id": 16825
+            },
+            {
                 "did_name": "LvbVoltage",
                 "did_id": 16426,
                 "did_id_hex": "402A",

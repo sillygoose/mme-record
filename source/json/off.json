@@ -15,6 +15,21 @@
         ]
     },
     {
+        "module": "BCM",
+        "arbitration_id": 1830,
+        "arbitration_id_hex": "0726",
+        "enable": true,
+        "period": 10,
+        "dids": [
+            {
+                "did_name": "RemoteStart",
+                "did_id": 16825,
+                "did_id_hex": "41B9",
+                "codec_id": 16825
+            }
+        ]
+    },
+    {
         "module": "BECM",
         "arbitration_id": 2020,
         "arbitration_id_hex": "07E4",

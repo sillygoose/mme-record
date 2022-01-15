@@ -10,7 +10,7 @@ from enum import Enum, unique
 from typing import List
 
 from codec_manager import *
-from did import KeyState, ChargingStatus, EvseType, GearCommanded
+from did import KeyState, ChargingStatus, EvseType, GearCommanded, RemoteStart
 
 
 _LOGGER = logging.getLogger('mme')
@@ -43,13 +43,14 @@ class Hash(Enum):
     LvbVoltage          = '0726:402A:lvb_voltage'
     LvbCurrent          = '0726:402B:lvb_current'
     LvbPower            = '4096:4097:lvb_power'
+    RemoteStart         = '0726:41B9:remote_start'
 
 
 class StateManager:
 
     _state_file_lookup = {
         VehicleState.Unknown:           {'state_file': 'json/unknown.json',     'state_keys': [Hash.KeyState]},
-        VehicleState.Off:               {'state_file': 'json/off.json',         'state_keys': [Hash.KeyState, Hash.ChargingStatus]},
+        VehicleState.Off:               {'state_file': 'json/off.json',         'state_keys': [Hash.KeyState, Hash.ChargingStatus, Hash.RemoteStart]},
         VehicleState.On:                {'state_file': 'json/on.json',          'state_keys': [Hash.KeyState, Hash.ChargingStatus, Hash.GearCommanded]},
         VehicleState.PluggedIn:         {'state_file': 'json/charging.json',    'state_keys': [Hash.ChargingStatus, Hash.EvseType]},
         VehicleState.AC_Charging:       {'state_file': 'json/ac_charging.json', 'state_keys': [Hash.ChargingStatus]},
@@ -173,148 +174,129 @@ class StateManager:
                 self._state_function()
         return state_data
 
+    def _get_KeyState(self, key: Hash) -> KeyState:
+        key_state = None
+        if self._last_state_change == key.value and key == Hash.KeyState:
+            try:
+                key_state = KeyState(self._vehicle_state.get(Hash.KeyState.value))
+            except ValueError:
+                _LOGGER.info(f"While in '{self._state.name}', 'KeyState' had an unexpected value: {self._vehicle_state.get(Hash.KeyState.value)}")
+        return key_state
+
+    def _get_ChargingStatus(self, key: Hash) -> ChargingStatus:
+        charging_status = None
+        if self._last_state_change == key.value and key == Hash.ChargingStatus:
+            try:
+                charging_status = ChargingStatus(self._vehicle_state.get(Hash.ChargingStatus.value))
+            except ValueError:
+                _LOGGER.info(f"While in '{self._state.name}', 'ChargingStatus' had an unexpected value: {self._vehicle_state.get(Hash.ChargingStatus.value)}")
+        return charging_status
+
+    def _get_GearCommanded(self, key: Hash) -> GearCommanded:
+        gear_commanded = None
+        if self._last_state_change == key.value and key == Hash.GearCommanded:
+            try:
+                gear_commanded = GearCommanded(self._vehicle_state.get(Hash.GearCommanded.value))
+            except ValueError:
+                _LOGGER.info(f"While in '{self._state.name}', 'GearCommanded' had an unexpected value: {self._vehicle_state.get(Hash.GearCommanded.value)}")
+        return gear_commanded
+
+    def _get_EvseType(self, key: Hash) -> EvseType:
+        evse_type = None
+        if self._last_state_change == key.value and key == Hash.EvseType:
+            try:
+                evse_type = EvseType(self._vehicle_state.get(Hash.EvseType.value))
+            except ValueError:
+                _LOGGER.info(f"While in '{self._state.name}', 'EvseType' had an unexpected value: {self._vehicle_state.get(Hash.EvseType.value)}")
+        return evse_type
+
+    def _get_RemoteStart(self, key: Hash) -> RemoteStart:
+        remote_start = None
+        if self._last_state_change == key.value and key == Hash.RemoteStart:
+            try:
+                remote_start = RemoteStart(self._vehicle_state.get(Hash.RemoteStart.value))
+            except ValueError:
+                _LOGGER.info(f"While in '{self._state.name}', 'RemoteStart' had an unexpected value: {self._vehicle_state.get(Hash.RemoteStart.value)}")
+        return remote_start
+
     def unknown(self) -> None:
         for key in self._get_state_keys():
-            if self._last_state_change == key.value and key == Hash.KeyState:
-                try:
-                    key_state = KeyState(self._vehicle_state.get(Hash.KeyState.value))
-                except ValueError:
-                    _LOGGER.info(f"While in '{self._state.name}', 'KeyState' had an unexpected value: {self._vehicle_state.get(Hash.KeyState.value)}")
-                    continue
+            if key_state := self._get_KeyState(key):
                 if key_state == KeyState.Sleeping or key_state == KeyState.Off:
                     self.change_state(VehicleState.Off)
-                elif key_state == KeyState.On:
+                elif key_state == KeyState.On or key_state == KeyState.Cranking:
                     self.change_state(VehicleState.On)
-                else:
-                    _LOGGER.info(f"While in '{self._state.name}', 'KeyState' returned an unexpected response: {key_state}")
+        assert self._state != VehicleState.Unknown
 
     def off(self) -> None:
         for key in self._get_state_keys():
-            if self._last_state_change == key.value and key == Hash.KeyState:
-                try:
-                    key_state = KeyState(self._vehicle_state.get(Hash.KeyState.value))
-                except ValueError:
-                    _LOGGER.info(f"While in '{self._state.name}', 'KeyState' had an unexpected value: {self._vehicle_state.get(Hash.KeyState.value)}")
-                    continue
+            if key_state := self._get_KeyState(key):
                 if key_state == KeyState.Sleeping or key_state == KeyState.Off:
                     pass
                 elif key_state == KeyState.On or key_state == KeyState.Cranking:
                     self.change_state(VehicleState.On)
-                else:
-                    _LOGGER.info(f"While in '{self._state.name}', 'KeyState' returned an unexpected response: {key_state}")
-            elif self._last_state_change == key.value and key == Hash.ChargingStatus:
-                try:
-                    charging_status = ChargingStatus(self._vehicle_state.get(Hash.ChargingStatus.value))
-                except ValueError:
-                    _LOGGER.info(f"While in '{self._state.name}', 'ChargingStatus' had an unexpected value: {self._vehicle_state.get(Hash.ChargingStatus.value)}")
-                    continue
+            elif charging_status := self._get_ChargingStatus(key):
                 if charging_status == ChargingStatus.Charging:
                     self.change_state(VehicleState.PluggedIn)
                 elif charging_status == ChargingStatus.Wait:
                     pass
                 elif charging_status != ChargingStatus.NotReady:
                     _LOGGER.info(f"While in '{self._state.name}', 'ChargingStatus' returned an unexpected response: {charging_status}")
+            elif remote_start := self._get_RemoteStart(key):
+                if remote_start == RemoteStart.On:
+                    self.change_state(VehicleState.On)
 
     def on(self) -> None:
         for key in self._get_state_keys():
-            if self._last_state_change == key.value and key == Hash.KeyState:
-                try:
-                    key_state = KeyState(self._vehicle_state.get(Hash.KeyState.value))
-                except ValueError:
-                    _LOGGER.info(f"While in '{self._state.name}', 'KeyState' had an unexpected value: {self._vehicle_state.get(Hash.KeyState.value)}")
-                    continue
+            if key_state := self._get_KeyState(key):
                 if key_state == KeyState.Sleeping or key_state == KeyState.Off:
                     self.change_state(VehicleState.Off)
                 elif key_state == KeyState.On or key_state == KeyState.Cranking:
                     pass
-                else:
-                    _LOGGER.info(f"While in '{self._state.name}', 'KeyState' returned an unexpected response: {key_state}")
-            elif self._last_state_change == key.value and key == Hash.ChargingStatus:
-                try:
-                    charging_status = ChargingStatus(self._vehicle_state.get(Hash.ChargingStatus.value))
-                except ValueError:
-                    _LOGGER.info(f"While in '{self._state.name}', 'ChargingStatus' had an unexpected value: {self._vehicle_state.get(Hash.ChargingStatus.value)}")
-                    continue
+            elif charging_status := self._get_ChargingStatus(key):
                 if charging_status == ChargingStatus.Charging:
                     self.change_state(VehicleState.PluggedIn)
                 elif charging_status == ChargingStatus.Wait:
                     pass
                 elif charging_status != ChargingStatus.NotReady:
                     _LOGGER.info(f"While in '{self._state.name}', 'ChargingStatus' returned an unexpected response: {charging_status}")
-            elif self._last_state_change == key.value and key == Hash.GearCommanded:
-                try:
-                    gear_commanded = GearCommanded(self._vehicle_state.get(Hash.GearCommanded.value))
-                except ValueError:
-                    _LOGGER.info(f"While in '{self._state.name}', 'GearCommanded' had an unexpected value: {self._vehicle_state.get(Hash.GearCommanded.value)}")
-                    continue
+            elif gear_commanded := self._get_GearCommanded(key):
                 if gear_commanded != GearCommanded.Park:
                     self.change_state(VehicleState.Trip)
 
     def trip(self) -> None:
         for key in self._get_state_keys():
-            if self._last_state_change == key.value and key == Hash.GearCommanded:
-                try:
-                    gear_commanded = GearCommanded(self._vehicle_state.get(Hash.GearCommanded.value))
-                except ValueError:
-                    _LOGGER.info(f"While in '{self._state.name}', 'GearCommanded' had an unexpected value: {self._vehicle_state.get(Hash.GearCommanded.value)}")
-                    continue
+            if gear_commanded := self._get_GearCommanded(key):
                 if gear_commanded == GearCommanded.Park:
                     self.change_state(VehicleState.On)
 
     def plugged_in(self) -> None:
         for key in self._get_state_keys():
-            if self._last_state_change == key.value and key == Hash.ChargingStatus:
-                try:
-                    charging_status = ChargingStatus(self._vehicle_state.get(Hash.ChargingStatus.value))
-                except ValueError:
-                    _LOGGER.info(f"While in '{self._state.name}', 'ChargingStatus' had an unexpected value: {self._vehicle_state.get(Hash.ChargingStatus.value)}")
-                    continue
+            if charging_status := self._get_ChargingStatus(key):
                 if charging_status == ChargingStatus.Charging:
                     pass
                 elif charging_status == ChargingStatus.NotReady or charging_status == ChargingStatus.Done:
-                    try:
-                        key_state = KeyState(self._vehicle_state.get(Hash.KeyState.value))
-                    except ValueError:
-                        _LOGGER.info(f"While in '{self._state.name}', 'KeyState' had an unexpected value: {self._vehicle_state.get(Hash.KeyState.value)}")
-                        continue
-                    if key_state == KeyState.Sleeping or key_state == KeyState.Off:
-                        self.change_state(VehicleState.Off)
-                    elif key_state == KeyState.On or key_state == KeyState.Cranking:
-                        self.change_state(VehicleState.On)
-                    else:
-                        _LOGGER.info(f"While in '{self._state.name}', 'KeyState' returned an unexpected response: {key_state}")
+                    if key_state := self._get_KeyState(Hash.KeyState):
+                        if key_state == KeyState.Sleeping or key_state == KeyState.Off:
+                            self.change_state(VehicleState.Off)
+                        elif key_state == KeyState.On or key_state == KeyState.Cranking:
+                            self.change_state(VehicleState.On)
                 else:
                     _LOGGER.info(f"While {self._state}, 'ChargingStatus' returned an unexpected response: {charging_status}")
-            elif self._last_state_change == key.value and key == Hash.EvseType:
-                try:
-                    evse_type = EvseType(self._vehicle_state.get(Hash.EvseType.value))
-                except ValueError:
-                    _LOGGER.info(f"While in '{self._state.name}', 'EvseType' had an unexpected value: {self._vehicle_state.get(Hash.EvseType.value)}")
-                    continue
+            if evse_type := self._get_EvseType(key):
                 if evse_type == EvseType.BasAC:
                     self.change_state(VehicleState.AC_Charging)
-                elif charging_status != EvseType.NoType:
-                    _LOGGER.info(f"While in '{self._state.name}', 'EvseType' returned an unexpected response: {charging_status}")
+                elif evse_type != EvseType.NoType:
+                    _LOGGER.info(f"While in '{self._state.name}', 'EvseType' returned an unexpected response: {evse_type}")
 
     def ac_charging(self) -> None:
         for key in self._get_state_keys():
-            if self._last_state_change == key.value and key == Hash.ChargingStatus:
-                try:
-                    charging_status = ChargingStatus(self._vehicle_state.get(Hash.ChargingStatus.value))
-                except ValueError:
-                    _LOGGER.info(f"While in '{self._state.name}', 'ChargingStatus' had an unexpected value: {self._vehicle_state.get(Hash.ChargingStatus.value)}")
-                    continue
+            if charging_status := self._get_ChargingStatus(key):
                 if charging_status == ChargingStatus.NotReady or charging_status == ChargingStatus.Done:
-                    try:
-                        key_state = KeyState(self._vehicle_state.get(Hash.KeyState.value))
-                    except ValueError:
-                        _LOGGER.info(f"While in '{self._state.name}', 'KeyState' had an unexpected value: {self._vehicle_state.get(Hash.KeyState.value)}")
-                        continue
-                    if key_state == KeyState.Sleeping or key_state == KeyState.Off:
-                        self.change_state(VehicleState.Off)
-                    elif key_state == KeyState.On or key_state == KeyState.Cranking:
-                        self.change_state(VehicleState.On)
-                    else:
-                        _LOGGER.info(f"While in '{self._state.name}', 'KeyState' returned an unexpected response: {key_state}")
+                    if key_state := self._get_KeyState(Hash.KeyState):
+                        if key_state == KeyState.Sleeping or key_state == KeyState.Off:
+                            self.change_state(VehicleState.Off)
+                        elif key_state == KeyState.On or key_state == KeyState.Cranking:
+                            self.change_state(VehicleState.On)
                 else:
                     _LOGGER.info(f"While in '{self._state.name}', 'ChargingStatus' returned an unexpected response: {charging_status}")

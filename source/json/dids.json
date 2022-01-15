@@ -129,6 +129,22 @@
         ]
     },
     {
+        "did_id": 16825,
+        "did_id_hex": "41B9",
+        "enable": true,
+        "did_name": "RemoteStart",
+        "modules": [
+            "BCM"
+        ],
+        "packing": "L",
+        "states": [
+            {
+                "name": "remote_start",
+                "value": 5
+            }
+        ]
+    },
+    {
         "did_id": 18432,
         "did_id_hex": "4800",
         "enable": true,

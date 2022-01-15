@@ -40,6 +40,18 @@ class CodecEngineRunTime(Codec):
         return 2
 
 
+class CodecRemoteStart(Codec):
+    def decode(self, payload):
+        # Seen 0x32, 0x34 (off), 0x4C (failed), 0x52, 0x54 (on)
+        remote_start = struct.unpack_from('>B', payload, offset=0)[0]
+        remote_start = (remote_start & 0x54) == 0x54
+        states = [{'remote_start': remote_start}]
+        return {'payload': payload, 'states': states, 'decoded': f"Remote start: {remote_start} s"}
+
+    def __len__(self):
+        return 4
+
+
 class CodecGearDisplayed(Codec):
     def decode(self, payload):
         gear_displayed = struct.unpack('>B', payload)[0]
@@ -463,6 +475,7 @@ class CodecManager:
         DidId.GearCommanded:                  CodecGearCommanded,
         DidId.HiresOdometer:                  CodecHiresOdometer,
         DidId.HiresSpeed:                     CodecHiresSpeed,
+        DidId.RemoteStart:                    CodecRemoteStart,
         DidId.ExteriorTemp:                   CodecExteriorTemp,
         DidId.InteriorTemp:                   CodecInteriorTemp,
         DidId.Time:                           CodecTime,
