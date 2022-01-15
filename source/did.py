@@ -42,6 +42,7 @@ class DidId(Enum):
     Time = 0xDD00
     InteriorTemp = 0xDD04
     ExteriorTemp = 0xDD05
+    EngineRunTime = 0xF41F
 
 
 @unique

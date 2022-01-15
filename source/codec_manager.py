@@ -30,6 +30,16 @@ class CodecKeyState(Codec):
         return 1
 
 
+class CodecEngineRunTime(Codec):
+    def decode(self, payload):
+        engine_runtime = struct.unpack('>H', payload)[0]
+        states = [{'engine_runtime': engine_runtime}]
+        return {'payload': payload, 'states': states, 'decoded': f"Engine run time: {engine_runtime} s"}
+
+    def __len__(self):
+        return 2
+
+
 class CodecGearDisplayed(Codec):
     def decode(self, payload):
         gear_displayed = struct.unpack('>B', payload)[0]
@@ -488,6 +498,7 @@ class CodecManager:
         DidId.LvbDcDcEnable:                  CodecLvbDcDcEnable,
         DidId.LvbDcDcHVCurrent:               CodecLvbDcDcHVCurrent,
         DidId.LvbDcDcLVCurrent:               CodecLvbDcDcLVCurrent,
+        DidId.EngineRunTime:                  CodecEngineRunTime,
     }
 
     def __init__(self) -> None:
