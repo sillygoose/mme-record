@@ -74,27 +74,30 @@ class RecordCanbusManager:
                         continue
 
                     with Client(connection, config=self._iso_tp_config) as client:
-                        try:
-                            response = client.read_data_by_identifier(did_list)
-                            responses.append({'arbitration_id': txid, 'arbitration_id_hex': f"{txid:04X}", 'response': response})
-                        except ValueError as e:
-                            _LOGGER.error(f"{txid:04X}: {e}")
-                        except ConfigError as e:
-                            _LOGGER.error(f"{txid:04X}: {e}")
-                        except TimeoutException as e:
-                            #_LOGGER.error(f"{txid:04X}: {e}")
-                            timeout = Response(service=None, code=0x10, data=None)
-                            timeout.valid = False
-                            timeout.invalid_reason = "request timed out"
-                            responses.append({'arbitration_id': txid, 'arbitration_id_hex': f"{txid:04X}", 'did_list': did_list, 'response': timeout})
-                        except NegativeResponseException as e:
-                            _LOGGER.error(f"{txid:04X}: {e}")
-                        except UnexpectedResponseException as e:
-                            _LOGGER.error(f"{txid:04X}: {e}")
-                        except InvalidResponseException as e:
-                            _LOGGER.error(f"{txid:04X}: {e}")
-                        except Exception as e:
-                            _LOGGER.error(f"Unexpected exception: {e}")
+                        while len(did_list) > 0:
+                            next_three = did_list[0:3]
+                            del did_list[0:3]
+                            try:
+                                response = client.read_data_by_identifier(next_three)
+                                responses.append({'arbitration_id': txid, 'arbitration_id_hex': f"{txid:04X}", 'response': response})
+                            except ValueError as e:
+                                _LOGGER.error(f"{txid:04X}: {e}")
+                            except ConfigError as e:
+                                _LOGGER.error(f"{txid:04X}: {e}")
+                            except TimeoutException as e:
+                                #_LOGGER.error(f"{txid:04X}: {e}")
+                                timeout = Response(service=None, code=0x10, data=None)
+                                timeout.valid = False
+                                timeout.invalid_reason = "request timed out"
+                                responses.append({'arbitration_id': txid, 'arbitration_id_hex': f"{txid:04X}", 'did_list': next_three, 'response': timeout})
+                            except NegativeResponseException as e:
+                                _LOGGER.error(f"{txid:04X}: {e}")
+                            except UnexpectedResponseException as e:
+                                _LOGGER.error(f"{txid:04X}: {e}")
+                            except InvalidResponseException as e:
+                                _LOGGER.error(f"{txid:04X}: {e}")
+                            except Exception as e:
+                                _LOGGER.error(f"Unexpected exception: {e}")
                 try:
                     self.response_queue.put(responses)
                 except Full:
