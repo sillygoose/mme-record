@@ -100,9 +100,9 @@ class CodecGPS(Codec):
 class CodecHiresOdometer(Codec):
     def decode(self, payload):
         odometer_high, odometer_low = struct.unpack('>HB', payload)
-        odometer = (odometer_high * 256 + odometer_low) * 0.1
-        states = [{'hires_odometer': odometer}]
-        return {'payload': payload, 'states': states, 'decoded': f"Hires odometer: {odometer:.1f} km"}
+        hires_odometer = (odometer_high * 256 + odometer_low) * 0.1
+        states = [{'hires_odometer': hires_odometer}]
+        return {'payload': payload, 'states': states, 'decoded': f"Hires odometer: {hires_odometer:.1f} km"}
 
     def __len__(self):
         return 3
@@ -121,9 +121,9 @@ class CodecHiresSpeed(Codec):
 
 class CodecExteriorTemp(Codec):
     def decode(self, payload):
-        temp = struct.unpack('>B', payload)[0] - 40
-        states = [{'ext_temp': temp}]
-        return {'payload': payload, 'states': states, 'decoded': f"Exterior temperature is {temp}°C"}
+        ext_temp = struct.unpack('>B', payload)[0] - 40
+        states = [{'ext_temp': ext_temp}]
+        return {'payload': payload, 'states': states, 'decoded': f"Exterior temperature is {ext_temp}°C"}
 
     def __len__(self):
         return 1
@@ -131,9 +131,9 @@ class CodecExteriorTemp(Codec):
 
 class CodecInteriorTemp(Codec):
     def decode(self, payload):
-        temp = struct.unpack('>B', payload)[0] - 40
-        states = [{'int_temp': temp}]
-        return {'payload': payload, 'states': states, 'decoded': f"Interior temperature is {temp}°C"}
+        int_temp = struct.unpack('>B', payload)[0] - 40
+        states = [{'int_temp': int_temp}]
+        return {'payload': payload, 'states': states, 'decoded': f"Interior temperature is {int_temp}°C"}
 
     def __len__(self):
         return 1
@@ -151,9 +151,9 @@ class CodecTime(Codec):
 
 class CodecHvbSoc(Codec):
     def decode(self, payload):
-        soc = struct.unpack('>H', payload)[0] * 0.002
-        states = [{'soc': soc}]
-        return {'payload': payload, 'states': states, 'decoded': f"Internal SOC is {soc:.3f}%"}
+        hvb_soc = struct.unpack('>H', payload)[0] * 0.002
+        states = [{'hvb_soc': hvb_soc}]
+        return {'payload': payload, 'states': states, 'decoded': f"Internal SOC is {hvb_soc:.3f}%"}
 
     def __len__(self):
         return 2
@@ -161,9 +161,9 @@ class CodecHvbSoc(Codec):
 
 class CodecHvbSocD(Codec):
     def decode(self, payload):
-        soc_displayed = struct.unpack('>B', payload)[0] * 0.5
-        states = [{'soc_displayed': soc_displayed}]
-        return {'payload': payload, 'states': states, 'decoded': f"Displayed SOC is {soc_displayed:.0f}%"}
+        hvb_soc_displayed = struct.unpack('>B', payload)[0] * 0.5
+        states = [{'hvb_soc_displayed': hvb_soc_displayed}]
+        return {'payload': payload, 'states': states, 'decoded': f"Displayed SOC is {hvb_soc_displayed:.0f}%"}
 
     def __len__(self):
         return 1
@@ -171,9 +171,9 @@ class CodecHvbSocD(Codec):
 
 class CodecHvbEte(Codec):
     def decode(self, payload):
-        energyToEmpty = struct.unpack('>H', payload)[0] * 0.002
-        states = [{'hvb_ete': energyToEmpty}]
-        return {'payload': payload, 'states': states, 'decoded': f"HVB energy to empty is {energyToEmpty:.3f} kWh"}
+        hvb_ete = struct.unpack('>H', payload)[0] * 0.002
+        states = [{'hvb_ete': hvb_ete}]
+        return {'payload': payload, 'states': states, 'decoded': f"HVB energy to empty is {hvb_ete:.3f} kWh"}
 
     def __len__(self):
         return 2
@@ -181,9 +181,9 @@ class CodecHvbEte(Codec):
 
 class CodecHvbTemp(Codec):
     def decode(self, payload):
-        temp = struct.unpack('>B', payload)[0] - 50
-        states = [{'hvb_temp': temp}]
-        return {'payload': payload, 'states': states, 'decoded': f"HVB temp is {temp}°C"}
+        hvb_temp = struct.unpack('>B', payload)[0] - 50
+        states = [{'hvb_temp': hvb_temp}]
+        return {'payload': payload, 'states': states, 'decoded': f"HVB temp is {hvb_temp}°C"}
 
     def __len__(self):
         return 1
@@ -286,10 +286,10 @@ class CodecEvseType(Codec):
 
 class CodecEvseDigitalMode(Codec):
     def decode(self, payload):
-        digital_mode = struct.unpack('>B', payload)[0]
+        evse_digital_mode = struct.unpack('>B', payload)[0]
         digital_modes = { 0: 'None', 1: 'DCE-', 2: 'DC-P', 3: 'DCEP', 4: 'ACE-', 5: 'AC-P', 6: 'ACEP', 7: 'Rst', 8: 'Off', 9: 'Est', 10: 'FAIL' }
-        mode = digital_modes.get(digital_mode, "???")
-        states = [{'evse_digital_mode': digital_mode}]
+        mode = digital_modes.get(evse_digital_mode, "???")
+        states = [{'evse_digital_mode': evse_digital_mode}]
         return {'payload': payload, 'states': states, 'decoded': ('EVSE digital mode: ' + mode)}
 
     def __len__(self):
@@ -298,9 +298,9 @@ class CodecEvseDigitalMode(Codec):
 
 class CodecHvbSOH(Codec):
     def decode(self, payload):
-        soh = struct.unpack('>B', payload)[0] * 0.5
-        states = [{'soh': soh}]
-        return {'payload': payload, 'states': states, 'decoded': f"HVB SOH is {soh:.2f} %"}
+        hvb_soh = struct.unpack('>B', payload)[0] * 0.5
+        states = [{'hvb_soh': hvb_soh}]
+        return {'payload': payload, 'states': states, 'decoded': f"HVB SOH is {hvb_soh:.2f} %"}
 
     def __len__(self):
         return 1
@@ -308,9 +308,9 @@ class CodecHvbSOH(Codec):
 
 class CodecChargerInputVoltage(Codec):
     def decode(self, payload):
-        ac_voltage = struct.unpack('>H', payload)[0] * 0.01
-        states = [{'ac_voltage': ac_voltage}]
-        return {'payload': payload, 'states': states, 'decoded': f"AC charger input voltage is {ac_voltage:.1f} V"}
+        chg_input_voltage = struct.unpack('>H', payload)[0] * 0.01
+        states = [{'chg_input_voltage': chg_input_voltage}]
+        return {'payload': payload, 'states': states, 'decoded': f"AC charger input voltage is {chg_input_voltage:.1f} V"}
 
     def __len__(self):
         return 2
@@ -318,9 +318,9 @@ class CodecChargerInputVoltage(Codec):
 
 class CodecChargerInputCurrent(Codec):
     def decode(self, payload):
-        ac_current = struct.unpack('>B', payload)[0]
-        states = [{'ac_current': ac_current}]
-        return {'payload': payload, 'states': states, 'decoded': f"AC charger input current is {ac_current} A"}
+        chg_input_current = struct.unpack('>B', payload)[0]
+        states = [{'chg_input_current': chg_input_current}]
+        return {'payload': payload, 'states': states, 'decoded': f"AC charger input current is {chg_input_current} A"}
 
     def __len__(self):
         return 1
@@ -328,9 +328,9 @@ class CodecChargerInputCurrent(Codec):
 
 class CodecChargerInputFrequency(Codec):
     def decode(self, payload):
-        ac_frequency = struct.unpack('>B', payload)[0] * 0.5
-        states = [{'ac_frequency': ac_frequency}]
-        return {'payload': payload, 'states': states, 'decoded': f"AC charger input frequency is {ac_frequency:.1f} Hz"}
+        chg_input_frequency = struct.unpack('>B', payload)[0] * 0.5
+        states = [{'chg_input_frequency': chg_input_frequency}]
+        return {'payload': payload, 'states': states, 'decoded': f"AC charger input frequency is {chg_input_frequency:.1f} Hz"}
 
     def __len__(self):
         return 1
@@ -338,9 +338,9 @@ class CodecChargerInputFrequency(Codec):
 
 class CodecChargerPilotVoltage(Codec):
     def decode(self, payload):
-        pilot_voltage = struct.unpack('>B', payload)[0] * 0.1
-        states = [{'pilot_voltage': pilot_voltage}]
-        return {'payload': payload, 'states': states, 'decoded': f"AC charger pilot voltage is {pilot_voltage:.1f} V"}
+        chg_pilot_voltage = struct.unpack('>B', payload)[0] * 0.1
+        states = [{'chg_pilot_voltage': chg_pilot_voltage}]
+        return {'payload': payload, 'states': states, 'decoded': f"AC charger pilot voltage is {chg_pilot_voltage:.1f} V"}
 
     def __len__(self):
         return 1
@@ -348,19 +348,19 @@ class CodecChargerPilotVoltage(Codec):
 
 class CodecChargerPilotDutyCycle(Codec):
     def decode(self, payload):
-        duty_cycle = struct.unpack('>B', payload)[0] * 0.5
-        states = [{'duty_cycle': duty_cycle}]
-        return {'payload': payload, 'states': states, 'decoded': f"AC charger pilot duty cycle is {duty_cycle:.1f}"}
+        chg_duty_cycle = struct.unpack('>B', payload)[0] * 0.5
+        states = [{'chg_duty_cycle': chg_duty_cycle}]
+        return {'payload': payload, 'states': states, 'decoded': f"AC charger pilot duty cycle is {chg_duty_cycle:.1f}"}
 
     def __len__(self):
         return 1
 
 
-class CodecChargerInputPower(Codec):
+class CodecChargerInputPowerAvailable(Codec):
     def decode(self, payload):
-        charger_power = struct.unpack('>h', payload)[0] * 0.005
-        states = [{'charger_power': charger_power}]
-        return {'payload': payload, 'states': states, 'decoded': f"AC charger input power available is {charger_power:.1f} kW"}
+        chg_input_power = struct.unpack('>h', payload)[0] * 0.005
+        states = [{'chg_input_power': chg_input_power}]
+        return {'payload': payload, 'states': states, 'decoded': f"AC charger input power available is {chg_input_power:.1f} kW"}
 
     def __len__(self):
         return 2
@@ -368,9 +368,9 @@ class CodecChargerInputPower(Codec):
 
 class CodecChargerMaxPower(Codec):
     def decode(self, payload):
-        max_power = struct.unpack('>H', payload)[0] * 0.05
-        states = [{'max_power': max_power}]
-        return {'payload': payload, 'states': states, 'decoded': f"AC charger maximum power is {max_power:.3f} kW"}
+        chg_max_power = struct.unpack('>H', payload)[0] * 0.05
+        states = [{'chg_max_power': chg_max_power}]
+        return {'payload': payload, 'states': states, 'decoded': f"AC charger maximum power is {chg_max_power:.3f} kW"}
 
     def __len__(self):
         return 2
@@ -378,9 +378,9 @@ class CodecChargerMaxPower(Codec):
 
 class CodecChargerOutputVoltage(Codec):
     def decode(self, payload):
-        v_out = struct.unpack('>h', payload)[0] * 0.01
-        states = [{'v_out': v_out}]
-        return {'payload': payload, 'states': states, 'decoded': f"AC charger output voltage is {v_out:.1f} V"}
+        chg_output_voltage = struct.unpack('>H', payload)[0] * 0.01
+        states = [{'chg_output_voltage': chg_output_voltage}]
+        return {'payload': payload, 'states': states, 'decoded': f"AC charger output voltage is {chg_output_voltage:.1f} V"}
 
     def __len__(self):
         return 2
@@ -388,9 +388,9 @@ class CodecChargerOutputVoltage(Codec):
 
 class CodecChargerOutputCurrent(Codec):
     def decode(self, payload):
-        a_out = struct.unpack('>h', payload)[0] * 0.01
-        states = [{'a_out': a_out}]
-        return {'payload': payload, 'states': states, 'decoded': f"AC charger output current is {a_out:.1f} A"}
+        chg_output_current = struct.unpack('>h', payload)[0] * 0.01
+        states = [{'chg_output_current': chg_output_current}]
+        return {'payload': payload, 'states': states, 'decoded': f"AC charger output current is {chg_output_current:.1f} A"}
 
     def __len__(self):
         return 2
@@ -398,9 +398,9 @@ class CodecChargerOutputCurrent(Codec):
 
 class CodecChargePowerLimit(Codec):
     def decode(self, payload):
-        power_limit = struct.unpack('>h', payload)[0] * 0.1
-        states = [{'power_limit': power_limit}]
-        return {'payload': payload, 'states': states, 'decoded': f"Charge power limit is {power_limit:.1f} A"}
+        chg_power_limit = struct.unpack('>h', payload)[0] * 0.1
+        states = [{'chg_power_limit': chg_power_limit}]
+        return {'payload': payload, 'states': states, 'decoded': f"Charge power limit is {chg_power_limit:.1f} A"}
 
     def __len__(self):
         return 2
@@ -408,9 +408,9 @@ class CodecChargePowerLimit(Codec):
 
 class CodecHvbChargeCurrentRequested(Codec):
     def decode(self, payload):
-        current_requested = struct.unpack('>h', payload)[0] * 0.01
-        states = [{'current_requested': current_requested}]
-        return {'payload': payload, 'states': states, 'decoded': f"HVB charge current requested is {current_requested:.1f} A"}
+        chg_current_requested = struct.unpack('>h', payload)[0] * 0.01
+        states = [{'chg_current_requested': chg_current_requested}]
+        return {'payload': payload, 'states': states, 'decoded': f"HVB charge current requested is {chg_current_requested:.1f} A"}
 
     def __len__(self):
         return 2
@@ -418,9 +418,9 @@ class CodecHvbChargeCurrentRequested(Codec):
 
 class CodecHvbChargeVoltageRequested(Codec):
     def decode(self, payload):
-        voltage_requested = struct.unpack('>B', payload)[0] * 2
-        states = [{'voltage_requested': voltage_requested}]
-        return {'payload': payload, 'states': states, 'decoded': f"HVB charge voltage requested is {voltage_requested} V"}
+        chg_voltage_requested = struct.unpack('>B', payload)[0] * 2
+        states = [{'chg_voltage_requested': chg_voltage_requested}]
+        return {'payload': payload, 'states': states, 'decoded': f"HVB charge voltage requested is {chg_voltage_requested} V"}
 
     def __len__(self):
         return 1
@@ -428,9 +428,9 @@ class CodecHvbChargeVoltageRequested(Codec):
 
 class CodecHvbMaximumChargeCurrent(Codec):
     def decode(self, payload):
-        max_current = struct.unpack('>h', payload)[0] * 0.05
-        states = [{'max_current': max_current}]
-        return {'payload': payload, 'states': states, 'decoded': f"HVB maximum charge current is {max_current:.1f} A"}
+        chg_max_current = struct.unpack('>h', payload)[0] * 0.05
+        states = [{'chg_max_current': chg_max_current}]
+        return {'payload': payload, 'states': states, 'decoded': f"HVB maximum charge current is {chg_max_current:.1f} A"}
 
     def __len__(self):
         return 2
@@ -438,9 +438,9 @@ class CodecHvbMaximumChargeCurrent(Codec):
 
 class CodecLvbDcDcEnable(Codec):
     def decode(self, payload):
-        enable = struct.unpack('>H', payload)[0] & 0x0001
-        states = [{'dcdc_enable': enable}]
-        return {'payload': payload, 'states': states, 'decoded': f"LVB DC-DC enable is {enable}"}
+        lvb_dcdc_enable = struct.unpack('>H', payload)[0] & 0x0001
+        states = [{'lvb_dcdc_enable': lvb_dcdc_enable}]
+        return {'payload': payload, 'states': states, 'decoded': f"LVB DC-DC enable is {lvb_dcdc_enable}"}
 
     def __len__(self):
         return 2
@@ -448,9 +448,9 @@ class CodecLvbDcDcEnable(Codec):
 
 class CodecLvbDcDcHVCurrent(Codec):
     def decode(self, payload):
-        current = struct.unpack('>B', payload)[0] * 0.1
-        states = [{'hv_current': current}]
-        return {'payload': payload, 'states': states, 'decoded': f"LVB DC-DC HV current is {current:.1f} A"}
+        lvb_dcdc_hv_current = struct.unpack('>B', payload)[0] * 0.1
+        states = [{'lvb_dcdc_hv_current': lvb_dcdc_hv_current}]
+        return {'payload': payload, 'states': states, 'decoded': f"LVB DC-DC HV current is {lvb_dcdc_hv_current:.1f} A"}
 
     def __len__(self):
         return 1
@@ -458,9 +458,9 @@ class CodecLvbDcDcHVCurrent(Codec):
 
 class CodecLvbDcDcLVCurrent(Codec):
     def decode(self, payload):
-        current = struct.unpack('>B', payload)[0]
-        states = [{'lv_current': current}]
-        return {'payload': payload, 'states': states, 'decoded': f"LVB DC-DC LV current is {current} A"}
+        lvb_dcdc_lv_current = struct.unpack('>B', payload)[0]
+        states = [{'lvb_dcdc_lv_current': lvb_dcdc_lv_current}]
+        return {'payload': payload, 'states': states, 'decoded': f"LVB DC-DC LV current is {lvb_dcdc_lv_current} A"}
 
     def __len__(self):
         return 1
@@ -497,7 +497,7 @@ class CodecManager:
         DidId.ChargerInputFrequency:          CodecChargerInputFrequency,
         DidId.ChargerPilotVoltage:            CodecChargerPilotVoltage,
         DidId.ChargerPilotDutyCycle:          CodecChargerPilotDutyCycle,
-        DidId.ChargerInputPower:              CodecChargerInputPower,
+        DidId.ChargerInputPowerAvailable:     CodecChargerInputPowerAvailable,
         DidId.ChargerMaxPower:                CodecChargerMaxPower,
         DidId.ChargerOutputVoltage:           CodecChargerOutputVoltage,
         DidId.ChargerOutputCurrent:           CodecChargerOutputCurrent,

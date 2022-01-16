@@ -23,7 +23,7 @@ class DidId(Enum):
     HvbEte = 0x4848
     ChargerOutputVoltage = 0x484A
     ChargingStatus = 0x484D
-    ChargerInputPower = 0x484E
+    ChargerInputPowerAvailable = 0x484E
     ChargerOutputCurrent = 0x4850
     EvseType = 0x4851
     ChargerInputVoltage = 0x485E
