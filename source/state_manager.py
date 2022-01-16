@@ -152,7 +152,7 @@ class StateManager:
                 self._vehicle_state[Hash.HvbPower] = hvb_power
                 hash_field = Hash.HvbPower.value.split(':')
                 synthetic = {'arbitration_id': int(hash_field[0]), 'did_id': int(hash_field[1]), 'name': hash_field[2], 'value': hvb_power}
-                _LOGGER.info(f"Calculated 'HvbPower' is {hvb_power:.0f} W from {hvb_voltage:.1f} * {hvb_current:.1f}")
+                _LOGGER.debug(f"Calculated 'HvbPower' is {hvb_power:.0f} W from {hvb_voltage:.1f} * {hvb_current:.1f}")
             elif hash == Hash.LvbVoltage or hash == Hash.LvbCurrent:
                 lvb_voltage = self._vehicle_state.get(Hash.LvbVoltage.value, 0.0)
                 lvb_current = self._vehicle_state.get(Hash.LvbCurrent.value, 0.0)
@@ -168,7 +168,7 @@ class StateManager:
                 hash_field = Hash.ChgInputPower.value.split(':')
                 synthetic = {'arbitration_id': int(hash_field[0]), 'did_id': int(hash_field[1]), 'name': hash_field[2], 'value': chg_input_power}
                 self._vehicle_state[Hash.ChgInputPower] = chg_input_power
-                _LOGGER.info(f"Calculated 'ChgInputPower' is {chg_input_power:.0f} W from {chg_input_voltage:.1f} * {chg_input_current:.1f}")
+                _LOGGER.debug(f"Calculated 'ChgInputPower' is {chg_input_power:.0f} W from {chg_input_voltage:.1f} * {chg_input_current:.1f}")
             elif hash == Hash.ChgOutputVoltage or hash == Hash.ChgOutputCurrent:
                 chg_output_voltage = self._vehicle_state.get(Hash.ChgOutputVoltage.value, 0.0)
                 chg_output_current = self._vehicle_state.get(Hash.ChgOutputCurrent.value, 0.0)
@@ -176,7 +176,7 @@ class StateManager:
                 hash_field = Hash.ChgOutputPower.value.split(':')
                 synthetic = {'arbitration_id': int(hash_field[0]), 'did_id': int(hash_field[1]), 'name': hash_field[2], 'value': chg_output_power}
                 self._vehicle_state[Hash.ChgOutputPower] = chg_output_power
-                _LOGGER.info(f"Calculated 'ChgOutputPower' is {chg_output_power:.0f} W from {chg_output_voltage:.1f} * {chg_output_current:.1f}")
+                _LOGGER.debug(f"Calculated 'ChgOutputPower' is {chg_output_power:.0f} W from {chg_output_voltage:.1f} * {chg_output_current:.1f}")
         except ValueError:
             pass
         return synthetic
@@ -282,7 +282,9 @@ class StateManager:
     def off(self) -> None:
         for key in self._get_state_keys():
             if key_state := self._get_KeyState(key):
-                if key_state == KeyState.Sleeping or key_state == KeyState.Off:
+                if key_state == KeyState.Sleeping:
+                    self.change_state(VehicleState.Sleeping)
+                elif key_state == KeyState.Off:
                     pass
                 elif key_state == KeyState.On or key_state == KeyState.Cranking:
                     self.change_state(VehicleState.On)
@@ -291,6 +293,8 @@ class StateManager:
                     self.change_state(VehicleState.PluggedIn)
                 elif charging_status == ChargingStatus.Wait:
                     pass
+                elif charging_status == ChargingStatus.Ready:
+                    self.change_state(VehicleState.Preconditioning)
                 elif charging_status != ChargingStatus.NotReady:
                     _LOGGER.info(f"While in '{self._state.name}', 'ChargingStatus' returned an unexpected response: {charging_status}")
             elif remote_start := self._get_RemoteStart(key):
@@ -300,7 +304,9 @@ class StateManager:
     def on(self) -> None:
         for key in self._get_state_keys():
             if key_state := self._get_KeyState(key):
-                if key_state == KeyState.Sleeping or key_state == KeyState.Off:
+                if key_state == KeyState.Sleeping:
+                    self.change_state(VehicleState.Sleeping)
+                elif key_state == KeyState.Sleeping or key_state == KeyState.Off:
                     self.change_state(VehicleState.Off)
                 elif key_state == KeyState.On or key_state == KeyState.Cranking:
                     pass
@@ -328,7 +334,9 @@ class StateManager:
                     pass
                 elif charging_status == ChargingStatus.NotReady or charging_status == ChargingStatus.Done:
                     if key_state := self._get_KeyState(Hash.KeyState):
-                        if key_state == KeyState.Sleeping or key_state == KeyState.Off:
+                        if key_state == KeyState.Sleeping:
+                            self.change_state(VehicleState.Sleeping)
+                        elif key_state == KeyState.Off:
                             self.change_state(VehicleState.Off)
                         elif key_state == KeyState.On or key_state == KeyState.Cranking:
                             self.change_state(VehicleState.On)
@@ -342,7 +350,9 @@ class StateManager:
                     pass
                 elif charging_status == ChargingStatus.NotReady or charging_status == ChargingStatus.Done:
                     if key_state := self._get_KeyState(Hash.KeyState):
-                        if key_state == KeyState.Sleeping or key_state == KeyState.Off:
+                        if key_state == KeyState.Sleeping:
+                            self.change_state(VehicleState.Sleeping)
+                        elif key_state == KeyState.Off:
                             self.change_state(VehicleState.Off)
                         elif key_state == KeyState.On or key_state == KeyState.Cranking:
                             self.change_state(VehicleState.On)
@@ -359,7 +369,9 @@ class StateManager:
             if charging_status := self._get_ChargingStatus(key):
                 if charging_status == ChargingStatus.NotReady or charging_status == ChargingStatus.Done:
                     if key_state := self._get_KeyState(Hash.KeyState):
-                        if key_state == KeyState.Sleeping or key_state == KeyState.Off:
+                        if key_state == KeyState.Sleeping:
+                            self.change_state(VehicleState.Sleeping)
+                        elif key_state == KeyState.Off:
                             self.change_state(VehicleState.Off)
                         elif key_state == KeyState.On or key_state == KeyState.Cranking:
                             self.change_state(VehicleState.On)
@@ -371,7 +383,9 @@ class StateManager:
             if charging_status := self._get_ChargingStatus(key):
                 if charging_status == ChargingStatus.NotReady or charging_status == ChargingStatus.Done:
                     if key_state := self._get_KeyState(Hash.KeyState):
-                        if key_state == KeyState.Sleeping or key_state == KeyState.Off:
+                        if key_state == KeyState.Sleeping:
+                            self.change_state(VehicleState.Sleeping)
+                        elif key_state == KeyState.Off:
                             self.change_state(VehicleState.Off)
                         elif key_state == KeyState.On or key_state == KeyState.Cranking:
                             self.change_state(VehicleState.On)
