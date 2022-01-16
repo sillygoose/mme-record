@@ -40,13 +40,20 @@ class CodecEngineRunTime(Codec):
         return 2
 
 
-class CodecRemoteStart(Codec):
+class CodecEngineStart(Codec):
     def decode(self, payload):
-        # Seen 0x32, 0x34 (off), 0x4C (failed), 0x52, 0x54 (on)
-        remote_start = struct.unpack_from('>B', payload, offset=0)[0]
-        remote_start = (remote_start & 0x54) == 0x54
-        states = [{'remote_start': remote_start}]
-        return {'payload': payload, 'states': states, 'decoded': f"Remote start: {remote_start} s"}
+        engine_start = struct.unpack_from('>L', payload, offset=0)[0]
+        engine_start_normal = bool(engine_start & 0x80000000)
+        engine_start_remote = bool(engine_start & 0x40000000)
+        engine_start_disable = bool(engine_start & 0x20000000)
+        engine_start_extended = bool(engine_start & 0x00800000)
+        states = [
+            {'engine_start_normal': engine_start_normal},
+            {'engine_start_disable': engine_start_disable},
+            {'engine_start_remote': engine_start_remote},
+            {'engine_start_extended': engine_start_extended},
+        ]
+        return {'payload': payload, 'states': states, 'decoded': f"Start engine bit field: {engine_start:04X} s"}
 
     def __len__(self):
         return 4
@@ -475,7 +482,7 @@ class CodecManager:
         DidId.GearCommanded:                  CodecGearCommanded,
         DidId.HiresOdometer:                  CodecHiresOdometer,
         DidId.HiresSpeed:                     CodecHiresSpeed,
-        DidId.RemoteStart:                    CodecRemoteStart,
+        DidId.EngineStart:                    CodecEngineStart,
         DidId.ExteriorTemp:                   CodecExteriorTemp,
         DidId.InteriorTemp:                   CodecInteriorTemp,
         DidId.Time:                           CodecTime,

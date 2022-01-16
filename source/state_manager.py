@@ -10,7 +10,7 @@ from enum import Enum, unique, auto
 from typing import List
 
 from codec_manager import *
-from did import KeyState, ChargingStatus, EvseType, GearCommanded, RemoteStart
+from did import KeyState, ChargingStatus, EvseType, GearCommanded, EngineStartRemote
 
 
 _LOGGER = logging.getLogger('mme')
@@ -37,7 +37,7 @@ class Hash(Enum):
     EvseType            = '07E4:4851:evse_type'
     ChargingStatus      = '07E4:484D:charging_status'
     GearCommanded       = '07E2:1E12:gear_commanded'
-    RemoteStart         = '0726:41B9:remote_start'
+    EngineStartRemote   = '0726:41B9:engine_start_remote'
 
     HvbVoltage          = '07E4:480D:hvb_voltage'
     HvbCurrent          = '07E4:48F9:hvb_current'
@@ -60,8 +60,8 @@ class StateManager:
 
     _state_file_lookup = {
         VehicleState.Unknown:           {'state_file': 'json/state/unknown.json',           'state_keys': [Hash.KeyState]},
-        VehicleState.Sleeping:          {'state_file': 'json/state/sleeping.json',          'state_keys': [Hash.KeyState, Hash.ChargingStatus, Hash.RemoteStart]},
-        VehicleState.Off:               {'state_file': 'json/state/off.json',               'state_keys': [Hash.KeyState, Hash.ChargingStatus, Hash.RemoteStart]},
+        VehicleState.Sleeping:          {'state_file': 'json/state/sleeping.json',          'state_keys': [Hash.KeyState, Hash.ChargingStatus, Hash.EngineStartRemote]},
+        VehicleState.Off:               {'state_file': 'json/state/off.json',               'state_keys': [Hash.KeyState, Hash.ChargingStatus, Hash.EngineStartRemote]},
         VehicleState.On:                {'state_file': 'json/state/on.json',                'state_keys': [Hash.KeyState, Hash.ChargingStatus, Hash.GearCommanded]},
         VehicleState.Trip:              {'state_file': 'json/state/trip.json',              'state_keys': [Hash.GearCommanded]},
         VehicleState.Preconditioning:   {'state_file': 'json/state/preconditioning.json',   'state_keys': [Hash.ChargingStatus, Hash.EvseType]},
@@ -239,13 +239,13 @@ class StateManager:
                 _LOGGER.info(f"While in '{self._state.name}', 'EvseType' had an unexpected value: {self._vehicle_state.get(Hash.EvseType.value)}")
         return evse_type
 
-    def _get_RemoteStart(self, key: Hash) -> RemoteStart:
+    def _get_RemoteStart(self, key: Hash) -> EngineStartRemote:
         remote_start = None
-        if self._last_state_change == key.value and key == Hash.RemoteStart:
+        if self._last_state_change == key.value and key == Hash.EngineStartRemote:
             try:
-                remote_start = RemoteStart(self._vehicle_state.get(Hash.RemoteStart.value))
+                remote_start = EngineStartRemote(self._vehicle_state.get(Hash.EngineStartRemote.value))
             except ValueError:
-                _LOGGER.info(f"While in '{self._state.name}', 'RemoteStart' had an unexpected value: {self._vehicle_state.get(Hash.RemoteStart.value)}")
+                _LOGGER.info(f"While in '{self._state.name}', 'EngineStartRemote' had an unexpected value: {self._vehicle_state.get(Hash.EngineStartRemote.value)}")
         return remote_start
 
     def unknown(self) -> None:
@@ -276,7 +276,7 @@ class StateManager:
                 elif charging_status != ChargingStatus.NotReady:
                     _LOGGER.info(f"While in '{self._state.name}', 'ChargingStatus' returned an unexpected response: {charging_status}")
             elif remote_start := self._get_RemoteStart(key):
-                if remote_start == RemoteStart.On:
+                if remote_start == EngineStartRemote.On:
                     self.change_state(VehicleState.Preconditioning)
 
     def off(self) -> None:
@@ -298,7 +298,7 @@ class StateManager:
                 elif charging_status != ChargingStatus.NotReady:
                     _LOGGER.info(f"While in '{self._state.name}', 'ChargingStatus' returned an unexpected response: {charging_status}")
             elif remote_start := self._get_RemoteStart(key):
-                if remote_start == RemoteStart.On:
+                if remote_start == EngineStartRemote.On:
                     self.change_state(VehicleState.Preconditioning)
 
     def on(self) -> None:
@@ -342,6 +342,9 @@ class StateManager:
                             self.change_state(VehicleState.On)
                 else:
                     _LOGGER.info(f"While {self._state}, 'ChargingStatus' returned an unexpected response: {charging_status}")
+            elif remote_start := self._get_RemoteStart(key):
+                if remote_start == EngineStartRemote.Off:
+                    self.change_state(VehicleState.Unknown)
 
     def plugged_in(self) -> None:
         for key in self._get_state_keys():

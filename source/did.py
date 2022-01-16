@@ -10,7 +10,7 @@ class DidId(Enum):
     LvbCurrent = 0x402B
     HiresOdometer = 0x404C
     KeyState = 0x411F
-    RemoteStart = 0x41B9
+    EngineStart = 0x41B9
     HvbTemp = 0x4800
     HvbSoc = 0x4801
     HvbVoltage = 0x480D
@@ -62,7 +62,7 @@ class GearCommanded(Enum):
     Low = 20
 
 @unique
-class RemoteStart(Enum):
+class EngineStartRemote(Enum):
     Off = False
     On = True
 
