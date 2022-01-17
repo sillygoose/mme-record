@@ -65,7 +65,20 @@ class CodecEngineStart(Codec):
             {'engine_start_remote': engine_start_remote},
             {'engine_start_extended': engine_start_extended},
         ]
-        return {'payload': payload, 'states': states, 'decoded': f"Start engine bit field: {engine_start:04X} s"}
+        return {'payload': payload, 'states': states, 'decoded': f"Start engine bit field: {engine_start:08X}"}
+
+    def __len__(self):
+        return 4
+
+
+class CodecChargePlug(Codec):
+    def decode(self, payload):
+        charge_plug = struct.unpack_from('>L', payload, offset=0)[0]
+        charge_plug_connected = bool(charge_plug & 0x00004000)
+        states = [
+            {'charge_plug_connected': charge_plug_connected},
+        ]
+        return {'payload': payload, 'states': states, 'decoded': f"Charge plug bit field: {charge_plug:08X}"}
 
     def __len__(self):
         return 4
@@ -493,6 +506,7 @@ class CodecManager:
         DidId.InferredKey:                    CodecInferredKey,
         DidId.GearDisplayed:                  CodecGearDisplayed,
         DidId.GearCommanded:                  CodecGearCommanded,
+        DidId.ChargePlug:                     CodecChargePlug,
         DidId.HiresOdometer:                  CodecHiresOdometer,
         DidId.HiresSpeed:                     CodecHiresSpeed,
         DidId.EngineStart:                    CodecEngineStart,

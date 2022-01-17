@@ -19,6 +19,7 @@ class DidId(Enum):
     LvbDcDcHVCurrent = 0x483A
     LvbDcDcEnable = 0x483D
     HvbChargeCurrentRequested = 0x4842
+    ChargePlug = 0x4843
     HvbChargeVoltageRequested = 0x4844
     HvbSocD = 0x4845
     HvbEte = 0x4848
@@ -69,19 +70,24 @@ class GearCommanded(Enum):
     Low = 20
 
 @unique
+class ChargePlugConnected(Enum):
+    No = False
+    Yes = True
+
+@unique
 class EngineStartRemote(Enum):
-    Off = False
-    On = True           # Vehicle cannot be driven
+    No = False
+    Yes = True           # Vehicle cannot be driven
 
 @unique
 class EngineStartNormal(Enum):
-    Off = False
-    On = True           # Vehicle can be driven
+    No = False
+    Yes = True           # Vehicle can be driven
 
 @unique
 class EngineStartDisable(Enum):
-    Off = False
-    On = True           # Vehicle is not running
+    No = False
+    Yes = True           # Vehicle is not running
 
 @unique
 class ChargingStatus(Enum):

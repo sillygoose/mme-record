@@ -27,17 +27,17 @@
         ]
     },
     {
-        "module": "BECM",
-        "arbitration_id": 2020,
-        "arbitration_id_hex": "07E4",
+        "module": "SOBDM",
+        "arbitration_id": 2018,
+        "arbitration_id_hex": "07E2",
         "enable": true,
-        "period": 15,
+        "period": 10,
         "dids": [
             {
-                "did_name": "ChargingStatus",
-                "did_id": 18509,
-                "did_id_hex": "484D",
-                "codec_id": 18509
+                "did_name": "ChargePlugConnected",
+                "did_id": 18499,
+                "did_id_hex": "4843",
+                "codec_id": 18499
             }
         ]
     }

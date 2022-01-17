@@ -1,31 +1,37 @@
 [
     {
-        "module": "GWM",
-        "arbitration_id": 1814,
-        "arbitration_id_hex": "0716",
+        "module": "BCM",
+        "arbitration_id": 1830,
+        "arbitration_id_hex": "0726",
         "enable": true,
-        "period": 5,
+        "period": 10,
         "dids": [
             {
-                "did_name": "KeyState",
-                "did_id": 16671,
-                "did_id_hex": "411F",
-                "codec_id": 16671
+                "did_name": "EngineStart",
+                "did_id": 16825,
+                "did_id_hex": "41B9",
+                "codec_id": 16825
+            },
+            {
+                "did_name": "InferredKey",
+                "did_id": 16765,
+                "did_id_hex": "417D",
+                "codec_id": 16765
             }
         ]
     },
     {
-        "module": "BECM",
-        "arbitration_id": 2020,
-        "arbitration_id_hex": "07E4",
+        "module": "SOBDM",
+        "arbitration_id": 2018,
+        "arbitration_id_hex": "07E2",
         "enable": true,
-        "period": 15,
+        "period": 10,
         "dids": [
             {
-                "did_name": "ChargingStatus",
-                "did_id": 18509,
-                "did_id_hex": "484D",
-                "codec_id": 18509
+                "did_name": "ChargePlugConnected",
+                "did_id": 18499,
+                "did_id_hex": "4843",
+                "codec_id": 18499
             }
         ]
     },
@@ -108,12 +114,6 @@
         "enable": true,
         "period": 10,
         "dids": [
-            {
-                "did_name": "RemoteStart",
-                "did_id": 16825,
-                "did_id_hex": "41B9",
-                "codec_id": 16825
-            },
             {
                 "did_name": "LvbVoltage",
                 "did_id": 16426,
