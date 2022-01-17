@@ -22,8 +22,20 @@ class CodecKeyState(Codec):
     def decode(self, payload):
         key_state = struct.unpack('>B', payload)[0]
         key_states = {0: 'Sleeping', 3: 'On', 4: 'Starting', 5: 'Off'}
-        state_string = 'Ignition state: ' + key_states.get(key_state, 'Unknown')
+        state_string = 'Ignition state: ' + key_states.get(key_state, '???')
         states = [{'key_state': key_state}]
+        return {'payload': payload, 'states': states, 'decoded': state_string}
+
+    def __len__(self):
+        return 1
+
+
+class CodecInferredKey(Codec):
+    def decode(self, payload):
+        inferred_key = struct.unpack('>B', payload)[0]
+        inferred_key_states = {0: 'Unknown', 1: 'Key In', 2: 'Key Out'}
+        state_string = 'Inferred key state: ' + inferred_key_states.get(inferred_key, '???')
+        states = [{'inferred_key': inferred_key}]
         return {'payload': payload, 'states': states, 'decoded': state_string}
 
     def __len__(self):
@@ -478,6 +490,7 @@ class CodecManager:
     _codec_lookup = {
         DidId.Null:                           CodecNull,
         DidId.KeyState:                       CodecKeyState,
+        DidId.InferredKey:                    CodecInferredKey,
         DidId.GearDisplayed:                  CodecGearDisplayed,
         DidId.GearCommanded:                  CodecGearCommanded,
         DidId.HiresOdometer:                  CodecHiresOdometer,

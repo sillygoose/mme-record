@@ -10,6 +10,7 @@ class DidId(Enum):
     LvbCurrent = 0x402B
     HiresOdometer = 0x404C
     KeyState = 0x411F
+    InferredKey = 0x417D
     EngineStart = 0x41B9
     HvbTemp = 0x4800
     HvbSoc = 0x4801
@@ -54,6 +55,12 @@ class KeyState(Enum):
     Off = 5
 
 @unique
+class InferredKey(Enum):
+    Unknown = 0
+    KeyIn = 1
+    KeyOut = 2
+
+@unique
 class GearCommanded(Enum):
     Park = 70
     Reverse = 60
@@ -64,7 +71,17 @@ class GearCommanded(Enum):
 @unique
 class EngineStartRemote(Enum):
     Off = False
-    On = True
+    On = True           # Vehicle cannot be driven
+
+@unique
+class EngineStartNormal(Enum):
+    Off = False
+    On = True           # Vehicle can be driven
+
+@unique
+class EngineStartDisable(Enum):
+    Off = False
+    On = True           # Vehicle is not running
 
 @unique
 class ChargingStatus(Enum):

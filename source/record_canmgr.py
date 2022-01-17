@@ -24,6 +24,7 @@ class RecordCanbusManager:
         self.request_queue = request_queue
         self.response_queue = response_queue
         self._exit_requested = False
+        self._did_read = config_record.get('did_read', 1)
         self._iso_tp_config = dict(udsoncan.configs.default_client_config)
         self._iso_tp_config['request_timeout'] = config_record.get('request_timeout', 1.0)
         self._iso_tp_config['p2_timeout'] = config_record.get('p2_timeout', 1.0)
@@ -75,10 +76,10 @@ class RecordCanbusManager:
 
                     with Client(connection, config=self._iso_tp_config) as client:
                         while len(did_list) > 0:
-                            next_three = did_list[0:3]
-                            del did_list[0:3]
+                            next_read = did_list[0:self._did_read]
+                            del did_list[0:self._did_read]
                             try:
-                                response = client.read_data_by_identifier(next_three)
+                                response = client.read_data_by_identifier(next_read)
                                 responses.append({'arbitration_id': txid, 'arbitration_id_hex': f"{txid:04X}", 'response': response})
                             except ValueError as e:
                                 _LOGGER.error(f"{txid:04X}: {e}")
@@ -89,7 +90,7 @@ class RecordCanbusManager:
                                 timeout = Response(service=None, code=0x10, data=None)
                                 timeout.valid = False
                                 timeout.invalid_reason = "request timed out"
-                                responses.append({'arbitration_id': txid, 'arbitration_id_hex': f"{txid:04X}", 'did_list': next_three, 'response': timeout})
+                                responses.append({'arbitration_id': txid, 'arbitration_id_hex': f"{txid:04X}", 'did_list': next_read, 'response': timeout})
                             except NegativeResponseException as e:
                                 _LOGGER.error(f"{txid:04X}: {e}")
                             except UnexpectedResponseException as e:

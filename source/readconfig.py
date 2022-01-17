@@ -257,6 +257,7 @@ def check_config(config):
                     {'dest_path': {'required': True, 'keys': [], 'type': str}},
                     {'dest_file': {'required': True, 'keys': [], 'type': str}},
                     {'file_writes': {'required': False, 'keys': [], 'type': int}},
+                    {'did_read': {'required': False, 'keys': [], 'type': int}},
                     {'born_on': {'required': False, 'keys': [], 'type': int}},
                     {'request_timeout': {'required': False, 'keys': [], 'type': float}},
                     {'p2_timeout': {'required': False, 'keys': [], 'type': float}},

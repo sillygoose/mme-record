@@ -8,6 +8,7 @@ mme:
         # dest_path:                path where the output files are written
         # dest_file:                filename for the output file series
         # file_writes:              number of records collected before writing an output file, set to 0 to disable file writes (default: 200)
+        # did_read:                 specify the number of DID per request (default is 1)
         # born_on:                  timestamp added to DID 0xDD00 to get current GMT time (not used at this time)
         # request_timeout:          max time in seconds to wait for a response of any kind, positive or negative, after sending a request (default: 1.0)
         # p2_timeout:               max time in seconds to wait for a first response (positive, negative, or NRC 0x78) (default: 1.0)
@@ -16,6 +17,7 @@ mme:
         dest_path:          'record_files'
         dest_file:          'trip2'
         file_writes:        500
+        did_read:           1
         born_on:            1623167753
         request_timeout:    1.0
         p2_timeout:         1.0
