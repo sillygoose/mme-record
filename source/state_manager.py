@@ -62,9 +62,10 @@ class Hash(Enum):
 class StateManager:
 
     _state_file_lookup = {
-        VehicleState.Unknown:           {'state_file': 'json/state/unknown.json',           'state_keys': [Hash.EngineStartDisable, Hash.InferredKey]},
-        VehicleState.Off:               {'state_file': 'json/state/off.json',               'state_keys': [Hash.KeyState, Hash.ChargingStatus, Hash.EngineStartRemote]},
-        VehicleState.Accessory:         {'state_file': 'json/state/accessory.json',         'state_keys': [Hash.KeyState, Hash.ChargingStatus, Hash.EngineStartRemote]},
+        VehicleState.Unknown:           {'state_file': 'json/state/unknown.json',           'state_keys': [Hash.InferredKey]},
+        VehicleState.Off:               {'state_file': 'json/state/off.json',               'state_keys': [Hash.InferredKey, Hash.ChargingStatus]},
+        VehicleState.Accessory:         {'state_file': 'json/state/accessory.json',         'state_keys': [Hash.InferredKey, Hash.ChargingStatus]},
+        ###
         VehicleState.On:                {'state_file': 'json/state/on.json',                'state_keys': [Hash.KeyState, Hash.ChargingStatus, Hash.GearCommanded]},
         VehicleState.Trip:              {'state_file': 'json/state/trip.json',              'state_keys': [Hash.GearCommanded]},
         VehicleState.Preconditioning:   {'state_file': 'json/state/preconditioning.json',   'state_keys': [Hash.ChargingStatus, Hash.EvseType]},
@@ -303,45 +304,48 @@ class StateManager:
                         else:
                             self.change_state(VehicleState.Accessory)
 
-    def accessory(self) -> None:
-        for key in self._get_state_keys():
-            if key_state := self._get_KeyState(key):
-                if key_state == KeyState.Sleeping:
-                    pass
-                elif key_state == KeyState.Off:
-                    self.change_state(VehicleState.Off)
-                elif key_state == KeyState.On or key_state == KeyState.Cranking:
-                    self.change_state(VehicleState.On)
-            elif charging_status := self._get_ChargingStatus(key):
-                if charging_status == ChargingStatus.Charging:
-                    self.change_state(VehicleState.PluggedIn)
-                elif charging_status == ChargingStatus.Wait:
-                    pass
-                elif charging_status != ChargingStatus.NotReady:
-                    _LOGGER.info(f"While in '{self._state.name}', 'ChargingStatus' returned an unexpected response: {charging_status}")
-            elif remote_start := self._get_EngineStartRemote(key):
-                if remote_start == EngineStartRemote.On:
-                    self.change_state(VehicleState.Preconditioning)
-
     def off(self) -> None:
         for key in self._get_state_keys():
-            if key_state := self._get_KeyState(key):
-                if key_state == KeyState.Sleeping or key_state == KeyState.Off:
+            if inferred_key := self._get_InferredKey(key):
+                if inferred_key == InferredKey.KeyOut:
+                    if engine_start_remote := self._get_EngineStartRemote(Hash.EngineStartRemote):
+                        if engine_start_remote == EngineStartRemote.On:
+                            self.change_state(VehicleState.Preconditioning)
+                elif inferred_key == InferredKey.KeyIn:
+                    if engine_start_norrmal := self._get_EngineStartNormal(Hash.EngineStartNormal):
+                        if engine_start_norrmal == EngineStartNormal.On:
+                            self.change_state(VehicleState.On)
+                        else:
+                            self.change_state(VehicleState.Accessory)
+            elif charging_status := self._get_ChargingStatus(key):
+                ### doesnt work - timeout
+                if charging_status == ChargingStatus.Charging:
+                    self.change_state(VehicleState.PluggedIn)
+                elif charging_status == ChargingStatus.Wait:
                     pass
-                elif key_state == KeyState.On or key_state == KeyState.Cranking:
-                    self.change_state(VehicleState.On)
+                elif charging_status != ChargingStatus.NotReady:
+                    _LOGGER.info(f"While in '{self._state.name}', 'ChargingStatus' returned an unexpected response: {charging_status}")
+
+    def accessory(self) -> None:
+        for key in self._get_state_keys():
+            if inferred_key := self._get_InferredKey(key):
+                if inferred_key == InferredKey.KeyOut:
+                    if engine_start_remote := self._get_EngineStartRemote(Hash.EngineStartRemote):
+                        if engine_start_remote == EngineStartRemote.On:
+                            self.change_state(VehicleState.Preconditioning)
+                        else:
+                            self.change_state(VehicleState.Off)
+                elif inferred_key == InferredKey.KeyIn:
+                    if engine_start_norrmal := self._get_EngineStartNormal(Hash.EngineStartNormal):
+                        if engine_start_norrmal == EngineStartNormal.On:
+                            self.change_state(VehicleState.On)
             elif charging_status := self._get_ChargingStatus(key):
                 if charging_status == ChargingStatus.Charging:
                     self.change_state(VehicleState.PluggedIn)
                 elif charging_status == ChargingStatus.Wait:
                     pass
-                elif charging_status == ChargingStatus.Ready:
-                    self.change_state(VehicleState.Preconditioning)
                 elif charging_status != ChargingStatus.NotReady:
                     _LOGGER.info(f"While in '{self._state.name}', 'ChargingStatus' returned an unexpected response: {charging_status}")
-            elif remote_start := self._get_EngineStartRemote(key):
-                if remote_start == EngineStartRemote.On:
-                    self.change_state(VehicleState.Preconditioning)
 
     def on(self) -> None:
         for key in self._get_state_keys():
