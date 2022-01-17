@@ -15,7 +15,7 @@ mme:
         #                           a negative response with code 0x78 (requestCorrectlyReceived-ResponsePending) (default: 1.0)
         dest_path:          'record_files'
         dest_file:          'trip2'
-        file_writes:        100
+        file_writes:        500
         born_on:            1623167753
         request_timeout:    1.0
         p2_timeout:         1.0
@@ -57,4 +57,4 @@ mme:
         url:            !secret influxdb2_url
         bucket:         !secret influxdb2_bucket
         token:          !secret influxdb2_token
-        block_size:     50
+        block_size:     500

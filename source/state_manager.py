@@ -19,13 +19,11 @@ _LOGGER = logging.getLogger('mme')
 @unique
 class VehicleState(Enum):
         Unknown = auto()            # initial state until another is determined
-        Sleeping = auto()           # only the GWM responds to ReadDID requests
-        Off = auto()                # the vehicle was turned off (but modules are still responding)
-        Accessories = auto()        # the vehicle start button was pressed with the brake not depressed
-        Starting = auto()           # this is an intermediate state seen when the start button is held closed (likely insignificant)
-        On = auto()                 # the vehicle start button was pressed with the brake depressed
+        Sleeping = auto()           # limited responses to ReadDID requests
+        Off = auto()                # the vehicle was turned off
+        On = auto()                 # the vehicle was turned on
         Trip = auto()               # the vehicle is in a gear other than Park
-        Preconditioning = auto()    # the vehicle is preconditioning
+        Preconditioning = auto()    # the vehicle is preconditioning (remote start)
         PluggedIn = auto()          # the vehicle has plugged in
         Charging_AC = auto()        # the vehicle is AC charging
         Charging_DCFC = auto()      # the vehicle is DC fast charging
