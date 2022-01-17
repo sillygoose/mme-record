@@ -4,13 +4,25 @@
         "arbitration_id": 2020,
         "arbitration_id_hex": "07E4",
         "enable": true,
-        "period": 15,
+        "period": 5,
         "dids": [
             {
                 "did_name": "ChargingStatus",
                 "did_id": 18509,
                 "did_id_hex": "484D",
                 "codec_id": 18509
+            },
+            {
+                "did_name": "HvbVoltage",
+                "did_id": 18445,
+                "did_id_hex": "480D",
+                "codec_id": 18445
+            },
+            {
+                "did_name": "HvbCurrent",
+                "did_id": 18681,
+                "did_id_hex": "48F9",
+                "codec_id": 18681
             }
         ]
     },
@@ -19,7 +31,7 @@
         "arbitration_id": 2018,
         "arbitration_id_hex": "07E2",
         "enable": true,
-        "period": 5,
+        "period": 10,
         "dids": [
             {
                 "did_name": "ChargerOutputCurrent",
@@ -52,25 +64,13 @@
         "arbitration_id": 2020,
         "arbitration_id_hex": "07E4",
         "enable": true,
-        "period": 5,
+        "period": 30,
         "dids": [
             {
                 "did_name": "EnergyToEmpty",
                 "did_id": 18504,
                 "did_id_hex": "4848",
                 "codec_id": 18504
-            },
-            {
-                "did_name": "HvbVoltage",
-                "did_id": 18445,
-                "did_id_hex": "480D",
-                "codec_id": 18445
-            },
-            {
-                "did_name": "HvbCurrent",
-                "did_id": 18681,
-                "did_id_hex": "48F9",
-                "codec_id": 18681
             }
         ]
     }

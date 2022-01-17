@@ -22,7 +22,7 @@ class CodecKeyState(Codec):
     def decode(self, payload):
         key_state = struct.unpack('>B', payload)[0]
         key_states = {0: 'Sleeping', 3: 'On', 4: 'Starting', 5: 'Off'}
-        state_string = 'Ignition state: ' + key_states.get(key_state, '???')
+        state_string = 'Key state: ' + key_states.get(key_state, f"unknown ({key_state})")
         states = [{'key_state': key_state}]
         return {'payload': payload, 'states': states, 'decoded': state_string}
 
@@ -34,7 +34,7 @@ class CodecInferredKey(Codec):
     def decode(self, payload):
         inferred_key = struct.unpack('>B', payload)[0]
         inferred_key_states = {0: 'Unknown', 1: 'Key In', 2: 'Key Out'}
-        state_string = 'Inferred key state: ' + inferred_key_states.get(inferred_key, '???')
+        state_string = 'Inferred key state: ' + inferred_key_states.get(inferred_key, f"unknown ({inferred_key})")
         states = [{'inferred_key': inferred_key}]
         return {'payload': payload, 'states': states, 'decoded': state_string}
 
@@ -65,7 +65,7 @@ class CodecEngineStart(Codec):
             {'engine_start_remote': engine_start_remote},
             {'engine_start_extended': engine_start_extended},
         ]
-        return {'payload': payload, 'states': states, 'decoded': f"Start engine bit field: {engine_start:08X}"}
+        return {'payload': payload, 'states': states, 'decoded': f"Start engine bit field ({engine_start:08X}): normal={engine_start_normal}, remote={engine_start_remote}, disable={engine_start_disable}"}
 
     def __len__(self):
         return 4
@@ -78,7 +78,7 @@ class CodecChargePlug(Codec):
         states = [
             {'charge_plug_connected': charge_plug_connected},
         ]
-        return {'payload': payload, 'states': states, 'decoded': f"Charge plug bit field: {charge_plug:08X}"}
+        return {'payload': payload, 'states': states, 'decoded': f"Charge plug bit field ({charge_plug:08X}): charge_plug_connected={charge_plug_connected}"}
 
     def __len__(self):
         return 4
@@ -277,7 +277,7 @@ class CodecChargingStatus(Codec):
         charging_statuses = {
             0: 'Not Ready', 1: 'Wait', 2: 'Ready', 3: 'Charging', 4: 'Done', 5: 'Fault',
         }
-        status_string = 'Charger status: ' + charging_statuses.get(charging_status, f"unknown ({charging_status:02X})")
+        status_string = 'Charger status: ' + charging_statuses.get(charging_status, f"unknown ({charging_status})")
         states = [{'charging_status': charging_status}]
         return {'payload': payload, 'states': states, 'decoded': status_string}
 
@@ -292,7 +292,7 @@ class CodecChargerStatus(Codec):
             0: 'Not Ready', 1: 'Ready', 2: 'Fault', 3: 'WChk', 4: 'PreC', 5: 'Charging',
             6: 'Done', 7: 'ExtC', 8: 'Init',
         }
-        status_string = 'Charger status: ' + charger_statuses.get(charger_status, f"unknown ({charger_status:02X})")
+        status_string = 'Charger status: ' + charger_statuses.get(charger_status, f"unknown ({charger_status})")
         states = [{'charger_status': charger_status}]
         return {'payload': payload, 'states': states, 'decoded': status_string}
 
@@ -308,7 +308,7 @@ class CodecEvseType(Codec):
             6: 'BasAC', 7: 'HLAC', 8: 'HLDC', 9: 'Unknown', 10: 'NCom',
             11: 'FAULT', 12: 'HEnd'
         }
-        type_string = 'EVSE type: ' + evse_types.get(type, 'unknown')
+        type_string = 'EVSE type: ' + evse_types.get(evse_type, f"unknown ({evse_type})")
         states = [{'evse_type': evse_type}]
         return {'payload': payload, 'states': states, 'decoded': type_string}
 
@@ -320,7 +320,7 @@ class CodecEvseDigitalMode(Codec):
     def decode(self, payload):
         evse_digital_mode = struct.unpack('>B', payload)[0]
         digital_modes = { 0: 'None', 1: 'DCE-', 2: 'DC-P', 3: 'DCEP', 4: 'ACE-', 5: 'AC-P', 6: 'ACEP', 7: 'Rst', 8: 'Off', 9: 'Est', 10: 'FAIL' }
-        mode = digital_modes.get(evse_digital_mode, "???")
+        mode = digital_modes.get(evse_digital_mode, f"unknown ({evse_digital_mode})")
         states = [{'evse_digital_mode': evse_digital_mode}]
         return {'payload': payload, 'states': states, 'decoded': ('EVSE digital mode: ' + mode)}
 

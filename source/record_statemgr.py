@@ -57,15 +57,22 @@ class RecordStateManager(StateManager):
     def _request_task(self, sync_queue: Queue) -> None:
         try:
             while self._exit_requested == False:
+                trigger_at = 0
+                while trigger_at == 0:
+                    try:
+                        with self._command_queue_lock:
+                            trigger_at, period, module_list = self._command_queue.get_nowait()
+                    except Empty:
+                        sleep(0.05)
+
                 try:
-                    trigger_at, period, module_list = self._command_queue.get()
-                    self._command_queue.task_done()
-                    current_time = round(time(), 2)
+                    current_time = time()
                     if current_time < trigger_at:
                         sleep(trigger_at - current_time)
                     self._request_queue.put(module_list)
-                    current_time = round(time(), 2)
-                    self._command_queue.put((current_time + period, period, module_list))  ### race condition
+                    with self._command_queue_lock:
+                        self._command_queue.put((time() + period, period, module_list))
+                        self._command_queue.task_done()
                     sync_queue.get()
                     sync_queue.task_done()
                 except Full:
@@ -104,9 +111,10 @@ class RecordStateManager(StateManager):
                             self._did_state_cache[key] = {'time': current_time, 'payload': payload}
                             state_details = {'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did_id, 'did_id_hex': f"{did_id:04X}", 'payload': list(payload)}
                             self._file_manager.write_record(state_details)
+
+                            _LOGGER.info(f"{arbitration_id:04X}/{did_id:04X}: {response.service_data.values[did_id].get('decoded')}")
                             influxdb_state_data = self.update_vehicle_state(state_details)
                             self._influxdb.write_record(influxdb_state_data)
-                            _LOGGER.info(f"{arbitration_id:04X}/{did_id:04X}: {response.service_data.values[did_id].get('decoded')}")
                 self._response_queue.task_done()
 
         except RuntimeError as e:

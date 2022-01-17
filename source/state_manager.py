@@ -2,8 +2,9 @@
 State definitions
 """
 import logging
-from queue import Empty, PriorityQueue
-from time import sleep, time
+from threading import Lock
+from queue import PriorityQueue
+from time import time
 import json
 
 from enum import Enum, unique, auto
@@ -79,6 +80,7 @@ class StateManager:
         self._state = None
         self._codec_manager = CodecManager()
         self._command_queue = PriorityQueue()
+        self._command_queue_lock = Lock()
         state_functions = {
             VehicleState.Unknown: self.unknown,
             VehicleState.Off: self.off,
@@ -120,12 +122,15 @@ class StateManager:
         return state_definition
 
     def _load_queue(self, module_read_commands: List[dict]) -> None:
-        for module in module_read_commands:
-            enable = module.get('enable', True)
-            if enable:
-                period = module.get('period', 5)
-                payload = (time(), period, [module])
-                self._command_queue.put(payload)
+        with self._command_queue_lock:
+            while not self._command_queue.empty():
+                self._command_queue.get_nowait()
+            for module in module_read_commands:
+                enable = module.get('enable', True)
+                if enable:
+                    period = module.get('period', 5)
+                    payload = (time(), period, [module])
+                    self._command_queue.put(payload)
 
     def change_state(self, new_state: VehicleState) -> None:
         if self._state == new_state:
@@ -413,6 +418,8 @@ class StateManager:
                             self.change_state(VehicleState.Charging_AC)
                         elif evse_type != EvseType.NoType:
                             _LOGGER.info(f"While in '{self._state.name}', 'EvseType' returned an unexpected response: {evse_type}")
+                elif charging_status == ChargingStatus.Ready:
+                    pass
                 else:
                     _LOGGER.info(f"While in {self._state}, 'ChargingStatus' returned an unexpected response: {charging_status}")
 
