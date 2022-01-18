@@ -1,6 +1,6 @@
 import os
 from threading import Thread
-from queue import Full, Queue
+from queue import Full
 
 import logging
 from time import sleep

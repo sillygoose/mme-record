@@ -129,6 +129,22 @@
         ]
     },
     {
+        "did_id": 16765,
+        "did_id_hex": "417D",
+        "enable": true,
+        "did_name": "InferredKey",
+        "modules": [
+            "BCM"
+        ],
+        "packing": "B",
+        "states": [
+            {
+                "name": "inferred_key",
+                "value": 2
+            }
+        ]
+    },
+    {
         "did_id": 16825,
         "did_id_hex": "41B9",
         "enable": true,
@@ -261,6 +277,24 @@
             {
                 "name": "hvb_chrg_current_reqsted",
                 "value": 1000
+            }
+        ]
+    },
+    {
+        "did_id": 18499,
+        "did_id_hex": "4843",
+        "enable": true,
+        "did_name": "ChargePlug",
+        "modules": [
+            "OBCC",
+            "BECM",
+            "SOBDM"
+        ],
+        "packing": "L",
+        "states": [
+            {
+                "name": "charge_plug_connected",
+                "value": 0
             }
         ]
     },

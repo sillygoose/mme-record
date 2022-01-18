@@ -60,6 +60,8 @@ class PlaybackStateManager:
                                     elif value == 3 or value == 4:
                                         self._state = VehicleState.On
                                     _LOGGER.info(decoded.get('decoded'))
+                        else:
+                            _LOGGER.info(f"No codec found for DID {state_did:04X}/{state_did}")
                     except ValueError:
                         pass
                 self._state_queue.task_done()

@@ -97,7 +97,7 @@ class PlaybackModule:
                         did_handler = self._dids.get(did_id, None)
                         if did_handler is None:
                             response = struct.pack('>BBB', 0x7F, 0x22, 0x31)
-                            _LOGGER.info(f"Unable to handle DID {did_id}")
+                            _LOGGER.info(f"Unable to handle DID {did_id:04X}/{did_id}")
                             break
                         else:
                             response += did_handler.response()
