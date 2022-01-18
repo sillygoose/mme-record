@@ -148,15 +148,27 @@
         "did_id": 16825,
         "did_id_hex": "41B9",
         "enable": true,
-        "did_name": "RemoteStart",
+        "did_name": "EngineStart",
         "modules": [
             "BCM"
         ],
         "packing": "L",
         "states": [
             {
-                "name": "remote_start",
-                "value": 5
+                "name": "engine_start_normal",
+                "value": 0
+            },
+            {
+                "name": "engine_start_disable",
+                "value": 0
+            },
+            {
+                "name": "engine_start_remote",
+                "value": 0
+            },
+            {
+                "name": "engine_start_extended",
+                "value": 0
             }
         ]
     },
@@ -338,14 +350,14 @@
         "did_id": 18504,
         "did_id_hex": "4848",
         "enable": true,
-        "did_name": "EnergyToEmpty",
+        "did_name": "HvbEnergyToEmpty",
         "modules": [
             "BECM"
         ],
         "packing": "H",
         "states": [
             {
-                "name": "energy_to_empty",
+                "name": "hvb_ete",
                 "value": 25541
             }
         ]
@@ -771,6 +783,25 @@
             {
                 "name": "exterior_temp",
                 "value": 50
+            }
+        ]
+    },
+    {
+        "did_id": 62495,
+        "did_id_hex": "F41F",
+        "enable": true,
+        "did_name": "EngineRunTime",
+        "modules": [
+            "SOBDMB",
+            "SOBDMC",
+            "BECM",
+            "PCM"
+        ],
+        "packing": "H",
+        "states": [
+            {
+                "name": "engine_runtime",
+                "value": 23
             }
         ]
     }
