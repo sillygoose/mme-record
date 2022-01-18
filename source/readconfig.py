@@ -5,12 +5,12 @@ import os
 import sys
 
 from config.configuration import Configuration
+from config import config_from_yaml
 from pathlib import Path
 import yaml
-from config import config_from_yaml
 
 from collections import OrderedDict
-from typing import Any, Dict, List, TextIO, TypeVar, Union
+from typing import Dict, List, TextIO, TypeVar, Union
 
 from exceptions import FailedInitialization
 
@@ -57,10 +57,6 @@ def buildYAMLExceptionString(exception, file='cs_esphome'):
     return errmsg
 
 
-class ConfigError(Exception):
-    """General YAML configuration file exception."""
-
-
 class FullLineLoader(yaml.FullLoader):
     """Loader class that keeps track of line numbers."""
 
@@ -79,7 +75,7 @@ def load_yaml(fname: str) -> JSON_TYPE:
             return parse_yaml(conf_file)
     except UnicodeDecodeError as exc:
         _LOGGER.error(f"Unable to read '{fname}': {exc}")
-        raise ConfigError(exc) from exc
+        raise FailedInitialization(exc) from exc
 
 
 def parse_yaml(content: Union[str, TextIO]) -> JSON_TYPE:
@@ -90,7 +86,7 @@ def parse_yaml(content: Union[str, TextIO]) -> JSON_TYPE:
         return yaml.load(content, Loader=FullLineLoader) or OrderedDict()
     except yaml.YAMLError as exc:
         _LOGGER.error(str(exc))
-        raise ConfigError(exc) from exc
+        raise FailedInitialization(exc) from exc
 
 
 def _load_secret_yaml(secret_path: str) -> JSON_TYPE:
@@ -103,10 +99,10 @@ def _load_secret_yaml(secret_path: str) -> JSON_TYPE:
     try:
         secrets = load_yaml(secret_path)
         if not isinstance(secrets, dict):
-            raise ConfigError("Secrets is not a dictionary")
+            raise FailedInitialization("Configuration file error: '{SECRET_YAML}' is not a valid dictionary")
 
     except FileNotFoundError:
-        secrets = {}
+        secrets = None
 
     _SECRET_CACHE[secret_path] = secrets
     return secrets
@@ -114,25 +110,23 @@ def _load_secret_yaml(secret_path: str) -> JSON_TYPE:
 
 def secret_yaml(loader: FullLineLoader, node: yaml.nodes.Node) -> JSON_TYPE:
     """Load secrets and embed it into the configuration YAML."""
-    """Load secrets and embed it into the configuration YAML."""
     if os.path.basename(loader.name) == SECRET_YAML:
-        raise ConfigError(f"{SECRET_YAML}: attempt to load secret from within secrets file")
+        raise FailedInitialization(f"Configuration file error: attempt to load secret from within secrets file '{SECRET_YAML}'")
 
     secret_path = os.path.dirname(loader.name)
     home_path = str(Path.home())
     do_walk = os.path.commonpath([secret_path, home_path]) == home_path
-
-    while True:
+    while do_walk:
         secrets = _load_secret_yaml(secret_path)
-        if node.value in secrets:
-            _LOGGER.debug(f"Secret '{node.value}' retrieved from {secret_path}/{SECRET_YAML}")
-            return secrets[node.value]
-
-        if not do_walk or (secret_path == home_path):
-            break
+        if secrets:
+            if node.value in secrets:
+                _LOGGER.debug(f"Secret '{node.value}' retrieved from {secret_path}/{SECRET_YAML}")
+                return secrets[node.value]
+            else:
+                raise FailedInitialization(f"Configuration file error: secret '{node.value}' is not defined in '{secret_path}/{SECRET_YAML}'")
         secret_path = os.path.dirname(secret_path)
-
-    raise ConfigError(f"Secret '{node.value}' not defined")
+        do_walk = os.path.commonpath([secret_path, home_path]) == home_path
+    raise FailedInitialization(f"Configuration file error: secret file '{SECRET_YAML}' was not found in the home path")
 
 
 def check_required_keys(yaml, required, path='') -> bool:
@@ -148,7 +142,7 @@ def check_required_keys(yaml, required, path='') -> bool:
             typeStr = '' if not keyType else f" (type is '{keyType.__name__}')"
 
             if not yaml:
-                raise FailedInitialization(f"YAML file is corrupt or truncated, expecting to find '{rk}' and found nothing")
+                raise FailedInitialization(f"Configuration file error: YAML file is corrupt or truncated, expecting to find '{rk}' and found nothing")
 
             if isinstance(yaml, list):
                 for index, element in enumerate(yaml):
@@ -173,7 +167,7 @@ def check_required_keys(yaml, required, path='') -> bool:
                         if len(requiredSubkeys):
                             passed = check_required_keys(yamlValue, requiredSubkeys, path) and passed
                     else:
-                        raise FailedInitialization(Exception('Unexpected YAML checking error'))
+                        raise FailedInitialization(Exception('Configuration file error: unexpected YAML checking error'))
             elif isinstance(yaml, dict) or isinstance(yaml, Configuration):
                 yamlKeys = yaml.keys()
                 if requiredKey:
@@ -194,9 +188,9 @@ def check_required_keys(yaml, required, path='') -> bool:
                     if len(requiredSubkeys):
                         passed = check_required_keys(yamlValue, requiredSubkeys, currentpath) and passed
                 else:
-                    raise FailedInitialization('Unexpected YAML checking error')
+                    raise FailedInitialization('Configuration file error: unexpected YAML checking error')
             else:
-                raise FailedInitialization('Unexpected YAML checking error')
+                raise FailedInitialization('Configuration file error: unexpected YAML checking error')
     return passed
 
 
@@ -204,7 +198,7 @@ def check_unsupported(yaml, required, path=''):
     try:
         passed = True
         if not yaml:
-            raise FailedInitialization("YAML file is corrupt or truncated, nothing left to parse")
+            raise FailedInitialization("Configuration file error: YAML file is corrupt or truncated, nothing left to parse")
         if isinstance(yaml, list):
             for index, element in enumerate(yaml):
                 for yk in element.keys():
@@ -239,11 +233,11 @@ def check_unsupported(yaml, required, path=''):
                 if subkeyList:
                     passed = check_unsupported(yamlValue, subkeyList, currentpath) and passed
         else:
-            raise FailedInitialization('Unexpected YAML checking error')
+            raise FailedInitialization('Configuration file error: unexpected YAML checking error')
     except FailedInitialization:
         raise
     except Exception as e:
-        raise FailedInitialization(f"Unexpected exception: {e}")
+        raise FailedInitialization(f"Configuration file error: unexpected exception: {e}")
     return passed
 
 
@@ -290,7 +284,7 @@ def check_config(config):
     except FailedInitialization:
         raise
     except Exception as e:
-        raise FailedInitialization(f"Unexpected exception: {e}")
+        raise FailedInitialization(f"Configuration file error: unexpected exception: {e}")
     return config if result else None
 
 
@@ -313,7 +307,7 @@ def read_config(yaml_file: str = None) -> None:
     try:
         yaml_path = find_yaml_file(yaml_file)
         if yaml_path is None:
-            raise FailedInitialization(f"Unable to find the YAML configuration file '{yaml_file}'")
+            raise FailedInitialization(f"Configuration file error: unable to find the YAML configuration file '{yaml_file}'")
 
         global SECRET_YAML
         index = yaml_file.find('.')
@@ -323,13 +317,11 @@ def read_config(yaml_file: str = None) -> None:
         if config:
             config = check_config(config)
         return config
-    except ConfigError as e:
-        raise FailedInitialization(f"ConfigError exception: {e}")
     except FailedInitialization:
         raise
     except Exception as e:
         error_message = buildYAMLExceptionString(exception=e, file=yaml_file)
-        raise FailedInitialization(f"Unexpected exception: {error_message}")
+        raise FailedInitialization(f"Configuration file error: unexpected exception: {error_message}")
 
 
 def retrieve_options(config, key, option_list) -> dict:
@@ -352,7 +344,7 @@ def retrieve_options(config, key, option_list) -> dict:
                     _LOGGER.error(f"Expected type '{type}' for option '{option}'")
                     errors = True
     if errors:
-        raise FailedInitialization(f"One or more errors detected in '{key}' YAML options")
+        raise FailedInitialization(f"Configuration file error: one or more errors detected in '{key}' YAML options")
     return options
 
 
