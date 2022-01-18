@@ -405,13 +405,7 @@ class StateManager:
                                 self.change_state(VehicleState.On if engine_start_normal == EngineStartNormal.Yes else VehicleState.Accessory)
             elif charging_status := self._get_ChargingStatus(key):
                 if charging_status == ChargingStatus.NotReady or charging_status == ChargingStatus.Done:
-                    if inferred_key := self._get_InferredKey(Hash.InferredKey):
-                        if inferred_key == InferredKey.KeyOut:
-                            if engine_start_remote := self._get_EngineStartRemote(Hash.EngineStartRemote):
-                                self.change_state(VehicleState.Preconditioning if engine_start_remote == EngineStartRemote.Yes else VehicleState.Off)
-                        elif inferred_key == InferredKey.KeyIn:
-                            if engine_start_normal := self._get_EngineStartNormal(Hash.EngineStartNormal):
-                                self.change_state(VehicleState.On if engine_start_normal == EngineStartNormal.Yes else VehicleState.Accessory)
+                    pass
                 elif charging_status == ChargingStatus.Charging:
                     if evse_type := self._get_EvseType(Hash.EvseType):
                         if evse_type == EvseType.BasAC:

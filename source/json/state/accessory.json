@@ -4,7 +4,7 @@
         "arbitration_id": 1830,
         "arbitration_id_hex": "0726",
         "enable": true,
-        "period": 10,
+        "period": 5,
         "dids": [
             {
                 "did_name": "EngineStart",
@@ -25,13 +25,40 @@
         "arbitration_id": 2018,
         "arbitration_id_hex": "07E2",
         "enable": true,
-        "period": 10,
+        "period": 5,
         "dids": [
             {
                 "did_name": "ChargePlugConnected",
                 "did_id": 18499,
                 "did_id_hex": "4843",
                 "codec_id": 18499
+            }
+        ]
+    },
+    {
+        "module": "BECM",
+        "arbitration_id": 2020,
+        "arbitration_id_hex": "07E4",
+        "enable": true,
+        "period": 30,
+        "dids": [
+            {
+                "did_name": "HvbSoc",
+                "did_id": 18433,
+                "did_id_hex": "4801",
+                "codec_id": 18433
+            },
+            {
+                "did_name": "HvbSocD",
+                "did_id": 18501,
+                "did_id_hex": "4845",
+                "codec_id": 18501
+            },
+            {
+                "did_name": "EnergyToEmpty",
+                "did_id": 18504,
+                "did_id_hex": "4848",
+                "codec_id": 18504
             }
         ]
     }

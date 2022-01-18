@@ -4,14 +4,23 @@
         "arbitration_id": 2020,
         "arbitration_id_hex": "07E4",
         "enable": true,
-        "period": 5,
+        "period": 3,
         "dids": [
             {
                 "did_name": "ChargingStatus",
                 "did_id": 18509,
                 "did_id_hex": "484D",
                 "codec_id": 18509
-            },
+            }
+        ]
+    },
+    {
+        "module": "BECM",
+        "arbitration_id": 2020,
+        "arbitration_id_hex": "07E4",
+        "enable": true,
+        "period": 10,
+        "dids": [
             {
                 "did_name": "HvbVoltage",
                 "did_id": 18445,
@@ -66,6 +75,18 @@
         "enable": true,
         "period": 30,
         "dids": [
+            {
+                "did_name": "HvbSoc",
+                "did_id": 18433,
+                "did_id_hex": "4801",
+                "codec_id": 18433
+            },
+            {
+                "did_name": "HvbSocD",
+                "did_id": 18501,
+                "did_id_hex": "4845",
+                "codec_id": 18501
+            },
             {
                 "did_name": "EnergyToEmpty",
                 "did_id": 18504,

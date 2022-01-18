@@ -4,7 +4,7 @@
         "arbitration_id": 1830,
         "arbitration_id_hex": "0726",
         "enable": true,
-        "period": 10,
+        "period": 5,
         "dids": [
             {
                 "did_name": "EngineStart",
@@ -31,7 +31,7 @@
         "arbitration_id": 2018,
         "arbitration_id_hex": "07E2",
         "enable": true,
-        "period": 10,
+        "period": 5,
         "dids": [
             {
                 "did_name": "ChargePlugConnected",

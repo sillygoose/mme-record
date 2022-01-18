@@ -4,7 +4,7 @@
         "arbitration_id": 1830,
         "arbitration_id_hex": "0726",
         "enable": true,
-        "period": 10,
+        "period": 5,
         "dids": [
             {
                 "did_name": "EngineStart",
@@ -25,7 +25,7 @@
         "arbitration_id": 2018,
         "arbitration_id_hex": "07E2",
         "enable": true,
-        "period": 10,
+        "period": 5,
         "dids": [
             {
                 "did_name": "ChargePlugConnected",
@@ -47,21 +47,6 @@
                 "did_id": 7698,
                 "did_id_hex": "1E12",
                 "codec_id": 7698
-            }
-        ]
-    },
-    {
-        "module": "BECM",
-        "arbitration_id": 2020,
-        "arbitration_id_hex": "07E4",
-        "enable": true,
-        "period": 60,
-        "dids": [
-            {
-                "did_name": "EnergyToEmpty",
-                "did_id": 18504,
-                "did_id_hex": "4848",
-                "codec_id": 18504
             }
         ]
     },
@@ -133,13 +118,40 @@
         "arbitration_id": 1830,
         "arbitration_id_hex": "0726",
         "enable": true,
-        "period": 60,
+        "period": 30,
         "dids": [
             {
                 "did_name": "LvbSoc",
                 "did_id": 16424,
                 "did_id_hex": "4028",
                 "codec_id": 16424
+            }
+        ]
+    },
+    {
+        "module": "BECM",
+        "arbitration_id": 2020,
+        "arbitration_id_hex": "07E4",
+        "enable": true,
+        "period": 30,
+        "dids": [
+            {
+                "did_name": "HvbSoc",
+                "did_id": 18433,
+                "did_id_hex": "4801",
+                "codec_id": 18433
+            },
+            {
+                "did_name": "HvbSocD",
+                "did_id": 18501,
+                "did_id_hex": "4845",
+                "codec_id": 18501
+            },
+            {
+                "did_name": "EnergyToEmpty",
+                "did_id": 18504,
+                "did_id_hex": "4848",
+                "codec_id": 18504
             }
         ]
     }

@@ -61,7 +61,7 @@
         "arbitration_id": 2020,
         "arbitration_id_hex": "07E4",
         "enable": true,
-        "period": 2,
+        "period": 3,
         "dids": [
             {
                 "did_name": "HvbVoltage",
@@ -97,7 +97,7 @@
         "arbitration_id": 2016,
         "arbitration_id_hex": "07E0",
         "enable": true,
-        "period": 2,
+        "period": 3,
         "dids": [
             {
                 "did_name": "HiresSpeed",
@@ -142,7 +142,7 @@
         "arbitration_id": 1830,
         "arbitration_id_hex": "0726",
         "enable": true,
-        "period": 10,
+        "period": 30,
         "dids": [
             {
                 "did_name": "LvbVoltage",
