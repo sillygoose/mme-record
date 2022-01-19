@@ -21,7 +21,6 @@ class PlaybackDID:
             # variable = state.get('name', None)
             value = state.get('value', None)
             self._states.append(value)
-        _LOGGER.debug(f"Created DID {self._did_name}:{self._did_id:04X}")
 
     def did_id(self) -> int:
         return self._did_id

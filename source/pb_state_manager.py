@@ -42,7 +42,7 @@ class PlaybackStateManager:
         try:
             while self._exit_requested == False:
                 state_change = self._state_queue.get()
-                _LOGGER.debug(f"New state change: {state_change}")
+                _LOGGER.debug(f"State change: {state_change}")
                 did_id = state_change.get('did_id', None)
                 if did_id:
                     try:
@@ -61,7 +61,7 @@ class PlaybackStateManager:
                                         self._state = VehicleState.On
                                     _LOGGER.info(decoded.get('decoded'))
                         else:
-                            _LOGGER.info(f"No codec found for DID {state_did:04X}/{state_did}")
+                            _LOGGER.error(f"No codec found for DID {state_did:04X}/{state_did}")
                     except ValueError:
                         pass
                 self._state_queue.task_done()

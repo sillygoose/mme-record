@@ -76,9 +76,9 @@ class PlaybackEngine:
                 module_event_queue = self._module_event_queues.get(module_name)
                 if module_event_queue:
                     try:
-                        _LOGGER.debug(f"Queuing event {event} on queue {module_name}")
+                        #_LOGGER.debug(f"Queuing event {event} on queue {module_name}")
                         module_event_queue.put(event, block=False, timeout=2)
-                        _LOGGER.debug(f"{self._playback_time:.02f}: {self._decode_event(event)}")
+                        #_LOGGER.debug(f"{self._playback_time:.02f}: {self._decode_event(event)}")
                     except Full:
                         _LOGGER.error(f"Queue {module_name}/{arbitration_id:04X} is full")
                         return

@@ -58,7 +58,6 @@ class PlaybackModule:
 
     def start(self) -> None:
         self._exit_requested = False
-        _LOGGER.debug(f"Starting module '{self._name}' on channel '{self._channel}' with arbitration ID {self._rxid:03X}")
         addr = isotp.Address(isotp.AddressingMode.Normal_11bits, rxid=self._rxid, txid=self._txid)
         self._bus = SocketcanBus(channel=self._channel)
         self._stack = isotp.CanStack(bus=self._bus, address=addr, error_handler=self.error_handler, params=PlaybackModule.isotp_params)
@@ -66,7 +65,6 @@ class PlaybackModule:
         self._did_thread.start()
 
     def stop(self) -> None:
-        _LOGGER.debug(f"Stopping module {self._name}")
         self._exit_requested = True
         if self._did_thread.is_alive():
             sleep(0.1)
@@ -97,7 +95,7 @@ class PlaybackModule:
                         did_handler = self._dids.get(did_id, None)
                         if did_handler is None:
                             response = struct.pack('>BBB', 0x7F, 0x22, 0x31)
-                            _LOGGER.info(f"Unable to handle DID {did_id:04X}/{did_id}")
+                            _LOGGER.error(f"Unable to handle DID {did_id:04X}/{did_id}")
                             break
                         else:
                             response += did_handler.response()
@@ -109,7 +107,7 @@ class PlaybackModule:
 
             if not self._event_queue.empty():
                 event = self._event_queue.get(block=False)
-                _LOGGER.debug(f"Dequeued event {event} on queue {self._module_manager.module_name(event.get('arbitration_id'))}")
+                #_LOGGER.debug(f"Dequeued event {event} on queue {self._module_manager.module_name(event.get('arbitration_id'))}")
                 did_handler = self._dids.get(event.get('did_id'), None)
                 if did_handler:
                     did_handler.new_event(event)

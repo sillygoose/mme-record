@@ -195,7 +195,7 @@ class CodecHvbSocD(Codec):
     def decode(self, payload):
         hvb_soc_displayed = struct.unpack('>B', payload)[0] * 0.5
         states = [{'hvb_soc_displayed': hvb_soc_displayed}]
-        return {'payload': payload, 'states': states, 'decoded': f"Displayed SOC is {hvb_soc_displayed:.0f}%"}
+        return {'payload': payload, 'states': states, 'decoded': f"Displayed SOC is {hvb_soc_displayed:.0f}% ({hvb_soc_displayed:.1f}%)"}
 
     def __len__(self):
         return 1

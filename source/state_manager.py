@@ -46,19 +46,19 @@ class Hash(Enum):
 
     HvbVoltage              = '07E4:480D:hvb_voltage'
     HvbCurrent              = '07E4:48F9:hvb_current'
-    HvbPower                = '4096:4096:hvb_power'
+    HvbPower                = 'FFFF:8000:hvb_power'
 
     LvbVoltage              = '0726:402A:lvb_voltage'
     LvbCurrent              = '0726:402B:lvb_current'
-    LvbPower                = '4097:4097:lvb_power'
+    LvbPower                = 'FFFF:8001:lvb_power'
 
     ChgInputVoltage         = '07E2:485E:chg_input_voltage'
     ChgInputCurrent         = '07E2:485F:chg_input_current'
-    ChgInputPower           = '4099:4099:chg_input_power'
+    ChgInputPower           = 'FFFF:8002:chg_input_power'
 
     ChgOutputVoltage        = '07E2:484A:chg_output_voltage'
     ChgOutputCurrent        = '07E2:4850:chg_output_current'
-    ChgOutputPower          = '4099:4098:chg_output_power'
+    ChgOutputPower          = 'FFFF:8003:chg_output_power'
 
 
 class StateManager:
@@ -135,59 +135,59 @@ class StateManager:
     def change_state(self, new_state: VehicleState) -> None:
         if self._state == new_state:
             return
+        if self._state is None:
+            _LOGGER.info(f"Vehicle state set to '{new_state.name}'")
+        else:
+            _LOGGER.info(f"Vehicle state changed from '{self._state.name}' to '{new_state.name}'")
         self._state = new_state
         self._state_time = time()
         self._state_file = StateManager._state_file_lookup.get(new_state).get('state_file')
         self._state_function = StateManager._state_file_lookup.get(new_state).get('state_function')
         queue_commands = self._load_state_definition(self._state_file)
         self._load_queue(queue_commands)
-        _LOGGER.info(f"Vehicle state changed to '{self._state.name}'")
-
-    def get_current_state_file(self) -> str:
-        return StateManager._state_file_lookup.get(self._state).get('state_file')
-
-    def get_state_file(self, state:VehicleState) -> str:
-        return StateManager._state_file_lookup.get(state).get('state_file')
 
     def _get_state_keys(self) -> List[str]:
         return StateManager._state_file_lookup.get(self._state).get('state_keys')
 
-    def _calculate_synthetic(self, hash: str) -> None:
+    _synthetic_hashes = {
+        Hash.HvbVoltage:                Hash.HvbPower,
+        Hash.HvbCurrent:                Hash.HvbPower,
+        Hash.LvbVoltage:                Hash.LvbPower,
+        Hash.LvbCurrent:                Hash.LvbPower,
+        Hash.ChgInputVoltage:           Hash.ChgInputPower,
+        Hash.ChgInputCurrent:           Hash.ChgInputPower,
+        Hash.ChgOutputVoltage:          Hash.ChgOutputPower,
+        Hash.ChgOutputCurrent:          Hash.ChgOutputPower,
+    }
+
+    def _calculate_synthetic(self, hash: str) -> dict:
         synthetic = None
         try:
-            hash = Hash(hash)
-            if hash == Hash.HvbVoltage or hash == Hash.HvbCurrent:
-                hvb_voltage = self._vehicle_state.get(Hash.HvbVoltage.value, 0.0)
-                hvb_current = self._vehicle_state.get(Hash.HvbCurrent.value, 0.0)
-                hvb_power = hvb_voltage * hvb_current
-                self._vehicle_state[Hash.HvbPower] = hvb_power
-                hash_field = Hash.HvbPower.value.split(':')
-                synthetic = {'arbitration_id': int(hash_field[0]), 'did_id': int(hash_field[1]), 'name': hash_field[2], 'value': hvb_power}
-                _LOGGER.debug(f"Calculated 'HvbPower' is {hvb_power:.0f} W from {hvb_voltage:.1f} * {hvb_current:.1f}")
-            elif hash == Hash.LvbVoltage or hash == Hash.LvbCurrent:
-                lvb_voltage = self._vehicle_state.get(Hash.LvbVoltage.value, 0.0)
-                lvb_current = self._vehicle_state.get(Hash.LvbCurrent.value, 0.0)
-                lvb_power = lvb_voltage * lvb_current
-                hash_field = Hash.LvbPower.value.split(':')
-                synthetic = {'arbitration_id': int(hash_field[0]), 'did_id': int(hash_field[1]), 'name': hash_field[2], 'value': lvb_power}
-                self._vehicle_state[Hash.LvbPower] = lvb_power
-                _LOGGER.debug(f"Calculated 'LvbPower' is {lvb_power:.0f} W from {lvb_voltage:.1f} * {lvb_current:.1f}")
-            elif hash == Hash.ChgInputVoltage or hash == Hash.ChgInputCurrent:
-                chg_input_voltage = self._vehicle_state.get(Hash.ChgInputVoltage.value, 0.0)
-                chg_input_current = self._vehicle_state.get(Hash.ChgInputCurrent.value, 0.0)
-                chg_input_power = chg_input_voltage * chg_input_current
-                hash_field = Hash.ChgInputPower.value.split(':')
-                synthetic = {'arbitration_id': int(hash_field[0]), 'did_id': int(hash_field[1]), 'name': hash_field[2], 'value': chg_input_power}
-                self._vehicle_state[Hash.ChgInputPower] = chg_input_power
-                _LOGGER.debug(f"Calculated 'ChgInputPower' is {chg_input_power:.0f} W from {chg_input_voltage:.1f} * {chg_input_current:.1f}")
-            elif hash == Hash.ChgOutputVoltage or hash == Hash.ChgOutputCurrent:
-                chg_output_voltage = self._vehicle_state.get(Hash.ChgOutputVoltage.value, 0.0)
-                chg_output_current = self._vehicle_state.get(Hash.ChgOutputCurrent.value, 0.0)
-                chg_output_power = chg_output_voltage * chg_output_current
-                hash_field = Hash.ChgOutputPower.value.split(':')
-                synthetic = {'arbitration_id': int(hash_field[0]), 'did_id': int(hash_field[1]), 'name': hash_field[2], 'value': chg_output_power}
-                self._vehicle_state[Hash.ChgOutputPower] = chg_output_power
-                _LOGGER.debug(f"Calculated 'ChgOutputPower' is {chg_output_power:.0f} W from {chg_output_voltage:.1f} * {chg_output_current:.1f}")
+            if synthetic_hash := StateManager._synthetic_hashes.get(Hash(hash), None):
+                if synthetic_hash == Hash.HvbPower:
+                    hvb_power = self._vehicle_state.get(Hash.HvbVoltage.value, 0.0) * self._vehicle_state.get(Hash.HvbCurrent.value, 0.0)
+                    self._vehicle_state[Hash.HvbPower] = hvb_power
+                    hash_field = Hash.HvbPower.value.split(':')
+                    synthetic = {'arbitration_id': int(hash_field[0], base=16), 'did_id': int(hash_field[1], base=16), 'name': hash_field[2], 'value': hvb_power}
+                    _LOGGER.debug(f"{hash_field[0]}/{hash_field[1]}: HVB power is {hvb_power:.0f} W (calculated)")
+                elif synthetic_hash == Hash.LvbPower:
+                    lvb_power = self._vehicle_state.get(Hash.LvbVoltage.value, 0.0) * self._vehicle_state.get(Hash.LvbCurrent.value, 0.0)
+                    hash_field = Hash.LvbPower.value.split(':')
+                    self._vehicle_state[Hash.LvbPower] = lvb_power
+                    synthetic = {'arbitration_id': int(hash_field[0], base=16), 'did_id': int(hash_field[1], base=16), 'name': hash_field[2], 'value': lvb_power}
+                    _LOGGER.debug(f"{hash_field[0]}/{hash_field[1]}: LVB power is {lvb_power:.0f} W (calculated)")
+                elif synthetic_hash == Hash.ChgInputPower:
+                    chg_input_power = self._vehicle_state.get(Hash.ChgInputVoltage.value, 0.0) * self._vehicle_state.get(Hash.ChgInputCurrent.value, 0.0)
+                    hash_field = Hash.ChgInputPower.value.split(':')
+                    self._vehicle_state[Hash.ChgInputPower] = chg_input_power
+                    synthetic = {'arbitration_id': int(hash_field[0], base=16), 'did_id': int(hash_field[1], base=16), 'name': hash_field[2], 'value': chg_input_power}
+                    _LOGGER.debug(f"{hash_field[0]}/{hash_field[1]}: AC charger input power is {chg_input_power:.0f} W (calculated)")
+                elif synthetic_hash == Hash.ChgOutputPower:
+                    chg_output_power = self._vehicle_state.get(Hash.ChgOutputVoltage.value, 0.0) * self._vehicle_state.get(Hash.ChgOutputCurrent.value, 0.0)
+                    hash_field = Hash.ChgOutputPower.value.split(':')
+                    self._vehicle_state[Hash.ChgOutputPower] = chg_output_power
+                    synthetic = {'arbitration_id': int(hash_field[0], base=16), 'did_id': int(hash_field[1], base=16), 'name': hash_field[2], 'value': chg_output_power}
+                    _LOGGER.debug(f"{hash_field[0]}/{hash_field[1]}: AC charger output power is {chg_output_power:.0f} W (calculated)")
         except ValueError:
             pass
         return synthetic
@@ -207,12 +207,10 @@ class StateManager:
                         self._last_state_change = hash
                         self._vehicle_state[hash] = state_value
                         state_data.append({'arbitration_id': arbitration_id, 'did_id': did_id, 'name': state_name, 'value': state_value})
-                        synthetic = self._calculate_synthetic(hash)
-                        if synthetic:
+                        if synthetic := self._calculate_synthetic(hash):
                             state_data.append(synthetic)
                         self._state_function()
-                _LOGGER.debug(self._last_state_change)
-        return state_data
+                return state_data
 
     def _get_KeyState(self, key: Hash) -> KeyState:
         key_state = None

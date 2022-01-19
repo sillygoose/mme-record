@@ -67,7 +67,6 @@ class Playback:
                 event_queue = Queue(maxsize=12)
                 self._module_event_queues[name] = event_queue
                 self._modules[name] = PlaybackModule(config=self._config, name=name, arbitration_id=arbitration_id, channel=channel, event_queue=event_queue, state_queue=self._state_update_queue, module_manager=self._module_manager)
-                _LOGGER.debug(f"Added module '{name}' to playback")
 
     def _add_dids(self, dids: List[dict]) -> None:
         self._dids_by_id = {}
@@ -89,8 +88,6 @@ class Playback:
                     module_object = self._modules.get(module, None)
                     if module_object is not None:
                         module_object.add_did(did_object)
-
-                _LOGGER.debug(f"Added DID {did:04X}")
 
 
 def main() -> None:
