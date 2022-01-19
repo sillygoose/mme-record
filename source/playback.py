@@ -1,4 +1,5 @@
 import sys
+import os
 from queue import Queue
 import logging
 from typing import List
@@ -77,10 +78,11 @@ class Playback:
             packing = did_item.get('packing')
             states = did_item.get('states')
             enable = did_item.get('enable')
+            bitfield = did_item.get('bitfield', False)
             if enable:
                 if self._dids_by_id.get(did, None) is not None:
                     raise FailedInitialization(f"DID {did:04X} is defined more than once")
-                did_object = PlaybackDID(did_id=did, did_name=name, packing=packing, modules=used_in_modules, states=states)
+                did_object = PlaybackDID(did_id=did, did_name=name, packing=packing, bitfield=bitfield, modules=used_in_modules, states=states)
                 self._dids_by_id[did] = did_object
 
                 for module in used_in_modules:
@@ -94,7 +96,7 @@ class Playback:
 def main() -> None:
 
     logfiles.start('log/playback.log')
-    _LOGGER.info(f"Mustang Mach E Playback Utility version {version.get_version()}")
+    _LOGGER.info(f"Mustang Mach E Playback Utility version {version.get_version()} PID is {os.getpid()}")
 
     try:
         config = read_config(yaml_file='mme.yaml')

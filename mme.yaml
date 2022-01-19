@@ -38,7 +38,7 @@ mme:
         start_at:                       0
         speed:                          3.0
         source_path:                    'playback_files'
-        source_file:                    'sample'
+        source_file:                    'charge'
         rx_consecutive_frame_timeout:   1.0
         rx_flowcontrol_timeout:         1.0
 

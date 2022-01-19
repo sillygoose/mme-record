@@ -404,7 +404,7 @@ class StateManager:
                             if engine_start_normal := self._get_EngineStartNormal(Hash.EngineStartNormal):
                                 self.change_state(VehicleState.On if engine_start_normal == EngineStartNormal.Yes else VehicleState.Accessory)
             elif charging_status := self._get_ChargingStatus(key):
-                if charging_status == ChargingStatus.NotReady or charging_status == ChargingStatus.Done:
+                if charging_status == ChargingStatus.NotReady or charging_status == ChargingStatus.Done or charging_status == ChargingStatus.Wait:
                     pass
                 elif charging_status == ChargingStatus.Charging:
                     if evse_type := self._get_EvseType(Hash.EvseType):
@@ -420,28 +420,18 @@ class StateManager:
     def charging_ac(self) -> None:
         # 'state_keys': [Hash.ChargePlugConnected, Hash.ChargingStatus]},
         for key in self._get_state_keys():
-            if charge_plug_connected := self._get_ChargePlugConnected(key):
-                if charge_plug_connected == ChargePlugConnected.No:
-                    if inferred_key := self._get_InferredKey(Hash.InferredKey):
-                        if inferred_key == InferredKey.KeyOut:
-                            if engine_start_remote := self._get_EngineStartRemote(Hash.EngineStartRemote):
-                                self.change_state(VehicleState.Preconditioning if engine_start_remote == EngineStartRemote.Yes else VehicleState.Off)
-                        elif inferred_key == InferredKey.KeyIn:
-                            if engine_start_normal := self._get_EngineStartNormal(Hash.EngineStartNormal):
-                                self.change_state(VehicleState.On if engine_start_normal == EngineStartNormal.Yes else VehicleState.Accessory)
-            elif charging_status := self._get_ChargingStatus(key):
-                if charging_status == ChargingStatus.NotReady or charging_status == ChargingStatus.Done:
-                    if inferred_key := self._get_InferredKey(Hash.InferredKey):
-                        if inferred_key == InferredKey.KeyOut:
-                            if engine_start_remote := self._get_EngineStartRemote(Hash.EngineStartRemote):
-                                self.change_state(VehicleState.Preconditioning if engine_start_remote == EngineStartRemote.Yes else VehicleState.Off)
-                        elif inferred_key == InferredKey.KeyIn:
-                            if engine_start_normal := self._get_EngineStartNormal(Hash.EngineStartNormal):
-                                self.change_state(VehicleState.On if engine_start_normal == EngineStartNormal.Yes else VehicleState.Accessory)
-                elif charging_status == ChargingStatus.Charging:
-                    pass
-                else:
-                    _LOGGER.info(f"While in {self._state}, 'ChargingStatus' returned an unexpected response: {charging_status}")
+            if charging_status := self._get_ChargingStatus(key):
+                if charging_status != ChargingStatus.Charging:
+                    if charge_plug_connected := self._get_ChargePlugConnected(Hash.ChargePlugConnected):
+                        if charge_plug_connected == ChargePlugConnected.Yes:
+                            self.change_state(VehicleState.PluggedIn)
+                        elif inferred_key := self._get_InferredKey(Hash.InferredKey):
+                            if inferred_key == InferredKey.KeyOut:
+                                if engine_start_remote := self._get_EngineStartRemote(Hash.EngineStartRemote):
+                                    self.change_state(VehicleState.Preconditioning if engine_start_remote == EngineStartRemote.Yes else VehicleState.Off)
+                            elif inferred_key == InferredKey.KeyIn:
+                                if engine_start_normal := self._get_EngineStartNormal(Hash.EngineStartNormal):
+                                    self.change_state(VehicleState.On if engine_start_normal == EngineStartNormal.Yes else VehicleState.Accessory)
 
     def charging_dcfc(self) -> None:
         for key in self._get_state_keys():

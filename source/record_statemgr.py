@@ -12,6 +12,8 @@ from did_manager import DIDManager
 from record_filemgr import RecordFileManager
 from state_manager import StateManager
 from influxdb import InfluxDB
+from exceptions import SigTermCatcher
+
 
 _LOGGER = logging.getLogger('mme')
 
@@ -39,6 +41,7 @@ class RecordStateManager(StateManager):
         super().start()
         self._influxdb.start()
         self._exit_requested = False
+        self._sigterm_catcher = SigTermCatcher(self._sigterm)
         self._file_manager.start()
         self._request_thread.start()
         self._response_thread.start()
@@ -46,13 +49,16 @@ class RecordStateManager(StateManager):
 
     def stop(self) -> None:
         super().stop()
+        self._influxdb.stop()
         self._file_manager.stop()
         self._exit_requested = True
         if self._request_thread.is_alive():
             self._request_thread.join()
         if self._response_thread.is_alive():
             self._response_thread.join()
-        self._influxdb.stop()
+
+    def _sigterm(self) -> None:
+        self.stop()
 
     def _request_task(self, sync_queue: Queue) -> None:
         try:
@@ -63,7 +69,10 @@ class RecordStateManager(StateManager):
                         with self._command_queue_lock:
                             trigger_at, period, module_list = self._command_queue.get_nowait()
                     except Empty:
-                        sleep(0.05)
+                        if self._exit_requested == False:
+                            sleep(0.05)
+                            continue
+                        return
 
                 try:
                     current_time = time()
@@ -71,13 +80,29 @@ class RecordStateManager(StateManager):
                         sleep(trigger_at - current_time)
                     self._request_queue.put(module_list)
                     with self._command_queue_lock:
-                        self._command_queue.put((time() + period, period, module_list))
-                        self._command_queue.task_done()
-                    sync_queue.get()
-                    sync_queue.task_done()
+                        try:
+                            self._command_queue.put_nowait((time() + period, period, module_list))
+                            self._command_queue.task_done()
+                        except Full:
+                            _LOGGER.error(f"no space in the command queue")
+                            self._exit_requested = True
+                            return
+
+                    got_sync = False
+                    while not got_sync:
+                        try:
+                            got_sync = sync_queue.get_nowait()
+                            sync_queue.task_done()
+                        except Empty:
+                            if self._exit_requested == False:
+                                sleep(0.05)
+                                continue
+                            return
+
                 except Full:
                     _LOGGER.error(f"no space in the request queue")
                     self._exit_requested = True
+
         except RuntimeError as e:
             _LOGGER.error(f"Run time error: {e}")
             return
@@ -87,7 +112,7 @@ class RecordStateManager(StateManager):
             while self._exit_requested == False:
                 try:
                     responses = self._response_queue.get(timeout=0.5)
-                    sync_queue.put(1)
+                    sync_queue.put(True)
                 except Empty:
                     if self._exit_requested == False:
                         continue
@@ -112,11 +137,11 @@ class RecordStateManager(StateManager):
                             state_details = {'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did_id, 'did_id_hex': f"{did_id:04X}", 'payload': list(payload)}
                             self._file_manager.write_record(state_details)
 
-                            _LOGGER.info(f"{arbitration_id:04X}/{did_id:04X}: {response.service_data.values[did_id].get('decoded')}")
+                            _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: {response.service_data.values[did_id].get('decoded')}")
                             influxdb_state_data = self.update_vehicle_state(state_details)
                             self._influxdb.write_record(influxdb_state_data)
                 self._response_queue.task_done()
-
+            return
         except RuntimeError as e:
             _LOGGER.error(f"Run time error: {e}")
             return

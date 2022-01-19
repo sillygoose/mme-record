@@ -11,6 +11,7 @@ from udsoncan.exceptions import *
 
 from record_modmgr import RecordModuleManager
 from config.configuration import Configuration
+from exceptions import SigTermCatcher
 
 
 _LOGGER = logging.getLogger('mme')
@@ -33,6 +34,7 @@ class RecordCanbusManager:
 
     def start(self) -> List[Thread]:
         self._exit_requested = False
+        self._sigterm_catcher = SigTermCatcher(self._sigterm)
         self._thread = Thread(target=self._canbus_task, name='canbus_manager')
         self._thread.start()
         return [self._thread]
@@ -41,6 +43,9 @@ class RecordCanbusManager:
         self._exit_requested = True
         if self._thread.is_alive():
             self._thread.join()
+
+    def _sigterm(self) -> None:
+        self.stop()
 
     def _canbus_task(self) -> None:
         try:

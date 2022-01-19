@@ -153,6 +153,7 @@
             "BCM"
         ],
         "packing": "L",
+        "bitfield": true,
         "states": [
             {
                 "name": "engine_start_normal",
@@ -303,6 +304,7 @@
             "SOBDM"
         ],
         "packing": "L",
+        "bitfield": true,
         "states": [
             {
                 "name": "charge_plug_connected",

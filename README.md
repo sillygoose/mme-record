@@ -27,6 +27,7 @@ Both utilities can be configured via a YAML configuration file.  Definitions for
 - InfluxDB support
 - YAML secrets supported
 - switched to venv for Python3.10 support
+- catch SIGTERM to write out cached data before exiting
 
 <a id='requirements'></a>
 ## Requirements

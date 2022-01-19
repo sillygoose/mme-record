@@ -9,11 +9,12 @@ _LOGGER = logging.getLogger('mme')
 
 class PlaybackDID:
 
-    def __init__(self, did_id: int, did_name: str, packing: str, modules: List[str], states: List[dict]) -> None:
+    def __init__(self, did_id: int, did_name: str, packing: str, bitfield: bool, modules: List[str], states: List[dict]) -> None:
         self._did_id = did_id
         self._did_id_hex = f"{did_id:04X}"
         self._did_name = did_name
         self._packing = packing
+        self._bitfield = bitfield
         self._modules = modules
         self._states = []
         for state in states:
@@ -44,6 +45,8 @@ class PlaybackDID:
                 postfix = postfix[1:4]
             response = response + postfix
             index += 1
+            if index == 1 and self._bitfield:
+                break
         return response
 
     def new_event(self, event) -> None:
@@ -58,6 +61,8 @@ class PlaybackDID:
         for _ in self._states:
             self._states[index] = unpacked_values[index]
             index += 1
+            if index == 1 and self._bitfield:
+                break
 
     def did_id(self) -> int:
         return self._did_id

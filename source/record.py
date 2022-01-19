@@ -1,4 +1,5 @@
 import sys
+import os
 import logging
 from queue import Queue
 import json
@@ -58,7 +59,7 @@ class Record:
 def main() -> None:
 
     logfiles.start('log/record.log')
-    _LOGGER.info(f"Mustang Mach E Record Utility version {version.get_version()}")
+    _LOGGER.info(f"Mustang Mach E Record Utility version {version.get_version()}, PID is {os.getpid()}")
 
     try:
         config = read_config(yaml_file='mme.yaml')
