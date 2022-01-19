@@ -24,8 +24,9 @@ Both utilities can be configured via a YAML configuration file.  Definitions for
 
 <a id='whats-new'></a>
 ## What's new
-- everything is new at this point so just basic functionality in both **Playback** and **Record**
-- just added InfluxDB write support
+- InfluxDB support
+- YAML secrets supported
+- switched to venv for Python3.10 support
 
 <a id='requirements'></a>
 ## Requirements
@@ -57,7 +58,9 @@ Both utilities can be configured via a YAML configuration file.  Definitions for
     pip3 install -e .
 ```
 
-2.  The YAML configuration search starts in the current directory and looks in each parent directory up to your home directory for it (or just the current directory if you are not running in a user profile).  Edit `mme.yaml` to set the desired **Playback** and **Record** options as well as InfluxDB options i yoy wish to log **Record** to a database.
+2.  The YAML configuration search starts in the current directory and looks in each parent directory up to your home directory for it (or just the current directory if you are not running in a user profile).  Edit `mme.yaml` to set the desired **Playback** and **Record** options as well as InfluxDB options if you wish to have **Record** save the data in an InfluxDB2 database.
+
+Now that we have database login credentials to protect you can use a secrets file to store them.  If used the fle `mme_secrets.yaml` will be looked for in the same locations as the `mme.yaml` file.
 
 #
 <a id='running'></a>
@@ -79,12 +82,14 @@ and add the following text with edits to the `ExecStart`, `User`, and `WorkingDi
 Description=MME Record
 After=multi-user.target
 After=network.service
+
 [Service]
 Type=simple
-ExecStart=/home/sillygoose/mme-record/run_record.sh
 User=sillygoose
-WorkingDirectory=/home/sillygoose/mme-record/source
+WorkingDirectory=/home/sillygoose/mme-record
+ExecStart=/home/sillygoose/mme-record/run_record.sh
 Restart=on-failure
+
 [Install]
 WantedBy=multi-user.target
 ```
@@ -122,7 +127,7 @@ Now reboot and reconnect to a terminal and check that **Record** is running:
 ```
 If you don't want **Record** to run automatically, disable the service and reboot, you can always use the start and stop commands from a terminal to control if **Record** runs in the background.
 
-Other commands for controlling the new service are:
+All the commands for controlling the MME-Record service are:
 ```
 sudo systemctl enable mme-record.service
 sudo systemctl disable mme-record.service
@@ -136,7 +141,7 @@ sudo systemctl status mme-record.service
 ## Debugging
 Create the environment variable MME_SIM_DEBUG and set to 1 or True to enable debug output.
 
-I run both **Playback** and **Record** in VS Code on a Raspberry Pi with CAN0 bus tied to the CAN1 bus in a loopback mode, makes for easy testing of **Record** changes playing back recorded files from a trip or chnaging session.
+I run both **Playback** and **Record** in VS Code on a Raspberry Pi with CAN0 bus tied to the CAN1 bus in a loopback mode, makes for easy testing of **Record** changes playing back recorded files from a trip or charging session.
 
 #
 <a id='thanks'></a>

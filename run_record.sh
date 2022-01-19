@@ -1,2 +1,4 @@
 #!/bin/bash
-/home/sillygoose/.pyenv/shims/python3 /home/sillygoose/mache-simulator/source/record.py
+source .venv/bin/activate
+cd source
+python3.10 record.py
