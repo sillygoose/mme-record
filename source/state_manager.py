@@ -8,7 +8,7 @@ from time import time
 import json
 
 from enum import Enum, unique, auto
-from typing import List
+from typing import List, Tuple
 
 from codec_manager import *
 from did import KeyState, ChargingStatus, EvseType, GearCommanded, InferredKey
@@ -74,6 +74,17 @@ class StateManager:
         ###
         VehicleState.Preconditioning:   {'state_file': 'json/state/preconditioning.json',   'state_keys': [Hash.ChargePlugConnected, Hash.ChargingStatus, Hash.EvseType]},
         VehicleState.Charging_DCFC:     {'state_file': 'json/state/charging_dcfc.json',     'state_keys': [Hash.ChargingStatus, Hash.EvseType]},
+    }
+
+    _synthetic_hashes = {
+        Hash.HvbVoltage:                Hash.HvbPower,
+        Hash.HvbCurrent:                Hash.HvbPower,
+        Hash.LvbVoltage:                Hash.LvbPower,
+        Hash.LvbCurrent:                Hash.LvbPower,
+        Hash.ChgInputVoltage:           Hash.ChgInputPower,
+        Hash.ChgInputCurrent:           Hash.ChgInputPower,
+        Hash.ChgOutputVoltage:          Hash.ChgOutputPower,
+        Hash.ChgOutputCurrent:          Hash.ChgOutputPower,
     }
 
     def __init__(self) -> None:
@@ -149,16 +160,9 @@ class StateManager:
     def _get_state_keys(self) -> List[str]:
         return StateManager._state_file_lookup.get(self._state).get('state_keys')
 
-    _synthetic_hashes = {
-        Hash.HvbVoltage:                Hash.HvbPower,
-        Hash.HvbCurrent:                Hash.HvbPower,
-        Hash.LvbVoltage:                Hash.LvbPower,
-        Hash.LvbCurrent:                Hash.LvbPower,
-        Hash.ChgInputVoltage:           Hash.ChgInputPower,
-        Hash.ChgInputCurrent:           Hash.ChgInputPower,
-        Hash.ChgOutputVoltage:          Hash.ChgOutputPower,
-        Hash.ChgOutputCurrent:          Hash.ChgOutputPower,
-    }
+    def _hash_fields(self, hash: Hash) -> Tuple[int, int, str]:
+        hash_fields = hash.value.split(':')
+        return int(hash_fields[0], base=16), int(hash_fields[1], base=16), hash_fields[2]
 
     def _calculate_synthetic(self, hash: str) -> dict:
         synthetic = None
@@ -167,27 +171,27 @@ class StateManager:
                 if synthetic_hash == Hash.HvbPower:
                     hvb_power = self._vehicle_state.get(Hash.HvbVoltage.value, 0.0) * self._vehicle_state.get(Hash.HvbCurrent.value, 0.0)
                     self._vehicle_state[Hash.HvbPower] = hvb_power
-                    hash_field = Hash.HvbPower.value.split(':')
-                    synthetic = {'arbitration_id': int(hash_field[0], base=16), 'did_id': int(hash_field[1], base=16), 'name': hash_field[2], 'value': hvb_power}
-                    _LOGGER.debug(f"{hash_field[0]}/{hash_field[1]}: HVB power is {hvb_power:.0f} W (calculated)")
+                    arbitration_id, did_id, synthetic_name = self._hash_fields(Hash.HvbPower)
+                    synthetic = {'arbitration_id': arbitration_id, 'did_id': did_id, 'name': synthetic_name, 'value': hvb_power}
+                    _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: HVB power is {hvb_power:.0f} W (calculated)")
                 elif synthetic_hash == Hash.LvbPower:
                     lvb_power = self._vehicle_state.get(Hash.LvbVoltage.value, 0.0) * self._vehicle_state.get(Hash.LvbCurrent.value, 0.0)
-                    hash_field = Hash.LvbPower.value.split(':')
                     self._vehicle_state[Hash.LvbPower] = lvb_power
-                    synthetic = {'arbitration_id': int(hash_field[0], base=16), 'did_id': int(hash_field[1], base=16), 'name': hash_field[2], 'value': lvb_power}
-                    _LOGGER.debug(f"{hash_field[0]}/{hash_field[1]}: LVB power is {lvb_power:.0f} W (calculated)")
+                    arbitration_id, did_id, synthetic_name = self._hash_fields(Hash.LvbPower)
+                    synthetic = {'arbitration_id': arbitration_id, 'did_id': did_id, 'name': synthetic_name, 'value': lvb_power}
+                    _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: LVB power is {lvb_power:.0f} W (calculated)")
                 elif synthetic_hash == Hash.ChgInputPower:
                     chg_input_power = self._vehicle_state.get(Hash.ChgInputVoltage.value, 0.0) * self._vehicle_state.get(Hash.ChgInputCurrent.value, 0.0)
-                    hash_field = Hash.ChgInputPower.value.split(':')
                     self._vehicle_state[Hash.ChgInputPower] = chg_input_power
-                    synthetic = {'arbitration_id': int(hash_field[0], base=16), 'did_id': int(hash_field[1], base=16), 'name': hash_field[2], 'value': chg_input_power}
-                    _LOGGER.debug(f"{hash_field[0]}/{hash_field[1]}: AC charger input power is {chg_input_power:.0f} W (calculated)")
+                    arbitration_id, did_id, synthetic_name = self._hash_fields(Hash.ChgInputPower)
+                    synthetic = {'arbitration_id': arbitration_id, 'did_id': did_id, 'name': synthetic_name, 'value': chg_input_power}
+                    _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: AC charger input power is {chg_input_power:.0f} W (calculated)")
                 elif synthetic_hash == Hash.ChgOutputPower:
                     chg_output_power = self._vehicle_state.get(Hash.ChgOutputVoltage.value, 0.0) * self._vehicle_state.get(Hash.ChgOutputCurrent.value, 0.0)
-                    hash_field = Hash.ChgOutputPower.value.split(':')
                     self._vehicle_state[Hash.ChgOutputPower] = chg_output_power
-                    synthetic = {'arbitration_id': int(hash_field[0], base=16), 'did_id': int(hash_field[1], base=16), 'name': hash_field[2], 'value': chg_output_power}
-                    _LOGGER.debug(f"{hash_field[0]}/{hash_field[1]}: AC charger output power is {chg_output_power:.0f} W (calculated)")
+                    arbitration_id, did_id, synthetic_name = self._hash_fields(Hash.ChgOutputPower)
+                    synthetic = {'arbitration_id': arbitration_id, 'did_id': did_id, 'name': synthetic_name, 'value': chg_output_power}
+                    _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: AC charger output power is {chg_output_power:.0f} W (calculated)")
         except ValueError:
             pass
         return synthetic
