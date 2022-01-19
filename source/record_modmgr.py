@@ -45,13 +45,11 @@ class RecordModuleManager(ModuleManager):
             channel = module.get('channel')
             arbitration_id = module.get('arbitration_id')
             enable = module.get('enable')
-            _LOGGER.debug(f"Processing module {module}")
             if enable:
                 tp_addr = isotp.Address(isotp.AddressingMode.Normal_11bits, txid=arbitration_id, rxid=arbitration_id + 0x8)
                 bus = self._bus0 if channel == 'can0' else self._bus1
                 stack = isotp.CanStack(bus=bus, address=tp_addr, params=RecordModuleManager.isotp_params)
                 self._isotp_connections[module_name] = PythonIsoTpConnection(stack)
-                _LOGGER.debug(f"Added module {module} to RecordModuleManager")
 
     def stop(self) -> None:
         if self._bus0:

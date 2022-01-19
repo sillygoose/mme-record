@@ -13,7 +13,6 @@ class ModuleManager:
         self._modules = self._load_modules(file='json/module/modules.json')
         self._modules_by_name = self._modules_organized_by_name(self._modules)
         self._modules_by_id = self._modules_organized_by_id(self._modules)
-        _LOGGER.debug("ModuleManager initialized")
 
     def modules(self) -> List[dict]:
         return self._modules

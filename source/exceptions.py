@@ -32,7 +32,6 @@ class SigTermCatcher:
 
     def __init__(self, callback):
         if len(SigTermCatcher._callback_functions) == 0:
-            signal.signal(signal.SIGINT, self._sigterm_caught)
             signal.signal(signal.SIGTERM, self._sigterm_caught)
         SigTermCatcher._callback_functions.append(callback)
 
