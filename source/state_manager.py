@@ -4,8 +4,8 @@ State definitions
 import logging
 from threading import Lock
 from queue import PriorityQueue
-from time import time
 import json
+import time
 
 from enum import Enum, unique, auto
 from typing import List, Tuple
@@ -39,6 +39,9 @@ class Hash(Enum):
     ChargingStatus          = '07E4:484D:charging_status'
     GearCommanded           = '07E2:1E12:gear_commanded'
     ChargePlugConnected     = '07E2:4843:charge_plug_connected'
+
+    HvbSOCDisplayed         = '07E4:4845:hvb_soc_displayed'
+    HvbEnergyToEmpty        = '07E4:4848:hvb_ete'
 
     EngineStartNormal       = '0726:41B9:engine_start_normal'
     EngineStartDisable      = '0726:41B9:engine_start_disable'
@@ -89,6 +92,7 @@ class StateManager:
 
     def __init__(self) -> None:
         self._state = None
+        self._ac_charging = None
         self._codec_manager = CodecManager()
         self._command_queue = PriorityQueue()
         self._command_queue_lock = Lock()
@@ -140,16 +144,39 @@ class StateManager:
                 enable = module.get('enable', True)
                 if enable:
                     period = module.get('period', 5)
-                    payload = (time(), period, [module])
+                    payload = (time.time(), period, [module])
                     self._command_queue.put(payload)
 
     def _outgoing_state(self, state: VehicleState) -> None:
         if state == VehicleState.Charging_AC:
-            delta_hvb_ete = self._vehicle_state.get('07E4:4848:hvb_ete') - self._ac_charging.get('ete')
-            #delta_soc = self._vehicle_state.get('07E4:4845:hvb_soc_displayed') - self._ac_charging.get('soc')
-            delta_time = int(time()) - self._ac_charging.get('time')
+            starting_time = self._ac_charging.get('time')
+            ending_time = int(time.time())
+            duration_seconds = ending_time - starting_time
+            hours, rem = divmod(duration_seconds, 3600)
+            minutes, _ = divmod(rem, 60)
+            starting_soc = self._ac_charging.get(Hash.HvbSOCDisplayed.value)
+            starting_ete = self._ac_charging.get(Hash.HvbEnergyToEmpty.value)
+            ending_soc = self._vehicle_state.get(Hash.HvbSOCDisplayed.value)
+            ending_ete = self._vehicle_state.get(Hash.HvbEnergyToEmpty.value)
+            kwh_added = ending_ete - starting_ete
+            session_stats = {
+                'start':            time.strftime('%Y-%m-%d %H:%M', time.localtime(starting_time)),
+                'duration':         duration_seconds,
+                'location':         None,
+                'starting_soc':     starting_soc,
+                'ending_soc':       ending_soc,
+                'kwh_added':        kwh_added,
+            }
+            _LOGGER.info(f"starting_time: {starting_time}")
+            _LOGGER.info(f"ending_time: {ending_time}")
+            _LOGGER.info(f"duration: {duration_seconds}")
+            _LOGGER.info(f"starting_soc: {starting_soc}")
+            _LOGGER.info(f"ending_soc: {ending_soc}")
+            _LOGGER.info(f"starting_ete: {starting_ete}")
+            _LOGGER.info(f"ending_ete: {ending_ete}")
+            _LOGGER.info(f"kwh_added: {kwh_added}")
+            _LOGGER.info(f"Charging session: {session_stats}")
             self._ac_charging = None
-            _LOGGER.info(f"Charging session: started: {self._ac_charging.get('time')}, ended: {int(time())}, duration: {delta_time} s, start SOC: {self._ac_charging.get('hvb_socd'):.1f}, end SOC: {self._vehicle_state['07E4:4845:hvb_socd']:.1f}, energy added: {delta_hvb_ete:.1f}")
 
     def _incoming_state(self, state: VehicleState) -> None:
         if state == VehicleState.Charging_AC:
@@ -165,7 +192,7 @@ class StateManager:
 
         self._outgoing_state(self._state)
         self._state = new_state
-        self._state_time = time()
+        self._state_time = time.time()
         self._state_file = StateManager._state_file_lookup.get(new_state).get('state_file')
         self._state_function = StateManager._state_file_lookup.get(new_state).get('state_function')
         queue_commands = self._load_state_definition(self._state_file)
@@ -185,25 +212,25 @@ class StateManager:
             if synthetic_hash := StateManager._synthetic_hashes.get(Hash(hash), None):
                 if synthetic_hash == Hash.HvbPower:
                     hvb_power = self._vehicle_state.get(Hash.HvbVoltage.value, 0.0) * self._vehicle_state.get(Hash.HvbCurrent.value, 0.0)
-                    self._vehicle_state[Hash.HvbPower] = hvb_power
+                    self._vehicle_state[Hash.HvbPower.value] = hvb_power
                     arbitration_id, did_id, synthetic_name = self._hash_fields(Hash.HvbPower)
                     synthetic = {'arbitration_id': arbitration_id, 'did_id': did_id, 'name': synthetic_name, 'value': hvb_power}
                     _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: HVB power is {hvb_power:.0f} W (calculated)")
                 elif synthetic_hash == Hash.LvbPower:
                     lvb_power = self._vehicle_state.get(Hash.LvbVoltage.value, 0.0) * self._vehicle_state.get(Hash.LvbCurrent.value, 0.0)
-                    self._vehicle_state[Hash.LvbPower] = lvb_power
+                    self._vehicle_state[Hash.LvbPower.value] = lvb_power
                     arbitration_id, did_id, synthetic_name = self._hash_fields(Hash.LvbPower)
                     synthetic = {'arbitration_id': arbitration_id, 'did_id': did_id, 'name': synthetic_name, 'value': lvb_power}
                     _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: LVB power is {lvb_power:.0f} W (calculated)")
                 elif synthetic_hash == Hash.ChgInputPower:
                     chg_input_power = self._vehicle_state.get(Hash.ChgInputVoltage.value, 0.0) * self._vehicle_state.get(Hash.ChgInputCurrent.value, 0.0)
-                    self._vehicle_state[Hash.ChgInputPower] = chg_input_power
+                    self._vehicle_state[Hash.ChgInputPower.value] = chg_input_power
                     arbitration_id, did_id, synthetic_name = self._hash_fields(Hash.ChgInputPower)
                     synthetic = {'arbitration_id': arbitration_id, 'did_id': did_id, 'name': synthetic_name, 'value': chg_input_power}
                     _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: AC charger input power is {chg_input_power:.0f} W (calculated)")
                 elif synthetic_hash == Hash.ChgOutputPower:
                     chg_output_power = self._vehicle_state.get(Hash.ChgOutputVoltage.value, 0.0) * self._vehicle_state.get(Hash.ChgOutputCurrent.value, 0.0)
-                    self._vehicle_state[Hash.ChgOutputPower] = chg_output_power
+                    self._vehicle_state[Hash.ChgOutputPower.value] = chg_output_power
                     arbitration_id, did_id, synthetic_name = self._hash_fields(Hash.ChgOutputPower)
                     synthetic = {'arbitration_id': arbitration_id, 'did_id': did_id, 'name': synthetic_name, 'value': chg_output_power}
                     _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: AC charger output power is {chg_output_power:.0f} W (calculated)")
@@ -450,11 +477,15 @@ class StateManager:
                                 if engine_start_normal := self._get_EngineStartNormal(Hash.EngineStartNormal):
                                     self.change_state(VehicleState.On if engine_start_normal == EngineStartNormal.Yes else VehicleState.Accessory)
                 else:
-                    hvb_ete = self._vehicle_state.get('07E4:4848:hvb_ete', None)
-                    soc = self._vehicle_state.get('07E4:4845:hvb_soc_displayed', None)
+                    hvb_ete = self._vehicle_state.get(Hash.HvbEnergyToEmpty.value, None)
+                    soc = self._vehicle_state.get(Hash.HvbSOCDisplayed.value, None)
                     if self._ac_charging is None:
                         if hvb_ete and soc:
-                            self._ac_charging = {'time': int(time()), 'soc': soc, 'ete': hvb_ete}
+                            self._ac_charging = {
+                                'time':                         int(time.time()),
+                                Hash.HvbSOCDisplayed.value:     soc,
+                                Hash.HvbEnergyToEmpty.value:    hvb_ete,
+                            }
 
     def charging_dcfc(self) -> None:
         for key in self._get_state_keys():
