@@ -143,6 +143,18 @@ class StateManager:
                     payload = (time(), period, [module])
                     self._command_queue.put(payload)
 
+    def _outgoing_state(self, state: VehicleState) -> None:
+        if state == VehicleState.Charging_AC:
+            delta_hvb_ete = self._vehicle_state.get('07E4:4848:hvb_ete') - self._ac_charging.get('ete')
+            #delta_soc = self._vehicle_state.get('07E4:4845:hvb_soc_displayed') - self._ac_charging.get('soc')
+            delta_time = int(time()) - self._ac_charging.get('time')
+            self._ac_charging = None
+            _LOGGER.info(f"Charging session: started: {self._ac_charging.get('time')}, ended: {int(time())}, duration: {delta_time} s, start SOC: {self._ac_charging.get('hvb_socd'):.1f}, end SOC: {self._vehicle_state['07E4:4845:hvb_socd']:.1f}, energy added: {delta_hvb_ete:.1f}")
+
+    def _incoming_state(self, state: VehicleState) -> None:
+        if state == VehicleState.Charging_AC:
+            self._ac_charging = None
+
     def change_state(self, new_state: VehicleState) -> None:
         if self._state == new_state:
             return
@@ -150,12 +162,15 @@ class StateManager:
             _LOGGER.info(f"Vehicle state set to '{new_state.name}'")
         else:
             _LOGGER.info(f"Vehicle state changed from '{self._state.name}' to '{new_state.name}'")
+
+        self._outgoing_state(self._state)
         self._state = new_state
         self._state_time = time()
         self._state_file = StateManager._state_file_lookup.get(new_state).get('state_file')
         self._state_function = StateManager._state_file_lookup.get(new_state).get('state_function')
         queue_commands = self._load_state_definition(self._state_file)
         self._load_queue(queue_commands)
+        self._incoming_state(self._state)
 
     def _get_state_keys(self) -> List[str]:
         return StateManager._state_file_lookup.get(self._state).get('state_keys')
@@ -434,6 +449,12 @@ class StateManager:
                             elif inferred_key == InferredKey.KeyIn:
                                 if engine_start_normal := self._get_EngineStartNormal(Hash.EngineStartNormal):
                                     self.change_state(VehicleState.On if engine_start_normal == EngineStartNormal.Yes else VehicleState.Accessory)
+                else:
+                    hvb_ete = self._vehicle_state.get('07E4:4848:hvb_ete', None)
+                    soc = self._vehicle_state.get('07E4:4845:hvb_soc_displayed', None)
+                    if self._ac_charging is None:
+                        if hvb_ete and soc:
+                            self._ac_charging = {'time': int(time()), 'soc': soc, 'ete': hvb_ete}
 
     def charging_dcfc(self) -> None:
         for key in self._get_state_keys():

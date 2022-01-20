@@ -13,7 +13,7 @@
         "packing": "H",
         "states": [
             {
-                "name": "speed",
+                "name": "hires_speed",
                 "value": 0
             }
         ]
@@ -98,7 +98,7 @@
         "packing": "T",
         "states": [
             {
-                "name": "odometer",
+                "name": "hires_odometer",
                 "value": 56540
             }
         ]
@@ -229,14 +229,14 @@
         "did_id": 18486,
         "did_id_hex": "4836",
         "enable": true,
-        "did_name": "LvbLvCurrent",
+        "did_name": "LvbDcDcLVCurrent",
         "modules": [
             "DCDC"
         ],
         "packing": "B",
         "states": [
             {
-                "name": "lvb_lv_current",
+                "name": "lvb_dcdc_lv_current",
                 "value": 27
             }
         ]
@@ -245,14 +245,14 @@
         "did_id": 18490,
         "did_id_hex": "483A",
         "enable": true,
-        "did_name": "LvbHvCurrent",
+        "did_name": "LvbDcDcHVCurrent",
         "modules": [
             "DCDC"
         ],
         "packing": "B",
         "states": [
             {
-                "name": "lvb_hv_current",
+                "name": "lvb_dcdc_hv_current",
                 "value": 58
             }
         ]
@@ -261,7 +261,7 @@
         "did_id": 18493,
         "did_id_hex": "483D",
         "enable": true,
-        "did_name": "LvbDcdcEnable",
+        "did_name": "LvbDcDcEnable",
         "modules": [
             "DCDC",
             "SOBDM",
@@ -279,7 +279,7 @@
         "did_id": 18498,
         "did_id_hex": "4842",
         "enable": true,
-        "did_name": "HvbChrgCurrentReqsted",
+        "did_name": "HvbChargeCurrentRequested",
         "modules": [
             "OBCC",
             "SOBDM",
@@ -288,7 +288,7 @@
         "packing": "h",
         "states": [
             {
-                "name": "hvb_chrg_current_reqsted",
+                "name": "hvb_charge_current_requested",
                 "value": 1000
             }
         ]
@@ -316,7 +316,7 @@
         "did_id": 18500,
         "did_id_hex": "4844",
         "enable": true,
-        "did_name": "HvbChrgVoltageReqsted",
+        "did_name": "HvbChargeVoltageRequested",
         "modules": [
             "OBCC",
             "SOBDM",
@@ -325,7 +325,7 @@
         "packing": "B",
         "states": [
             {
-                "name": "hvb_chrg_voltage_reqsted",
+                "name": "hvb_charge_voltage_requested",
                 "value": 10
             }
         ]
@@ -343,7 +343,7 @@
         "packing": "B",
         "states": [
             {
-                "name": "hvb_socd",
+                "name": "hvb_soc_displayed",
                 "value": 132
             }
         ]
@@ -403,7 +403,7 @@
         "did_id": 18510,
         "did_id_hex": "484E",
         "enable": true,
-        "did_name": "ChargerInputPower",
+        "did_name": "ChargerInputPowerAvailable",
         "modules": [
             "SOBDM",
             "BECM"
@@ -411,7 +411,7 @@
         "packing": "h",
         "states": [
             {
-                "name": "charger_input_power",
+                "name": "charger_input_power_available",
                 "value": 1000
             }
         ]
@@ -513,7 +513,7 @@
         "packing": "B",
         "states": [
             {
-                "name": "charger_input_freq",
+                "name": "charger_input_frequency",
                 "value": 100
             }
         ]
@@ -598,7 +598,7 @@
         "packing": "H",
         "states": [
             {
-                "name": "ChargerMaxPower",
+                "name": "charger_max_power",
                 "value": 100
             }
         ]
@@ -679,27 +679,27 @@
         "packing": "HllBHH",
         "states": [
             {
-                "name": "elevation",
+                "name": "gps_elevation",
                 "value": 100
             },
             {
-                "name": "latitude",
+                "name": "gps_latitude",
                 "value": 2577
             },
             {
-                "name": "longitude",
+                "name": "gps_ongitude",
                 "value": -4610
             },
             {
-                "name": "fix",
+                "name": "gps_fix",
                 "value": 4
             },
             {
-                "name": "speed",
+                "name": "gps_speed",
                 "value": 12
             },
             {
-                "name": "heading",
+                "name": "gps_bearing",
                 "value": 256
             }
         ]
