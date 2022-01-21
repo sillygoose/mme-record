@@ -152,14 +152,14 @@ class StateManager:
             starting_time = self._ac_charging.get('time')
             ending_time = int(time.time())
             duration_seconds = ending_time - starting_time
-            hours, rem = divmod(duration_seconds, 3600)
-            minutes, _ = divmod(rem, 60)
+            #hours, rem = divmod(duration_seconds, 3600)
+            #minutes, _ = divmod(rem, 60)
             starting_soc = self._ac_charging.get(Hash.HvbSOCDisplayed.value)
             starting_ete = self._ac_charging.get(Hash.HvbEnergyToEmpty.value)
             ending_soc = self._vehicle_state.get(Hash.HvbSOCDisplayed.value)
             ending_ete = self._vehicle_state.get(Hash.HvbEnergyToEmpty.value)
             kwh_added = ending_ete - starting_ete
-            session_stats = {
+            charging_session = {
                 'start':            time.strftime('%Y-%m-%d %H:%M', time.localtime(starting_time)),
                 'duration':         duration_seconds,
                 'location':         None,
@@ -167,15 +167,8 @@ class StateManager:
                 'ending_soc':       ending_soc,
                 'kwh_added':        kwh_added,
             }
-            _LOGGER.info(f"starting_time: {starting_time}")
-            _LOGGER.info(f"ending_time: {ending_time}")
-            _LOGGER.info(f"duration: {duration_seconds}")
-            _LOGGER.info(f"starting_soc: {starting_soc}")
-            _LOGGER.info(f"ending_soc: {ending_soc}")
-            _LOGGER.info(f"starting_ete: {starting_ete}")
-            _LOGGER.info(f"ending_ete: {ending_ete}")
-            _LOGGER.info(f"kwh_added: {kwh_added}")
-            _LOGGER.info(f"Charging session: {session_stats}")
+            _LOGGER.info(f"Charging session: {charging_session}")
+            #self._influxdb.charging_session(charging_session)
             self._ac_charging = None
 
     def _incoming_state(self, state: VehicleState) -> None:

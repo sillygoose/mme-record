@@ -70,6 +70,27 @@ class InfluxDB:
             self._client.close()
             self._client = None
 
+    def charging_session(self, session: dict) -> None:
+        """
+            session_stats = {
+                'start':            time.strftime('%Y-%m-%d %H:%M', time.localtime(starting_time)),
+                'duration':         duration_seconds,
+                'location':         None,
+                'starting_soc':     starting_soc,
+                'ending_soc':       ending_soc,
+                'kwh_added':        kwh_added,
+            }
+        """
+        if self._client:
+            charging_session = []
+            ts = int(time())
+            #charging_session.append(f"{name},aid={arbitration_id:04X},did={did_id:04X} state={value} {ts}")
+            try:
+                pass
+                #self._write_api.write(bucket=self._bucket, record=charging_session, write_precision=WritePrecision.S)
+            except ApiException as e:
+                raise RuntimeError(f"InfluxDB client unable to write to '{self._bucket}' at {self._url}: {e.reason}")
+
     def write_record(self, data_points: List[dict], flush=False) -> None:
         if self._client:
             lp_points = []
@@ -87,5 +108,5 @@ class InfluxDB:
                     self._write_api.write(bucket=self._bucket, record=self._line_points, write_precision=WritePrecision.S)
                     _LOGGER.info(f"Wrote {len(self._line_points)} data points to {self._url}")
                     self._line_points = []
-                except Exception as e:
-                    _LOGGER.error(f"Database write() call failed in write_record(): {e}")
+                except ApiException as e:
+                    raise RuntimeError(f"InfluxDB client unable to write to '{self._bucket}' at {self._url}: {e.reason}")
