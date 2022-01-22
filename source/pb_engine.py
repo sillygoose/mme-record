@@ -19,18 +19,18 @@ _LOGGER = logging.getLogger('mme')
 
 class PlaybackEngine:
 
-    def __init__(self, config: Configuration, module_event_queues: dict, module_manager: ModuleManager) -> None:
+    def __init__(self, config: Configuration, active_modules: dict, module_manager: ModuleManager) -> None:
         playback_config = dict(config)
+        self._active_modules = active_modules
         self._module_manager = module_manager
-        self._module_event_queues = module_event_queues
         source_path = playback_config.get('source_path')
         source_file = playback_config.get('source_file')
         self._playback_files_master = self._get_playback_files(source_path=source_path, source_file=source_file)
         self._playback_files = self._playback_files_master.copy()
+        self._speedup = playback_config.get('speedup', True)
         self._start_at = playback_config.get('start_at', 0)
         if self._start_at < 0:
             raise FailedInitialization(f"'start_at' option must be a non-negative integer")
-        self._speedup = playback_config.get('speedup', True)
 
         self._loop = config.get('loop', False)
         self._exit_requested = False
@@ -54,7 +54,6 @@ class PlaybackEngine:
         try:
             while self._exit_requested == False:
                 if (event := self._next_event()) is None:
-                    sleep(0.25)
                     _LOGGER.debug("No more events to process")
                     return
                 if (sleep_for := event.get('time') - self._playback_time) > 0:
@@ -63,13 +62,8 @@ class PlaybackEngine:
 
                 arbitration_id = event.get('arbitration_id')
                 module_name = self._module_manager.module_name(arbitration_id)
-                if module_event_queue := self._module_event_queues.get(module_name):
-                    try:
-                        #_LOGGER.debug(f"sending {module_name}: {event}")
-                        module_event_queue.put(event, block=False, timeout=2)
-                    except Full:
-                        _LOGGER.error(f"Queue {module_name}/{arbitration_id:04X} is full (size={module_event_queue.qsize()})")
-                        return
+                if module := self._active_modules.get(module_name):
+                        module.process_event(event)
                 else:
                     _LOGGER.debug(f"what?")
         except RuntimeError as e:

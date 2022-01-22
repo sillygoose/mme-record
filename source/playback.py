@@ -27,15 +27,13 @@ class Playback:
     def __init__(self, config: Configuration) -> None:
         self._config = config
         self._state_update_queue = Queue(maxsize=20)
-        self._module_event_queues = None
         self._module_manager = ModuleManager()
         self._did_manager = DIDManager()
         self._state_manager = PlaybackStateManager(state_queue=self._state_update_queue)
-        self._modules = self._module_manager.modules()
         self._dids = self._did_manager.dids()
-        self._add_modules(self._modules)
+        self._modules = self._add_modules(self._module_manager.modules())
         self._add_dids(self._dids)
-        self._playback_engine = PlaybackEngine(config=config, module_event_queues=self._module_event_queues, module_manager=self._module_manager)
+        self._playback_engine = PlaybackEngine(config=config, active_modules=self._modules, module_manager=self._module_manager)
 
     def start(self) -> None:
         for module in self._modules.values():
@@ -50,23 +48,17 @@ class Playback:
         for module in self._modules.values():
             module.stop()
 
-    def event_queues(self) -> dict:
-        return self._module_event_queues
-
-    def _add_modules(self, modules: List[dict]) -> None:
-        self._modules = {}
-        self._module_event_queues = {}
-        for module_record in modules:
-            name = module_record.get('name')
+    def _add_modules(self, module_list: List[dict]) -> None:
+        active_modules = {}
+        for module_record in module_list:
+            module_name = module_record.get('name')
             channel = module_record.get('channel')
             arbitration_id = module_record.get('arbitration_id')
-            enable = module_record.get('enable')
-            if enable:
-                if self._modules.get(name, None) is not None:
-                    raise FailedInitialization(f"Module {name} is defined more than once")
-                event_queue = Queue(maxsize=100)
-                self._module_event_queues[name] = event_queue
-                self._modules[name] = PlaybackModule(config=self._config, name=name, arbitration_id=arbitration_id, channel=channel, event_queue=event_queue, state_queue=self._state_update_queue, module_manager=self._module_manager)
+            if module_record.get('enable', False):
+                if active_modules.get(module_name, None):
+                    raise FailedInitialization(f"Module {module_name} is defined more than once")
+                active_modules[module_name] = PlaybackModule(config=self._config, name=module_name, arbitration_id=arbitration_id, channel=channel, state_queue=self._state_update_queue, module_manager=self._module_manager)
+        return active_modules
 
     def _add_dids(self, dids: List[dict]) -> None:
         self._dids_by_id = {}
