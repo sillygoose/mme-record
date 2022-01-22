@@ -1,6 +1,5 @@
 import os
 from threading import Thread
-from queue import Full
 
 import logging
 from time import sleep
@@ -28,10 +27,6 @@ class PlaybackEngine:
         self._playback_files_master = self._get_playback_files(source_path=source_path, source_file=source_file)
         self._playback_files = self._playback_files_master.copy()
         self._speedup = playback_config.get('speedup', True)
-        self._start_at = playback_config.get('start_at', 0)
-        if self._start_at < 0:
-            raise FailedInitialization(f"'start_at' option must be a non-negative integer")
-
         self._loop = config.get('loop', False)
         self._exit_requested = False
         self._currrent_position = None
@@ -63,30 +58,14 @@ class PlaybackEngine:
                 arbitration_id = event.get('arbitration_id')
                 module_name = self._module_manager.module_name(arbitration_id)
                 if module := self._active_modules.get(module_name):
-                        module.process_event(event)
+                    module.process_event(event)
                 else:
-                    _LOGGER.debug(f"what?")
+                    _LOGGER.debug(f"what? {module_name}")
         except RuntimeError as e:
             _LOGGER.error(f"Run time error: {e}")
             return
 
-    def _zoom_ahead(self, start_at: int) -> None:
-        event_time = 0
-        while event_time < start_at:
-            if self._currrent_position is None or self._currrent_position == len(self._current_playback):
-                next_file = self._next_file()
-                if next_file is None:
-                    raise RuntimeError(f"'start_at' option is larger than the largest playback file - nothing to playback")
-            event = self._current_playback[self._currrent_position]
-            event_time = event.get('time')
-            self._currrent_position += 1
-        self._playback_time = event_time
-        _LOGGER.info(f"Starting at time {event_time} in file '{next_file}'")
-
     def _next_event(self) -> dict:
-        if self._start_at > 0:
-            self._zoom_ahead(self._start_at)
-            self._start_at = 0
         if self._currrent_position is None or self._currrent_position == len(self._current_playback):
             next_file = self._next_file()
             if next_file is None:

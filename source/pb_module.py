@@ -1,7 +1,6 @@
-from time import sleep
 import logging
 from threading import Thread
-from queue import Queue
+from time import sleep
 import struct
 
 from typing import List
@@ -34,7 +33,7 @@ class PlaybackModule:
         'max_frame_size' : 4095                    # Limit the size of receive frame.
     }
 
-    def __init__(self, config: Configuration, name: str, arbitration_id: int, channel: str, state_queue: Queue, module_manager: ModuleManager) -> None:
+    def __init__(self, config: Configuration, name: str, arbitration_id: int, channel: str, module_manager: ModuleManager) -> None:
         self._module_manager = module_manager
         module_lookup = self._module_manager.module(name)
         if module_lookup is None:
@@ -45,7 +44,6 @@ class PlaybackModule:
         PlaybackModule.isotp_params['rx_consecutive_frame_timeout'] = int(playback_config.get('rx_consecutive_frame_timeout', 1.0) * 1000)
 
         self._name = name
-        self._state_queue = state_queue
         self._channel = channel
         self._rxid = arbitration_id
         self._txid = self._rxid + 8
@@ -108,7 +106,6 @@ class PlaybackModule:
         #_LOGGER.debug(f"Dequeued event {event} on queue {self._module_manager.module_name(event.get('arbitration_id'))}")
         if did_handler := self._dids.get(event.get('did_id'), None):
             did_handler.new_event(event)
-            self._state_queue.put(event)
         else:
             _LOGGER.debug(f"what?")
 
