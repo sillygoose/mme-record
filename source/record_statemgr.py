@@ -103,9 +103,8 @@ class RecordStateManager(StateManager):
                     _LOGGER.error(f"no space in the request queue")
                     self._exit_requested = True
 
-        except RuntimeError as e:
-            _LOGGER.error(f"Run time error: {e}")
-            return
+        except RuntimeError:
+            raise
 
     def _response_task(self, sync_queue: Queue) -> None:
         try:
@@ -123,30 +122,28 @@ class RecordStateManager(StateManager):
                     response = response_record.get('response')
                     if response.positive == False:
                         did_list = response_record.get('did_list')
-                        _LOGGER.debug(f"The request from {arbitration_id:04X} returned the following response: {response.invalid_reason}")
                         state_details = {'type': 'NegativeResponse', 'time': time(), 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_list': did_list}
                         self.update_vehicle_state(state_details)
+                        _LOGGER.debug(f"The request from {arbitration_id:04X} returned the following response: {response.invalid_reason}")
                         continue
 
                     for did_id in response.service_data.values:
                         key = f"{arbitration_id:04X} {did_id:04X}"
                         payload = response.service_data.values[did_id].get('payload')
+                        current_time = time()
+                        state_details = {'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did_id, 'did_id_hex': f"{did_id:04X}", 'payload': list(payload)}
                         if self._did_state_cache.get(key, None) is None or self._did_state_cache.get(key).get('payload', None) != payload:
-                            current_time = time()
                             self._did_state_cache[key] = {'time': current_time, 'payload': payload}
-                            state_details = {'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did_id, 'did_id_hex': f"{did_id:04X}", 'payload': list(payload)}
                             self._file_manager.write_record(state_details)
                             _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: {response.service_data.values[did_id].get('decoded')}")
-
-                            influxdb_state_data = self.update_vehicle_state(state_details)
-                            self._influxdb.write_record(influxdb_state_data)
+                        influxdb_state_data = self.update_vehicle_state(state_details)
+                        self._influxdb.write_record(influxdb_state_data)
                 self._response_queue.task_done()
-            return
-        except RuntimeError as e:
-            _LOGGER.error(f"Run time error: {e}")
-            return
 
-    def _write__state_definition(self, state_dids: List, file: str) -> None:
+        except RuntimeError:
+            raise
+
+    def _write_state_definition(self, state_dids: List, file: str) -> None:
         output_modules = []
         for module in state_dids:
             module_name = module.get('module')

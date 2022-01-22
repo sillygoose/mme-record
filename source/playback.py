@@ -64,7 +64,7 @@ class Playback:
             if enable:
                 if self._modules.get(name, None) is not None:
                     raise FailedInitialization(f"Module {name} is defined more than once")
-                event_queue = Queue(maxsize=12)
+                event_queue = Queue(maxsize=100)
                 self._module_event_queues[name] = event_queue
                 self._modules[name] = PlaybackModule(config=self._config, name=name, arbitration_id=arbitration_id, channel=channel, event_queue=event_queue, state_queue=self._state_update_queue, module_manager=self._module_manager)
 

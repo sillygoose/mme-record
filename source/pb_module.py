@@ -108,10 +108,11 @@ class PlaybackModule:
             if not self._event_queue.empty():
                 event = self._event_queue.get(block=False)
                 #_LOGGER.debug(f"Dequeued event {event} on queue {self._module_manager.module_name(event.get('arbitration_id'))}")
-                did_handler = self._dids.get(event.get('did_id'), None)
-                if did_handler:
+                if did_handler := self._dids.get(event.get('did_id'), None):
                     did_handler.new_event(event)
                     self._state_queue.put(event)
+                else:
+                    _LOGGER.debug(f"what?")
                 self._event_queue.task_done()
 
     def error_handler(self, error) -> None:

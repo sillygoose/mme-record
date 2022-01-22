@@ -30,12 +30,7 @@ class PlaybackEngine:
         self._start_at = playback_config.get('start_at', 0)
         if self._start_at < 0:
             raise FailedInitialization(f"'start_at' option must be a non-negative integer")
-        speed = playback_config.get('speed', 1.0)
-        if speed < 1:
-            raise FailedInitialization(f"'speed' option must be a floating point number greater than 1.0")
-        elif speed > 1.25:
-            _LOGGER.info(f"Playback speed is {speed:.0f}x real-time")
-        self._speed = 1.0 / speed
+        self._speedup = playback_config.get('speedup', True)
 
         self._loop = config.get('loop', False)
         self._exit_requested = False
@@ -58,28 +53,25 @@ class PlaybackEngine:
     def _playback_engine(self) -> None:
         try:
             while self._exit_requested == False:
-                event = self._next_event()
-                if event is None:
+                if (event := self._next_event()) is None:
+                    sleep(0.25)
+                    _LOGGER.debug("No more events to process")
                     return
-                event_time = event.get('time')
-                if self._playback_time < event_time:
-                    sleep_for = (event_time - self._playback_time)
-                    if sleep_for > 0:
-                        if sleep_for > 5:
-                            _LOGGER.info(f"At time {self._playback_time:.02f}, sleeping {sleep_for:.0f} seconds, skipping ahead")
-                            sleep_for = 1
-                        sleep(sleep_for * self._speed)
-                self._playback_time = event_time
+                if (sleep_for := event.get('time') - self._playback_time) > 0:
+                    sleep(0.05 if self._speedup else sleep_for)
+                self._playback_time = event.get('time')
 
                 arbitration_id = event.get('arbitration_id')
                 module_name = self._module_manager.module_name(arbitration_id)
-                module_event_queue = self._module_event_queues.get(module_name)
-                if module_event_queue:
+                if module_event_queue := self._module_event_queues.get(module_name):
                     try:
+                        #_LOGGER.debug(f"sending {module_name}: {event}")
                         module_event_queue.put(event, block=False, timeout=2)
                     except Full:
-                        _LOGGER.error(f"Queue {module_name}/{arbitration_id:04X} is full")
+                        _LOGGER.error(f"Queue {module_name}/{arbitration_id:04X} is full (size={module_event_queue.qsize()})")
                         return
+                else:
+                    _LOGGER.debug(f"what?")
         except RuntimeError as e:
             _LOGGER.error(f"Run time error: {e}")
             return

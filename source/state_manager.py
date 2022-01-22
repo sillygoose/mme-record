@@ -55,13 +55,13 @@ class Hash(Enum):
     LvbCurrent              = '0726:402B:lvb_current'
     LvbPower                = 'FFFF:8001:lvb_power'
 
-    ChgInputVoltage         = '07E2:485E:chg_input_voltage'
-    ChgInputCurrent         = '07E2:485F:chg_input_current'
-    ChgInputPower           = 'FFFF:8002:chg_input_power'
+    ChargerInputVoltage     = '07E2:485E:charger_input_voltage'
+    ChargerInputCurrent     = '07E2:485F:charger_input_current'
+    ChargerInputPower       = 'FFFF:8002:charger_input_power'
 
-    ChgOutputVoltage        = '07E2:484A:chg_output_voltage'
-    ChgOutputCurrent        = '07E2:4850:chg_output_current'
-    ChgOutputPower          = 'FFFF:8003:chg_output_power'
+    ChargerOutputVoltage    = '07E2:484A:charger_output_voltage'
+    ChargerOutputCurrent    = '07E2:4850:charger_output_current'
+    ChargerOutputPower      = 'FFFF:8003:charger_output_power'
 
 
 class StateManager:
@@ -84,10 +84,10 @@ class StateManager:
         Hash.HvbCurrent:                Hash.HvbPower,
         Hash.LvbVoltage:                Hash.LvbPower,
         Hash.LvbCurrent:                Hash.LvbPower,
-        Hash.ChgInputVoltage:           Hash.ChgInputPower,
-        Hash.ChgInputCurrent:           Hash.ChgInputPower,
-        Hash.ChgOutputVoltage:          Hash.ChgOutputPower,
-        Hash.ChgOutputCurrent:          Hash.ChgOutputPower,
+        Hash.ChargerInputVoltage:       Hash.ChargerInputPower,
+        Hash.ChargerInputCurrent:       Hash.ChargerInputPower,
+        Hash.ChargerOutputVoltage:      Hash.ChargerOutputPower,
+        Hash.ChargerOutputCurrent:      Hash.ChargerOutputPower,
     }
 
     def __init__(self) -> None:
@@ -215,18 +215,18 @@ class StateManager:
                     arbitration_id, did_id, synthetic_name = self._hash_fields(Hash.LvbPower)
                     synthetic = {'arbitration_id': arbitration_id, 'did_id': did_id, 'name': synthetic_name, 'value': lvb_power}
                     _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: LVB power is {lvb_power:.0f} W (calculated)")
-                elif synthetic_hash == Hash.ChgInputPower:
-                    chg_input_power = self._vehicle_state.get(Hash.ChgInputVoltage.value, 0.0) * self._vehicle_state.get(Hash.ChgInputCurrent.value, 0.0)
-                    self._vehicle_state[Hash.ChgInputPower.value] = chg_input_power
-                    arbitration_id, did_id, synthetic_name = self._hash_fields(Hash.ChgInputPower)
-                    synthetic = {'arbitration_id': arbitration_id, 'did_id': did_id, 'name': synthetic_name, 'value': chg_input_power}
-                    _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: AC charger input power is {chg_input_power:.0f} W (calculated)")
-                elif synthetic_hash == Hash.ChgOutputPower:
-                    chg_output_power = self._vehicle_state.get(Hash.ChgOutputVoltage.value, 0.0) * self._vehicle_state.get(Hash.ChgOutputCurrent.value, 0.0)
-                    self._vehicle_state[Hash.ChgOutputPower.value] = chg_output_power
-                    arbitration_id, did_id, synthetic_name = self._hash_fields(Hash.ChgOutputPower)
-                    synthetic = {'arbitration_id': arbitration_id, 'did_id': did_id, 'name': synthetic_name, 'value': chg_output_power}
-                    _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: AC charger output power is {chg_output_power:.0f} W (calculated)")
+                elif synthetic_hash == Hash.ChargerInputPower:
+                    charger_input_power = self._vehicle_state.get(Hash.ChargerInputVoltage.value, 0.0) * self._vehicle_state.get(Hash.ChargerInputCurrent.value, 0.0)
+                    self._vehicle_state[Hash.ChargerInputPower.value] = charger_input_power
+                    arbitration_id, did_id, synthetic_name = self._hash_fields(Hash.ChargerInputPower)
+                    synthetic = {'arbitration_id': arbitration_id, 'did_id': did_id, 'name': synthetic_name, 'value': charger_input_power}
+                    _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: AC charger input power is {charger_input_power:.0f} W (calculated)")
+                elif synthetic_hash == Hash.ChargerOutputPower:
+                    charger_output_power = self._vehicle_state.get(Hash.ChargerOutputVoltage.value, 0.0) * self._vehicle_state.get(Hash.ChargerOutputCurrent.value, 0.0)
+                    self._vehicle_state[Hash.ChargerOutputPower.value] = charger_output_power
+                    arbitration_id, did_id, synthetic_name = self._hash_fields(Hash.ChargerOutputPower)
+                    synthetic = {'arbitration_id': arbitration_id, 'did_id': did_id, 'name': synthetic_name, 'value': charger_output_power}
+                    _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: AC charger output power is {charger_output_power:.0f} W (calculated)")
         except ValueError:
             pass
         return synthetic

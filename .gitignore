@@ -1,8 +1,8 @@
 # Ignore files and folders
 *.csv
 log/
-source/playback_files/
-source/record_files/
+source/playback-files/
+source/record-files/
 
 # Ignore any secrets files
 *secrets.yaml
