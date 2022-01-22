@@ -122,7 +122,7 @@ class RecordStateManager(StateManager):
                     response = response_record.get('response')
                     if response.positive == False:
                         did_list = response_record.get('did_list')
-                        state_details = {'type': 'NegativeResponse', 'time': time(), 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_list': did_list}
+                        state_details = {'type': 'NegativeResponse', 'time': round(time(), 6), 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_list': did_list}
                         self.update_vehicle_state(state_details)
                         _LOGGER.debug(f"The request from {arbitration_id:04X} returned the following response: {response.invalid_reason}")
                         continue
@@ -133,7 +133,7 @@ class RecordStateManager(StateManager):
                         current_time = time()
                         state_details = {'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did_id, 'did_id_hex': f"{did_id:04X}", 'payload': list(payload)}
                         if self._did_state_cache.get(key, None) is None or self._did_state_cache.get(key).get('payload', None) != payload:
-                            self._did_state_cache[key] = {'time': current_time, 'payload': payload}
+                            self._did_state_cache[key] = {'time': round(current_time, 6), 'payload': payload}
                             self._file_manager.write_record(state_details)
                             _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: {response.service_data.values[did_id].get('decoded')}")
                         influxdb_state_data = self.update_vehicle_state(state_details)

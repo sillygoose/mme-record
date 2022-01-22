@@ -22,20 +22,18 @@ class PlaybackEngine:
         playback_config = dict(config)
         self._active_modules = active_modules
         self._module_manager = module_manager
-        source_path = playback_config.get('source_path')
-        source_file = playback_config.get('source_file')
-        self._playback_files_master = self._get_playback_files(source_path=source_path, source_file=source_file)
-        self._playback_files = self._playback_files_master.copy()
+        self._filename = f"{playback_config.get('source_path')}/{playback_config.get('source_file')}.json"
         self._speedup = playback_config.get('speedup', True)
         self._loop = config.get('loop', False)
         self._exit_requested = False
         self._currrent_position = None
-        self._current_playback = None
+        self._playback = None
         self._thread = None
 
     def start(self) -> Thread:
         self._exit_requested = False
         self._playback_time = None
+        self._load_playback()
         self._thread = Thread(target=self._playback_engine, name='playback_engine')
         self._thread.start()
         return self._thread
@@ -66,58 +64,21 @@ class PlaybackEngine:
             return
 
     def _next_event(self) -> dict:
-        if self._currrent_position is None or self._currrent_position == len(self._current_playback):
-            next_file = self._next_file()
-            if next_file is None:
-                return None
-        event = self._current_playback[self._currrent_position]
+        if self._currrent_position is None or self._currrent_position == len(self._playback):
+            return None
+        event = self._playback[self._currrent_position]
         if self._playback_time is None:
             self._playback_time = event.get('time')
         self._currrent_position += 1
         return event
 
-    def _next_file(self) -> str:
-        if self._playback_files == []:
-            if self._loop == False:
-                return None
-            self._playback_files = self._playback_files_master.copy()
-        next_file = self._playback_files.pop(0)
-        self._load_playback(file=next_file)
-        self._currrent_position = 0
-        return next_file
-
-    def _decode_event(self, event: dict) -> str:
-        module_name = self._module_manager.module_name(event.get('arbitration_id'))
-        event['name'] = module_name
-        event['payload'] = bytearray(event['payload'])
-        return str(event)
-
-    def _get_playback_files(self, source_path: str, source_file: str) -> List:
-        playback_files = []
-        count = 0
-        find_file = f"{source_path}/{source_file}_{count:03d}.json"
-        if not os.path.exists(find_file):
-            raise FailedInitialization(f"Can't find the playback file '{find_file}'")
-        while True:
-            if not os.path.exists(find_file):
-                break
-            playback_files.append(find_file)
-            count += 1
-            find_file = f"{source_path}/{source_file}_{count:03d}.json"
-        return playback_files
-
-    def _load_playback(self, file: str) -> None:
-        with open(file) as infile:
+    def _load_playback(self) -> None:
+        with open(self._filename) as infile:
             try:
-                self._current_playback = json.load(infile)
-                _LOGGER.info(f"Loaded playback file '{file}'")
+                self._playback = json.load(infile)
+                self._currrent_position = 0
+                _LOGGER.info(f"Loaded playback file '{self._filename}'")
             except FileNotFoundError as e:
                 raise RuntimeError(f"{e}")
             except json.JSONDecodeError as e:
-                raise RuntimeError(f"JSON error in '{file}' at line {e.lineno}")
-        self._currrent_position = 0
-
-    def _dump_playback(self, file: str, playback: dict) -> None:
-        json_playback = json.dumps(playback, indent = 4, sort_keys=False)
-        with open(file, "w") as outfile:
-            outfile.write(json_playback)
+                raise RuntimeError(f"JSON error in '{self._filename}' at line {e.lineno}")
