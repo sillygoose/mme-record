@@ -158,9 +158,9 @@ class StateManager:
             starting_soc = self._charging_session.get(Hash.HvbSOC.value)
             starting_socd = self._charging_session.get(Hash.HvbSOCDisplayed.value)
             starting_ete = self._charging_session.get(Hash.HvbEnergyToEmpty.value)
-            latitude = self._charging_session.get(Hash.GpsLatitude.value)
-            longitude = self._charging_session.get(Hash.GpsLongitude.value)
-            odometer = self._charging_session.get(Hash.LoresOdometer.value)
+            latitude = self._charging_session.get(Hash.GpsLatitude.value, 0.0)
+            longitude = self._charging_session.get(Hash.GpsLongitude.value, 0.0)
+            odometer = self._charging_session.get(Hash.LoresOdometer.value, 0)
 
             ending_soc = self._vehicle_state.get(Hash.HvbSOC.value)
             ending_socd = self._vehicle_state.get(Hash.HvbSOCDisplayed.value)
@@ -474,9 +474,7 @@ class StateManager:
 
         for key in self._get_state_keys():
             if charging_status := self._get_ChargingStatus(key):
-                if charging_status == ChargingStatus.Wait:
-                    pass
-                elif charging_status == ChargingStatus.Ready or charging_status == ChargingStatus.Charging:
+                if charging_status == ChargingStatus.Ready or charging_status == ChargingStatus.Wait or charging_status == ChargingStatus.Charging:
                     if self._charging_session.get(Hash.HvbEnergyToEmpty.value) is None:
                         if hvb_ete := self._vehicle_state.get(Hash.HvbEnergyToEmpty.value, None):
                             self._charging_session[Hash.HvbEnergyToEmpty.value] = hvb_ete
@@ -502,11 +500,12 @@ class StateManager:
                             self._charging_session[Hash.LoresOdometer.value] = lores_odometer
                             _LOGGER.debug(f"Saved lores_odometer initial value: {lores_odometer}")
 
-                    if evse_type := self._get_EvseType(Hash.EvseType):
-                        if evse_type == EvseType.BasAC:
-                            self.change_state(VehicleState.Charging_AC)
-                        elif evse_type != EvseType.NoType:
-                            _LOGGER.error(f"While in '{self._state.name}', 'EvseType' returned an unexpected response: {evse_type}")
+                    if charging_status == ChargingStatus.Charging:
+                        if evse_type := self._get_EvseType(Hash.EvseType):
+                            if evse_type == EvseType.BasAC:
+                                self.change_state(VehicleState.Charging_AC)
+                            elif evse_type != EvseType.NoType:
+                                _LOGGER.error(f"While in '{self._state.name}', 'EvseType' returned an unexpected response: {evse_type}")
                 else:
                     _LOGGER.info(f"While in {self._state}, 'ChargingStatus' returned an unexpected response: {charging_status}")
 
@@ -515,6 +514,7 @@ class StateManager:
         for key in self._get_state_keys():
             if charging_status := self._get_ChargingStatus(key):
                 if charging_status != ChargingStatus.Charging:
+                    _LOGGER.debug(f"Charging status changed to: {charging_status}")
                     self.change_state(VehicleState.Charging_Ended)
                 else:
                     assert self._vehicle_state.get(Hash.HvbEnergyToEmpty.value, None) is not None
