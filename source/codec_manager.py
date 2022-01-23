@@ -118,7 +118,7 @@ class CodecGPS(Codec):
         states = [
                 {'gps_elevation': gps_elevation},
                 {'gps_latitude': gps_latitude},
-                {'gps_ongitude': gps_longitude},
+                {'gps_longitude': gps_longitude},
                 {'gps_fix': gps_fix},
                 {'gps_speed': gps_speed},
                 {'gps_bearing': gps_bearing},

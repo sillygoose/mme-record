@@ -1,16 +1,13 @@
-import os
 from threading import Thread
 
 import logging
 from time import sleep
 import json
 
-from typing import List
-
 from module_manager import ModuleManager
 from config.configuration import Configuration
 
-from exceptions import FailedInitialization, RuntimeError
+from exceptions import RuntimeError
 
 
 _LOGGER = logging.getLogger('mme')
@@ -24,15 +21,14 @@ class PlaybackEngine:
         self._module_manager = module_manager
         self._filename = f"{playback_config.get('source_path')}/{playback_config.get('source_file')}.json"
         self._speedup = playback_config.get('speedup', True)
-        self._loop = config.get('loop', False)
         self._exit_requested = False
         self._currrent_position = None
         self._playback = None
+        self._playback_alert_time = self._playback_time = None
         self._thread = None
 
     def start(self) -> Thread:
         self._exit_requested = False
-        self._playback_time = None
         self._load_playback()
         self._thread = Thread(target=self._playback_engine, name='playback_engine')
         self._thread.start()
@@ -48,10 +44,16 @@ class PlaybackEngine:
             while self._exit_requested == False:
                 if (event := self._next_event()) is None:
                     _LOGGER.debug("No more events to process")
+                    sleep(10)
                     return
                 if (sleep_for := event.get('time') - self._playback_time) > 0:
-                    sleep(0.05 if self._speedup else sleep_for)
+                    sleep_for = 0.25 if self._speedup and sleep_for > 1.0 else sleep_for
+                    sleep(sleep_for)
                 self._playback_time = event.get('time')
+
+                if self._playback_time - self._playback_alert_time > 300:
+                    _LOGGER.info(f"5 minutes simulated time passed: {int(self._playback_time)}")
+                    self._playback_alert_time = self._playback_time
 
                 arbitration_id = event.get('arbitration_id')
                 module_name = self._module_manager.module_name(arbitration_id)
@@ -68,7 +70,7 @@ class PlaybackEngine:
             return None
         event = self._playback[self._currrent_position]
         if self._playback_time is None:
-            self._playback_time = event.get('time')
+            self._playback_alert_time = self._playback_time = event.get('time')
         self._currrent_position += 1
         return event
 

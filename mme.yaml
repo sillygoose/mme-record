@@ -24,13 +24,11 @@ mme:
     playback:
         # You can control the playback options here:
         #
-        # loop:                             will loop over the same input file seqeunce if true (default: false)
-        # speedup:                          speed up playback by compressing ead time (default: true)
+        # speedup:                          speed up playback by compressing dead time (default: true)
         # source_path:                      source path to find the playback files
         # source_file:                      source file name for the playback files
         # rx_consecutive_frame_timeout:     triggers a timeout if a consecutive frame is not received (default: 1.0)
         # rx_flowcontrol_timeout:           triggers a timeout if a flow control is not received (default: 1.0)
-        loop:                           false
         speedup:                        true
         source_path:                    'playback-files'
         source_file:                    'ac_charge'

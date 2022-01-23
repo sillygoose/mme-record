@@ -70,6 +70,8 @@ class RecordStateManager(StateManager):
                             trigger_at, period, module_list = self._command_queue.get_nowait()
                     except Empty:
                         if self._exit_requested == False:
+                            ### reload queue here
+                            self._load_queue()
                             sleep(0.05)
                             continue
                         return
@@ -79,14 +81,16 @@ class RecordStateManager(StateManager):
                     if current_time < trigger_at:
                         sleep(trigger_at - current_time)
                     self._request_queue.put(module_list)
-                    with self._command_queue_lock:
-                        try:
-                            self._command_queue.put_nowait((time() + period, period, module_list))
-                            self._command_queue.task_done()
-                        except Full:
-                            _LOGGER.error(f"no space in the command queue")
-                            self._exit_requested = True
-                            return
+
+                    if self._putback_enabled:
+                        with self._command_queue_lock:
+                            try:
+                                self._command_queue.put_nowait((time() + period, period, module_list))
+                                self._command_queue.task_done()
+                            except Full:
+                                _LOGGER.error(f"no space in the command queue")
+                                self._exit_requested = True
+                                return
 
                     got_sync = False
                     while not got_sync:
@@ -124,7 +128,7 @@ class RecordStateManager(StateManager):
                         did_list = response_record.get('did_list')
                         state_details = {'type': 'NegativeResponse', 'time': round(time(), 6), 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_list': did_list}
                         self.update_vehicle_state(state_details)
-                        _LOGGER.debug(f"The request from {arbitration_id:04X} returned the following response: {response.invalid_reason}")
+                        #_LOGGER.debug(f"The request from {arbitration_id:04X} returned the following response: {response.invalid_reason}")
                         continue
 
                     for did_id in response.service_data.values:
