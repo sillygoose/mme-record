@@ -266,8 +266,10 @@ class StateManager:
                         state_data.append({'arbitration_id': arbitration_id, 'did_id': did_id, 'name': state_name, 'value': state_value})
                         if synthetic := self._calculate_synthetic(hash):
                             state_data.append(synthetic)
-                        self._state_function()
                 return state_data
+
+    def _update_state_machine(self) -> None:
+        self._state_function()
 
     def _get_KeyState(self, key: Hash) -> KeyState:
         key_state = None

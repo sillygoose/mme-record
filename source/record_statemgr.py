@@ -61,28 +61,39 @@ class RecordStateManager(StateManager):
         self.stop()
 
     def _request_task(self, sync_queue: Queue) -> None:
+        # Steps done in _request_task:
+        #   - get a command set
+        #   - wait until it ready to fire
+        #   - add the command set back if runs at intervals
+        #   - wait for command set to execute
         try:
             while self._exit_requested == False:
-                trigger_at = 0
-                while trigger_at == 0:
+                trigger_at = None
+                while trigger_at is None:
+                    # get a command set
                     try:
                         with self._command_queue_lock:
                             trigger_at, period, module_list = self._command_queue.get_nowait()
                     except Empty:
-                        if self._exit_requested == False:
-                            ### reload queue here
-                            self._load_queue()
-                            sleep(0.05)
-                            continue
-                        return
+                        if self._exit_requested == True:
+                            return
+                        sleep(0.05)
+                        self._load_queue()
+                        continue
 
-                try:
+                    # wait until it ready to send to the request queue
                     current_time = time()
                     if current_time < trigger_at:
                         sleep(trigger_at - current_time)
-                    self._request_queue.put(module_list)
+                    try:
+                        self._request_queue.put(module_list)
+                    except Full:
+                        _LOGGER.error(f"no space in the request queue")
+                        self._exit_requested = True
+                        return
 
-                    if self._putback_enabled:
+                    # add the command set back if runs at intervals
+                    if self._putback_enabled and period > 0:
                         with self._command_queue_lock:
                             try:
                                 self._command_queue.put_nowait((time() + period, period, module_list))
@@ -92,34 +103,37 @@ class RecordStateManager(StateManager):
                                 self._exit_requested = True
                                 return
 
+                    # wait for command set to be returned and processed
                     got_sync = False
                     while not got_sync:
                         try:
                             got_sync = sync_queue.get_nowait()
                             sync_queue.task_done()
+                            #_LOGGER.debug("Command set completed processing")
+                            break
                         except Empty:
-                            if self._exit_requested == False:
-                                sleep(0.05)
-                                continue
-                            return
-
-                except Full:
-                    _LOGGER.error(f"no space in the request queue")
-                    self._exit_requested = True
+                            if self._exit_requested == True:
+                                return
+                            sleep(0.05)
+                            continue
 
         except RuntimeError:
             raise
 
     def _response_task(self, sync_queue: Queue) -> None:
+        # Steps done in _response_task:
+        #   - get the responses from the command set
+        #   -
+        #   -
         try:
             while self._exit_requested == False:
                 try:
                     responses = self._response_queue.get(timeout=0.5)
                     sync_queue.put(True)
                 except Empty:
-                    if self._exit_requested == False:
-                        continue
-                    return
+                    if self._exit_requested == True:
+                        return
+                    continue
 
                 for response_record in responses:
                     arbitration_id = response_record.get('arbitration_id')
@@ -142,6 +156,7 @@ class RecordStateManager(StateManager):
                             _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: {response.service_data.values[did_id].get('decoded')}")
                         influxdb_state_data = self.update_vehicle_state(state_details)
                         self._influxdb.write_record(influxdb_state_data)
+                self._update_state_machine()
                 self._response_queue.task_done()
 
         except RuntimeError:
