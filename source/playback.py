@@ -1,15 +1,14 @@
 import sys
 import os
-from queue import Queue
 import logging
 from typing import List
 
 from module_manager import ModuleManager
+from codec_manager import CodecManager
 from did_manager import DIDManager
 
 from pb_module import PlaybackModule
 from pb_did import PlaybackDID
-from pb_state_manager import PlaybackStateManager
 from pb_engine import PlaybackEngine
 
 import version
@@ -26,47 +25,36 @@ _LOGGER = logging.getLogger('mme')
 class Playback:
     def __init__(self, config: Configuration) -> None:
         self._config = config
-        self._state_update_queue = Queue(maxsize=20)
-        self._module_event_queues = None
         self._module_manager = ModuleManager()
         self._did_manager = DIDManager()
-        self._state_manager = PlaybackStateManager(state_queue=self._state_update_queue)
-        self._modules = self._module_manager.modules()
+        self._codec_manager = CodecManager()
         self._dids = self._did_manager.dids()
-        self._add_modules(self._modules)
+        self._modules = self._add_modules(self._module_manager.modules())
         self._add_dids(self._dids)
-        self._playback_engine = PlaybackEngine(config=config, module_event_queues=self._module_event_queues, module_manager=self._module_manager)
+        self._playback_engine = PlaybackEngine(config=config, active_modules=self._modules, module_manager=self._module_manager)
 
     def start(self) -> None:
         for module in self._modules.values():
             module.start()
-        self._state_manager.start()
         playback_thread = self._playback_engine.start()
         playback_thread.join()
 
     def stop(self) -> None:
         self._playback_engine.stop()
-        self._state_manager.stop()
         for module in self._modules.values():
             module.stop()
 
-    def event_queues(self) -> dict:
-        return self._module_event_queues
-
-    def _add_modules(self, modules: List[dict]) -> None:
-        self._modules = {}
-        self._module_event_queues = {}
-        for module_record in modules:
-            name = module_record.get('name')
+    def _add_modules(self, module_list: List[dict]) -> None:
+        active_modules = {}
+        for module_record in module_list:
+            module_name = module_record.get('name')
             channel = module_record.get('channel')
             arbitration_id = module_record.get('arbitration_id')
-            enable = module_record.get('enable')
-            if enable:
-                if self._modules.get(name, None) is not None:
-                    raise FailedInitialization(f"Module {name} is defined more than once")
-                event_queue = Queue(maxsize=12)
-                self._module_event_queues[name] = event_queue
-                self._modules[name] = PlaybackModule(config=self._config, name=name, arbitration_id=arbitration_id, channel=channel, event_queue=event_queue, state_queue=self._state_update_queue, module_manager=self._module_manager)
+            if module_record.get('enable', False):
+                if active_modules.get(module_name, None):
+                    raise FailedInitialization(f"Module {module_name} is defined more than once")
+                active_modules[module_name] = PlaybackModule(config=self._config, name=module_name, arbitration_id=arbitration_id, channel=channel, module_manager=self._module_manager)
+        return active_modules
 
     def _add_dids(self, dids: List[dict]) -> None:
         self._dids_by_id = {}
@@ -81,7 +69,7 @@ class Playback:
             if enable:
                 if self._dids_by_id.get(did, None) is not None:
                     raise FailedInitialization(f"DID {did:04X} is defined more than once")
-                did_object = PlaybackDID(did_id=did, did_name=name, packing=packing, bitfield=bitfield, modules=used_in_modules, states=states)
+                did_object = PlaybackDID(did_id=did, did_name=name, packing=packing, bitfield=bitfield, modules=used_in_modules, states=states, codec_manager=self._codec_manager)
                 self._dids_by_id[did] = did_object
 
                 for module in used_in_modules:

@@ -39,3 +39,4 @@ class SigTermCatcher:
         _LOGGER.info(f"Received SIGTERM signal, shutting down")
         for callback in SigTermCatcher._callback_functions:
             callback()
+        SigTermCatcher._callback_functions.clear()

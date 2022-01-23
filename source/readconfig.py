@@ -258,9 +258,7 @@ def check_config(config):
                     {'p2_star_timeout': {'required': False, 'keys': [], 'type': float}},
                 ]}},
                 {'playback': {'required': True, 'keys': [
-                    {'loop': {'required': False, 'keys': [], 'type': bool}},
-                    {'start_at': {'required': False, 'keys': [], 'type': int}},
-                    {'speed': {'required': False, 'keys': [], 'type': float}},
+                    {'speedup': {'required': False, 'keys': [], 'type': bool}},
                     {'source_path': {'required': True, 'keys': [], 'type': str}},
                     {'source_file': {'required': True, 'keys': [], 'type': str}},
                     {'rx_flowcontrol_timeout': {'required': False, 'keys': [], 'type': float}},

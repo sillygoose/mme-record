@@ -3,19 +3,22 @@ import logging
 
 from typing import List
 
+from codec_manager import CodecManager
+
 
 _LOGGER = logging.getLogger('mme')
 
 
 class PlaybackDID:
 
-    def __init__(self, did_id: int, did_name: str, packing: str, bitfield: bool, modules: List[str], states: List[dict]) -> None:
+    def __init__(self, did_id: int, did_name: str, packing: str, bitfield: bool, modules: List[str], states: List[dict], codec_manager: CodecManager) -> None:
         self._did_id = did_id
         self._did_id_hex = f"{did_id:04X}"
         self._did_name = did_name
         self._packing = packing
         self._bitfield = bitfield
         self._modules = modules
+        self._codec_manager = codec_manager
         self._states = []
         for state in states:
             # variable = state.get('name', None)
@@ -56,12 +59,25 @@ class PlaybackDID:
         unpacked_values = list(struct.unpack(unpacking_format, payload))
         if self._packing.find('T') >= 0:
             unpacked_values[0] = unpacked_values[0] * 256 + unpacked_values[1]
+
         index = 0
         for _ in self._states:
             self._states[index] = unpacked_values[index]
+            self._log_event(event)
             index += 1
             if index == 1 and self._bitfield:
                 break
+
+    def _log_event(self, event: dict) -> None:
+        event_time = event.get('time')
+        arbitration_id = event.get('arbitration_id')
+        did_id = event.get('did_id')
+        payload = event.get('payload')
+        if codec := self._codec_manager.codec(did_id):
+            decoded = codec.decode(None, bytearray(payload))
+            _LOGGER.debug(f"Event {event_time:.06f} {arbitration_id:04X}/{did_id:04X} payload={payload} {decoded.get('decoded')}")
+        else:
+            _LOGGER.debug(f"Event {event_time:.06f} {arbitration_id:04X}/{did_id:04X} payload={payload}")
 
     def did_id(self) -> int:
         return self._did_id

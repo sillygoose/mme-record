@@ -118,7 +118,7 @@ class CodecGPS(Codec):
         states = [
                 {'gps_elevation': gps_elevation},
                 {'gps_latitude': gps_latitude},
-                {'gps_ongitude': gps_longitude},
+                {'gps_longitude': gps_longitude},
                 {'gps_fix': gps_fix},
                 {'gps_speed': gps_speed},
                 {'gps_bearing': gps_bearing},
@@ -410,9 +410,9 @@ class CodecChargerMaxPower(Codec):
 
 class CodecChargerOutputVoltage(Codec):
     def decode(self, payload):
-        chg_output_voltage = struct.unpack('>H', payload)[0] * 0.01
-        states = [{'charger_output_voltage': chg_output_voltage}]
-        return {'payload': payload, 'states': states, 'decoded': f"AC charger output voltage is {chg_output_voltage:.1f} V"}
+        charger_output_voltage = struct.unpack('>H', payload)[0] * 0.01
+        states = [{'charger_output_voltage': charger_output_voltage}]
+        return {'payload': payload, 'states': states, 'decoded': f"AC charger output voltage is {charger_output_voltage:.1f} V"}
 
     def __len__(self):
         return 2
@@ -440,9 +440,9 @@ class CodecChargerPowerLimit(Codec):
 
 class CodecHvbChargeCurrentRequested(Codec):
     def decode(self, payload):
-        chg_current_requested = struct.unpack('>h', payload)[0] * 0.01
-        states = [{'hvb_charge_current_requested': chg_current_requested}]
-        return {'payload': payload, 'states': states, 'decoded': f"HVB charge current requested is {chg_current_requested:.1f} A"}
+        hvb_charge_current_requested = struct.unpack('>h', payload)[0] * 0.01
+        states = [{'hvb_charge_current_requested': hvb_charge_current_requested}]
+        return {'payload': payload, 'states': states, 'decoded': f"HVB charge current requested is {hvb_charge_current_requested:.1f} A"}
 
     def __len__(self):
         return 2
@@ -450,9 +450,9 @@ class CodecHvbChargeCurrentRequested(Codec):
 
 class CodecHvbChargeVoltageRequested(Codec):
     def decode(self, payload):
-        chg_voltage_requested = struct.unpack('>B', payload)[0] * 2
-        states = [{'hvb_charge_voltage_requested': chg_voltage_requested}]
-        return {'payload': payload, 'states': states, 'decoded': f"HVB charge voltage requested is {chg_voltage_requested} V"}
+        hvb_charge_voltage_requested = struct.unpack('>B', payload)[0] * 2
+        states = [{'hvb_charge_voltage_requested': hvb_charge_voltage_requested}]
+        return {'payload': payload, 'states': states, 'decoded': f"HVB charge voltage requested is {hvb_charge_voltage_requested} V"}
 
     def __len__(self):
         return 1

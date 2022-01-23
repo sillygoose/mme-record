@@ -1,9 +1,7 @@
 # YAML configuraton file for the Mustang Mach-E CANbus Record/Playback utilities
 mme:
     record:
-        # You can control the record options here.  Record writes a series of output files in the
-        # format 'dest_path/dest_file_nnn.json' where 'nnn'is the sequence '000', '001', etc.  When the
-        # time period specified in 'file_writes' option is over, a file is written.
+        # You can control the record options here.
         #
         # dest_path:                path where the output files are written
         # dest_file:                filename for the output file series
@@ -14,7 +12,7 @@ mme:
         # p2_timeout:               max time in seconds to wait for a first response (positive, negative, or NRC 0x78) (default: 1.0)
         # p2_star_timeout:          max time in seconds to wait for a response (positive, negative, or NRC0x78) after the reception of
         #                           a negative response with code 0x78 (requestCorrectlyReceived-ResponsePending) (default: 1.0)
-        dest_path:          'record_files'
+        dest_path:          'record-files'
         dest_file:          'trip2'
         file_writes:        500
         did_read:           1
@@ -24,35 +22,26 @@ mme:
         p2_star_timeout:    1.0
 
     playback:
-        # You can control the playback options here, playback files follow the same naming convention as Record,
+        # You can control the playback options here:
         #
-        # 'source_path/source_file_000.json', 'source_path/source_file_001.json', etc will played back
-        # loop:                             will loop over the same input file seqeunce if true (default: false)
-        # start_at:                         specify a time to start playback at (default: 0)
-        # speed:                            specify a playback speed greater or equal to 1.0 (default: 1.0)
+        # speedup:                          speed up playback by compressing dead time (default: true)
         # source_path:                      source path to find the playback files
         # source_file:                      source file name for the playback files
         # rx_consecutive_frame_timeout:     triggers a timeout if a consecutive frame is not received (default: 1.0)
         # rx_flowcontrol_timeout:           triggers a timeout if a flow control is not received (default: 1.0)
-        loop:                           false
-        start_at:                       0
-        speed:                          1.0
-        source_path:                    'playback_files'
-        source_file:                    'charge'
+        speedup:                        true
+        source_path:                    'playback-files'
+        source_file:                    'ac_charge'
         rx_consecutive_frame_timeout:   1.0
         rx_flowcontrol_timeout:         1.0
 
     influxdb2:
-        # InfluxDB setup
-        # The InfluxDB interface uses the newer 2.0 client which supports both the 2.0 and 1.8.x InfluxDB versions
-        # with just minor changes in the configuration making a future upgrade to v2 a simple change of options.
-        #
         # InfluxDB configuration options:
         #   enable          set to True to enable InfluxDB output (required)
-        #   bucket          set to the InfluxDB bucket (v2) (required)
+        #   bucket          set to the InfluxDB bucket (required)
         #   url             set to the InfluxDB server URL and port (required)
-        #   org             set to the v2 organization (required)
-        #   token           set to a valid v2 token (required)
+        #   org             set to the organization (required)
+        #   token           set to a valid token (required)
         #   block_size      set to desire write block size (defaults to 100 records per write)
         enable:         true
         org:            !secret influxdb2_org

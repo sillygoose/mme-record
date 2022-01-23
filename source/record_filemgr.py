@@ -15,13 +15,25 @@ class RecordFileManager:
         self._file_writes = config_record.get('file_writes', 200)
         self._dest_path = config_record.get('dest_path', None)
         self._dest_file = config_record.get('dest_file', None)
-        self._file_count = 0
+        self._filename = f"{self._dest_path}/{self._dest_file}.json"
 
     def start(self) -> None:
-        pass
+        if self._file_writes > 0 :
+            self._open()
 
     def stop(self) -> None:
-        self._write_file()
+        if self._file_writes > 0 :
+            self._close()
+
+    def _open(self) -> None:
+        with open(self._filename, 'w') as outfile:
+            outfile.write('[\n')
+            self._writes = 0
+
+    def _close(self) -> None:
+        with open(self._filename, 'a') as outfile:
+            self._write_file()
+            outfile.write('\n]')
 
     def write_record(self, data_point: dict) -> None:
         if self._file_writes > 0 :
@@ -31,10 +43,11 @@ class RecordFileManager:
 
     def _write_file(self) -> None:
         if len(self._data_points) > 0:
-            filename = f"{self._dest_path}/{self._dest_file}_{self._file_count:03d}.json"
-            json_data = json.dumps(self._data_points, indent = 4, sort_keys=False)
-            with open(filename, "w") as outfile:
+            json_data = json.dumps(self._data_points, indent = 4, sort_keys=False)[2:-2]
+            with open(self._filename, 'a') as outfile:
+                if self._writes > 0:
+                    outfile.write(',\n')
                 outfile.write(json_data)
-            _LOGGER.info(f"Wrote output file '{filename}'")
-            self._file_count += 1
+            _LOGGER.info(f"Wrote {len(self._data_points)} data points to output file '{self._filename}'")
+            self._writes += 1
             self._data_points = []
