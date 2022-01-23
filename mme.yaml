@@ -48,4 +48,4 @@ mme:
         url:            !secret influxdb2_url
         bucket:         !secret influxdb2_bucket
         token:          !secret influxdb2_token
-        block_size:     500
+        block_size:     200

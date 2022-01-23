@@ -479,27 +479,27 @@ class StateManager:
                     if self._charging_session.get(Hash.HvbEnergyToEmpty.value) is None:
                         if hvb_ete := self._vehicle_state.get(Hash.HvbEnergyToEmpty.value, None):
                             self._charging_session[Hash.HvbEnergyToEmpty.value] = hvb_ete
-                            _LOGGER.info(f"Saved hvb_ete initial value: {hvb_ete:.03f}")
+                            _LOGGER.debug(f"Saved hvb_ete initial value: {hvb_ete:.03f}")
                     if self._charging_session.get(Hash.HvbSOC.value) is None:
                         if soc := self._vehicle_state.get(Hash.HvbSOC.value, None):
                             self._charging_session[Hash.HvbSOC.value] = soc
-                            _LOGGER.info(f"Saved soc initial value: {soc:.03f}")
+                            _LOGGER.debug(f"Saved soc initial value: {soc:.03f}")
                     if self._charging_session.get(Hash.HvbSOCDisplayed.value) is None:
                         if soc_displayed := self._vehicle_state.get(Hash.HvbSOCDisplayed.value, None):
                             self._charging_session[Hash.HvbSOCDisplayed.value] = soc_displayed
-                            _LOGGER.info(f"Saved socd initial value: {soc_displayed:.01f}")
+                            _LOGGER.debug(f"Saved socd initial value: {soc_displayed:.01f}")
                     if self._charging_session.get(Hash.GpsLatitude.value) is None:
                         if latitude := self._vehicle_state.get(Hash.GpsLatitude.value, None):
                             self._charging_session[Hash.GpsLatitude.value] = latitude
-                            _LOGGER.info(f"Saved latitude initial value: {latitude:.05f}")
+                            _LOGGER.debug(f"Saved latitude initial value: {latitude:.05f}")
                     if self._charging_session.get(Hash.GpsLongitude.value) is None:
                         if longitude := self._vehicle_state.get(Hash.GpsLongitude.value, None):
                             self._charging_session[Hash.GpsLongitude.value] = longitude
-                            _LOGGER.info(f"Saved longitude initial value: {longitude:.05f}")
+                            _LOGGER.debug(f"Saved longitude initial value: {longitude:.05f}")
                     if self._charging_session.get(Hash.HiresOdometer.value) is None:
                         if hires_odometer := self._vehicle_state.get(Hash.HiresOdometer.value, None):
                             self._charging_session[Hash.HiresOdometer.value] = hires_odometer
-                            _LOGGER.info(f"Saved hires_odometer initial value: {hires_odometer:.01f}")
+                            _LOGGER.debug(f"Saved hires_odometer initial value: {hires_odometer:.01f}")
 
                     if evse_type := self._get_EvseType(Hash.EvseType):
                         if evse_type == EvseType.BasAC:

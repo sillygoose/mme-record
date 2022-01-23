@@ -97,7 +97,7 @@ class InfluxDB:
             starting_ete = session.get('ete').get('starting')
             ending_ete = session.get('ete').get('ending')
             kwh_added = session.get('kwh_added')
-            charging_session.append(f"charging,odometer={odometer},latitude={latitude},longitude={longitude},duration={duration},soc_begin={starting_soc},soc_end={ending_soc},socd_begin={starting_socd},socd_end={ending_socd},ete_begin={starting_ete},ete_end={ending_ete} kwh_added={kwh_added} {ts}")
+            charging_session.append(f"charging,odometer={odometer},latitude={latitude},longitude={longitude},duration={duration}i,soc_begin={starting_soc},soc_end={ending_soc},socd_begin={starting_socd},socd_end={ending_socd},ete_begin={starting_ete},ete_end={ending_ete} kwh_added={kwh_added} {ts}")
             try:
                 #_LOGGER.info(f"{charging_session}")
                 self._write_api.write(bucket=self._bucket, record=charging_session, write_precision=WritePrecision.S)
@@ -109,11 +109,19 @@ class InfluxDB:
             lp_points = []
             ts = int(time())
             for data_point in data_points:
-                arbitration_id = data_point.get('arbitration_id')
+                arb_id = data_point.get('arbitration_id')
                 did_id = data_point.get('did_id')
-                name = data_point.get('name')
+                did_name = data_point.get('name')
+
+                v_type = ''
                 value = data_point.get('value')
-                lp_points.append(f"dids,name={name},aid={arbitration_id:04X},did={did_id:04X} state={value} {ts}")
+                if isinstance(value, float):
+                    v_type = ''
+                elif isinstance(value, bool):
+                    v_type = ''
+                elif isinstance(value, int):
+                    v_type = 'i'
+                lp_points.append(f"dids,arb_id={arb_id:04X},did_id={did_id:04X} {did_name}={value}{v_type} {ts}")
             self._line_points += lp_points
 
             if len(self._line_points) >= self._block_size or flush == True:
