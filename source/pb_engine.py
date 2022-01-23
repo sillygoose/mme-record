@@ -47,7 +47,7 @@ class PlaybackEngine:
                     sleep(10)
                     return
                 if (sleep_for := event.get('time') - self._playback_time) > 0:
-                    sleep_for = 0.25 if self._speedup and sleep_for > 1.0 else sleep_for
+                    sleep_for = 0.5 if self._speedup and sleep_for > 1.0 else sleep_for
                     sleep(sleep_for)
                 self._playback_time = event.get('time')
 

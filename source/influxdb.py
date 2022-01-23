@@ -72,22 +72,35 @@ class InfluxDB:
 
     def charging_session(self, session: dict) -> None:
         """
-            session_stats = {
-                'start':            time.strftime('%Y-%m-%d %H:%M', time.localtime(starting_time)),
+            charging_session = {
+                'time':             starting_time,
                 'duration':         duration_seconds,
-                'location':         None,
-                'starting_soc':     starting_soc,
-                'ending_soc':       ending_soc,
+                'location':         {'latitude': latitude, 'longitude': longitude},
+                'odometer':         odometer,
+                'soc':              {'starting': starting_soc, 'ending': ending_soc},
+                'socd':             {'starting': starting_socd, 'ending': ending_socd},
+                'ete':              {'starting': starting_ete, 'ending': ending_ete},
                 'kwh_added':        kwh_added,
             }
         """
         if self._client:
             charging_session = []
-            ts = int(time())
-            #charging_session.append(f"{name},aid={arbitration_id:04X},did={did_id:04X} state={value} {ts}")
+            ts = session.get('time')
+            duration = session.get('duration')
+            latitude = session.get('location').get('latitude')
+            longitude = session.get('location').get('longitude')
+            odometer = session.get('odometer')
+            starting_soc = session.get('soc').get('starting')
+            ending_soc = session.get('soc').get('ending')
+            starting_socd = session.get('socd').get('starting')
+            ending_socd = session.get('socd').get('ending')
+            starting_ete = session.get('ete').get('starting')
+            ending_ete = session.get('ete').get('ending')
+            kwh_added = session.get('kwh_added')
+            charging_session.append(f"charging,odometer={odometer},latitude={latitude},longitude={longitude},duration={duration},soc_begin={starting_soc},soc_end={ending_soc},socd_begin={starting_socd},socd_end={ending_socd},ete_begin={starting_ete},ete_end={ending_ete} kwh_added={kwh_added} {ts}")
             try:
-                pass
-                #self._write_api.write(bucket=self._bucket, record=charging_session, write_precision=WritePrecision.S)
+                #_LOGGER.info(f"{charging_session}")
+                self._write_api.write(bucket=self._bucket, record=charging_session, write_precision=WritePrecision.S)
             except ApiException as e:
                 raise RuntimeError(f"InfluxDB client unable to write to '{self._bucket}' at {self._url}: {e.reason}")
 
@@ -100,7 +113,7 @@ class InfluxDB:
                 did_id = data_point.get('did_id')
                 name = data_point.get('name')
                 value = data_point.get('value')
-                lp_points.append(f"{name},aid={arbitration_id:04X},did={did_id:04X} state={value} {ts}")
+                lp_points.append(f"dids,name={name},aid={arbitration_id:04X},did={did_id:04X} state={value} {ts}")
             self._line_points += lp_points
 
             if len(self._line_points) >= self._block_size or flush == True:

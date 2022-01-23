@@ -73,7 +73,7 @@
         "arbitration_id": 2020,
         "arbitration_id_hex": "07E4",
         "enable": true,
-        "period": 30,
+        "period": 10,
         "dids": [
             {
                 "did_name": "HvbSoc",

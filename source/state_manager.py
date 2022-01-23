@@ -42,6 +42,7 @@ class Hash(Enum):
     GearCommanded           = '07E2:1E12:gear_commanded'
     ChargePlugConnected     = '07E2:4843:charge_plug_connected'
 
+    HvbSOC                  = '07E4:4801:hvb_soc'
     HvbSOCDisplayed         = '07E4:4845:hvb_soc_displayed'
     HvbEnergyToEmpty        = '07E4:4848:hvb_ete'
     GpsLatitude             = '07D0:8012:gps_latitude'
@@ -153,25 +154,34 @@ class StateManager:
             duration_seconds = ending_time - starting_time
             #hours, rem = divmod(duration_seconds, 3600)
             #minutes, _ = divmod(rem, 60)
-            starting_soc = self._charging_session.get(Hash.HvbSOCDisplayed.value)
+            starting_soc = self._charging_session.get(Hash.HvbSOC.value)
+            starting_socd = self._charging_session.get(Hash.HvbSOCDisplayed.value)
             starting_ete = self._charging_session.get(Hash.HvbEnergyToEmpty.value)
-            ending_soc = self._vehicle_state.get(Hash.HvbSOCDisplayed.value)
+            latitude = self._charging_session.get(Hash.GpsLatitude.value)
+            longitude = self._charging_session.get(Hash.GpsLongitude.value)
+            odometer = self._charging_session.get(Hash.HiresOdometer.value)
+
+            ending_soc = self._vehicle_state.get(Hash.HvbSOC.value)
+            ending_socd = self._vehicle_state.get(Hash.HvbSOCDisplayed.value)
             ending_ete = self._vehicle_state.get(Hash.HvbEnergyToEmpty.value)
             kwh_added = ending_ete - starting_ete
             charging_session = {
-                'start':            time.strftime('%Y-%m-%d %H:%M', time.localtime(starting_time)),
+                'time':             starting_time,
+                #'start':            time.strftime('%Y-%m-%d %H:%M', time.localtime(starting_time)),
                 'duration':         duration_seconds,
-                'location':         None,
-                'starting_soc':     starting_soc,
-                'ending_soc':       ending_soc,
+                'location':         {'latitude': latitude, 'longitude': longitude},
+                'odometer':         odometer,
+                'soc':              {'starting': starting_soc, 'ending': ending_soc},
+                'socd':             {'starting': starting_socd, 'ending': ending_socd},
+                'ete':              {'starting': starting_ete, 'ending': ending_ete},
                 'kwh_added':        kwh_added,
             }
             _LOGGER.info(f"Charging session: {charging_session}")
-            #self._influxdb.charging_session(charging_session)
+            self._influxdb.charging_session(charging_session)
             self._charging_session = None
 
     def _incoming_state(self, state: VehicleState) -> None:
-        if state == VehicleState.Charging_AC or state == VehicleState.Charging_DCFC:
+        if state == VehicleState.Charging_Starting:
             self._charging_session = None
 
     def change_state(self, new_state: VehicleState) -> None:
@@ -186,7 +196,6 @@ class StateManager:
         self._state_function = StateManager._state_file_lookup.get(new_state).get('state_function')
         self._queue_commands = self._load_state_definition(self._state_file)
         self._putback_enabled = False
-        ### self._load_queue(queue_commands)
         self._incoming_state(self._state)
 
     def _load_queue(self) -> None:
@@ -253,7 +262,6 @@ class StateManager:
                         hash = f"{arbitration_id:04X}:{did_id:04X}:{state_name}"
                         self._last_state_change = hash
                         self._vehicle_state[hash] = state_value
-                        ### _LOGGER.debug(f"{hash}")
                         state_data.append({'arbitration_id': arbitration_id, 'did_id': did_id, 'name': state_name, 'value': state_value})
                         if synthetic := self._calculate_synthetic(hash):
                             state_data.append(synthetic)
@@ -468,22 +476,36 @@ class StateManager:
                 if charging_status == ChargingStatus.Wait:
                     pass
                 elif charging_status == ChargingStatus.Charging:
-                    if hvb_ete := self._vehicle_state.get(Hash.HvbEnergyToEmpty.value, None):
-                        self._charging_session[Hash.HvbEnergyToEmpty.value] = hvb_ete
-                    if soc := self._vehicle_state.get(Hash.HvbSOCDisplayed.value, None):
-                        self._charging_session[Hash.HvbSOCDisplayed.value] = soc
-                    if latitude := self._vehicle_state.get(Hash.GpsLatitude.value, None):
-                        self._charging_session[Hash.GpsLatitude.value] = latitude
-                    if longitude := self._vehicle_state.get(Hash.GpsLongitude.value, None):
-                        self._charging_session[Hash.GpsLongitude.value] = longitude
-                    if hires_odometer := self._vehicle_state.get(Hash.HiresOdometer.value, None):
-                        self._charging_session[Hash.HiresOdometer.value] = hires_odometer
+                    if self._charging_session.get(Hash.HvbEnergyToEmpty.value) is None:
+                        if hvb_ete := self._vehicle_state.get(Hash.HvbEnergyToEmpty.value, None):
+                            self._charging_session[Hash.HvbEnergyToEmpty.value] = hvb_ete
+                            _LOGGER.info(f"Saved hvb_ete initial value: {hvb_ete:.03f}")
+                    if self._charging_session.get(Hash.HvbSOC.value) is None:
+                        if soc := self._vehicle_state.get(Hash.HvbSOC.value, None):
+                            self._charging_session[Hash.HvbSOC.value] = soc
+                            _LOGGER.info(f"Saved soc initial value: {soc:.03f}")
+                    if self._charging_session.get(Hash.HvbSOCDisplayed.value) is None:
+                        if soc_displayed := self._vehicle_state.get(Hash.HvbSOCDisplayed.value, None):
+                            self._charging_session[Hash.HvbSOCDisplayed.value] = soc_displayed
+                            _LOGGER.info(f"Saved socd initial value: {soc_displayed:.01f}")
+                    if self._charging_session.get(Hash.GpsLatitude.value) is None:
+                        if latitude := self._vehicle_state.get(Hash.GpsLatitude.value, None):
+                            self._charging_session[Hash.GpsLatitude.value] = latitude
+                            _LOGGER.info(f"Saved latitude initial value: {latitude:.05f}")
+                    if self._charging_session.get(Hash.GpsLongitude.value) is None:
+                        if longitude := self._vehicle_state.get(Hash.GpsLongitude.value, None):
+                            self._charging_session[Hash.GpsLongitude.value] = longitude
+                            _LOGGER.info(f"Saved longitude initial value: {longitude:.05f}")
+                    if self._charging_session.get(Hash.HiresOdometer.value) is None:
+                        if hires_odometer := self._vehicle_state.get(Hash.HiresOdometer.value, None):
+                            self._charging_session[Hash.HiresOdometer.value] = hires_odometer
+                            _LOGGER.info(f"Saved hires_odometer initial value: {hires_odometer:.01f}")
 
                     if evse_type := self._get_EvseType(Hash.EvseType):
                         if evse_type == EvseType.BasAC:
                             self.change_state(VehicleState.Charging_AC)
                         elif evse_type != EvseType.NoType:
-                            _LOGGER.info(f"While in '{self._state.name}', 'EvseType' returned an unexpected response: {evse_type}")
+                            _LOGGER.error(f"While in '{self._state.name}', 'EvseType' returned an unexpected response: {evse_type}")
                 else:
                     _LOGGER.info(f"While in {self._state}, 'ChargingStatus' returned an unexpected response: {charging_status}")
 
@@ -494,39 +516,12 @@ class StateManager:
                 if charging_status != ChargingStatus.Charging:
                     self.change_state(VehicleState.Charging_Ended)
                 else:
-                    if hvb_ete := self._vehicle_state.get(Hash.HvbEnergyToEmpty.value, None):
-                        pass
-                    else:
-                        _LOGGER.info("failed to get hvb_ete")
-                    if soc := self._vehicle_state.get(Hash.HvbSOCDisplayed.value, None):
-                        pass
-                    else:
-                        _LOGGER.info("failed to get hvb_soc")
-                    if latitude := self._vehicle_state.get(Hash.GpsLatitude.value, None):
-                        pass
-                    else:
-                        _LOGGER.info("failed to get gps latitude")
-                    if longitude := self._vehicle_state.get(Hash.GpsLongitude.value, None):
-                        pass
-                    else:
-                        _LOGGER.info("failed to get gps longitude")
-                    if hires_odometer := self._vehicle_state.get(Hash.HiresOdometer.value, None):
-                        pass
-                    else:
-                        _LOGGER.info("failed to get hires odometer")
-
-                """
-                else:
-                    hvb_ete = self._vehicle_state.get(Hash.HvbEnergyToEmpty.value, None)
-                    soc = self._vehicle_state.get(Hash.HvbSOCDisplayed.value, None)
-                    if self._charging_session is None:
-                        if hvb_ete and soc:
-                            self._charging_session = {
-                                'time':                         int(time.time()),
-                                Hash.HvbSOCDisplayed.value:     soc,
-                                Hash.HvbEnergyToEmpty.value:    hvb_ete,
-                            }
-                """
+                    assert self._vehicle_state.get(Hash.HvbEnergyToEmpty.value, None) is not None
+                    assert self._vehicle_state.get(Hash.HvbSOC.value, None) is not None
+                    assert self._vehicle_state.get(Hash.HvbSOCDisplayed.value, None) is not None
+                    assert self._vehicle_state.get(Hash.GpsLatitude.value, None) is not None
+                    assert self._vehicle_state.get(Hash.GpsLongitude.value, None) is not None
+                    assert self._vehicle_state.get(Hash.HiresOdometer.value, None) is not None
 
     def charging_ended(self) -> None:
         # 'state_keys': [Hash.ChargingStatus]},
