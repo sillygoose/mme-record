@@ -99,7 +99,6 @@ class InfluxDB:
             kwh_added = session.get('kwh_added')
             charging_session.append(f"charging,odometer={odometer},latitude={latitude},longitude={longitude},duration={duration}i,soc_begin={starting_soc},soc_end={ending_soc},socd_begin={starting_socd},socd_end={ending_socd},ete_begin={starting_ete},ete_end={ending_ete} kwh_added={kwh_added} {ts}")
             try:
-                #_LOGGER.info(f"{charging_session}")
                 self._write_api.write(bucket=self._bucket, record=charging_session, write_precision=WritePrecision.S)
             except ApiException as e:
                 raise RuntimeError(f"InfluxDB client unable to write to '{self._bucket}' at {self._url}: {e.reason}")
@@ -125,9 +124,10 @@ class InfluxDB:
             self._line_points += lp_points
 
             if len(self._line_points) >= self._block_size or flush == True:
-                try:
-                    self._write_api.write(bucket=self._bucket, record=self._line_points, write_precision=WritePrecision.S)
-                    _LOGGER.info(f"Wrote {len(self._line_points)} data points to {self._url}")
-                    self._line_points = []
-                except ApiException as e:
-                    raise RuntimeError(f"InfluxDB client unable to write to '{self._bucket}' at {self._url}: {e.reason}")
+                if len(self._line_points) > 0:
+                    try:
+                        self._write_api.write(bucket=self._bucket, record=self._line_points, write_precision=WritePrecision.S)
+                        _LOGGER.info(f"Wrote {len(self._line_points)} data points to {self._url}")
+                        self._line_points = []
+                    except ApiException as e:
+                        raise RuntimeError(f"InfluxDB client unable to write to '{self._bucket}' at {self._url}: {e.reason}")
