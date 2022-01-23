@@ -31,7 +31,7 @@ class InfluxDB:
         self._token = influxdb_config.get('token')
         self._bucket = influxdb_config.get('bucket')
         self._org = influxdb_config.get('org')
-        self._block_size = influxdb_config.get('block_size', 100)
+        self._block_size = influxdb_config.get('block_size', 500)
         self._test_influxdb()
 
     def _test_influxdb(self) -> None:

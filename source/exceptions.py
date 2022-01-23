@@ -29,6 +29,7 @@ class TerminateSignal(Exception):
 class SigTermCatcher:
 
     _callback_functions = []
+    _sigterm_seen = False
 
     def __init__(self, callback):
         if len(SigTermCatcher._callback_functions) == 0:
@@ -36,7 +37,9 @@ class SigTermCatcher:
         SigTermCatcher._callback_functions.append(callback)
 
     def _sigterm_caught(self, *args):
-        _LOGGER.info(f"Received SIGTERM signal, shutting down")
-        for callback in SigTermCatcher._callback_functions:
-            callback()
-        SigTermCatcher._callback_functions.clear()
+        if SigTermCatcher._sigterm_seen == False:
+            SigTermCatcher._sigterm_seen = True
+            _LOGGER.info(f"Received SIGTERM signal, shutting down")
+            for callback in SigTermCatcher._callback_functions:
+                callback()
+            SigTermCatcher._callback_functions.clear()
