@@ -129,6 +129,17 @@ class CodecGPS(Codec):
         return 15
 
 
+class CodecLoresOdometer(Codec):
+    def decode(self, payload):
+        odometer_high, odometer_low = struct.unpack('>HB', payload)
+        lores_odometer = odometer_high * 256 + odometer_low
+        states = [{'lores_odometer': lores_odometer}]
+        return {'payload': payload, 'states': states, 'decoded': f"Lores odometer: {lores_odometer} km"}
+
+    def __len__(self):
+        return 3
+
+
 class CodecHiresOdometer(Codec):
     def decode(self, payload):
         odometer_high, odometer_low = struct.unpack('>HB', payload)
@@ -507,6 +518,7 @@ class CodecManager:
         DidId.GearDisplayed:                  CodecGearDisplayed,
         DidId.GearCommanded:                  CodecGearCommanded,
         DidId.ChargePlug:                     CodecChargePlug,
+        DidId.LoresOdometer:                  CodecLoresOdometer,
         DidId.HiresOdometer:                  CodecHiresOdometer,
         DidId.HiresSpeed:                     CodecHiresSpeed,
         DidId.EngineStart:                    CodecEngineStart,

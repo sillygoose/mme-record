@@ -745,6 +745,35 @@
         ]
     },
     {
+        "did_id": 56577,
+        "did_id_hex": "DD01",
+        "enable": true,
+        "did_name": "LoresOdometer",
+        "modules": [
+            "SOBDMB",
+            "SODCMD",
+            "PSCM",
+            "IPMA",
+            "OBCC",
+            "BECM",
+            "SOBDM",
+            "SODL",
+            "DCDC",
+            "SODCMC",
+            "CCM",
+            "ACCM",
+            "RCM",
+            "SODR"
+        ],
+        "packing": "T",
+        "states": [
+            {
+                "name": "lores_odometer",
+                "value": 6300
+            }
+        ]
+    },
+    {
         "did_id": 56580,
         "did_id_hex": "DD04",
         "enable": true,

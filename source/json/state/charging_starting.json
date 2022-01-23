@@ -15,27 +15,18 @@
         ]
     },
     {
-        "module": "IPC",
-        "arbitration_id": 1824,
-        "arbitration_id_hex": "0720",
-        "enable": true,
-        "period": 1,
-        "dids": [
-            {
-                "did_name": "HiresOdometer",
-                "did_id": 16460,
-                "did_id_hex": "404C",
-                "codec_id": 16460
-            }
-        ]
-    },
-    {
         "module": "BECM",
         "arbitration_id": 2020,
         "arbitration_id_hex": "07E4",
         "enable": true,
         "period": 1,
         "dids": [
+            {
+                "did_name": "LoresOdometer",
+                "did_id": 56577,
+                "did_id_hex": "DD01",
+                "codec_id": 56577
+            },
             {
                 "did_name": "HvbSoc",
                 "did_id": 18433,

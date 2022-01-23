@@ -43,6 +43,7 @@ class DidId(Enum):
     GearDisplayed = 0x6310
     Gps = 0x8012
     Time = 0xDD00
+    LoresOdometer = 0xDD01
     InteriorTemp = 0xDD04
     ExteriorTemp = 0xDD05
     EngineRunTime = 0xF41F
