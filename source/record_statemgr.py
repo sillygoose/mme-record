@@ -123,8 +123,8 @@ class RecordStateManager(StateManager):
     def _response_task(self, sync_queue: Queue) -> None:
         # Steps done in _response_task:
         #   - get the responses from the command set
-        #   -
-        #   -
+        #   - process responses
+        #   - update the vehicle state
         try:
             while self._exit_requested == False:
                 try:

@@ -31,7 +31,8 @@
         "arbitration_id": 2020,
         "arbitration_id_hex": "07E4",
         "enable": true,
-        "period": 3,
+        "period": 1,
+        "offset": 5,
         "dids": [
             {
                 "did_name": "ChargingStatus",

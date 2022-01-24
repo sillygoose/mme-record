@@ -53,6 +53,7 @@
         "arbitration_id_hex": "07E4",
         "enable": true,
         "period": 3,
+        "offset": 3,
         "dids": [
             {
                 "did_name": "EvseType",

@@ -207,7 +207,8 @@ class StateManager:
                 enable = module.get('enable', True)
                 if enable:
                     period = module.get('period', 5)
-                    payload = (time.time(), period, [module])
+                    offset = module.get('offset', 0)
+                    payload = (time.time(), period + offset, [module])
                     self._command_queue.put(payload)
             self._putback_enabled = True
 

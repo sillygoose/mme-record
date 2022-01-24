@@ -1,0 +1,14 @@
+[Unit]
+Description=MME Playback
+After=multi-user.target
+After=network.service
+
+[Service]
+Type=simple
+ExecStart=/home/sillygoose/mme-record/run_playback.sh
+User=sillygoose
+WorkingDirectory=/home/sillygoose/mme-record
+Restart=no
+
+[Install]
+WantedBy=multi-user.target

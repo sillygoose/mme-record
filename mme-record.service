@@ -1,0 +1,14 @@
+[Unit]
+Description=MME Record
+After=multi-user.target
+After=network.service
+
+[Service]
+Type=simple
+ExecStart=/home/sillygoose/mme-record/run_record.sh
+User=sillygoose
+WorkingDirectory=/home/sillygoose/mme-record
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
