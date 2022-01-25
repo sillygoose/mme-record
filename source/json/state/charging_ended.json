@@ -32,7 +32,7 @@
         "arbitration_id_hex": "07E4",
         "enable": true,
         "period": 1,
-        "offset": 5,
+        "offset": 2,
         "dids": [
             {
                 "did_name": "ChargingStatus",

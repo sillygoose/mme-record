@@ -15,7 +15,7 @@ from record_modmgr import RecordModuleManager
 from record_canmgr import RecordCanbusManager
 from record_statemgr import RecordStateManager
 
-from exceptions import FailedInitialization, RuntimeError
+from exceptions import SigTermCatcher, FailedInitialization, RuntimeError, TerminateSignal
 
 
 _LOGGER = logging.getLogger('mme')
@@ -55,6 +55,10 @@ class Record:
                 raise RuntimeError(f"JSON error in '{file}' at line {e.lineno}")
 
 
+def _sigterm() -> None:
+    raise TerminateSignal
+
+
 def main() -> None:
     try:
         yaml_file, log_file = parse_command_line(default_yaml='mme.yaml', default_log='record.log')
@@ -63,10 +67,13 @@ def main() -> None:
 
         if config := parse_yaml_file(yaml_file=yaml_file):
             try:
+                SigTermCatcher(_sigterm)
                 record = Record(config=config.mme)
                 record.start()
             except KeyboardInterrupt:
                 print()
+            except TerminateSignal:
+                pass
             except RuntimeError as e:
                 _LOGGER.exception(f"Run time error: {e}")
             except Exception as e:

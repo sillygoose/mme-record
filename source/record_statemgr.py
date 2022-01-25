@@ -12,7 +12,6 @@ from did_manager import DIDManager
 from record_filemgr import RecordFileManager
 from state_manager import StateManager
 from influxdb import InfluxDB
-from exceptions import SigTermCatcher
 
 
 _LOGGER = logging.getLogger('mme')
@@ -41,7 +40,6 @@ class RecordStateManager(StateManager):
         super().start()
         self._influxdb.start()
         self._exit_requested = False
-        self._sigterm_catcher = SigTermCatcher(self._sigterm)
         self._file_manager.start()
         self._request_thread.start()
         self._response_thread.start()
@@ -56,9 +54,6 @@ class RecordStateManager(StateManager):
             self._request_thread.join()
         if self._response_thread.is_alive():
             self._response_thread.join()
-
-    def _sigterm(self) -> None:
-        self.stop()
 
     def _request_task(self, sync_queue: Queue) -> None:
         # Steps done in _request_task:

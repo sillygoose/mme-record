@@ -18,12 +18,10 @@ class RecordFileManager:
         self._filename = f"{self._dest_path}/{self._dest_file}.json"
 
     def start(self) -> None:
-        if self._file_writes > 0 :
-            self._open()
+        self._open()
 
     def stop(self) -> None:
-        if self._file_writes > 0 :
-            self._close()
+        self._close()
 
     def _open(self) -> None:
         with open(self._filename, 'w') as outfile:

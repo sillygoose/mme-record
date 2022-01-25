@@ -13,7 +13,7 @@ mme:
         # p2_star_timeout:          max time in seconds to wait for a response (positive, negative, or NRC0x78) after the reception of
         #                           a negative response with code 0x78 (requestCorrectlyReceived-ResponsePending) (default: 1.0)
         dest_path:          'record-files'
-        dest_file:          'trip2'
+        dest_file:          'ac_charge_20220124-1'
         file_writes:        500
         did_read:           1
         born_on:            1623167753
@@ -31,7 +31,7 @@ mme:
         # rx_flowcontrol_timeout:           triggers a timeout if a flow control is not received (default: 1.0)
         speedup:                        true
         source_path:                    'playback-files'
-        source_file:                    'ac_charge' # 'charging-1-23'
+        source_file:                    'ac_charge_20220124' # 'charging-1-23'
         rx_consecutive_frame_timeout:   1.0
         rx_flowcontrol_timeout:         1.0
 

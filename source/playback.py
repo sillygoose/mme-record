@@ -16,7 +16,7 @@ import logfiles
 from readconfig import parse_yaml_file, parse_command_line
 from config.configuration import Configuration
 
-from exceptions import FailedInitialization, RuntimeError
+from exceptions import SigTermCatcher, FailedInitialization, RuntimeError, TerminateSignal
 
 
 _LOGGER = logging.getLogger('mme')
@@ -78,6 +78,10 @@ class Playback:
                         module_object.add_did(did_object)
 
 
+def _sigterm() -> None:
+    raise TerminateSignal
+
+
 def main() -> None:
     try:
         yaml_file, log_file = parse_command_line(default_yaml='mme.yaml', default_log='playback.log')
@@ -86,10 +90,13 @@ def main() -> None:
 
         if config := parse_yaml_file(yaml_file=yaml_file):
             try:
+                SigTermCatcher(_sigterm)
                 playback = Playback(config=config.mme.playback)
                 playback.start()
             except KeyboardInterrupt:
                 print()
+            except TerminateSignal:
+                pass
             except RuntimeError as e:
                 _LOGGER.exception(f"Run time error: {e}")
             except Exception as e:
