@@ -65,6 +65,7 @@ class Hash(Enum):
     ChargerInputVoltage     = '07E2:485E:charger_input_voltage'
     ChargerInputCurrent     = '07E2:485F:charger_input_current'
     ChargerInputPower       = 'FFFF:8002:charger_input_power'
+    #ChargerInputEnergy      = 'FFFF:8002:charger_input_energy'
 
     ChargerOutputVoltage    = '07E2:484A:charger_output_voltage'
     ChargerOutputCurrent    = '07E2:4850:charger_output_current'
@@ -184,6 +185,7 @@ class StateManager:
     def _incoming_state(self, state: VehicleState) -> None:
         if state == VehicleState.Charging_Starting:
             self._charging_session = None
+            #self._vehicle_state[Hash.ChargerInputEnergy.value] = 0.0
 
     def change_state(self, new_state: VehicleState) -> None:
         if self._state == new_state:
