@@ -89,21 +89,23 @@ def main() -> None:
         _LOGGER.info(f"Mustang Mach E Playback Utility version {version.get_version()} PID is {os.getpid()}")
 
         if config := parse_yaml_file(yaml_file=yaml_file):
+            SigTermCatcher(_sigterm)
+            playback = Playback(config=config.mme.playback)
             try:
-                SigTermCatcher(_sigterm)
-                playback = Playback(config=config.mme.playback)
                 playback.start()
             except KeyboardInterrupt:
                 print()
             except TerminateSignal:
                 pass
-            except RuntimeError as e:
-                _LOGGER.exception(f"Run time error: {e}")
-            except Exception as e:
-                _LOGGER.exception(f"Unexpected exception: {e}")
             finally:
                 playback.stop()
 
+    except KeyboardInterrupt:
+        print()
+    except TerminateSignal:
+        return
+    except RuntimeError as e:
+        _LOGGER.error(f"Run time error: {e}")
     except FailedInitialization as e:
         _LOGGER.error(f"{e}")
     except Exception as e:

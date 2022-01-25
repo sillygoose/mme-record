@@ -680,7 +680,7 @@
         "states": [
             {
                 "name": "gps_elevation",
-                "value": 100
+                "value": 271
             },
             {
                 "name": "gps_latitude",
@@ -692,15 +692,15 @@
             },
             {
                 "name": "gps_fix",
-                "value": 4
+                "value": 2
             },
             {
                 "name": "gps_speed",
-                "value": 12
+                "value": 0
             },
             {
                 "name": "gps_bearing",
-                "value": 256
+                "value": 323
             }
         ]
     },
@@ -769,7 +769,7 @@
         "states": [
             {
                 "name": "lores_odometer",
-                "value": 6300
+                "value": 6863
             }
         ]
     },

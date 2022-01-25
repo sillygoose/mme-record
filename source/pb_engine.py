@@ -25,11 +25,11 @@ class PlaybackEngine:
         self._currrent_position = None
         self._playback = None
         self._playback_alert_time = self._playback_time = None
+        self._load_playback()
         self._thread = None
 
     def start(self) -> Thread:
         self._exit_requested = False
-        self._load_playback()
         self._thread = Thread(target=self._playback_engine, name='playback_engine')
         self._thread.start()
         return self._thread
@@ -75,12 +75,12 @@ class PlaybackEngine:
         return event
 
     def _load_playback(self) -> None:
-        with open(self._filename) as infile:
-            try:
+        try:
+            with open(self._filename) as infile:
                 self._playback = json.load(infile)
                 self._currrent_position = 0
                 _LOGGER.info(f"Loaded playback file '{self._filename}'")
-            except FileNotFoundError as e:
-                raise RuntimeError(f"{e}")
-            except json.JSONDecodeError as e:
-                raise RuntimeError(f"JSON error in '{self._filename}' at line {e.lineno}")
+        except FileNotFoundError as e:
+            raise RuntimeError(f"unable to open file '{self._filename}' ({e.strerror})")
+        except json.JSONDecodeError as e:
+            raise RuntimeError(f"JSON error in '{self._filename}' at line {e.lineno}")

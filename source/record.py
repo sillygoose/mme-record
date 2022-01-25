@@ -66,21 +66,23 @@ def main() -> None:
         _LOGGER.info(f"Mustang Mach E Record Utility version {version.get_version()}, PID is {os.getpid()}")
 
         if config := parse_yaml_file(yaml_file=yaml_file):
+            SigTermCatcher(_sigterm)
+            record = Record(config=config.mme)
             try:
-                SigTermCatcher(_sigterm)
-                record = Record(config=config.mme)
                 record.start()
             except KeyboardInterrupt:
                 print()
             except TerminateSignal:
                 pass
-            except RuntimeError as e:
-                _LOGGER.exception(f"Run time error: {e}")
-            except Exception as e:
-                _LOGGER.exception(f"Unexpected exception: {e}")
             finally:
                 record.stop()
 
+    except KeyboardInterrupt:
+        print()
+    except TerminateSignal:
+        return
+    except RuntimeError as e:
+        _LOGGER.error(f"Run time error: {e}")
     except FailedInitialization as e:
         _LOGGER.error(f"{e}")
     except Exception as e:
