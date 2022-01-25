@@ -10,7 +10,7 @@ from pathlib import Path
 import yaml
 
 from collections import OrderedDict
-from typing import Dict, List, TextIO, TypeVar, Union
+from typing import Dict, List, TextIO, TypeVar, Union, Tuple
 
 from exceptions import FailedInitialization
 
@@ -291,7 +291,7 @@ def find_yaml_file(yaml_file: str) -> str:
     yaml_head, _ = os.path.split(find_file)
     home_path = str(Path.home())
     yaml = None
-    while yaml_head != home_path:
+    while yaml_head.find(home_path) == 0:
         if os.path.exists(find_file):
             yaml = find_file
             break
@@ -300,7 +300,7 @@ def find_yaml_file(yaml_file: str) -> str:
     return yaml
 
 
-def read_config(yaml_file: str = None) -> None:
+def parse_yaml_file(yaml_file: str = None) -> None:
     """Open the YAML configuration file and check the contents"""
     try:
         yaml_path = find_yaml_file(yaml_file)
@@ -322,32 +322,23 @@ def read_config(yaml_file: str = None) -> None:
         raise FailedInitialization(f"Configuration file error: unexpected exception: {error_message}")
 
 
-def retrieve_options(config, key, option_list) -> dict:
-    """Retrieve requested options."""
-    if key not in config.keys():
-        return {}
-
-    errors = False
-    options = dict(config[key])
-    for option, value in option_list.items():
-        required = value.get('required', None)
-        type = value.get('type', None)
-        if required:
-            if option not in options.keys():
-                _LOGGER.error(f"Missing required option in YAML file: '{option}'")
-                errors = True
-            else:
-                v = options.get(option, None)
-                if not isinstance(v, type):
-                    _LOGGER.error(f"Expected type '{type}' for option '{option}'")
-                    errors = True
-    if errors:
-        raise FailedInitialization(f"Configuration file error: one or more errors detected in '{key}' YAML options")
-    return options
+def parse_command_line(default_yaml: str, default_log: str) -> Tuple[str, str]:
+    yaml_file = default_yaml
+    log_file = default_log
+    for index, arg in enumerate(sys.argv):
+        if index == 0:
+            continue
+        if arg.find('yamlfile=') == 0:
+            yaml_file = arg[len('yamlfile='):]
+        elif arg.find('logfile=') == 0:
+            log_file = arg[len('logfile='):]
+        else:
+            raise FailedInitialization(f"Unsupported option '{arg}'")
+    return yaml_file, log_file
 
 
 if __name__ == '__main__':
     if sys.version_info[0] >= 3 and sys.version_info[1] >= 8:
-        config = read_config('mme.yaml')
+        config = parse_yaml_file('mme.yaml')
     else:
         print("python 3.8 or better required")

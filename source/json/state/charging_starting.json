@@ -1,20 +1,5 @@
 [
     {
-        "module": "APIM",
-        "arbitration_id": 2000,
-        "arbitration_id_hex": "07D0",
-        "enable": true,
-        "period": 1,
-        "dids": [
-            {
-                "did_name": "GPS",
-                "did_id": 32786,
-                "did_id_hex": "8012",
-                "codec_id": 32786
-            }
-        ]
-    },
-    {
         "module": "BECM",
         "arbitration_id": 2020,
         "arbitration_id_hex": "07E4",
@@ -48,12 +33,27 @@
         ]
     },
     {
+        "module": "APIM",
+        "arbitration_id": 2000,
+        "arbitration_id_hex": "07D0",
+        "enable": true,
+        "period": 1,
+        "dids": [
+            {
+                "did_name": "GPS",
+                "did_id": 32786,
+                "did_id_hex": "8012",
+                "codec_id": 32786
+            }
+        ]
+    },
+    {
         "module": "BECM",
         "arbitration_id": 2020,
         "arbitration_id_hex": "07E4",
         "enable": true,
-        "period": 3,
-        "offset": 3,
+        "period": 1,
+        "offset": 2,
         "dids": [
             {
                 "did_name": "EvseType",

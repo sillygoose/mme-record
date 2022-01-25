@@ -29,9 +29,9 @@ mme:
         # source_file:                      source file name for the playback files
         # rx_consecutive_frame_timeout:     triggers a timeout if a consecutive frame is not received (default: 1.0)
         # rx_flowcontrol_timeout:           triggers a timeout if a flow control is not received (default: 1.0)
-        speedup:                        false
+        speedup:                        true
         source_path:                    'playback-files'
-        source_file:                    'charging-1-23'
+        source_file:                    'ac_charge' # 'charging-1-23'
         rx_consecutive_frame_timeout:   1.0
         rx_flowcontrol_timeout:         1.0
 

@@ -190,14 +190,22 @@ class StateManager:
             return
         _LOGGER.info(f"Vehicle state changed from '{self._state.name}' to '{new_state.name}'" if self._state else f"Vehicle state set to '{new_state.name}'")
 
+        self._putback_enabled = False
+        #self._state_change_enabled = False
+        self._flush_queue()
+
         self._outgoing_state(self._state)
         self._state = new_state
         self._state_time = time.time()
         self._state_file = StateManager._state_file_lookup.get(new_state).get('state_file')
         self._state_function = StateManager._state_file_lookup.get(new_state).get('state_function')
         self._queue_commands = self._load_state_definition(self._state_file)
-        self._putback_enabled = False
         self._incoming_state(self._state)
+
+    def _flush_queue(self) -> None:
+        with self._command_queue_lock:
+            while not self._command_queue.empty():
+                self._command_queue.get_nowait()
 
     def _load_queue(self) -> None:
         with self._command_queue_lock:
@@ -208,9 +216,10 @@ class StateManager:
                 if enable:
                     period = module.get('period', 5)
                     offset = module.get('offset', 0)
-                    payload = (time.time(), period + offset, [module])
+                    payload = (time.time() + offset, period, [module])
                     self._command_queue.put(payload)
             self._putback_enabled = True
+            #self._state_change_enabled = True
 
     def _get_state_keys(self) -> List[str]:
         return StateManager._state_file_lookup.get(self._state).get('state_keys')
@@ -270,6 +279,7 @@ class StateManager:
                 return state_data
 
     def _update_state_machine(self) -> None:
+        #if self._state_change_enabled:
         self._state_function()
 
     def _get_KeyState(self, key: Hash) -> KeyState:
@@ -462,7 +472,7 @@ class StateManager:
                             if engine_start_normal := self._get_EngineStartNormal(Hash.EngineStartNormal):
                                 self.change_state(VehicleState.On if engine_start_normal == EngineStartNormal.Yes else VehicleState.Accessory)
             elif charging_status := self._get_ChargingStatus(key):
-                if charging_status == ChargingStatus.NotReady:
+                if charging_status == ChargingStatus.NotReady or charging_status == ChargingStatus.Wait:
                     pass
                 elif charging_status == ChargingStatus.Ready or charging_status == ChargingStatus.Charging:
                     self.change_state(VehicleState.Charging_Starting)

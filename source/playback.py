@@ -13,7 +13,7 @@ from pb_engine import PlaybackEngine
 
 import version
 import logfiles
-from readconfig import read_config
+from readconfig import parse_yaml_file, parse_command_line
 from config.configuration import Configuration
 
 from exceptions import FailedInitialization, RuntimeError
@@ -79,40 +79,28 @@ class Playback:
 
 
 def main() -> None:
-
-    logfiles.start('log/playback.log')
-    _LOGGER.info(f"Mustang Mach E Playback Utility version {version.get_version()} PID is {os.getpid()}")
-
     try:
-        config = read_config(yaml_file='mme.yaml')
-        if config is None:
-            return
+        yaml_file, log_file = parse_command_line(default_yaml='mme.yaml', default_log='playback.log')
+        logfiles.start(log_file)
+        _LOGGER.info(f"Mustang Mach E Playback Utility version {version.get_version()} PID is {os.getpid()}")
+
+        if config := parse_yaml_file(yaml_file=yaml_file):
+            try:
+                playback = Playback(config=config.mme.playback)
+                playback.start()
+            except KeyboardInterrupt:
+                print()
+            except RuntimeError as e:
+                _LOGGER.exception(f"Run time error: {e}")
+            except Exception as e:
+                _LOGGER.exception(f"Unexpected exception: {e}")
+            finally:
+                playback.stop()
+
     except FailedInitialization as e:
         _LOGGER.error(f"{e}")
-        return
     except Exception as e:
         _LOGGER.exception(f"Unexpected exception: {e}")
-        return
-
-    try:
-        playback = Playback(config=config.mme.playback)
-    except FailedInitialization as e:
-        _LOGGER.error(f"{e}")
-        return
-    except Exception as e:
-        _LOGGER.exception(f"Unexpected exception setting up Playback: {e}")
-        return
-
-    try:
-        playback.start()
-    except KeyboardInterrupt:
-        print()
-    except RuntimeError as e:
-        _LOGGER.exception(f"Run time error: {e}")
-    except Exception as e:
-        _LOGGER.exception(f"Unexpected exception: {e}")
-    finally:
-        playback.stop()
 
 
 if __name__ == '__main__':

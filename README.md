@@ -7,6 +7,7 @@
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Running](#running)
+- [State files](#state_files)
 - [Debugging](#debugging)
 - [Thanks](#thanks)
 
@@ -21,13 +22,14 @@ Both utilities can be configured via a YAML configuration file.  Definitions for
 
 **Record** runs fine connected to **Playback** via a loop-back cable (CAN0 connected to CAN1) or the vehicle OBDII port and happily logs the requested CAN bus data.  Connecting **Playback** to your vehicle may have unintended consequences and is not recommended.
 
-
 <a id='whats-new'></a>
 ## What's new
 - InfluxDB support
 - YAML secrets supported
 - switched to venv for Python3.10 support
 - catch SIGTERM to write out cached data before exiting
+- new command options for setting the YAML and log files
+- service files for running Record and/or Playback as a Linux service
 
 <a id='requirements'></a>
 ## Requirements
@@ -54,14 +56,26 @@ Both utilities can be configured via a YAML configuration file.  Definitions for
 1.  Clone the repository and install the Python packages:
 
 ```
-    git clone https://github.com/sillygoose/mache-record.git
-    cd mache-record
+    git clone https://github.com/sillygoose/mme-record.git
+    cd mme-record
     pip3 install -e .
 ```
 
-2.  The YAML configuration search starts in the current directory and looks in each parent directory up to your home directory for it (or just the current directory if you are not running in a user profile).  Edit `mme.yaml` to set the desired **Playback** and **Record** options as well as InfluxDB options if you wish to have **Record** save the data in an InfluxDB2 database.
+2.  Enable venv in the project:
 
-Now that we have database login credentials to protect you can use a secrets file to store them.  If used the fle `mme_secrets.yaml` will be looked for in the same locations as the `mme.yaml` file.
+
+3.  Configure the YAML file
+The included file `mme.yaml` is a sample configuration file that can be used with both **Record** and **Playback**.
+
+The YAML configuration search starts in the current directory and looks in each parent directory up to your home directory for it (or just the current directory if you are not running in a user profile).  Edit `mme.yaml` to set the desired **Playback** and **Record** options as well as InfluxDB options if you wish to have **Record** save the data in an InfluxDB2 database.
+
+If you need to switch between YAML and/or log files, use the command line to select the desired file:
+
+```
+    python3 record.py yamlfile=my_yaml.yaml logfile=my_log.log
+```
+
+You can now use a secrets file to store sensitive information like the token used to access your InfluxDB database.  The secrets file name is the same as YAML file with `_secrets` added.  For example, the default YAML file is `mme.yaml` so the default secrets file is `mme_secrets.yaml`, if you used `my_mme.yaml` for your configuration the secrets file will be `my_mme_secrets.yaml`.  The search for the secrets file will be the same as the YAML file.
 
 #
 <a id='running'></a>
@@ -136,6 +150,13 @@ sudo systemctl start mme-record.service
 sudo systemctl stop mme-record.service
 sudo systemctl status mme-record.service
 ```
+
+#
+<a id='state_files'></a>
+## State files
+JSON state files are used to select the DIDs read in each state, you can control when they start and how often they are repeated.
+
+DIDs involved in state transitions should be read frequently to catch state transitions.  Other states can be read as needed, slow changing states should be read less often than rapidly changing data so nt to consume too much CAN bus bandwidth.
 
 #
 <a id='debugging'></a>

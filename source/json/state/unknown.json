@@ -13,12 +13,6 @@
                 "codec_id": 16825
             },
             {
-                "did_name": "EngineStart",
-                "did_id": 16825,
-                "did_id_hex": "41B9",
-                "codec_id": 16825
-            },
-            {
                 "did_name": "InferredKey",
                 "did_id": 16765,
                 "did_id_hex": "417D",

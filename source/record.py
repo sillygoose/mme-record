@@ -6,7 +6,7 @@ import json
 
 import version
 import logfiles
-from readconfig import read_config
+from readconfig import parse_yaml_file, parse_command_line
 from config.configuration import Configuration
 
 from did_manager import DIDManager
@@ -55,42 +55,29 @@ class Record:
                 raise RuntimeError(f"JSON error in '{file}' at line {e.lineno}")
 
 
-
 def main() -> None:
-
-    logfiles.start('log/record.log')
-    _LOGGER.info(f"Mustang Mach E Record Utility version {version.get_version()}, PID is {os.getpid()}")
-
     try:
-        config = read_config(yaml_file='mme.yaml')
-        if config is None:
-            return
+        yaml_file, log_file = parse_command_line(default_yaml='mme.yaml', default_log='record.log')
+        logfiles.start(log_file)
+        _LOGGER.info(f"Mustang Mach E Record Utility version {version.get_version()}, PID is {os.getpid()}")
+
+        if config := parse_yaml_file(yaml_file=yaml_file):
+            try:
+                record = Record(config=config.mme)
+                record.start()
+            except KeyboardInterrupt:
+                print()
+            except RuntimeError as e:
+                _LOGGER.exception(f"Run time error: {e}")
+            except Exception as e:
+                _LOGGER.exception(f"Unexpected exception: {e}")
+            finally:
+                record.stop()
+
     except FailedInitialization as e:
         _LOGGER.error(f"{e}")
-        return
     except Exception as e:
         _LOGGER.exception(f"Unexpected exception: {e}")
-        return
-
-    try:
-        record = Record(config=config.mme)
-    except FailedInitialization as e:
-        _LOGGER.error(f"{e}")
-        return
-    except Exception as e:
-        _LOGGER.exception(f"Unexpected exception setting up Record: {e}")
-        return
-
-    try:
-        record.start()
-    except KeyboardInterrupt:
-        print()
-    except RuntimeError as e:
-        _LOGGER.exception(f"Run time error: {e}")
-    except Exception as e:
-        _LOGGER.exception(f"Unexpected exception: {e}")
-    finally:
-        record.stop()
 
 
 if __name__ == '__main__':

@@ -9,14 +9,24 @@
             "type": "python",
             "request": "launch",
             "cwd": "${workspaceFolder}/source",
-            "module": "playback"
+            "module": "playback",
+            "args": [
+                "yamlfile=mme.yaml",
+                "logfile=log/playback.log",
+            ],
+            "console": "integratedTerminal"
         },
         {
             "name": "Record",
             "type": "python",
             "request": "launch",
             "cwd": "${workspaceFolder}/source",
-            "module": "record"
+            "module": "record",
+            "args": [
+                "yamlfile=mme.yaml",
+                "logfile=log/record.log",
+            ],
+            "console": "integratedTerminal"
         },
         {
             "name": "Python: Current File",
