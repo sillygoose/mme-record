@@ -6,14 +6,15 @@ from threading import Lock
 from queue import PriorityQueue
 import json
 import time
+import datetime
 
 from enum import Enum, unique, auto
-from typing import List, Tuple
+from typing import List
 
 from codec_manager import *
 from did import KeyState, ChargingStatus, EvseType, GearCommanded, InferredKey
 from did import EngineStartRemote, EngineStartNormal, EngineStartDisable, ChargePlugConnected
-from state_engine import get_state, get_state_value, set_state, hash_fields
+from state_engine import get_state_value, set_state
 from hash import *
 from synthetics import update_synthetics
 
@@ -106,19 +107,23 @@ class StateManager:
             starting_time = self._charging_session.get('time')
             ending_time = int(time.time())
             duration_seconds = ending_time - starting_time
-            #hours, rem = divmod(duration_seconds, 3600)
-            #minutes, _ = divmod(rem, 60)
-            starting_soc = self._charging_session.get(Hash.HvbSOC.value)
-            starting_socd = self._charging_session.get(Hash.HvbSOCDisplayed.value)
-            starting_ete = self._charging_session.get(Hash.HvbEnergyToEmpty.value)
-            latitude = self._charging_session.get(Hash.GpsLatitude.value, 0.0)
-            longitude = self._charging_session.get(Hash.GpsLongitude.value, 0.0)
-            odometer = self._charging_session.get(Hash.LoresOdometer.value, 0)
+            hours, rem = divmod(duration_seconds, 3600)
+            minutes, _ = divmod(rem, 60)
+            starting_soc = self._charging_session.get(Hash.HvbSOC)
+            starting_socd = self._charging_session.get(Hash.HvbSOCDisplayed)
+            starting_ete = self._charging_session.get(Hash.HvbEnergyToEmpty)
+            starting_charging_input_energy = self._charging_session.get(Hash.ChargerInputEnergy, 0.0)
+            latitude = self._charging_session.get(Hash.GpsLatitude, 0.0)
+            longitude = self._charging_session.get(Hash.GpsLongitude, 0.0)
+            odometer = self._charging_session.get(Hash.LoresOdometer, 0)
 
             ending_soc = get_state_value(Hash.HvbSOC)
             ending_socd = get_state_value(Hash.HvbSOCDisplayed)
             ending_ete = get_state_value(Hash.HvbEnergyToEmpty)
+            ending_charging_input_energy = get_state_value(Hash.ChargerInputEnergy)
             kwh_added = ending_ete - starting_ete
+            kwh_used = (ending_charging_input_energy - starting_charging_input_energy) * 0.001
+            charging_efficiency = kwh_added / kwh_used if kwh_used > 0 else 0.0
             charging_session = {
                 'time':             starting_time,
                 'duration':         duration_seconds,
@@ -128,8 +133,16 @@ class StateManager:
                 'socd':             {'starting': starting_socd, 'ending': ending_socd},
                 'ete':              {'starting': starting_ete, 'ending': ending_ete},
                 'kwh_added':        kwh_added,
+                'kwh_used':         kwh_used,
+                'efficiency':       charging_efficiency,
             }
-            _LOGGER.info(f"Charging session: {charging_session}")
+            _LOGGER.info(f"Charging session statistics:")
+            _LOGGER.info(f"   session started at {datetime.datetime.fromtimestamp(starting_time).strftime('%Y-%m-%d %H:%M')} for {hours} hours, {minutes} minutes")
+            _LOGGER.info(f"   location was ({latitude:.05f},{longitude:.05f}), odometer is {odometer} km")
+            _LOGGER.info(f"   starting SOC was {starting_socd}%, ending SOC was {ending_socd}%")
+            _LOGGER.info(f"   starting ETE was {starting_ete} kWh, ending ETE was {ending_ete} kWh")
+            _LOGGER.info(f"   {kwh_added:.03f} kWh were added, requiring {kwh_used:.03f} kWh from the AC charger")
+            _LOGGER.info(f"   overall efficiency is {(charging_efficiency*100):.01f}%")
             self._influxdb.charging_session(charging_session)
             self._charging_session = None
 
@@ -400,29 +413,29 @@ class StateManager:
         for key in self._get_state_keys():
             if charging_status := self._get_ChargingStatus(key):
                 if charging_status == ChargingStatus.Ready or charging_status == ChargingStatus.Wait or charging_status == ChargingStatus.Charging:
-                    if self._charging_session.get(Hash.HvbEnergyToEmpty.value) is None:
+                    if self._charging_session.get(Hash.HvbEnergyToEmpty) is None:
                         if hvb_ete := get_state_value(Hash.HvbEnergyToEmpty, None):
-                            self._charging_session[Hash.HvbEnergyToEmpty.value] = hvb_ete ###
+                            self._charging_session[Hash.HvbEnergyToEmpty] = hvb_ete ###
                             _LOGGER.debug(f"Saved hvb_ete initial value: {hvb_ete:.03f}")
-                    if self._charging_session.get(Hash.HvbSOC.value) is None:
+                    if self._charging_session.get(Hash.HvbSOC) is None:
                         if soc := get_state_value(Hash.HvbSOC, None):
-                            self._charging_session[Hash.HvbSOC.value] = soc
+                            self._charging_session[Hash.HvbSOC] = soc
                             _LOGGER.debug(f"Saved soc initial value: {soc:.03f}")
-                    if self._charging_session.get(Hash.HvbSOCDisplayed.value) is None:
+                    if self._charging_session.get(Hash.HvbSOCDisplayed) is None:
                         if soc_displayed := get_state_value(Hash.HvbSOCDisplayed, None):
-                            self._charging_session[Hash.HvbSOCDisplayed.value] = soc_displayed
+                            self._charging_session[Hash.HvbSOCDisplayed] = soc_displayed
                             _LOGGER.debug(f"Saved socd initial value: {soc_displayed:.01f}")
-                    if self._charging_session.get(Hash.GpsLatitude.value) is None:
+                    if self._charging_session.get(Hash.GpsLatitude) is None:
                         if latitude := get_state_value(Hash.GpsLatitude, None):
-                            self._charging_session[Hash.GpsLatitude.value] = latitude
+                            self._charging_session[Hash.GpsLatitude] = latitude
                             _LOGGER.debug(f"Saved latitude initial value: {latitude:.05f}")
-                    if self._charging_session.get(Hash.GpsLongitude.value) is None:
+                    if self._charging_session.get(Hash.GpsLongitude) is None:
                         if longitude := get_state_value(Hash.GpsLongitude, None):
-                            self._charging_session[Hash.GpsLongitude.value] = longitude
+                            self._charging_session[Hash.GpsLongitude] = longitude
                             _LOGGER.debug(f"Saved longitude initial value: {longitude:.05f}")
-                    if self._charging_session.get(Hash.LoresOdometer.value) is None:
-                        if lores_odometer := get_state_value(Hash.LoresOdometer.value, None):
-                            self._charging_session[Hash.LoresOdometer.value] = lores_odometer
+                    if self._charging_session.get(Hash.LoresOdometer) is None:
+                        if lores_odometer := get_state_value(Hash.LoresOdometer, None):
+                            self._charging_session[Hash.LoresOdometer] = lores_odometer
                             _LOGGER.debug(f"Saved lores_odometer initial value: {lores_odometer}")
                     if self._charging_session.get(Hash.ChargerInputEnergy) is None:
                         charger_input_energy = get_state_value(Hash.ChargerInputEnergy, 0.0)

@@ -42,7 +42,7 @@ def update_synthetics(hash: Hash) -> List[dict]:
                 set_state(Hash.HvbEnergy, hvb_energy)
                 arbitration_id, did_id, synthetic_name = hash_fields(Hash.HvbEnergy)
                 synthetics.append({'arbitration_id': arbitration_id, 'did_id': did_id, 'name': synthetic_name, 'value': hvb_energy})
-                _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: HVB energy is {hvb_energy:.03f} Wh (calculated)")
+                _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: HVB energy is {hvb_energy:.0f} Wh (calculated)")
             elif synthetic_hash == Hash.LvbPower:
                 lvb_power_interval_start, interval_start = get_state(Hash.LvbPower, 0.0)
 
@@ -58,7 +58,7 @@ def update_synthetics(hash: Hash) -> List[dict]:
                 set_state(Hash.LvbEnergy, lvb_energy)
                 arbitration_id, did_id, synthetic_name = hash_fields(Hash.LvbEnergy)
                 synthetics.append({'arbitration_id': arbitration_id, 'did_id': did_id, 'name': synthetic_name, 'value': lvb_energy})
-                _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: LVB energy is {lvb_energy:.03f} Wh (calculated)")
+                _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: LVB energy is {lvb_energy:.0f} Wh (calculated)")
             elif synthetic_hash == Hash.ChargerInputPower:
                 charger_input_power_interval_start, interval_start = get_state(Hash.ChargerInputPower, 0.0)
 
@@ -69,12 +69,14 @@ def update_synthetics(hash: Hash) -> List[dict]:
                 _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: AC charger input power is {charger_input_power:.0f} W (calculated)")
 
                 interval = (interval_end - interval_start) * 0.000000001
-                charger_input_energy = get_state_value(Hash.ChargerInputEnergy, 0.0)
-                charger_input_energy += (charger_input_power_interval_start * interval) / 3600
+                charger_input_energy_in = get_state_value(Hash.ChargerInputEnergy, 0.0)
+                charger_input_energy_delta = (charger_input_power_interval_start * interval) / 3600
+                charger_input_energy = charger_input_energy_in + charger_input_energy_delta
+                ### _LOGGER.debug(f"AC charger input energy: {charger_input_energy:.01f} = {charger_input_energy_in:.01f} + {charger_input_energy_delta:.01f}, power is {charger_input_power_interval_start:.0f}, interval is {interval:.03f}s")
                 set_state(Hash.ChargerInputEnergy, charger_input_energy)
                 arbitration_id, did_id, synthetic_name = hash_fields(Hash.ChargerInputEnergy)
                 synthetics.append({'arbitration_id': arbitration_id, 'did_id': did_id, 'name': synthetic_name, 'value': charger_input_energy})
-                _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: AC charger input energy is {charger_input_energy:.03f} Wh (calculated)")
+                _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: AC charger input energy is {charger_input_energy:.0f} Wh (calculated)")
             elif synthetic_hash == Hash.ChargerOutputPower:
                 charger_output_power_interval_start, interval_start = get_state(Hash.ChargerOutputPower, 0.0)
 
@@ -90,7 +92,7 @@ def update_synthetics(hash: Hash) -> List[dict]:
                 set_state(Hash.ChargerOutputEnergy, charger_output_energy)
                 arbitration_id, did_id, synthetic_name = hash_fields(Hash.ChargerOutputEnergy)
                 synthetics.append({'arbitration_id': arbitration_id, 'did_id': did_id, 'name': synthetic_name, 'value': charger_output_energy})
-                _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: AC charger output energy is {charger_output_energy:.03f} Wh (calculated)")
+                _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: AC charger output energy is {charger_output_energy:.0f} Wh (calculated)")
 
     except ValueError:
         _LOGGER.debug(f"ValueError in update_synthetics({hash.value})")
