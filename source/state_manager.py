@@ -136,7 +136,6 @@ class StateManager:
     def _incoming_state(self, state: VehicleState) -> None:
         if state == VehicleState.Charging_Starting:
             self._charging_session = None
-            #set_state(Hash.ChargerInputEnergy, 0.0)
 
     def change_state(self, new_state: VehicleState) -> None:
         if self._state == new_state:
@@ -425,6 +424,16 @@ class StateManager:
                         if lores_odometer := get_state_value(Hash.LoresOdometer.value, None):
                             self._charging_session[Hash.LoresOdometer.value] = lores_odometer
                             _LOGGER.debug(f"Saved lores_odometer initial value: {lores_odometer}")
+                    if self._charging_session.get(Hash.ChargerInputEnergy) is None:
+                        charger_input_energy = get_state_value(Hash.ChargerInputEnergy, 0.0)
+                        set_state(Hash.ChargerInputEnergy, charger_input_energy)
+                        self._charging_session[Hash.ChargerInputEnergy] = charger_input_energy
+                        _LOGGER.debug(f"Saved charger input energy initial value: {charger_input_energy}")
+                    if self._charging_session.get(Hash.ChargerOutputEnergy) is None:
+                        charger_output_energy = get_state_value(Hash.ChargerOutputEnergy, 0.0)
+                        set_state(Hash.ChargerOutputEnergy, charger_output_energy)
+                        self._charging_session[Hash.ChargerOutputEnergy] = charger_output_energy
+                        _LOGGER.debug(f"Saved charger output energy initial value: {charger_output_energy}")
 
                     if charging_status == ChargingStatus.Charging:
                         if evse_type := self._get_EvseType(Hash.EvseType):
@@ -449,6 +458,9 @@ class StateManager:
                     ###assert get_state_value(Hash.GpsLatitude, None) is not None
                     ###assert get_state_value(Hash.GpsLongitude, None) is not None
                     assert get_state_value(Hash.LoresOdometer, None) is not None
+                    assert get_state_value(Hash.ChargerInputEnergy, None) is not None
+                    assert get_state_value(Hash.ChargerOutputEnergy, None) is not None
+
 
     def charging_ended(self) -> None:
         # 'state_keys': [Hash.ChargingStatus]},
