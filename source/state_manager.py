@@ -17,6 +17,7 @@ from did import EngineStartRemote, EngineStartNormal, EngineStartDisable, Charge
 from state_engine import get_state_value, set_state
 from hash import *
 from synthetics import update_synthetics
+from influxdb import influxdb_charging_session
 
 _LOGGER = logging.getLogger('mme')
 
@@ -143,7 +144,7 @@ class StateManager:
             _LOGGER.info(f"   starting ETE was {starting_ete} kWh, ending ETE was {ending_ete} kWh")
             _LOGGER.info(f"   {kwh_added:.03f} kWh were added, requiring {kwh_used:.03f} kWh from the AC charger")
             _LOGGER.info(f"   overall efficiency is {(charging_efficiency*100):.01f}%")
-            self._influxdb.charging_session(charging_session)
+            influxdb_charging_session(charging_session)
             self._charging_session = None
 
     def _incoming_state(self, state: VehicleState) -> None:

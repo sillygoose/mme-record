@@ -11,7 +11,7 @@ from did_manager import DIDManager
 
 from record_filemgr import RecordFileManager
 from state_manager import StateManager
-from influxdb import InfluxDB
+from influxdb import influxdb_connect, influxdb_disconnect, influxdb_write_record
 
 
 _LOGGER = logging.getLogger('mme')
@@ -33,12 +33,11 @@ class RecordStateManager(StateManager):
         self._request_thread = Thread(target=self._request_task, args=(sync_queue,), name='state_request')
         self._response_thread = Thread(target=self._response_task, args=(sync_queue,), name='state_response')
         self._file_manager = RecordFileManager(config.record)
-        self._influxdb = InfluxDB(config.influxdb2)
         self._did_state_cache = {}
+        influxdb_connect(config.influxdb2)
 
     def start(self) -> List[Thread]:
         super().start()
-        self._influxdb.start()
         self._exit_requested = False
         self._file_manager.start()
         self._request_thread.start()
@@ -47,7 +46,7 @@ class RecordStateManager(StateManager):
 
     def stop(self) -> None:
         super().stop()
-        self._influxdb.stop()
+        influxdb_disconnect()
         self._file_manager.stop()
         self._exit_requested = True
         if self._request_thread.is_alive():
@@ -150,7 +149,7 @@ class RecordStateManager(StateManager):
                             self._file_manager.write_record(state_details)
                             _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: {response.service_data.values[did_id].get('decoded')}")
                         influxdb_state_data = self.update_vehicle_state(state_details)
-                        self._influxdb.write_record(influxdb_state_data)
+                        influxdb_write_record(influxdb_state_data)
                 self._update_state_machine()
                 self._response_queue.task_done()
 
