@@ -13,7 +13,9 @@ from typing import List, Tuple
 from codec_manager import *
 from did import KeyState, ChargingStatus, EvseType, GearCommanded, InferredKey
 from did import EngineStartRemote, EngineStartNormal, EngineStartDisable, ChargePlugConnected
-
+from state_engine import get_state, get_state_value, set_state, hash_fields
+from hash import *
+from synthetics import update_synthetics
 
 _LOGGER = logging.getLogger('mme')
 
@@ -22,54 +24,16 @@ _LOGGER = logging.getLogger('mme')
 class VehicleState(Enum):
         Unknown = auto()            # initial state until another is determined
         Off = auto()                # the vehicle is off
-        Accessory = auto()          # the vehicle is on in Accessory mode
-        On = auto()                 # the vehicle is on in Drivable mode
+        Accessory = auto()          # the vehicle is on and in Accessory mode
+        On = auto()                 # the vehicle is on and in Drivable mode
         Trip = auto()               # the vehicle is in a gear other than Park
-        Preconditioning = auto()    # the vehicle is preconditioning (remote start)
+
         PluggedIn = auto()          # the vehicle has plugged in
+        Preconditioning = auto()    # the vehicle is preconditioning (remote start)
+        Charging_Starting = auto()  # the vehicle is beginning a charging session
         Charging_AC = auto()        # the vehicle is AC charging
         Charging_DCFC = auto()      # the vehicle is DC fast charging
-        Charging_Starting = auto()  # the vehicle is beginning a charging session
         Charging_Ended = auto()     # the vehicle is no longer charging
-
-
-@unique
-class Hash(Enum):
-    KeyState                = '0716:411F:key_state'
-    InferredKey             = '0726:417D:inferred_key'
-    EvseType                = '07E4:4851:evse_type'
-    ChargingStatus          = '07E4:484D:charging_status'
-    GearCommanded           = '07E2:1E12:gear_commanded'
-    ChargePlugConnected     = '07E2:4843:charge_plug_connected'
-
-    HvbSOC                  = '07E4:4801:hvb_soc'
-    HvbSOCDisplayed         = '07E4:4845:hvb_soc_displayed'
-    HvbEnergyToEmpty        = '07E4:4848:hvb_ete'
-    GpsLatitude             = '07D0:8012:gps_latitude'
-    GpsLongitude            = '07D0:8012:gps_longitude'
-    HiresOdometer           = '0720:404C:hires_odometer'
-    LoresOdometer           = '07E4:DD01:lores_odometer'
-
-    EngineStartNormal       = '0726:41B9:engine_start_normal'
-    EngineStartDisable      = '0726:41B9:engine_start_disable'
-    EngineStartRemote       = '0726:41B9:engine_start_remote'
-
-    HvbVoltage              = '07E4:480D:hvb_voltage'
-    HvbCurrent              = '07E4:48F9:hvb_current'
-    HvbPower                = 'FFFF:8000:hvb_power'
-
-    LvbVoltage              = '0726:402A:lvb_voltage'
-    LvbCurrent              = '0726:402B:lvb_current'
-    LvbPower                = 'FFFF:8001:lvb_power'
-
-    ChargerInputVoltage     = '07E2:485E:charger_input_voltage'
-    ChargerInputCurrent     = '07E2:485F:charger_input_current'
-    ChargerInputPower       = 'FFFF:8002:charger_input_power'
-    #ChargerInputEnergy      = 'FFFF:8002:charger_input_energy'
-
-    ChargerOutputVoltage    = '07E2:484A:charger_output_voltage'
-    ChargerOutputCurrent    = '07E2:4850:charger_output_current'
-    ChargerOutputPower      = 'FFFF:8003:charger_output_power'
 
 
 class StateManager:
@@ -87,17 +51,6 @@ class StateManager:
         ###
         VehicleState.Preconditioning:   {'state_file': 'json/state/preconditioning.json',   'state_keys': [Hash.ChargePlugConnected, Hash.ChargingStatus, Hash.EvseType]},
         VehicleState.Charging_DCFC:     {'state_file': 'json/state/charging_dcfc.json',     'state_keys': [Hash.ChargingStatus, Hash.EvseType]},
-    }
-
-    _synthetic_hashes = {
-        Hash.HvbVoltage:                Hash.HvbPower,
-        Hash.HvbCurrent:                Hash.HvbPower,
-        Hash.LvbVoltage:                Hash.LvbPower,
-        Hash.LvbCurrent:                Hash.LvbPower,
-        Hash.ChargerInputVoltage:       Hash.ChargerInputPower,
-        Hash.ChargerInputCurrent:       Hash.ChargerInputPower,
-        Hash.ChargerOutputVoltage:      Hash.ChargerOutputPower,
-        Hash.ChargerOutputCurrent:      Hash.ChargerOutputPower,
     }
 
     def __init__(self) -> None:
@@ -125,7 +78,6 @@ class StateManager:
             v['state_function'] = state_functions.get(k)
 
     def start(self) -> None:
-        self._vehicle_state = {}
         self.change_state(VehicleState.Unknown)
 
     def stop(self) -> None:
@@ -163,13 +115,12 @@ class StateManager:
             longitude = self._charging_session.get(Hash.GpsLongitude.value, 0.0)
             odometer = self._charging_session.get(Hash.LoresOdometer.value, 0)
 
-            ending_soc = self._vehicle_state.get(Hash.HvbSOC.value)
-            ending_socd = self._vehicle_state.get(Hash.HvbSOCDisplayed.value)
-            ending_ete = self._vehicle_state.get(Hash.HvbEnergyToEmpty.value)
+            ending_soc = get_state_value(Hash.HvbSOC)
+            ending_socd = get_state_value(Hash.HvbSOCDisplayed)
+            ending_ete = get_state_value(Hash.HvbEnergyToEmpty)
             kwh_added = ending_ete - starting_ete
             charging_session = {
                 'time':             starting_time,
-                #'start':            time.strftime('%Y-%m-%d %H:%M', time.localtime(starting_time)),
                 'duration':         duration_seconds,
                 'location':         {'latitude': latitude, 'longitude': longitude},
                 'odometer':         odometer,
@@ -185,7 +136,7 @@ class StateManager:
     def _incoming_state(self, state: VehicleState) -> None:
         if state == VehicleState.Charging_Starting:
             self._charging_session = None
-            #self._vehicle_state[Hash.ChargerInputEnergy.value] = 0.0
+            #set_state(Hash.ChargerInputEnergy, 0.0)
 
     def change_state(self, new_state: VehicleState) -> None:
         if self._state == new_state:
@@ -193,7 +144,6 @@ class StateManager:
         _LOGGER.info(f"Vehicle state changed from '{self._state.name}' to '{new_state.name}'" if self._state else f"Vehicle state set to '{new_state.name}'")
 
         self._putback_enabled = False
-        #self._state_change_enabled = False
         self._flush_queue()
 
         self._outgoing_state(self._state)
@@ -221,46 +171,9 @@ class StateManager:
                     payload = (time.time() + offset, period, [module])
                     self._command_queue.put(payload)
             self._putback_enabled = True
-            #self._state_change_enabled = True
 
     def _get_state_keys(self) -> List[str]:
         return StateManager._state_file_lookup.get(self._state).get('state_keys')
-
-    def _hash_fields(self, hash: Hash) -> Tuple[int, int, str]:
-        hash_fields = hash.value.split(':')
-        return int(hash_fields[0], base=16), int(hash_fields[1], base=16), hash_fields[2]
-
-    def _calculate_synthetic(self, hash: str) -> dict:
-        synthetic = None
-        try:
-            if synthetic_hash := StateManager._synthetic_hashes.get(Hash(hash), None):
-                if synthetic_hash == Hash.HvbPower:
-                    hvb_power = self._vehicle_state.get(Hash.HvbVoltage.value, 0.0) * self._vehicle_state.get(Hash.HvbCurrent.value, 0.0)
-                    self._vehicle_state[Hash.HvbPower.value] = hvb_power
-                    arbitration_id, did_id, synthetic_name = self._hash_fields(Hash.HvbPower)
-                    synthetic = {'arbitration_id': arbitration_id, 'did_id': did_id, 'name': synthetic_name, 'value': hvb_power}
-                    _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: HVB power is {hvb_power:.0f} W (calculated)")
-                elif synthetic_hash == Hash.LvbPower:
-                    lvb_power = self._vehicle_state.get(Hash.LvbVoltage.value, 0.0) * self._vehicle_state.get(Hash.LvbCurrent.value, 0.0)
-                    self._vehicle_state[Hash.LvbPower.value] = lvb_power
-                    arbitration_id, did_id, synthetic_name = self._hash_fields(Hash.LvbPower)
-                    synthetic = {'arbitration_id': arbitration_id, 'did_id': did_id, 'name': synthetic_name, 'value': lvb_power}
-                    _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: LVB power is {lvb_power:.0f} W (calculated)")
-                elif synthetic_hash == Hash.ChargerInputPower:
-                    charger_input_power = self._vehicle_state.get(Hash.ChargerInputVoltage.value, 0.0) * self._vehicle_state.get(Hash.ChargerInputCurrent.value, 0.0)
-                    self._vehicle_state[Hash.ChargerInputPower.value] = charger_input_power
-                    arbitration_id, did_id, synthetic_name = self._hash_fields(Hash.ChargerInputPower)
-                    synthetic = {'arbitration_id': arbitration_id, 'did_id': did_id, 'name': synthetic_name, 'value': charger_input_power}
-                    _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: AC charger input power is {charger_input_power:.0f} W (calculated)")
-                elif synthetic_hash == Hash.ChargerOutputPower:
-                    charger_output_power = self._vehicle_state.get(Hash.ChargerOutputVoltage.value, 0.0) * self._vehicle_state.get(Hash.ChargerOutputCurrent.value, 0.0)
-                    self._vehicle_state[Hash.ChargerOutputPower.value] = charger_output_power
-                    arbitration_id, did_id, synthetic_name = self._hash_fields(Hash.ChargerOutputPower)
-                    synthetic = {'arbitration_id': arbitration_id, 'did_id': did_id, 'name': synthetic_name, 'value': charger_output_power}
-                    _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: AC charger output power is {charger_output_power:.0f} W (calculated)")
-        except ValueError:
-            pass
-        return synthetic
 
     def update_vehicle_state(self, state_change: dict) -> List[dict]:
         state_data = []
@@ -272,106 +185,104 @@ class StateManager:
                 states = decoded_payload.get('states')
                 for state in states:
                     for state_name, state_value in state.items():
-                        hash = f"{arbitration_id:04X}:{did_id:04X}:{state_name}"
-                        self._last_state_change = hash
-                        self._vehicle_state[hash] = state_value
+                        hash = get_hash(f"{arbitration_id:04X}:{did_id:04X}:{state_name}")
+                        set_state(hash, state_value)
                         state_data.append({'arbitration_id': arbitration_id, 'did_id': did_id, 'name': state_name, 'value': state_value})
-                        if synthetic := self._calculate_synthetic(hash):
-                            state_data.append(synthetic)
+                        if synthetics := update_synthetics(hash):
+                            state_data += synthetics
                 return state_data
 
     def _update_state_machine(self) -> None:
-        #if self._state_change_enabled:
         self._state_function()
 
     def _get_KeyState(self, key: Hash) -> KeyState:
         key_state = None
         if key == Hash.KeyState:
             try:
-                key_state = KeyState(self._vehicle_state.get(Hash.KeyState.value))
+                key_state = KeyState(get_state_value(Hash.KeyState))
             except ValueError:
-                if self._vehicle_state.get(Hash.KeyState.value):
-                    _LOGGER.info(f"While in '{self._state.name}', 'KeyState' had an unexpected value: {self._vehicle_state.get(Hash.KeyState.value)}")
+                if key_state := get_state_value(Hash.KeyState):
+                    _LOGGER.info(f"While in '{self._state.name}', 'KeyState' had an unexpected value: {key_state}")
         return key_state
 
     def _get_InferredKey(self, key: Hash) -> InferredKey:
         inferred_key = None
         if key == Hash.InferredKey:
             try:
-                inferred_key = InferredKey(self._vehicle_state.get(Hash.InferredKey.value))
+                inferred_key = InferredKey(get_state_value(Hash.InferredKey))
             except ValueError:
-                if self._vehicle_state.get(Hash.InferredKey.value):
-                    _LOGGER.info(f"While in '{self._state.name}', 'InferredKey' had an unexpected value: {self._vehicle_state.get(Hash.InferredKey.value)}")
+                if inferred_key := get_state_value(Hash.InferredKey):
+                    _LOGGER.info(f"While in '{self._state.name}', 'InferredKey' had an unexpected value: {inferred_key}")
         return inferred_key
 
     def _get_ChargingStatus(self, key: Hash) -> ChargingStatus:
         charging_status = None
         if key == Hash.ChargingStatus:
             try:
-                charging_status = ChargingStatus(self._vehicle_state.get(Hash.ChargingStatus.value))
+                charging_status = ChargingStatus(get_state_value(Hash.ChargingStatus))
             except ValueError:
-                if self._vehicle_state.get(Hash.ChargingStatus.value):
-                    _LOGGER.info(f"While in '{self._state.name}', 'ChargingStatus' had an unexpected value: {self._vehicle_state.get(Hash.ChargingStatus.value)}")
+                if charging_status := get_state_value(Hash.ChargingStatus):
+                    _LOGGER.info(f"While in '{self._state.name}', 'ChargingStatus' had an unexpected value: {charging_status}")
         return charging_status
 
     def _get_ChargePlugConnected(self, key: Hash) -> ChargePlugConnected:
         charge_plug_connected = None
         if key == Hash.ChargePlugConnected:
             try:
-                charge_plug_connected = ChargePlugConnected(self._vehicle_state.get(Hash.ChargePlugConnected.value))
+                charge_plug_connected = ChargePlugConnected(get_state_value(Hash.ChargePlugConnected))
             except ValueError:
-                if self._vehicle_state.get(Hash.ChargePlugConnected.value):
-                    _LOGGER.info(f"While in '{self._state.name}', 'ChargePlugConnected' had an unexpected value: {self._vehicle_state.get(Hash.ChargePlugConnected.value)}")
+                if charge_plug_connected := get_state_value(Hash.ChargePlugConnected):
+                    _LOGGER.info(f"While in '{self._state.name}', 'ChargePlugConnected' had an unexpected value: {charge_plug_connected}")
         return charge_plug_connected
 
     def _get_GearCommanded(self, key: Hash) -> GearCommanded:
         gear_commanded = None
         if key == Hash.GearCommanded:
             try:
-                gear_commanded = GearCommanded(self._vehicle_state.get(Hash.GearCommanded.value))
+                gear_commanded = GearCommanded(get_state_value(Hash.GearCommanded))
             except ValueError:
-                if self._vehicle_state.get(Hash.GearCommanded.value):
-                    _LOGGER.info(f"While in '{self._state.name}', 'GearCommanded' had an unexpected value: {self._vehicle_state.get(Hash.GearCommanded.value)}")
+                if gear_commanded := get_state_value(Hash.GearCommanded):
+                    _LOGGER.info(f"While in '{self._state.name}', 'GearCommanded' had an unexpected value: {gear_commanded}")
         return gear_commanded
 
     def _get_EvseType(self, key: Hash) -> EvseType:
         evse_type = None
         if key == Hash.EvseType:
             try:
-                evse_type = EvseType(self._vehicle_state.get(Hash.EvseType.value))
+                evse_type = EvseType(get_state_value(Hash.EvseType))
             except ValueError:
-                if self._vehicle_state.get(Hash.EvseType.value):
-                    _LOGGER.info(f"While in '{self._state.name}', 'EvseType' had an unexpected value: {self._vehicle_state.get(Hash.EvseType.value)}")
+                if evse_type := get_state_value(Hash.EvseType):
+                    _LOGGER.info(f"While in '{self._state.name}', 'EvseType' had an unexpected value: {evse_type}")
         return evse_type
 
     def _get_EngineStartNormal(self, key: Hash) -> EngineStartNormal:
         engine_start_normal = None
         if key == Hash.EngineStartNormal:
             try:
-                engine_start_normal = EngineStartNormal(self._vehicle_state.get(Hash.EngineStartNormal.value))
+                engine_start_normal = EngineStartNormal(get_state_value(Hash.EngineStartNormal))
             except ValueError:
-                if self._vehicle_state.get(Hash.EngineStartNormal.value):
-                    _LOGGER.info(f"While in '{self._state.name}', 'EngineStartNormal' had an unexpected value: {self._vehicle_state.get(Hash.EngineStartNormal.value)}")
+                if engine_start_normal := get_state_value(Hash.EngineStartNormal):
+                    _LOGGER.info(f"While in '{self._state.name}', 'EngineStartNormal' had an unexpected value: {engine_start_normal}")
         return engine_start_normal
 
     def _get_EngineStartRemote(self, key: Hash) -> EngineStartRemote:
         engine_start_remote = None
         if key == Hash.EngineStartRemote:
             try:
-                engine_start_remote = EngineStartRemote(self._vehicle_state.get(Hash.EngineStartRemote.value))
+                engine_start_remote = EngineStartRemote(get_state_value(Hash.EngineStartRemote))
             except ValueError:
-                if self._vehicle_state.get(Hash.EngineStartRemote.value):
-                    _LOGGER.info(f"While in '{self._state.name}', 'EngineStartRemote' had an unexpected value: {self._vehicle_state.get(Hash.EngineStartRemote.value)}")
+                if engine_start_remote := get_state_value(Hash.EngineStartRemote):
+                    _LOGGER.info(f"While in '{self._state.name}', 'EngineStartRemote' had an unexpected value: {engine_start_remote}")
         return engine_start_remote
 
     def _get_EngineStartDisable(self, key: Hash) -> EngineStartDisable:
         engine_start_disable = None
         if key == Hash.EngineStartDisable:
             try:
-                engine_start_disable = EngineStartDisable(self._vehicle_state.get(Hash.EngineStartDisable.value))
+                engine_start_disable = EngineStartDisable(get_state_value(Hash.EngineStartDisable))
             except ValueError:
-                if self._vehicle_state.get(Hash.EngineStartDisable.value):
-                    _LOGGER.info(f"While in '{self._state.name}', 'EngineStartDisable' had an unexpected value: {self._vehicle_state.get(Hash.EngineStartDisable.value)}")
+                if engine_start_disable := get_state_value(Hash.EngineStartDisable):
+                    _LOGGER.info(f"While in '{self._state.name}', 'EngineStartDisable' had an unexpected value: {engine_start_disable}")
         return engine_start_disable
 
     def unknown(self) -> None:
@@ -491,27 +402,27 @@ class StateManager:
             if charging_status := self._get_ChargingStatus(key):
                 if charging_status == ChargingStatus.Ready or charging_status == ChargingStatus.Wait or charging_status == ChargingStatus.Charging:
                     if self._charging_session.get(Hash.HvbEnergyToEmpty.value) is None:
-                        if hvb_ete := self._vehicle_state.get(Hash.HvbEnergyToEmpty.value, None):
-                            self._charging_session[Hash.HvbEnergyToEmpty.value] = hvb_ete
+                        if hvb_ete := get_state_value(Hash.HvbEnergyToEmpty, None):
+                            self._charging_session[Hash.HvbEnergyToEmpty.value] = hvb_ete ###
                             _LOGGER.debug(f"Saved hvb_ete initial value: {hvb_ete:.03f}")
                     if self._charging_session.get(Hash.HvbSOC.value) is None:
-                        if soc := self._vehicle_state.get(Hash.HvbSOC.value, None):
+                        if soc := get_state_value(Hash.HvbSOC, None):
                             self._charging_session[Hash.HvbSOC.value] = soc
                             _LOGGER.debug(f"Saved soc initial value: {soc:.03f}")
                     if self._charging_session.get(Hash.HvbSOCDisplayed.value) is None:
-                        if soc_displayed := self._vehicle_state.get(Hash.HvbSOCDisplayed.value, None):
+                        if soc_displayed := get_state_value(Hash.HvbSOCDisplayed, None):
                             self._charging_session[Hash.HvbSOCDisplayed.value] = soc_displayed
                             _LOGGER.debug(f"Saved socd initial value: {soc_displayed:.01f}")
                     if self._charging_session.get(Hash.GpsLatitude.value) is None:
-                        if latitude := self._vehicle_state.get(Hash.GpsLatitude.value, None):
+                        if latitude := get_state_value(Hash.GpsLatitude, None):
                             self._charging_session[Hash.GpsLatitude.value] = latitude
                             _LOGGER.debug(f"Saved latitude initial value: {latitude:.05f}")
                     if self._charging_session.get(Hash.GpsLongitude.value) is None:
-                        if longitude := self._vehicle_state.get(Hash.GpsLongitude.value, None):
+                        if longitude := get_state_value(Hash.GpsLongitude, None):
                             self._charging_session[Hash.GpsLongitude.value] = longitude
                             _LOGGER.debug(f"Saved longitude initial value: {longitude:.05f}")
                     if self._charging_session.get(Hash.LoresOdometer.value) is None:
-                        if lores_odometer := self._vehicle_state.get(Hash.LoresOdometer.value, None):
+                        if lores_odometer := get_state_value(Hash.LoresOdometer.value, None):
                             self._charging_session[Hash.LoresOdometer.value] = lores_odometer
                             _LOGGER.debug(f"Saved lores_odometer initial value: {lores_odometer}")
 
@@ -532,12 +443,12 @@ class StateManager:
                     _LOGGER.debug(f"Charging status changed to: {charging_status}")
                     self.change_state(VehicleState.Charging_Ended)
                 else:
-                    assert self._vehicle_state.get(Hash.HvbEnergyToEmpty.value, None) is not None
-                    assert self._vehicle_state.get(Hash.HvbSOC.value, None) is not None
-                    assert self._vehicle_state.get(Hash.HvbSOCDisplayed.value, None) is not None
-                    ###assert self._vehicle_state.get(Hash.GpsLatitude.value, None) is not None
-                    ###assert self._vehicle_state.get(Hash.GpsLongitude.value, None) is not None
-                    assert self._vehicle_state.get(Hash.LoresOdometer.value, None) is not None
+                    assert get_state_value(Hash.HvbEnergyToEmpty, None) is not None
+                    assert get_state_value(Hash.HvbSOC, None) is not None
+                    assert get_state_value(Hash.HvbSOCDisplayed, None) is not None
+                    ###assert get_state_value(Hash.GpsLatitude, None) is not None
+                    ###assert get_state_value(Hash.GpsLongitude, None) is not None
+                    assert get_state_value(Hash.LoresOdometer, None) is not None
 
     def charging_ended(self) -> None:
         # 'state_keys': [Hash.ChargingStatus]},
