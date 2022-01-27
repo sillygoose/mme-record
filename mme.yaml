@@ -46,6 +46,6 @@ mme:
         enable:                             true
         org:                                !secret influxdb2_org
         url:                                !secret influxdb2_url
-        bucket:                             !secret influxdb2_bucket
+        bucket:                             'mme' # !secret influxdb2_bucket
         token:                              !secret influxdb2_token
         block_size:                         500
