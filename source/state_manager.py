@@ -12,8 +12,8 @@ from typing import List
 
 from codec_manager import *
 from did import KeyState, ChargingStatus, EvseType, GearCommanded, InferredKey
-from did import EngineStartRemote, EngineStartNormal, ChargePlugConnected
-from state_engine import get_state_value, set_state
+from did import EngineStartRemote, EngineStartNormal, EngineStartDisable, ChargePlugConnected
+from state_engine import get_EngineStartDisable, get_state_value, set_state
 from state_engine import get_EngineStartRemote, get_EngineStartNormal
 from state_engine import get_EvseType, get_GearCommanded, get_ChargePlugConnected, get_ChargingStatus
 from state_engine import get_InferredKey, get_KeyState
@@ -210,8 +210,8 @@ class StateManager:
                     if engine_start_remote := get_EngineStartRemote(Hash.EngineStartRemote, 'unknown'):
                         self.change_state(VehicleState.Preconditioning if engine_start_remote == EngineStartRemote.Yes else VehicleState.Off)
                 elif inferred_key == InferredKey.KeyIn:
-                    if engine_start_normal := get_EngineStartNormal(Hash.EngineStartNormal, 'unknown'):
-                        self.change_state(VehicleState.On if engine_start_normal == EngineStartRemote.Yes else VehicleState.Accessory)
+                    if engine_start_disable := get_EngineStartDisable(Hash.EngineStartDisable, 'unknown'):
+                        self.change_state(VehicleState.On if engine_start_disable == EngineStartDisable.No else VehicleState.Accessory)
 
     def off(self) -> None:
         # 'state_keys': [Hash.InferredKey, Hash.ChargePlugConnected]},
