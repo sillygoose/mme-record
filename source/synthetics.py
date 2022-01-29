@@ -26,6 +26,7 @@ class Synthetics:
 def update_synthetics(hash: Hash) -> List[dict]:
     synthetics = []
     try:
+        # ### _LOGGER.debug(f"changing is {hash}")
         if synthetic_hash := Synthetics._synthetic_hashes.get(Hash(hash), None):
             if synthetic_hash == Hash.HvbPower:
                 hvb_power_interval_start, interval_start = get_state(Hash.HvbPower, 0.0)
@@ -72,7 +73,6 @@ def update_synthetics(hash: Hash) -> List[dict]:
                 charger_input_energy_in = get_state_value(Hash.ChargerInputEnergy, 0.0)
                 charger_input_energy_delta = (charger_input_power_interval_start * interval) / 3600
                 charger_input_energy = charger_input_energy_in + charger_input_energy_delta
-                ### _LOGGER.debug(f"AC charger input energy: {charger_input_energy:.01f} = {charger_input_energy_in:.01f} + {charger_input_energy_delta:.01f}, power is {charger_input_power_interval_start:.0f}, interval is {interval:.03f}s")
                 set_state(Hash.ChargerInputEnergy, charger_input_energy)
                 arbitration_id, did_id, synthetic_name = hash_fields(Hash.ChargerInputEnergy)
                 synthetics.append({'arbitration_id': arbitration_id, 'did_id': did_id, 'name': synthetic_name, 'value': charger_input_energy})

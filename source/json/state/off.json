@@ -4,7 +4,7 @@
         "arbitration_id": 1830,
         "arbitration_id_hex": "0726",
         "enable": true,
-        "period": 5,
+        "period": 3,
         "dids": [
             {
                 "did_name": "EngineStart",

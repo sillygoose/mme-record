@@ -343,7 +343,7 @@
         "packing": "B",
         "states": [
             {
-                "name": "hvb_soc_displayed",
+                "name": "hvb_socd",
                 "value": 132
             }
         ]
@@ -352,7 +352,7 @@
         "did_id": 18504,
         "did_id_hex": "4848",
         "enable": true,
-        "did_name": "HvbEnergyToEmpty",
+        "did_name": "HvbEtE",
         "modules": [
             "BECM"
         ],

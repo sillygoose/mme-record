@@ -22,7 +22,7 @@ class DidId(Enum):
     ChargePlug = 0x4843
     HvbChargeVoltageRequested = 0x4844
     HvbSocD = 0x4845
-    HvbEte = 0x4848
+    HvbEtE = 0x4848
     ChargerOutputVoltage = 0x484A
     ChargingStatus = 0x484D
     ChargerInputPowerAvailable = 0x484E
@@ -38,6 +38,8 @@ class DidId(Enum):
     EvseDigitalMode = 0x48B7
     HvbMaximumChargeCurrent = 0x48BC
     ChargerMaxPower = 0x48C4
+    HvbCHP = 0x48DE
+    HvbCHOp = 0x48DF
     ChargePowerLimit = 0x48FB
     HvbSOH = 0x490C
     GearDisplayed = 0x6310

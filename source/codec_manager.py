@@ -196,7 +196,7 @@ class CodecHvbSoc(Codec):
     def decode(self, payload):
         hvb_soc = struct.unpack('>H', payload)[0] * 0.002
         states = [{'hvb_soc': hvb_soc}]
-        return {'payload': payload, 'states': states, 'decoded': f"Internal SOC is {hvb_soc:.3f}%"}
+        return {'payload': payload, 'states': states, 'decoded': f"HVB internal SoC is {hvb_soc:.3f}%"}
 
     def __len__(self):
         return 2
@@ -204,15 +204,15 @@ class CodecHvbSoc(Codec):
 
 class CodecHvbSocD(Codec):
     def decode(self, payload):
-        hvb_soc_displayed = struct.unpack('>B', payload)[0] * 0.5
-        states = [{'hvb_soc_displayed': hvb_soc_displayed}]
-        return {'payload': payload, 'states': states, 'decoded': f"Displayed SOC is {hvb_soc_displayed:.0f}% ({hvb_soc_displayed:.1f}%)"}
+        hvb_socd = struct.unpack('>B', payload)[0] * 0.5
+        states = [{'hvb_socd': hvb_socd}]
+        return {'payload': payload, 'states': states, 'decoded': f"HVB displayed SoC is {hvb_socd:.0f}% ({hvb_socd:.1f}%)"}
 
     def __len__(self):
         return 1
 
 
-class CodecHvbEnergyToEmpty(Codec):
+class CodecHvbEtE(Codec):
     def decode(self, payload):
         hvb_ete = struct.unpack('>H', payload)[0] * 0.002
         states = [{'hvb_ete': hvb_ete}]
@@ -232,11 +232,35 @@ class CodecHvbTemp(Codec):
         return 1
 
 
+class CodecHvbCHP(Codec):
+    # INT16(A:B)×.001
+    def decode(self, payload):
+        hvb_chp = struct.unpack('>H', payload)[0] * 0.001
+        states = [{'hvb_chp': hvb_chp}]
+        return {'payload': payload, 'states': states, 'decoded': f"HVB coolant heater powet is {hvb_chp} W"}
+
+    def __len__(self):
+        return 2
+
+
+class CodecHvbCHOp(Codec):
+    # LOOKUP(A:A:0='Off':1='On':2='Dgrd':3='Shut':4='Shrt':5='NRes':6='?':7='Stop')
+    def decode(self, payload):
+        hvb_chop = struct.unpack('>B', payload)[0]
+        hvb_chop_options = {0: 'Off', 1: 'On', 2: 'Dgrd', 3: 'Shut', 4: 'Shrt', 5: 'NRes', 7: 'Stop'}
+        coolant_heating_mode = 'HVB coolant heating mode: ' + hvb_chop_options.get(hvb_chop, 'Unknown')
+        states = [{'hvb_chop': hvb_chop}]
+        return {'payload': payload, 'states': states, 'decoded': coolant_heating_mode}
+
+    def __len__(self):
+        return 1
+
+
 class CodecLvbSoc(Codec):
     def decode(self, payload):
         lvb_soc = struct.unpack('>B', payload)[0]
         states = [{'lvb_soc': lvb_soc}]
-        return {'payload': payload, 'states': states, 'decoded': f"LVB SOC is {lvb_soc}%"}
+        return {'payload': payload, 'states': states, 'decoded': f"LVB SoC is {lvb_soc}%"}
 
     def __len__(self):
         return 1
@@ -246,7 +270,7 @@ class CodecLvbVoltage(Codec):
     def decode(self, payload):
         lvb_voltage = struct.unpack('>B', payload)[0] * 0.05 + 6.0
         states = [{'lvb_voltage': lvb_voltage}]
-        return {'payload': payload, 'states': states, 'decoded': f"LVB voltage is {lvb_voltage:.2f} V"}
+        return {'payload': payload, 'states': states, 'decoded': f"LVB voltage is {lvb_voltage:.01f} V"}
 
     def __len__(self):
         return 1
@@ -528,11 +552,13 @@ class CodecManager:
         DidId.Gps:                            CodecGPS,
         DidId.HvbSoc:                         CodecHvbSoc,
         DidId.HvbSocD:                        CodecHvbSocD,
-        DidId.HvbEte:                         CodecHvbEnergyToEmpty,
+        DidId.HvbEtE:                         CodecHvbEtE,
         DidId.HvbSOH:                         CodecHvbSOH,
         DidId.HvbTemp:                        CodecHvbTemp,
         DidId.HvbVoltage:                     CodecHvbVoltage,
         DidId.HvbCurrent:                     CodecHvbCurrent,
+        DidId.HvbCHP:                         CodecHvbCHP,
+        DidId.HvbCHOp:                        CodecHvbCHOp,
         DidId.ChargingStatus:                 CodecChargingStatus,
         DidId.EvseType:                       CodecEvseType,
         DidId.EvseDigitalMode:                CodecEvseDigitalMode,

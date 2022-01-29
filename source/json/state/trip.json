@@ -43,7 +43,7 @@
         "period": 30,
         "dids": [
             {
-                "did_name": "EnergyToEmpty",
+                "did_name": "HvbEtE",
                 "did_id": 18504,
                 "did_id_hex": "4848",
                 "codec_id": 18504

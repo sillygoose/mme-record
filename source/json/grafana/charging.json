@@ -41,8 +41,8 @@
                     "custom": {
                         "axisLabel": "",
                         "axisPlacement": "right",
-                        "barAlignment": 0,
-                        "drawStyle": "bars",
+                        "barAlignment": 1,
+                        "drawStyle": "line",
                         "fillOpacity": 100,
                         "gradientMode": "none",
                         "hideFrom": {
@@ -50,9 +50,9 @@
                             "tooltip": false,
                             "viz": false
                         },
-                        "lineInterpolation": "linear",
-                        "lineWidth": 1,
-                        "pointSize": 5,
+                        "lineInterpolation": "stepAfter",
+                        "lineWidth": 5,
+                        "pointSize": 1,
                         "scaleDistribution": {
                             "type": "linear"
                         },
@@ -68,7 +68,159 @@
                     },
                     "decimals": 0,
                     "mappings": [],
-                    "min": 0,
+                    "min": 2,
+                    "noValue": "0",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "kWh"
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "kWh Used"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "fixedColor": "red",
+                                    "mode": "fixed"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 0
+            },
+            "hideTimeOverride": true,
+            "id": 6,
+            "interval": "6h",
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "list",
+                    "placement": "bottom"
+                },
+                "tooltip": {
+                    "mode": "single"
+                }
+            },
+            "pluginVersion": "8.3.1",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "influxdb",
+                        "uid": "k2BggiQGk"
+                    },
+                    "hide": false,
+                    "query": "kwh_used = from(bucket: \"ev\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"charging\")\n  |> filter(fn: (r) => r._field == \"kwh_used\")\n  |> map(fn: (r) => ({ _time: r._time, \"kWh Used\": r._value }))\n  |> yield(name: \"kwh_used\")\n",
+                    "refId": "kWh Used"
+                },
+                {
+                    "datasource": {
+                        "type": "influxdb",
+                        "uid": "k2BggiQGk"
+                    },
+                    "hide": false,
+                    "query": "kwh_added = from(bucket: \"ev\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"charging\")\n  |> filter(fn: (r) => r._field == \"kwh_added\")\n  |> map(fn: (r) => ({ _time: r._time, \"kWh Added\": r._value }))\n  |> yield(name: \"kwh_added\")",
+                    "refId": "kWh Added"
+                }
+            ],
+            "timeShift": "0h",
+            "title": "Charging History",
+            "type": "timeseries"
+        },
+        {
+            "datasource": {
+                "type": "influxdb",
+                "uid": "k2BggiQGk"
+            },
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "fixedColor": "green",
+                        "mode": "fixed"
+                    },
+                    "decimals": 0,
+                    "mappings": [],
+                    "noValue": "0",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "kWh"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 3,
+                "x": 12,
+                "y": 0
+            },
+            "id": 8,
+            "options": {
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.3.1",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "influxdb",
+                        "uid": "k2BggiQGk"
+                    },
+                    "query": "from(bucket: \"ev\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"charging\")\n  |> filter(fn: (r) => r[\"_field\"] == \"kwh_added\")\n  |> drop(columns: [\"session\"])\n  |> sum(column: \"_value\")",
+                    "refId": "A"
+                }
+            ],
+            "title": "Total Energy Added",
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "influxdb",
+                "uid": "k2BggiQGk"
+            },
+            "description": "",
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "fixedColor": "red",
+                        "mode": "fixed"
+                    },
+                    "decimals": 0,
+                    "mappings": [],
+                    "noValue": "0",
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
@@ -83,34 +235,39 @@
                 "overrides": []
             },
             "gridPos": {
-                "h": 8,
-                "w": 12,
-                "x": 0,
-                "y": 0
+                "h": 4,
+                "w": 3,
+                "x": 12,
+                "y": 4
             },
-            "id": 6,
+            "id": 9,
             "options": {
-                "legend": {
-                    "calcs": [],
-                    "displayMode": "hidden",
-                    "placement": "bottom"
+                "colorMode": "value",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
                 },
-                "tooltip": {
-                    "mode": "none"
-                }
+                "textMode": "auto"
             },
+            "pluginVersion": "8.3.1",
             "targets": [
                 {
                     "datasource": {
                         "type": "influxdb",
                         "uid": "k2BggiQGk"
                     },
-                    "query": "from(bucket: \"greta\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"charging\" and r._field == \"kwh_added\")\n  |> map(fn: (r) => ({ _time: r._time, \"kWh Added\": r._value }))\n  |> yield(name: \"charging_history\")",
-                    "refId": "Completed charges"
+                    "query": "from(bucket: \"ev\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"charging\")\n  |> filter(fn: (r) => r[\"_field\"] == \"kwh_used\")\n  |> drop(columns: [\"session\"])\n  |> sum(column: \"_value\")",
+                    "refId": "A"
                 }
             ],
-            "title": "Charging History",
-            "type": "timeseries"
+            "title": "Total Energy Used",
+            "type": "stat"
         },
         {
             "gridPos": {
@@ -163,6 +320,7 @@
             "type": "news"
         }
     ],
+    "refresh": false,
     "schemaVersion": 33,
     "style": "dark",
     "tags": [
@@ -173,7 +331,7 @@
         "list": []
     },
     "time": {
-        "from": "now-2d",
+        "from": "now-24h",
         "to": "now"
     },
     "timepicker": {
@@ -182,6 +340,9 @@
             "1m"
         ],
         "time_options": [
+            "5m",
+            "15m",
+            "1h",
             "6h",
             "12h",
             "24h",
@@ -194,6 +355,6 @@
     "timezone": "browser",
     "title": "Charging",
     "uid": "69VTYhb7k",
-    "version": 7,
+    "version": 21,
     "weekStart": ""
 }

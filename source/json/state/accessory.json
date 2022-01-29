@@ -36,12 +36,124 @@
         ]
     },
     {
+        "module": "SOBDM",
+        "arbitration_id": 2018,
+        "arbitration_id_hex": "07E2",
+        "enable": true,
+        "period": 60,
+        "dids": [
+            {
+                "did_name": "InteriorTemp",
+                "did_id": 56580,
+                "did_id_hex": "DD04",
+                "codec_id": 56580
+            },
+            {
+                "did_name": "ExteriorTemp",
+                "did_id": 56581,
+                "did_id_hex": "DD05",
+                "codec_id": 56581
+            }
+        ]
+    },
+    {
         "module": "BECM",
         "arbitration_id": 2020,
         "arbitration_id_hex": "07E4",
         "enable": true,
-        "period": 30,
+        "period": 10,
         "dids": [
+            {
+                "did_name": "HvbVoltage",
+                "did_id": 18445,
+                "did_id_hex": "480D",
+                "codec_id": 18445
+            },
+            {
+                "did_name": "HvbCurrent",
+                "did_id": 18681,
+                "did_id_hex": "48F9",
+                "codec_id": 18681
+            }
+        ]
+    },
+    {
+        "module": "BCM",
+        "arbitration_id": 1830,
+        "arbitration_id_hex": "0726",
+        "enable": true,
+        "period": 10,
+        "dids": [
+            {
+                "did_name": "LvbVoltage",
+                "did_id": 16426,
+                "did_id_hex": "402A",
+                "codec_id": 16426
+            },
+            {
+                "did_name": "LvbCurrent",
+                "did_id": 16427,
+                "did_id_hex": "402B",
+                "codec_id": 16427
+            }
+        ]
+    },
+    {
+        "name": "SOBDMB",
+        "channel": "can0",
+        "arbitration_id": 2023,
+        "enable": false,
+        "arbitration_id_hex": "07E7"
+    },
+    {
+        "module": "SOBDMB",
+        "arbitration_id": 2023,
+        "arbitration_id_hex": "07E7",
+        "enable": true,
+        "period": 60,
+        "dids": [
+            {
+                "did_name": "HvbCHOp",
+                "did_id": 18655,
+                "did_id_hex": "48DF",
+                "codec_id": 18655
+            },
+            {
+                "did_name": "HvbCHP",
+                "did_id": 18654,
+                "did_id_hex": "48DE",
+                "codec_id": 18654
+            }
+        ]
+    },
+    {
+        "module": "BCM",
+        "arbitration_id": 1830,
+        "arbitration_id_hex": "0726",
+        "enable": true,
+        "period": 60,
+        "dids": [
+            {
+                "did_name": "LvbSoc",
+                "did_id": 16424,
+                "did_id_hex": "4028",
+                "codec_id": 16424
+            }
+        ]
+    },
+    {
+        "module": "BECM",
+        "arbitration_id": 2020,
+        "arbitration_id_hex": "07E4",
+        "enable": true,
+        "period": 60,
+        "dids": [
+            {
+                "did_name": "HvbTemp",
+                "did_id": 18432,
+                "did_id_hex": "4800",
+                "codec_id": 18432
+            },
             {
                 "did_name": "HvbSoc",
                 "did_id": 18433,
@@ -55,7 +167,7 @@
                 "codec_id": 18501
             },
             {
-                "did_name": "EnergyToEmpty",
+                "did_name": "HvbEtE",
                 "did_id": 18504,
                 "did_id_hex": "4848",
                 "codec_id": 18504

@@ -1,6 +1,7 @@
 import logging
 
 from enum import Enum, unique
+from exceptions import RuntimeError
 
 
 _LOGGER = logging.getLogger('mme')
@@ -15,26 +16,31 @@ class Hash(Enum):
     GearCommanded           = '07E2:1E12:gear_commanded'
     ChargePlugConnected     = '07E2:4843:charge_plug_connected'
 
-    HvbSOC                  = '07E4:4801:hvb_soc'
-    HvbSOCDisplayed         = '07E4:4845:hvb_soc_displayed'
-    HvbEnergyToEmpty        = '07E4:4848:hvb_ete'
-
+    HiresSpeed              = '07E0:1505:hires_speed'
     HiresOdometer           = '0720:404C:hires_odometer'
     LoresOdometer           = '07E4:DD01:lores_odometer'
 
     EngineStartNormal       = '0726:41B9:engine_start_normal'
     EngineStartDisable      = '0726:41B9:engine_start_disable'
     EngineStartRemote       = '0726:41B9:engine_start_remote'
+    EngineStartExtended     = '0726:41B9:engine_start_extended'
 
     HvbVoltage              = '07E4:480D:hvb_voltage'
     HvbCurrent              = '07E4:48F9:hvb_current'
     HvbPower                = 'FFFF:8000:hvb_power'
     HvbEnergy               = 'FFFF:8000:hvb_energy'
+    HvbSoC                  = '07E4:4801:hvb_soc'
+    HvbSoCD                 = '07E4:4845:hvb_socd'
+    HvbEtE                  = '07E4:4848:hvb_ete'
+    HvbTemp                 = '07E4:4800:hvb_temp'
+    HvbCHOp                 = '07E7:48Df:hvb_chop'
+    HvbCHP                  = '07E7:48DE:hvb_chp'
 
     LvbVoltage              = '0726:402A:lvb_voltage'
     LvbCurrent              = '0726:402B:lvb_current'
     LvbPower                = 'FFFF:8001:lvb_power'
     LvbEnergy               = 'FFFF:8001:lvb_energy'
+    LvbSoC                  = '0726:4028:lvb_soc'
 
     ChargerInputVoltage     = '07E2:485E:charger_input_voltage'
     ChargerInputCurrent     = '07E2:485F:charger_input_current'
@@ -53,7 +59,8 @@ class Hash(Enum):
     GpsBearing              = '07D0:8012:gps_bearing'
     GpsFix                  = '07D0:8012:gps_fix'
 
-    EngineStartExtended     = '0726:41B9:engine_start_extended'
+    InteriorTemperature     = '07E2:DD04:interior_temp'
+    ExteriorTemperature     = '07E2:DD05:exterior_temp'
 
 
 def get_hash(hash_str: str) -> Hash:
@@ -61,4 +68,4 @@ def get_hash(hash_str: str) -> Hash:
         hash = Hash(hash_str)
         return hash
     except ValueError:
-        _LOGGER.error(f"Hash error: no entry for hash string '{hash_str}'")
+        raise RuntimeError(f"Hash error: no entry for hash string '{hash_str}'")

@@ -255,7 +255,7 @@
         "name": "SOBDMB",
         "channel": "can0",
         "arbitration_id": 2023,
-        "enable": false,
+        "enable": true,
         "arbitration_id_hex": "07E7"
     },
     {

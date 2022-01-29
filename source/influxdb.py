@@ -5,6 +5,7 @@
 
 import logging
 from time import time
+import datetime
 from typing import List
 
 from influxdb_client import InfluxDBClient, WritePrecision
@@ -74,7 +75,7 @@ def influxdb_disconnect():
     _LOGGER.info(f"Disconnected from the InfluxDB database at {InfluxDB._url}")
 
 
-def influxdb_charging_session(session: dict) -> None:
+def influxdb_charging_session(session: dict, vehicle: str) -> None:
     """
             charging_session = {
                 'time':             starting_time,
@@ -93,6 +94,7 @@ def influxdb_charging_session(session: dict) -> None:
         charging_session = []
         ts = session.get('time')
         duration = session.get('duration')
+        end_ts = ts + duration
         latitude = session.get('location').get('latitude')
         longitude = session.get('location').get('longitude')
         odometer = session.get('odometer')
@@ -105,11 +107,21 @@ def influxdb_charging_session(session: dict) -> None:
         kwh_added = session.get('kwh_added')
         kwh_used = session.get('kwh_used')
         efficiency = session.get('efficiency')
+        tag_value = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%dT%H:%M')
         charging_session.append(
-            f"charging,odometer={odometer},latitude={latitude},longitude={longitude},duration={duration}i," \
+            f"charging" \
+            f",vehicle={vehicle},session={tag_value} " \
+            f"odometer={odometer},latitude={latitude},longitude={longitude},duration={duration}," \
             f"soc_begin={starting_soc},soc_end={ending_soc},socd_begin={starting_socd},socd_end={ending_socd}," \
-            f"ete_begin={starting_ete},ete_end={ending_ete},kwh_used={kwh_used},efficiency={efficiency} " \
+            f"ete_begin={starting_ete},ete_end={ending_ete},kwh_used={kwh_used},efficiency={efficiency}," \
             f"kwh_added={kwh_added} {ts}")
+        charging_session.append(
+            f"charging" \
+            f",vehicle={vehicle},session={tag_value} " \
+            f"odometer={odometer},latitude={latitude},longitude={longitude},duration={duration}," \
+            f"soc_begin=0.0,soc_end=0.0,socd_begin=0.0,socd_end=0.0," \
+            f"ete_begin=0.0,ete_end=0.0,kwh_used=0.0,efficiency=0.0," \
+            f"kwh_added=0.0 {end_ts}")
         try:
             InfluxDB._write_api.write(bucket=InfluxDB._bucket, record=charging_session, write_precision=WritePrecision.S)
         except ApiException as e:
