@@ -33,7 +33,7 @@ class Hash(Enum):
     HvbSoCD                 = '07E4:4845:hvb_socd'
     HvbEtE                  = '07E4:4848:hvb_ete'
     HvbTemp                 = '07E4:4800:hvb_temp'
-    HvbCHOp                 = '07E7:48Df:hvb_chop'
+    HvbCHOp                 = '07E7:48DF:hvb_chop'
     HvbCHP                  = '07E7:48DE:hvb_chp'
 
     LvbVoltage              = '0726:402A:lvb_voltage'

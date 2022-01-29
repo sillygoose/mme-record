@@ -99,13 +99,6 @@
         ]
     },
     {
-        "name": "SOBDMB",
-        "channel": "can0",
-        "arbitration_id": 2023,
-        "enable": false,
-        "arbitration_id_hex": "07E7"
-    },
-    {
         "module": "SOBDMB",
         "arbitration_id": 2023,
         "arbitration_id_hex": "07E7",

@@ -237,7 +237,7 @@ class CodecHvbCHP(Codec):
     def decode(self, payload):
         hvb_chp = struct.unpack('>H', payload)[0] * 0.001
         states = [{'hvb_chp': hvb_chp}]
-        return {'payload': payload, 'states': states, 'decoded': f"HVB coolant heater powet is {hvb_chp} W"}
+        return {'payload': payload, 'states': states, 'decoded': f"HVB coolant heater power is {hvb_chp} W"}
 
     def __len__(self):
         return 2
