@@ -60,7 +60,7 @@ class Hash(Enum):
     GpsFix                  = '07D0:8012:gps_fix'
 
     InteriorTemperature     = '07E2:DD04:interior_temp'
-    ExteriorTemperature     = '07E2:DD05:exterior_temp'
+    ExteriorTemperature     = '07E6:DD05:exterior_temp'
 
 
 def get_hash(hash_str: str) -> Hash:

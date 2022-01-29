@@ -47,12 +47,6 @@
                 "did_id": 56580,
                 "did_id_hex": "DD04",
                 "codec_id": 56580
-            },
-            {
-                "did_name": "ExteriorTemp",
-                "did_id": 56581,
-                "did_id_hex": "DD05",
-                "codec_id": 56581
             }
         ]
     },
@@ -116,6 +110,21 @@
                 "did_id": 18654,
                 "did_id_hex": "48DE",
                 "codec_id": 18654
+            }
+        ]
+    },
+    {
+        "module": "SOBDMC",
+        "arbitration_id": 2022,
+        "arbitration_id_hex": "07E6",
+        "enable": true,
+        "period": 60,
+        "dids": [
+            {
+                "did_name": "ExteriorTemp",
+                "did_id": 56581,
+                "did_id_hex": "DD05",
+                "codec_id": 56581
             }
         ]
     },
