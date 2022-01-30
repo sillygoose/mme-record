@@ -12,8 +12,6 @@ from did import EngineStartRemote, EngineStartNormal, EngineStartDisable
 from vehicle_state import VehicleState
 from hash import *
 
-from exceptions import RuntimeError
-
 
 _LOGGER = logging.getLogger('mme')
 
@@ -22,7 +20,7 @@ class StateTransistion:
 
     def __init__(self, state_keys: dict) -> None:
         self._state_keys = state_keys
-        assert self._state_keys is not None
+        self._charging_session = None
 
     def state_keys(self, state: VehicleState) -> List[Hash]:
         return self._state_keys.get(state).get('state_keys')
@@ -155,7 +153,7 @@ class StateTransistion:
                 if charging_status == ChargingStatus.Ready or charging_status == ChargingStatus.Wait or charging_status == ChargingStatus.Charging:
                     if self._charging_session.get(Hash.HvbEtE) is None:
                         if hvb_ete := get_state_value(Hash.HvbEtE, None):
-                            self._charging_session[Hash.HvbEtE] = hvb_ete ###
+                            self._charging_session[Hash.HvbEtE] = hvb_ete
                             _LOGGER.debug(f"Saved hvb_ete initial value: {hvb_ete:.03f}")
                     if self._charging_session.get(Hash.HvbSoC) is None:
                         if soc := get_state_value(Hash.HvbSoC, None):

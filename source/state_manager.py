@@ -11,13 +11,6 @@ import datetime
 from typing import List
 
 from codec_manager import *
-from did import KeyState, ChargingStatus, EvseType, GearCommanded, InferredKey
-from did import EngineStartRemote, EngineStartNormal, EngineStartDisable, ChargePlugConnected
-
-from state_engine import get_EngineStartDisable, get_state_value, set_state
-from state_engine import get_EngineStartRemote, get_EngineStartNormal
-from state_engine import get_EvseType, get_GearCommanded, get_ChargePlugConnected, get_ChargingStatus
-from state_engine import get_InferredKey, get_KeyState
 
 from hash import *
 from synthetics import update_synthetics
@@ -26,6 +19,7 @@ from vehicle_state import VehicleState
 from exceptions import RuntimeError
 
 from state_transition import StateTransistion
+from state_engine import get_state_value, set_state
 
 
 _LOGGER = logging.getLogger('mme')
@@ -52,7 +46,6 @@ class StateManager(StateTransistion):
         super().__init__(StateManager._state_file_lookup)
         self._vehicle_name = config.vehicle.name
         self._state = None
-        self._charging_session = None
         self._putback_enabled = False
         self._codec_manager = CodecManager()
         self._command_queue = PriorityQueue()
