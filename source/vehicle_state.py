@@ -9,6 +9,7 @@ _LOGGER = logging.getLogger('mme')
 @unique
 class VehicleState(Enum):
         Unknown = auto()            # initial state until another is determined
+        Unchanged = auto()          # the vehicle state is not changing
         Off = auto()                # the vehicle is off
         Accessory = auto()          # the vehicle is on and in Accessory mode
         On = auto()                 # the vehicle is on and in Drivable mode

@@ -15,7 +15,6 @@ class StateEngine:
 
     _state = {}
 
-
 def get_state_timestamp(hash: Hash) -> int:
     state = StateEngine._state.get(hash, (None, 0))
     return state[1]
@@ -36,7 +35,6 @@ def set_state(hash: Hash, value: Any) -> int:
 def hash_fields(hash: Hash) -> Tuple[int, int, str]:
     hash_fields = hash.value.split(':')
     return int(hash_fields[0], base=16), int(hash_fields[1], base=16), hash_fields[2]
-
 
 def get_KeyState(key: Hash, state: str) -> KeyState:
     key_state = None

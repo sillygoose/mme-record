@@ -13,21 +13,25 @@ from typing import List
 from codec_manager import *
 from did import KeyState, ChargingStatus, EvseType, GearCommanded, InferredKey
 from did import EngineStartRemote, EngineStartNormal, EngineStartDisable, ChargePlugConnected
+
 from state_engine import get_EngineStartDisable, get_state_value, set_state
 from state_engine import get_EngineStartRemote, get_EngineStartNormal
 from state_engine import get_EvseType, get_GearCommanded, get_ChargePlugConnected, get_ChargingStatus
 from state_engine import get_InferredKey, get_KeyState
+
 from hash import *
 from synthetics import update_synthetics
 from influxdb import influxdb_charging_session
 from vehicle_state import VehicleState
 from exceptions import RuntimeError
 
+from state_transition import StateTransistion
+
 
 _LOGGER = logging.getLogger('mme')
 
 
-class StateManager:
+class StateManager(StateTransistion):
 
     _state_file_lookup = {
         VehicleState.Unknown:           {'state_file': 'json/state/unknown.json',           'state_keys': [Hash.InferredKey]},
@@ -45,6 +49,7 @@ class StateManager:
     }
 
     def __init__(self, config) -> None:
+        super().__init__(StateManager._state_file_lookup)
         self._vehicle_name = config.vehicle.name
         self._state = None
         self._charging_session = None
@@ -146,7 +151,7 @@ class StateManager:
             self._charging_session = None
 
     def change_state(self, new_state: VehicleState) -> None:
-        if self._state == new_state:
+        if self._state == new_state or new_state == VehicleState.Unchanged:
             return
         _LOGGER.info(f"Vehicle state changed from '{self._state.name}' to '{new_state.name}'" if self._state else f"Vehicle state set to '{new_state.name}'")
 
@@ -200,210 +205,5 @@ class StateManager:
                 return state_data
 
     def _update_state_machine(self) -> None:
-        self._state_function()
-
-    def unknown(self) -> None:
-        # 'state_keys': [Hash.InferredKey]},
-        for key in self._get_state_keys():
-            if inferred_key := get_InferredKey(key, 'unknown'):
-                if inferred_key == InferredKey.KeyOut:
-                    if engine_start_remote := get_EngineStartRemote(Hash.EngineStartRemote, 'unknown'):
-                        self.change_state(VehicleState.Preconditioning if engine_start_remote == EngineStartRemote.Yes else VehicleState.Off)
-                elif inferred_key == InferredKey.KeyIn:
-                    if engine_start_disable := get_EngineStartDisable(Hash.EngineStartDisable, 'unknown'):
-                        self.change_state(VehicleState.On if engine_start_disable == EngineStartDisable.No else VehicleState.Accessory)
-
-    def off(self) -> None:
-        # 'state_keys': [Hash.InferredKey, Hash.ChargePlugConnected]},
-        for key in self._get_state_keys():
-            if inferred_key := get_InferredKey(key, 'off'):
-                if inferred_key == InferredKey.KeyOut:
-                    if engine_start_remote := get_EngineStartRemote(Hash.EngineStartRemote, 'off'):
-                        if engine_start_remote == EngineStartRemote.Yes:
-                            self.change_state(VehicleState.Preconditioning)
-                elif inferred_key == InferredKey.KeyIn:
-                    if engine_start_normal := get_EngineStartNormal(Hash.EngineStartNormal, 'off'):
-                        self.change_state(VehicleState.On if engine_start_normal == EngineStartNormal.Yes else VehicleState.Accessory)
-            elif charge_plug_connected := get_ChargePlugConnected(key, 'off'):
-                if charge_plug_connected == ChargePlugConnected.Yes:
-                    self.change_state(VehicleState.PluggedIn)
-
-    def accessory(self) -> None:
-        # 'state_keys': [Hash.InferredKey, Hash.ChargePlugConnected]},
-        for key in self._get_state_keys():
-            if inferred_key := get_InferredKey(key, 'accessory'):
-                if inferred_key == InferredKey.KeyOut:
-                    if engine_start_remote := get_EngineStartRemote(Hash.EngineStartRemote, 'accessory'):
-                        self.change_state(VehicleState.Preconditioning if engine_start_remote == EngineStartRemote.Yes else VehicleState.Off)
-                elif inferred_key == InferredKey.KeyIn:
-                    if engine_start_normal := get_EngineStartNormal(Hash.EngineStartNormal, 'accessory'):
-                        self.change_state(VehicleState.On if engine_start_normal == EngineStartNormal.Yes else VehicleState.Accessory)
-            elif charge_plug_connected := get_ChargePlugConnected(key, 'accessory'):
-                if charge_plug_connected == ChargePlugConnected.Yes:
-                    self.change_state(VehicleState.PluggedIn)
-
-    def on(self) -> None:
-        # 'state_keys': [Hash.InferredKey, Hash.ChargePlugConnected, Hash.GearCommanded]},
-        for key in self._get_state_keys():
-            if inferred_key := get_InferredKey(key, 'on'):
-                if inferred_key == InferredKey.KeyOut:
-                    if engine_start_remote := get_EngineStartRemote(Hash.EngineStartRemote, 'on'):
-                        self.change_state(VehicleState.Preconditioning if engine_start_remote == EngineStartRemote.Yes else VehicleState.Off)
-                elif inferred_key == InferredKey.KeyIn:
-                    if engine_start_normal := get_EngineStartNormal(Hash.EngineStartNormal, 'on'):
-                        self.change_state(VehicleState.On if engine_start_normal == EngineStartNormal.Yes else VehicleState.Accessory)
-            elif charge_plug_connected := get_ChargePlugConnected(key, 'on'):
-                if charge_plug_connected == ChargePlugConnected.Yes:
-                    self.change_state(VehicleState.PluggedIn)
-            elif gear_commanded := get_GearCommanded(key, 'on'):
-                if gear_commanded != GearCommanded.Park:
-                    self.change_state(VehicleState.Trip)
-
-    def trip(self) -> None:
-        # 'state_keys': [Hash.GearCommanded]},
-        for key in self._get_state_keys():
-            if gear_commanded := get_GearCommanded(key, 'trip'):
-                if gear_commanded == GearCommanded.Park:
-                    if inferred_key := get_InferredKey(Hash.InferredKey, 'trip'):
-                        if inferred_key == InferredKey.KeyOut:
-                            if engine_start_remote := get_EngineStartRemote(Hash.EngineStartRemote, 'trip'):
-                                self.change_state(VehicleState.Preconditioning if engine_start_remote == EngineStartRemote.Yes else VehicleState.Off)
-                        elif inferred_key == InferredKey.KeyIn:
-                            if engine_start_normal := get_EngineStartNormal(Hash.EngineStartNormal, 'trip'):
-                                self.change_state(VehicleState.On if engine_start_normal == EngineStartNormal.Yes else VehicleState.Accessory)
-
-    def preconditioning(self) -> None:
-        for key in self._get_state_keys():
-            if charging_status := get_ChargingStatus(key, 'preconditioning'):
-                if charging_status == ChargingStatus.Charging:
-                    pass
-                elif charging_status == ChargingStatus.NotReady or charging_status == ChargingStatus.Done:
-                    if key_state := get_KeyState(Hash.KeyState, 'preconditioning'):
-                        if key_state == KeyState.Sleeping or key_state == KeyState.Off:
-                            self.change_state(VehicleState.Off)
-                        elif key_state == KeyState.On or key_state == KeyState.Cranking:
-                            self.change_state(VehicleState.On)
-                else:
-                    _LOGGER.info(f"While {self._state}, 'ChargingStatus' returned an unexpected response: {charging_status}")
-            elif remote_start := get_EngineStartRemote(key, 'preconditioning'):
-                if remote_start == EngineStartRemote.No:
-                    self.change_state(VehicleState.Unknown)
-
-    def plugged_in(self) -> None:
-        # 'state_keys': [Hash.ChargePlugConnected, Hash.ChargingStatus]},
-        for key in self._get_state_keys():
-            if charge_plug_connected := get_ChargePlugConnected(key, 'plugged_in'):
-                if charge_plug_connected == ChargePlugConnected.No:
-                    if inferred_key := get_InferredKey(Hash.InferredKey, 'plugged_in'):
-                        if inferred_key == InferredKey.KeyOut:
-                            if engine_start_remote := get_EngineStartRemote(Hash.EngineStartRemote, 'plugged_in'):
-                                self.change_state(VehicleState.Preconditioning if engine_start_remote == EngineStartRemote.Yes else VehicleState.Off)
-                        elif inferred_key == InferredKey.KeyIn:
-                            if engine_start_normal := get_EngineStartNormal(Hash.EngineStartNormal, 'plugged_in'):
-                                self.change_state(VehicleState.On if engine_start_normal == EngineStartNormal.Yes else VehicleState.Accessory)
-            elif charging_status := get_ChargingStatus(key, 'plugged_in'):
-                if charging_status == ChargingStatus.NotReady or charging_status == ChargingStatus.Wait:
-                    pass
-                elif charging_status == ChargingStatus.Ready or charging_status == ChargingStatus.Charging:
-                    self.change_state(VehicleState.Charging_Starting)
-                else:
-                    _LOGGER.info(f"While in {self._state}, 'ChargingStatus' returned an unexpected response: {charging_status}")
-
-    def charging_starting(self) -> None:
-        if self._charging_session is None:
-            self._charging_session = {
-                'time': int(time.time()),
-            }
-
-        for key in self._get_state_keys():
-            if charging_status := get_ChargingStatus(key, 'charging_starting'):
-                if charging_status == ChargingStatus.Ready or charging_status == ChargingStatus.Wait or charging_status == ChargingStatus.Charging:
-                    if self._charging_session.get(Hash.HvbEtE) is None:
-                        if hvb_ete := get_state_value(Hash.HvbEtE, None):
-                            self._charging_session[Hash.HvbEtE] = hvb_ete ###
-                            _LOGGER.debug(f"Saved hvb_ete initial value: {hvb_ete:.03f}")
-                    if self._charging_session.get(Hash.HvbSoC) is None:
-                        if soc := get_state_value(Hash.HvbSoC, None):
-                            self._charging_session[Hash.HvbSoC] = soc
-                            _LOGGER.debug(f"Saved soc initial value: {soc:.03f}")
-                    if self._charging_session.get(Hash.HvbSoCD) is None:
-                        if soc_displayed := get_state_value(Hash.HvbSoCD, None):
-                            self._charging_session[Hash.HvbSoCD] = soc_displayed
-                            _LOGGER.debug(f"Saved socd initial value: {soc_displayed:.01f}")
-                    if self._charging_session.get(Hash.GpsLatitude) is None:
-                        if latitude := get_state_value(Hash.GpsLatitude, None):
-                            self._charging_session[Hash.GpsLatitude] = latitude
-                            _LOGGER.debug(f"Saved latitude initial value: {latitude:.05f}")
-                    if self._charging_session.get(Hash.GpsLongitude) is None:
-                        if longitude := get_state_value(Hash.GpsLongitude, None):
-                            self._charging_session[Hash.GpsLongitude] = longitude
-                            _LOGGER.debug(f"Saved longitude initial value: {longitude:.05f}")
-                    if self._charging_session.get(Hash.LoresOdometer) is None:
-                        if lores_odometer := get_state_value(Hash.LoresOdometer, None):
-                            self._charging_session[Hash.LoresOdometer] = lores_odometer
-                            _LOGGER.debug(f"Saved lores_odometer initial value: {lores_odometer}")
-                    if self._charging_session.get(Hash.ChargerInputEnergy) is None:
-                        charger_input_energy = get_state_value(Hash.ChargerInputEnergy, 0.0)
-                        set_state(Hash.ChargerInputEnergy, charger_input_energy)
-                        self._charging_session[Hash.ChargerInputEnergy] = charger_input_energy
-                        _LOGGER.debug(f"Saved charger input energy initial value: {charger_input_energy}")
-                    if self._charging_session.get(Hash.ChargerOutputEnergy) is None:
-                        charger_output_energy = get_state_value(Hash.ChargerOutputEnergy, 0.0)
-                        set_state(Hash.ChargerOutputEnergy, charger_output_energy)
-                        self._charging_session[Hash.ChargerOutputEnergy] = charger_output_energy
-                        _LOGGER.debug(f"Saved charger output energy initial value: {charger_output_energy}")
-
-                    if charging_status == ChargingStatus.Charging:
-                        if evse_type := get_EvseType(Hash.EvseType, 'charging_starting'):
-                            if evse_type == EvseType.BasAC:
-                                self.change_state(VehicleState.Charging_AC)
-                            elif evse_type != EvseType.NoType:
-                                _LOGGER.error(f"While in '{self._state.name}', 'EvseType' returned an unexpected response: {evse_type}")
-                else:
-                    _LOGGER.info(f"While in {self._state}, 'ChargingStatus' returned an unexpected response: {charging_status}")
-
-    def charging_ac(self) -> None:
-        # 'state_keys': [Hash.ChargingStatus]},
-        for key in self._get_state_keys():
-            if charging_status := get_ChargingStatus(key, 'charging_ac'):
-                if charging_status != ChargingStatus.Charging:
-                    _LOGGER.debug(f"Charging status changed to: {charging_status}")
-                    self.change_state(VehicleState.Charging_Ended)
-                else:
-                    assert get_state_value(Hash.HvbEtE, None) is not None
-                    assert get_state_value(Hash.HvbSoC, None) is not None
-                    assert get_state_value(Hash.HvbSoCD, None) is not None
-                    ###assert get_state_value(Hash.GpsLatitude, None) is not None
-                    ###assert get_state_value(Hash.GpsLongitude, None) is not None
-                    assert get_state_value(Hash.LoresOdometer, None) is not None
-                    assert get_state_value(Hash.ChargerInputEnergy, None) is not None
-                    assert get_state_value(Hash.ChargerOutputEnergy, None) is not None
-
-
-    def charging_ended(self) -> None:
-        # 'state_keys': [Hash.ChargingStatus]},
-        for key in self._get_state_keys():
-            if charging_status := get_ChargingStatus(key, 'charging_ended'):
-                if charging_status != ChargingStatus.Charging:
-                    if charge_plug_connected := get_ChargePlugConnected(Hash.ChargePlugConnected, 'charging_ended'):
-                        if charge_plug_connected == ChargePlugConnected.Yes:
-                            self.change_state(VehicleState.PluggedIn)
-                        elif inferred_key := get_InferredKey(Hash.InferredKey, 'charging_ended'):
-                            if inferred_key == InferredKey.KeyOut:
-                                if engine_start_remote := get_EngineStartRemote(Hash.EngineStartRemote, 'charging_ended'):
-                                    self.change_state(VehicleState.Preconditioning if engine_start_remote == EngineStartRemote.Yes else VehicleState.Off)
-                            elif inferred_key == InferredKey.KeyIn:
-                                if engine_start_normal := get_EngineStartNormal(Hash.EngineStartNormal, 'charging_ended'):
-                                    self.change_state(VehicleState.On if engine_start_normal == EngineStartNormal.Yes else VehicleState.Accessory)
-
-    def charging_dcfc(self) -> None:
-        for key in self._get_state_keys():
-            if charging_status := get_ChargingStatus(key, 'charging_dcfc'):
-                if charging_status == ChargingStatus.NotReady or charging_status == ChargingStatus.Done:
-                    if key_state := get_KeyState(Hash.KeyState):
-                        if key_state == KeyState.Sleeping or key_state == KeyState.Off:
-                            self.change_state(VehicleState.Off)
-                        elif key_state == KeyState.On or key_state == KeyState.Cranking:
-                            self.change_state(VehicleState.On)
-                else:
-                    _LOGGER.info(f"While in '{self._state.name}', 'ChargingStatus' returned an unexpected response: {charging_status}")
+        if new_state := self._state_function():
+            self.change_state(new_state)

@@ -1,9 +1,8 @@
 import logging
-#from time import time_ns
 
 from typing import List
 
-from state_engine import get_state, get_state_value, set_state, hash_fields, get_state_timestamp
+from state_engine import get_state, get_state_value, set_state, hash_fields
 from hash import *
 
 
@@ -26,7 +25,6 @@ class Synthetics:
 def update_synthetics(hash: Hash) -> List[dict]:
     synthetics = []
     try:
-        # ### _LOGGER.debug(f"changing is {hash}")
         if synthetic_hash := Synthetics._synthetic_hashes.get(Hash(hash), None):
             if synthetic_hash == Hash.HvbPower:
                 hvb_power_interval_start, interval_start = get_state(Hash.HvbPower, 0.0)
