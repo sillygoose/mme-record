@@ -12,7 +12,9 @@ class Codec(DidCodec):
 
 class CodecNull(Codec):
     def decode(self, payload):
-        return {'payload': payload, 'states': {}, 'decoded': list(payload)}
+        payload_list = list(payload)
+        decoded_str = str(payload_list) + f" {[hex(x) for x in payload_list]}"
+        return {'payload': payload, 'states': {}, 'decoded': decoded_str}
 
     def __len__(self):
         raise Codec.ReadAllRemainingData
@@ -590,6 +592,6 @@ class CodecManager:
 
     def codec(self, did_id: int) -> Codec:
         try:
-            return self._codec_lookup.get(DidId(did_id), None)
+            return self._codec_lookup.get(DidId(did_id), CodecNull)
         except ValueError:
-            return None
+            return CodecNull
