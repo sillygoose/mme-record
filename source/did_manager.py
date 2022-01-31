@@ -49,6 +49,7 @@ class DIDManager:
         json_dids = json.dumps(dids, indent = 4, sort_keys=False)
         with open(file, "w") as outfile:
             outfile.write(json_dids)
+        _LOGGER.info(f"Wrote DID file '{file}'")
 
     def show_dids(self, show_json: bool = False) -> None:
         if show_json == False:

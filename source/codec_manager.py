@@ -589,4 +589,7 @@ class CodecManager:
         self._codec_lookup = CodecManager._codec_lookup
 
     def codec(self, did_id: int) -> Codec:
-        return self._codec_lookup.get(DidId(did_id), None)
+        try:
+            return self._codec_lookup.get(DidId(did_id), None)
+        except ValueError:
+            return None
