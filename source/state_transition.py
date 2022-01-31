@@ -43,8 +43,7 @@ class StateTransistion:
             if inferred_key := get_InferredKey(key, 'off'):
                 if inferred_key == InferredKey.KeyOut:
                     if engine_start_remote := get_EngineStartRemote(Hash.EngineStartRemote, 'off'):
-                        if engine_start_remote == EngineStartRemote.Yes:
-                            new_state = VehicleState.Preconditioning
+                        new_state = VehicleState.Preconditioning if engine_start_remote == EngineStartRemote.Yes else VehicleState.Off
                 elif inferred_key == InferredKey.KeyIn:
                     if engine_start_normal := get_EngineStartNormal(Hash.EngineStartNormal, 'off'):
                         new_state = VehicleState.On if engine_start_normal == EngineStartNormal.Yes else VehicleState.Accessory

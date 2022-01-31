@@ -42,7 +42,7 @@
                         "axisLabel": "",
                         "axisPlacement": "right",
                         "barAlignment": 1,
-                        "drawStyle": "line",
+                        "drawStyle": "bars",
                         "fillOpacity": 100,
                         "gradientMode": "none",
                         "hideFrom": {
@@ -68,8 +68,9 @@
                     },
                     "decimals": 0,
                     "mappings": [],
-                    "min": 2,
-                    "noValue": "0",
+                    "max": 75,
+                    "min": 1,
+                    "noValue": "No charging session in selected time period",
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
@@ -156,8 +157,18 @@
                         "mode": "fixed"
                     },
                     "decimals": 0,
-                    "mappings": [],
-                    "noValue": "0",
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "index": 0,
+                                    "text": "0 kWh"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
@@ -192,7 +203,7 @@
                 },
                 "textMode": "auto"
             },
-            "pluginVersion": "8.3.1",
+            "pluginVersion": "8.3.4",
             "targets": [
                 {
                     "datasource": {
@@ -219,8 +230,18 @@
                         "mode": "fixed"
                     },
                     "decimals": 0,
-                    "mappings": [],
-                    "noValue": "0",
+                    "mappings": [
+                        {
+                            "options": {
+                                "match": "null+nan",
+                                "result": {
+                                    "index": 0,
+                                    "text": "0 kWh"
+                                }
+                            },
+                            "type": "special"
+                        }
+                    ],
                     "thresholds": {
                         "mode": "absolute",
                         "steps": [
@@ -255,7 +276,7 @@
                 },
                 "textMode": "auto"
             },
-            "pluginVersion": "8.3.1",
+            "pluginVersion": "8.3.4",
             "targets": [
                 {
                     "datasource": {
@@ -298,7 +319,7 @@
                 "showStarred": true,
                 "tags": []
             },
-            "pluginVersion": "8.3.1",
+            "pluginVersion": "8.3.4",
             "tags": [],
             "title": "Dashboards",
             "type": "dashlist"
@@ -321,7 +342,7 @@
         }
     ],
     "refresh": false,
-    "schemaVersion": 33,
+    "schemaVersion": 34,
     "style": "dark",
     "tags": [
         "Greta",
@@ -331,7 +352,7 @@
         "list": []
     },
     "time": {
-        "from": "now-24h",
+        "from": "now-5m",
         "to": "now"
     },
     "timepicker": {
@@ -340,11 +361,6 @@
             "1m"
         ],
         "time_options": [
-            "5m",
-            "15m",
-            "1h",
-            "6h",
-            "12h",
             "24h",
             "2d",
             "7d",
@@ -355,6 +371,6 @@
     "timezone": "browser",
     "title": "Charging",
     "uid": "69VTYhb7k",
-    "version": 21,
+    "version": 24,
     "weekStart": ""
 }
