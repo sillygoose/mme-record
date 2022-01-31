@@ -50,7 +50,7 @@ class Extract:
 
 
 def main() -> None:
-    logfiles.start('extract.log')
+    logfiles.start('log/extract.log')
     _LOGGER.info(f"Mustang Mach E DID Extractor Utility version {version.get_version()} PID is {os.getpid()}")
     try:
         extract = Extract()
