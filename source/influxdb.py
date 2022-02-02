@@ -35,7 +35,7 @@ class InfluxDB:
     _line_points = []
 
     _block_size = 500
-    _backup_file = 'influxdb.backup'
+    _backup_file = 'cached/influxdb.backup'
 
 def influxdb_connect(influxdb_config: Configuration):
     if InfluxDB._client is None:
