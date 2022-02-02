@@ -65,7 +65,6 @@ class Hash(Enum):
 
 def get_hash(hash_str: str) -> Hash:
     try:
-        hash = Hash(hash_str)
-        return hash
+        return Hash(hash_str)
     except ValueError:
-        raise RuntimeError(f"Hash error: no entry for hash string '{hash_str}'")
+        return None #raise RuntimeError(f"Hash error: no entry for hash string '{hash_str}'")

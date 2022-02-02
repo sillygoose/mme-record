@@ -3,6 +3,7 @@
 # InfluxDB Line Protocol Reference
 # https://docs.influxdata.com/influxdb/v2.0/reference/syntax/line-protocol/
 
+import os
 import logging
 from time import time
 import datetime
@@ -34,7 +35,7 @@ class InfluxDB:
     _line_points = []
 
     _block_size = 500
-
+    _backup_file = 'influxdb.backup'
 
 def influxdb_connect(influxdb_config: Configuration):
     if InfluxDB._client is None:
@@ -46,6 +47,9 @@ def influxdb_connect(influxdb_config: Configuration):
         InfluxDB._block_size = influxdb_config.get('block_size', 500)
         if influxdb_config.get('enable', False) == False:
             raise FailedInitialization(f"The influxdb2 'enable' option must be true to use InfluxDB")
+
+        with open(InfluxDB._backup_file, 'w') as outfile:
+            pass
 
         InfluxDB._client = InfluxDBClient(url=InfluxDB._url, token=InfluxDB._token, org=InfluxDB._org)
         if not InfluxDB._client:
@@ -124,8 +128,21 @@ def influxdb_charging_session(session: dict, vehicle: str) -> None:
             f"kwh_added=0.0 {end_ts}")
         try:
             InfluxDB._write_api.write(bucket=InfluxDB._bucket, record=charging_session, write_precision=WritePrecision.S)
-        except ApiException as e:
-            raise RuntimeError(f"InfluxDB client unable to write to '{InfluxDB._bucket}' at {InfluxDB._url}: {e.reason}")
+            _LOGGER.info(f"Wrote '{vehicle}' charging session to {InfluxDB._url}")
+            if os.path.getsize(InfluxDB._backup_file):
+                try:
+                    with open(InfluxDB._backup_file, 'r') as infile:
+                        backup_file = infile.read()
+                    InfluxDB._write_api.write(bucket=InfluxDB._bucket, record=backup_file, write_precision=WritePrecision.S)
+                    with open(InfluxDB._backup_file, 'w') as outfile:
+                        pass
+                    _LOGGER.info(f"Wrote backup file '{InfluxDB._backup_file}' contents to {InfluxDB._url}")
+                except ApiException:
+                    _LOGGER.error(f"Failed to write backup file '{InfluxDB._backup_file}' contents to {InfluxDB._url}")
+        except ApiException:
+            with open(InfluxDB._backup_file, 'a') as outfile:
+                outfile.write(charging_session)
+            _LOGGER.info(f"Wrote '{vehicle}' charging session to backup file '{InfluxDB._backup_file}'")
 
 
 def influxdb_write_record(data_points: List[dict], flush=False) -> None:
@@ -153,6 +170,19 @@ def influxdb_write_record(data_points: List[dict], flush=False) -> None:
                 try:
                     InfluxDB._write_api.write(bucket=InfluxDB._bucket, record=InfluxDB._line_points, write_precision=WritePrecision.S)
                     _LOGGER.info(f"Wrote {len(InfluxDB._line_points)} data points to {InfluxDB._url}")
+                    if os.path.getsize(InfluxDB._backup_file):
+                        try:
+                            with open(InfluxDB._backup_file, 'r') as infile:
+                                backup_file = infile.read()
+                            InfluxDB._write_api.write(bucket=InfluxDB._bucket, record=backup_file, write_precision=WritePrecision.S)
+                            with open(InfluxDB._backup_file, 'w') as outfile:
+                                pass
+                            _LOGGER.info(f"Wrote backup file '{InfluxDB._backup_file}' contents to {InfluxDB._url}")
+                        except ApiException:
+                            _LOGGER.error(f"Failed to write backup file '{InfluxDB._backup_file}' contents to {InfluxDB._url}")
+                except ApiException:
+                    with open(InfluxDB._backup_file, 'a') as outfile:
+                        outfile.write(InfluxDB._line_points)
+                    _LOGGER.error(f"Wrote {len(InfluxDB._line_points)} points to backup file '{InfluxDB._backup_file}'")
+                finally:
                     InfluxDB._line_points = []
-                except ApiException as e:
-                    raise RuntimeError(f"InfluxDB client unable to write to '{InfluxDB._bucket}' at {InfluxDB._url}: {e.reason}")

@@ -20,22 +20,23 @@ class Extract:
         self._did_manager = DIDManager()
 
     def start(self) -> None:
-        dids = self._did_manager._load_dids(file='json/other/did_coverage.json')
-        new_dids = []
-        for did_record in dids:
-            did_id = did_record.get('did_id')
-            if self.filter(did_record):
-                new_dids.append({'did_name': '???', 'did_id': did_id, 'did_id_hex': f"{did_id:04X}", 'codec_id': -1})
-
-        extract_dids = {
+        dids = self._did_manager._load_dids(file='json/other/bcm_did_map_0000_FFFF.json')
+        module_info = {
             'module': 'BCM',
             'arbitration_id': 1830,
             'arbitration_id_hex': '0726',
             'enable': True,
             'period': 10,
-            'dids': new_dids
         }
-        self._did_manager._save_dids('json/other/bcm_coverage.json', extract_dids)
+        new_dids = []
+        for did_record in dids:
+            did_id = did_record.get('did_id')
+            if self.filter(did_record):
+                mi = module_info.copy()
+                mi['dids'] = [{'did_name': '???', 'did_id': did_id, 'did_id_hex': f"{did_id:04X}", 'codec_id': -1}]
+                new_dids.append(mi)
+
+        self._did_manager._save_dids('json/other/bcm_coverage.json', new_dids)
         _LOGGER.info(f"Extracted {len(new_dids)} DIDs to the output file")
 
     def stop(self) -> None:
@@ -44,7 +45,7 @@ class Extract:
     def filter(self, did) -> bool:
         length = did.get('length')
         modules = did.get('modules')
-        if 'BCM' in modules and length <= 7:
+        if 1830 in modules: # and length <= 7:
             return True
         return False
 
