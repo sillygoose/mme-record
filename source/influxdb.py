@@ -29,14 +29,15 @@ class InfluxDB:
     _write_api = None
     _query_api = None
 
+    _enable = False
     _url = None
     _token = None
     _bucket = None
     _org = None
 
     _line_points = []
-
     _block_size = 500
+
     _backup_file = 'cached/influxdb.backup'
 
 def influxdb_connect(influxdb_config: Configuration):
@@ -47,23 +48,29 @@ def influxdb_connect(influxdb_config: Configuration):
         InfluxDB._bucket = influxdb_config.get('bucket')
         InfluxDB._org = influxdb_config.get('org')
         InfluxDB._block_size = influxdb_config.get('block_size', 500)
-        if influxdb_config.get('enable', False) == False:
-            raise FailedInitialization(f"The influxdb2 'enable' option must be true to use InfluxDB")
+        InfluxDB._enable = influxdb_config.get('enable', False)
+        _connect()
 
-        with open(InfluxDB._backup_file, 'w') as _:
-            pass
-
-        InfluxDB._client = InfluxDBClient(url=InfluxDB._url, token=InfluxDB._token, org=InfluxDB._org)
-        if InfluxDB._client:
-            InfluxDB._write_api = InfluxDB._client.write_api(write_options=SYNCHRONOUS)
-            InfluxDB._query_api = InfluxDB._client.query_api()
-            try:
-                InfluxDB._query_api.query(f'from(bucket: "{InfluxDB._bucket}") |> range(start: -1m)')
-                _LOGGER.info(f"Connected to the InfluxDB database at {InfluxDB._url}, bucket '{InfluxDB._bucket}'")
-            except ApiException:
-                _LOGGER.error(f"Unable to access bucket '{InfluxDB._bucket}' at {InfluxDB._url}")
+        if not os.path.exists(InfluxDB._backup_file):
+            with open(InfluxDB._backup_file, 'w') as _:
+                pass
         else:
-            _LOGGER.error(f"Failed to get InfluxDBClient from {InfluxDB._url} (check url, token, and/or organization)")
+            write_lp_points([])
+
+
+
+def _connect():
+    InfluxDB._client = InfluxDBClient(url=InfluxDB._url, token=InfluxDB._token, org=InfluxDB._org)
+    if InfluxDB._client:
+        InfluxDB._write_api = InfluxDB._client.write_api(write_options=SYNCHRONOUS)
+        InfluxDB._query_api = InfluxDB._client.query_api()
+        try:
+            InfluxDB._query_api.query(f'from(bucket: "{InfluxDB._bucket}") |> range(start: -1m)')
+            _LOGGER.info(f"Connected to the InfluxDB database at {InfluxDB._url}, bucket '{InfluxDB._bucket}'")
+        except ApiException:
+            _LOGGER.error(f"Unable to access bucket '{InfluxDB._bucket}' at {InfluxDB._url}")
+    else:
+        _LOGGER.error(f"Failed to get InfluxDBClient from {InfluxDB._url} (check url, token, and/or organization)")
 
 
 def influxdb_disconnect():
@@ -78,12 +85,14 @@ def influxdb_disconnect():
     _LOGGER.info(f"Disconnected from the InfluxDB database at {InfluxDB._url}")
 
 
-def write_lp_points(lp_points) -> None:
+def write_lp_points(lp_points: List) -> None:
     try:
         if InfluxDB._write_api is None:
             raise RuntimeError
-        InfluxDB._write_api.write(bucket=InfluxDB._bucket, record=lp_points, write_precision=WritePrecision.S)
-        _LOGGER.info(f"Wrote {len(lp_points)} points to {InfluxDB._url}")
+        if len(lp_points) > 0:
+            _LOGGER.info(f"Attempting write of {len(lp_points)} points to {InfluxDB._url}")
+            InfluxDB._write_api.write(bucket=InfluxDB._bucket, record=lp_points, write_precision=WritePrecision.S)
+            _LOGGER.info(f"Wrote {len(lp_points)} points to {InfluxDB._url}")
         if os.path.getsize(InfluxDB._backup_file):
             try:
                 with open(InfluxDB._backup_file, 'r') as infile:
