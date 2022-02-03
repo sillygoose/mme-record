@@ -7,6 +7,7 @@ import os
 import logging
 from time import time
 import datetime
+import json
 from typing import List
 
 from influxdb_client import InfluxDBClient, WritePrecision
@@ -16,6 +17,7 @@ from influxdb_client.rest import ApiException
 from config.configuration import Configuration
 
 from exceptions import FailedInitialization
+from urllib3.exceptions import ReadTimeoutError, ConnectTimeoutError
 
 
 _LOGGER = logging.getLogger("mme")
@@ -48,7 +50,7 @@ def influxdb_connect(influxdb_config: Configuration):
         if influxdb_config.get('enable', False) == False:
             raise FailedInitialization(f"The influxdb2 'enable' option must be true to use InfluxDB")
 
-        with open(InfluxDB._backup_file, 'w') as outfile:
+        with open(InfluxDB._backup_file, 'w') as _:
             pass
 
         InfluxDB._client = InfluxDBClient(url=InfluxDB._url, token=InfluxDB._token, org=InfluxDB._org)
@@ -132,16 +134,17 @@ def influxdb_charging_session(session: dict, vehicle: str) -> None:
             if os.path.getsize(InfluxDB._backup_file):
                 try:
                     with open(InfluxDB._backup_file, 'r') as infile:
-                        backup_file = infile.read()
-                    InfluxDB._write_api.write(bucket=InfluxDB._bucket, record=backup_file, write_precision=WritePrecision.S)
-                    with open(InfluxDB._backup_file, 'w') as outfile:
+                        cached_points = list(infile)
+                    InfluxDB._write_api.write(bucket=InfluxDB._bucket, record=cached_points, write_precision=WritePrecision.S)
+                    with open(InfluxDB._backup_file, 'w') as _:
                         pass
-                    _LOGGER.info(f"Wrote backup file '{InfluxDB._backup_file}' contents to {InfluxDB._url}")
-                except ApiException:
+                    _LOGGER.info(f"Wrote {len(cached_points)} cached points from backup file '{InfluxDB._backup_file}' to {InfluxDB._url}")
+                except (ApiException, ReadTimeoutError, ConnectTimeoutError):
                     _LOGGER.error(f"Failed to write backup file '{InfluxDB._backup_file}' contents to {InfluxDB._url}")
-        except ApiException:
+        except (ApiException, ReadTimeoutError, ConnectTimeoutError):
             with open(InfluxDB._backup_file, 'a') as outfile:
-                outfile.write(charging_session)
+                for lp_point in InfluxDB._line_points:
+                    outfile.write(f"{lp_point}\n")
             _LOGGER.info(f"Wrote '{vehicle}' charging session to backup file '{InfluxDB._backup_file}'")
 
 
@@ -173,16 +176,17 @@ def influxdb_write_record(data_points: List[dict], flush=False) -> None:
                     if os.path.getsize(InfluxDB._backup_file):
                         try:
                             with open(InfluxDB._backup_file, 'r') as infile:
-                                backup_file = infile.read()
-                            InfluxDB._write_api.write(bucket=InfluxDB._bucket, record=backup_file, write_precision=WritePrecision.S)
-                            with open(InfluxDB._backup_file, 'w') as outfile:
+                                cached_points = list(infile)
+                            InfluxDB._write_api.write(bucket=InfluxDB._bucket, record=cached_points, write_precision=WritePrecision.S)
+                            with open(InfluxDB._backup_file, 'w') as _:
                                 pass
-                            _LOGGER.info(f"Wrote backup file '{InfluxDB._backup_file}' contents to {InfluxDB._url}")
-                        except ApiException:
+                            _LOGGER.info(f"Wrote {len(cached_points)} cached points from backup file '{InfluxDB._backup_file}' to {InfluxDB._url}")
+                        except (ApiException, ReadTimeoutError, ConnectTimeoutError):
                             _LOGGER.error(f"Failed to write backup file '{InfluxDB._backup_file}' contents to {InfluxDB._url}")
-                except ApiException:
+                except (ApiException, ReadTimeoutError, ConnectTimeoutError):
                     with open(InfluxDB._backup_file, 'a') as outfile:
-                        outfile.write(InfluxDB._line_points)
+                        for lp_point in InfluxDB._line_points:
+                            outfile.write(f"{lp_point}\n")
                     _LOGGER.error(f"Wrote {len(InfluxDB._line_points)} points to backup file '{InfluxDB._backup_file}'")
                 finally:
                     InfluxDB._line_points = []
