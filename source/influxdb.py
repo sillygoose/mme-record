@@ -16,8 +16,8 @@ from influxdb_client.rest import ApiException
 
 from config.configuration import Configuration
 
-from exceptions import FailedInitialization
-from urllib3.exceptions import ReadTimeoutError, ConnectTimeoutError
+# from exceptions import FailedInitialization
+from urllib3.exceptions import ReadTimeoutError, ConnectTimeoutError, NewConnectionError
 
 
 _LOGGER = logging.getLogger("mme")
@@ -60,29 +60,38 @@ def influxdb_connect(influxdb_config: Configuration):
 
 
 def _connect():
-    InfluxDB._client = InfluxDBClient(url=InfluxDB._url, token=InfluxDB._token, org=InfluxDB._org)
-    if InfluxDB._client:
-        InfluxDB._write_api = InfluxDB._client.write_api(write_options=SYNCHRONOUS)
-        InfluxDB._query_api = InfluxDB._client.query_api()
-        try:
-            InfluxDB._query_api.query(f'from(bucket: "{InfluxDB._bucket}") |> range(start: -1m)')
-            _LOGGER.info(f"Connected to the InfluxDB database at {InfluxDB._url}, bucket '{InfluxDB._bucket}'")
-        except ApiException:
-            _LOGGER.error(f"Unable to access bucket '{InfluxDB._bucket}' at {InfluxDB._url}")
-    else:
-        _LOGGER.error(f"Failed to get InfluxDBClient from {InfluxDB._url} (check url, token, and/or organization)")
+    try:
+        InfluxDB._client = InfluxDBClient(url=InfluxDB._url, token=InfluxDB._token, org=InfluxDB._org)
+        if InfluxDB._client:
+            InfluxDB._write_api = InfluxDB._client.write_api(write_options=SYNCHRONOUS)
+            InfluxDB._query_api = InfluxDB._client.query_api()
+            try:
+                InfluxDB._query_api.query(f'from(bucket: "{InfluxDB._bucket}") |> range(start: -1m)')
+                _LOGGER.info(f"Connected to the InfluxDB database at {InfluxDB._url}, bucket '{InfluxDB._bucket}'")
+            except (ApiException, NewConnectionError, ConnectTimeoutError):
+                _LOGGER.error(f"Unable to access bucket '{InfluxDB._bucket}' at {InfluxDB._url}")
+        else:
+            _LOGGER.error(f"Failed to get InfluxDBClient from {InfluxDB._url} (check url, token, and/or organization)")
+    except (ApiException, NewConnectionError, ConnectTimeoutError):
+        _LOGGER.error(f"Unable to access bucket '{InfluxDB._bucket}' at {InfluxDB._url}")
 
 
 def influxdb_disconnect():
     if len(InfluxDB._line_points) > 0:
         influxdb_write_record(data_points=[], flush=True)
     if InfluxDB._write_api:
-        InfluxDB._write_api.close()
+        try:
+            InfluxDB._write_api.close()
+        except (ApiException, NewConnectionError, ConnectTimeoutError):
+            pass
         InfluxDB._write_api = None
     if InfluxDB._client:
-        InfluxDB._client.close()
+        try:
+            InfluxDB._client.close()
+            _LOGGER.info(f"Disconnected from the InfluxDB database at {InfluxDB._url}")
+        except (ApiException, NewConnectionError, ConnectTimeoutError):
+            pass
         InfluxDB._client = None
-    _LOGGER.info(f"Disconnected from the InfluxDB database at {InfluxDB._url}")
 
 
 def write_lp_points(lp_points: List) -> None:
