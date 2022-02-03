@@ -17,13 +17,13 @@ def message_length(data: bytearray) -> int:
 
 
 def test_one(can0: Bus, can1: Bus, did_id: int) -> dict:
-    request_msg = Message(arbitration_id=0x7df, data=[3, 0x22, did_id >> 8, did_id & 0xff, 0, 0, 0, 0], is_extended_id=False)
+    request_msg = Message(arbitration_id=0x726, data=[3, 0x22, did_id >> 8, did_id & 0xff, 0, 0, 0, 0], is_extended_id=False)
     max_length = -1
     timeout = 0.5
     responding_modules = []
 
     can0.send(request_msg)
-    can1.send(request_msg)
+    #can1.send(request_msg)
 
     while True:
         msg = can0.recv(timeout=timeout)
@@ -33,12 +33,12 @@ def test_one(can0: Bus, can1: Bus, did_id: int) -> dict:
             continue
         elif msg.data[0] == 0x03 and msg.data[1] == 0x7F:
             continue
-
         responding_modules.append(msg.arbitration_id - 8)
         length = message_length(msg.data)
         max_length = length if length > max_length else max_length
         logger.info(msg)
 
+    """
     while True:
         msg = can1.recv(timeout=timeout)
         if msg is None:
@@ -47,11 +47,11 @@ def test_one(can0: Bus, can1: Bus, did_id: int) -> dict:
             continue
         elif msg.data[0] == 0x03 and msg.data[1] == 0x7F:
             continue
-
         responding_modules.append(msg.arbitration_id - 8)
         length = message_length(msg.data)
         max_length = length if length > max_length else max_length
         logger.info(msg)
+    """
 
     responding_modules.sort()
     return {'did_id': did_id, 'did_id_hex': f"{did_id:04X}", 'length': max_length, 'modules': responding_modules}
@@ -82,50 +82,22 @@ def main() -> None:
         can1.set_filters(filters=filters)
 
         blocks = [
-                    {'start': 0x0000, 'stop': 0x09FF},
-
-                    {'start': 0x1400, 'stop': 0x15FF},
-                    {'start': 0x1E00, 'stop': 0x1FFF},
-
-                    {'start': 0x2000, 'stop': 0x21FF},
-                    {'start': 0x2800, 'stop': 0x28FF},
-                    {'start': 0x2B00, 'stop': 0x2B7F},
-
-                    {'start': 0x3000, 'stop': 0x307F},
-                    {'start': 0x3B00, 'stop': 0x3BFF},
-
-                    {'start': 0x4000, 'stop': 0x437F},
-                    {'start': 0x4800, 'stop': 0x49FF},
-
-                    {'start': 0x5800, 'stop': 0x5BFF},
-
-                    {'start': 0x6000, 'stop': 0x63FF},
-
-                    {'start': 0x7000, 'stop': 0x72FF},
-
-                    {'start': 0x8000, 'stop': 0x83FF},
-
-                    {'start': 0x9100, 'stop': 0x917F},
-                    {'start': 0x9800, 'stop': 0x9BFF},
-
-                    {'start': 0xA000, 'stop': 0xA4FF},
-
-                    {'start': 0xB000, 'stop': 0xB1FF},
-
-                    {'start': 0xC000, 'stop': 0xC2FF},
-                    {'start': 0xCF00, 'stop': 0xCFFF},
-
-                    {'start': 0xD000, 'stop': 0xD1FF},
-                    {'start': 0xD700, 'stop': 0xD7FF},
-                    {'start': 0xDD00, 'stop': 0xDDFF},
-                    {'start': 0xDE00, 'stop': 0xDEFF},
-
-                    {'start': 0xE100, 'stop': 0xE1FF},
-                    {'start': 0xEE00, 'stop': 0xEFFF},
-
-                    {'start': 0xF000, 'stop': 0xF4FF},
-                    {'start': 0xF800, 'stop': 0xF8FF},
-                    {'start': 0xFD00, 'stop': 0xFFFF},
+                    {'start': 0x0000, 'stop': 0x0FFF},
+                    {'start': 0x1000, 'stop': 0x1FFF},
+                    {'start': 0x2000, 'stop': 0x2FFF},
+                    {'start': 0x3000, 'stop': 0x3FFF},
+                    {'start': 0x4000, 'stop': 0x4FFF},
+                    {'start': 0x5000, 'stop': 0x5FFF},
+                    {'start': 0x6000, 'stop': 0x6FFF},
+                    {'start': 0x7000, 'stop': 0x7FFF},
+                    {'start': 0x8000, 'stop': 0x8FFF},
+                    {'start': 0x9000, 'stop': 0x9FFF},
+                    {'start': 0xA000, 'stop': 0xAFFF},
+                    {'start': 0xB000, 'stop': 0xBFFF},
+                    {'start': 0xC000, 'stop': 0xCFFF},
+                    {'start': 0xD000, 'stop': 0xDFFF},
+                    {'start': 0xE000, 'stop': 0xEFFF},
+                    {'start': 0xF000, 'stop': 0xFFFF},
         ]
 
         big_did_map = []
@@ -137,7 +109,7 @@ def main() -> None:
 
             logger.info(f"Starting scanning DIDs in range {start:04X}:{stop:04X}")
             while did <= stop :
-                modules = test_one(can0=can0, can1=can1, did=did)
+                modules = test_one(can0=can0, can1=can1, did_id=did)
                 if modules.get('length') >= 0:
                     did_map.append(modules)
                     big_did_map.append(modules)
@@ -149,7 +121,7 @@ def main() -> None:
                 outfile.write(json_map)
 
         big_json_map = json.dumps(big_did_map, indent = 4, sort_keys=False)
-        filename = f"big_did_map_0000_FFFF.json"
+        filename = f"bcm_did_map_0000_FFFF.json"
         with open(filename, "w") as outfile:
             outfile.write(big_json_map)
 

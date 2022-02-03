@@ -14,7 +14,7 @@ class CodecNull(Codec):
     def decode(self, payload):
         payload_list = list(payload)
         decoded_str = str(payload_list) + f" {[hex(x) for x in payload_list]}"
-        return {'payload': payload, 'states': {}, 'decoded': decoded_str}
+        return {'payload': payload, 'states': [], 'decoded': decoded_str}
 
     def __len__(self):
         raise Codec.ReadAllRemainingData

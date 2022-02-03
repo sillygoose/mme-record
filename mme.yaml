@@ -17,7 +17,7 @@ mme:
         # p2_star_timeout:                  max time in seconds to wait for a response (positive, negative, or NRC0x78) after the reception of
         #                                   a negative response with code 0x78 (requestCorrectlyReceived-ResponsePending) (default: 1.0)
         dest_path:                          'record-files'
-        dest_file:                          'ac_charge_20220127-1'
+        dest_file:                          'test-1'
         file_writes:                        500
         did_read:                           1
         born_on:                            1623167753
@@ -35,7 +35,7 @@ mme:
         # rx_flowcontrol_timeout:           triggers a timeout if a flow control is not received (default: 1.0)
         speedup:                            true
         source_path:                        'playback-files'
-        source_file:                        'ac_charge_20220127-1' # 'ac_charge_20220124'
+        source_file:                        'ac_charge' # 'ac_charge_20220127-1' # 'ac_charge_20220124'
         rx_consecutive_frame_timeout:       1.0
         rx_flowcontrol_timeout:             1.0
 
@@ -52,4 +52,4 @@ mme:
         url:                                !secret influxdb2_url
         bucket:                             'ev-test' # !secret influxdb2_bucket
         token:                              !secret influxdb2_token
-        block_size:                         500
+        block_size:                         200

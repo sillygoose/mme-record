@@ -29,6 +29,8 @@ class StateManager(StateTransistion):
 
     _state_file_lookup = {
         VehicleState.Unknown:           {'state_file': 'json/state/unknown.json',           'state_keys': [Hash.InferredKey]},
+#        VehicleState.Unknown:           {'state_file': 'json/other/bcm_coverage.json',           'state_keys': [Hash.InferredKey]},
+
         VehicleState.Off:               {'state_file': 'json/state/off.json',               'state_keys': [Hash.InferredKey, Hash.ChargePlugConnected]},
         VehicleState.Accessory:         {'state_file': 'json/state/accessory.json',         'state_keys': [Hash.InferredKey, Hash.ChargePlugConnected]},
         VehicleState.On:                {'state_file': 'json/state/on.json',                'state_keys': [Hash.InferredKey, Hash.ChargePlugConnected, Hash.GearCommanded]},
@@ -190,11 +192,11 @@ class StateManager(StateTransistion):
                     states = decoded_payload.get('states')
                     for state in states:
                         for state_name, state_value in state.items():
-                            hash = get_hash(f"{arbitration_id:04X}:{did_id:04X}:{state_name}")
-                            set_state(hash, state_value)
-                            state_data.append({'arbitration_id': arbitration_id, 'did_id': did_id, 'name': state_name, 'value': state_value})
-                            if synthetics := update_synthetics(hash):
-                                state_data += synthetics
+                            if hash := get_hash(f"{arbitration_id:04X}:{did_id:04X}:{state_name}"):
+                                set_state(hash, state_value)
+                                state_data.append({'arbitration_id': arbitration_id, 'did_id': did_id, 'name': state_name, 'value': state_value})
+                                if synthetics := update_synthetics(hash):
+                                    state_data += synthetics
                 return state_data
 
     def _update_state_machine(self) -> None:

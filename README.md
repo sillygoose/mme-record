@@ -9,6 +9,7 @@
 - [Running](#running)
 - [State files](#state_files)
 - [Debugging](#debugging)
+- [Utilities](#utilities)
 - [Thanks](#thanks)
 
 <a id='overview'></a>
@@ -16,7 +17,7 @@
 ## Overview
 The **Record** and **Playback** utilities are simple CAN bus module record and playback tools designed to test CAN bus code application code without having to connect to a physical vehicle.  **Playback** accepts input files from the **Record** and appears as a Mustang Mach-E or other vehicle responding to ISOTP-compliant Read DID requests.  **Record** is implemented on the Unified Diagnostic Services (UDS) protocol and queries the vehicle with Read DID requests (service 0x22) and outputs decoded messages and writes the state changes to output files that can be played back in the **Playback** utility.
 
-**Record** is a state machine, dynamically changing the DIDs read from the vehicle depending on if it is idle, on a trip, or charging.
+**Record** is a state machine, dynamically changing the DIDs read from the vehicle depending on if it is idle, on a trip, or charging.  Each state has an associated JSON state file that determines how often DIDs are sampled for chagnes.
 
 Both utilities can be configured via a YAML configuration file.  Definitions for the vehicle CAN bus modules and supported DIDs use JSON input files in most cases, some Python data structures might exist as everything is a work in progress.
 
@@ -28,8 +29,9 @@ Both utilities can be configured via a YAML configuration file.  Definitions for
 - YAML secrets supported
 - switched to venv for Python3.10 support
 - catch SIGTERM to write out cached data before exiting
-- new command options for setting the YAML and log files
+- new command line options for setting the YAML and log files
 - service files for running Record and/or Playback as a Linux service
+- Extract utility
 
 <a id='requirements'></a>
 ## Requirements
@@ -50,21 +52,24 @@ Both utilities can be configured via a YAML configuration file.  Definitions for
 
   Other hardware may work but your mileage will vary.
 
-
 <a id='installation'></a>
 ## Installation
-1.  Clone the repository and install the Python packages:
-
+1.  Clone the repository and install the required Python packages:
 ```
     git clone https://github.com/sillygoose/mme-record.git
+```
+2.  Enable venv in the project:
+```
+    cd mme-record
+    python3.10 -m venv .venv
+    source .venv/bin/activate
+```
+3.  Install the required Python packages:
+```
     cd mme-record
     pip3 install -e .
 ```
-
-2.  Enable venv in the project:
-
-
-3.  Configure the YAML file
+4.  Configure the YAML file
 The included file `mme.yaml` is a sample configuration file that can be used with both **Record** and **Playback**.
 
 The YAML configuration search starts in the current directory and looks in each parent directory up to your home directory for it (or just the current directory if you are not running in a user profile).  Edit `mme.yaml` to set the desired **Playback** and **Record** options as well as InfluxDB options if you wish to have **Record** save the data in an InfluxDB2 database.
@@ -80,33 +85,25 @@ You can now use a secrets file to store sensitive information like the token use
 #
 <a id='running'></a>
 ## Running **Record**
-I use a Tailscale client on Raspberry Pi and on the InfluxDB host so you have a static IP.  Tailscale is an excellent WireGuard implementation and allows me to open an SSH session or write to the database server on my home network no matter where the car is.  At home I plug into a wired network or use WiFi, on the road I connect to a cell phone serving as a hotspot and nothing would work without the services provided by Tailscale.
+I use a Tailscale client on Raspberry Pi and on the InfluxDB host so you always have a static IP.  Tailscale is an excellent WireGuard implementation and allows me to open an SSH session or write to the database server on my home network no matter where the car is.  At home I plug into a wired network or use WiFi, on the road I connect to a cell phone serving as a hotspot and nothing would work without the services provided by Tailscale.
 
 You can run **Record** from the command line via SSH, using a VS Code remote connection, or at startup using a script.  The project has the script `run_record.sh` that can be used for this purpose to allow data collection without an SSH or other connection.
 
 I run Ubuntu 20.04 LTS on my Raspberry Pi so the following instructions are tailored for this OS:
 
-Start by creating a system service file with your editor:
+Start by editing the **Record** system service file with your editor:
 
 ```
-% sudo nano /etc/systemd/system/mme-record.service
+% cd ~/mme-record
+% nano /etc/systemd/system/mme-record.service
 ```
-and add the following text with edits to the `ExecStart`, `User`, and `WorkingDirectory` entries to relect your system setup:
+
+You need to fix the path names to reflect the user profile where the MME-Record project is located.  Reperat this for the playback service file if you will be running Playback unattended.
+
+Next copy the record and playback system service files:
 ```
-[Unit]
-Description=MME Record
-After=multi-user.target
-After=network.service
-
-[Service]
-Type=simple
-User=sillygoose
-WorkingDirectory=/home/sillygoose/mme-record
-ExecStart=/home/sillygoose/mme-record/run_record.sh
-Restart=on-failure
-
-[Install]
-WantedBy=multi-user.target
+% sudo cd ~/mme-record
+% sudo cp *.service /etc/systemd/system
 ```
 Enable and start the service with
 ```
@@ -158,12 +155,42 @@ JSON state files are used to select the DIDs read in each state, you can control
 
 DIDs involved in state transitions should be read frequently to catch state transitions.  Other states can be read as needed, slow changing states should be read less often than rapidly changing data so nt to consume too much CAN bus bandwidth.
 
+Here is a sample state file entry with an explanation of the fields it might contain:
+```
+    {
+        "module": "BECM",
+        "arbitration_id": 2020,
+        "arbitration_id_hex": "07E4",
+        "enable": true,
+        "period": 5,
+        "offset": 2,
+        "dids": [
+            {
+                "did_name": "ChargingStatus",
+                "did_id": 18509,
+                "did_id_hex": "484D",
+                "codec_id": 18509
+            }
+        ]
+    }
+```
+    module                required
+    arbitration_id        required
+    arbitration_id_hex    optional, easier to recognize than the hexidecimal version
+    enable                enables this entry, default setting is true
+    period                how often this entry will be scheduled (every 5 seconds in this example)
+    offset                when this entry will start, default is 0 (this example will start after two seconds has passed)
+
 #
 <a id='debugging'></a>
 ## Debugging
-Create the environment variable MME_SIM_DEBUG and set to 1 or True to enable debug output.
+I run both **Playback** and **Record** in VS Code on a Raspberry Pi with CAN0 bus tied to the CAN1 bus in a loopback mode, makes for easy testing of **Record** changes playing back recorded files from a trip or charging session without requiring the vehicle.
 
-I run both **Playback** and **Record** in VS Code on a Raspberry Pi with CAN0 bus tied to the CAN1 bus in a loopback mode, makes for easy testing of **Record** changes playing back recorded files from a trip or charging session.
+#
+<a id='utilities'></a>
+## Utilities
+### Extract
+I found I needed the ability to sniff the CAN buses but this is not possible on the Mustang Mach-E as the Gateway module makes ure there is no traffic to sniff.  Extract is a work-around to this problem, you can use to extract some or all the DIDs in a module and run these in **Record** to look for state changes.  Just temporarily replace the `unknown.json` with the output file of Extract and exercise the vehicle to capture state changes.
 
 #
 <a id='thanks'></a>
