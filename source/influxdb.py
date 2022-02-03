@@ -7,12 +7,12 @@ import os
 import logging
 from time import time
 import datetime
-import json
 from typing import List
 
 from influxdb_client import InfluxDBClient, WritePrecision
-from influxdb_client.client.write_api import SYNCHRONOUS
+from influxdb_client.client.write_api import WriteOptions, SYNCHRONOUS
 from influxdb_client.rest import ApiException
+from urllib3 import Retry
 
 from config.configuration import Configuration
 
@@ -60,7 +60,7 @@ def influxdb_connect(influxdb_config: Configuration):
 
 def _connect():
     try:
-        InfluxDB._client = InfluxDBClient(url=InfluxDB._url, token=InfluxDB._token, org=InfluxDB._org, timeout=20000, enable_gzip=True)
+        InfluxDB._client = InfluxDBClient(url=InfluxDB._url, token=InfluxDB._token, org=InfluxDB._org, timeout=500, enable_gzip=True)
         if InfluxDB._client:
             InfluxDB._write_api = InfluxDB._client.write_api(write_options=SYNCHRONOUS)
             InfluxDB._query_api = InfluxDB._client.query_api()
