@@ -3,6 +3,7 @@
 log/
 source/playback-files/
 source/record-files/
+source/cached
 
 # Ignore any secrets files
 *secrets.yaml
