@@ -58,10 +58,9 @@ def influxdb_connect(influxdb_config: Configuration):
             write_lp_points([])
 
 
-
 def _connect():
     try:
-        InfluxDB._client = InfluxDBClient(url=InfluxDB._url, token=InfluxDB._token, org=InfluxDB._org)
+        InfluxDB._client = InfluxDBClient(url=InfluxDB._url, token=InfluxDB._token, org=InfluxDB._org, timeout=20000, enable_gzip=True)
         if InfluxDB._client:
             InfluxDB._write_api = InfluxDB._client.write_api(write_options=SYNCHRONOUS)
             InfluxDB._query_api = InfluxDB._client.query_api()
