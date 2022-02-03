@@ -81,14 +81,14 @@ def influxdb_disconnect():
     if InfluxDB._write_api:
         try:
             InfluxDB._write_api.close()
-        except (ApiException, NewConnectionError, ConnectTimeoutError):
+        except ApiException:
             pass
         InfluxDB._write_api = None
     if InfluxDB._client:
         try:
             InfluxDB._client.close()
             _LOGGER.info(f"Disconnected from the InfluxDB database at {InfluxDB._url}")
-        except (ApiException, NewConnectionError, ConnectTimeoutError):
+        except ApiException:
             pass
         InfluxDB._client = None
 
