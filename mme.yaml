@@ -52,4 +52,4 @@ mme:
         url:                                !secret influxdb2_url
         bucket:                             'ev-test' # !secret influxdb2_bucket
         token:                              !secret influxdb2_token
-        block_size:                         10
+        block_size:                         200
