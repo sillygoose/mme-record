@@ -31,23 +31,23 @@ class StateTransistion:
             if inferred_key := get_InferredKey(key, 'unknown'):
                 if inferred_key == InferredKey.KeyOut:
                     if engine_start_remote := get_EngineStartRemote(Hash.EngineStartRemote, 'unknown'):
-                        new_state = VehicleState.Preconditioning if engine_start_remote == EngineStartRemote.Yes else VehicleState.Off
+                        new_state = VehicleState.Preconditioning if engine_start_remote == EngineStartRemote.Yes else VehicleState.Idle
                 elif inferred_key == InferredKey.KeyIn:
                     if engine_start_disable := get_EngineStartDisable(Hash.EngineStartDisable, 'unknown'):
                         new_state = VehicleState.On if engine_start_disable == EngineStartDisable.No else VehicleState.Accessory
         return new_state
 
-    def off(self) -> VehicleState:
+    def idle(self) -> VehicleState:
         new_state = VehicleState.Unchanged
-        for key in self.state_keys(VehicleState.Off):
-            if inferred_key := get_InferredKey(key, 'off'):
+        for key in self.state_keys(VehicleState.Idle):
+            if inferred_key := get_InferredKey(key, 'idle'):
                 if inferred_key == InferredKey.KeyOut:
-                    if engine_start_remote := get_EngineStartRemote(Hash.EngineStartRemote, 'off'):
-                        new_state = VehicleState.Preconditioning if engine_start_remote == EngineStartRemote.Yes else VehicleState.Off
+                    if engine_start_remote := get_EngineStartRemote(Hash.EngineStartRemote, 'idle'):
+                        new_state = VehicleState.Preconditioning if engine_start_remote == EngineStartRemote.Yes else VehicleState.Idle
                 elif inferred_key == InferredKey.KeyIn:
-                    if engine_start_normal := get_EngineStartNormal(Hash.EngineStartNormal, 'off'):
+                    if engine_start_normal := get_EngineStartNormal(Hash.EngineStartNormal, 'idle'):
                         new_state = VehicleState.On if engine_start_normal == EngineStartNormal.Yes else VehicleState.Accessory
-            elif charge_plug_connected := get_ChargePlugConnected(key, 'off'):
+            elif charge_plug_connected := get_ChargePlugConnected(key, 'idle'):
                 if charge_plug_connected == ChargePlugConnected.Yes:
                     new_state = VehicleState.PluggedIn
         return new_state
@@ -58,7 +58,7 @@ class StateTransistion:
             if inferred_key := get_InferredKey(key, 'accessory'):
                 if inferred_key == InferredKey.KeyOut:
                     if engine_start_remote := get_EngineStartRemote(Hash.EngineStartRemote, 'accessory'):
-                        new_state = VehicleState.Preconditioning if engine_start_remote == EngineStartRemote.Yes else VehicleState.Off
+                        new_state = VehicleState.Preconditioning if engine_start_remote == EngineStartRemote.Yes else VehicleState.Idle
                 elif inferred_key == InferredKey.KeyIn:
                     if engine_start_normal := get_EngineStartNormal(Hash.EngineStartNormal, 'accessory'):
                         new_state = VehicleState.On if engine_start_normal == EngineStartNormal.Yes else VehicleState.Accessory
@@ -73,7 +73,7 @@ class StateTransistion:
             if inferred_key := get_InferredKey(key, 'on'):
                 if inferred_key == InferredKey.KeyOut:
                     if engine_start_remote := get_EngineStartRemote(Hash.EngineStartRemote, 'on'):
-                        new_state = VehicleState.Preconditioning if engine_start_remote == EngineStartRemote.Yes else VehicleState.Off
+                        new_state = VehicleState.Preconditioning if engine_start_remote == EngineStartRemote.Yes else VehicleState.Idle
                 elif inferred_key == InferredKey.KeyIn:
                     if engine_start_normal := get_EngineStartNormal(Hash.EngineStartNormal, 'on'):
                         new_state = VehicleState.On if engine_start_normal == EngineStartNormal.Yes else VehicleState.Accessory
@@ -93,7 +93,7 @@ class StateTransistion:
                     if inferred_key := get_InferredKey(Hash.InferredKey, 'trip'):
                         if inferred_key == InferredKey.KeyOut:
                             if engine_start_remote := get_EngineStartRemote(Hash.EngineStartRemote, 'trip'):
-                                new_state = VehicleState.Preconditioning if engine_start_remote == EngineStartRemote.Yes else VehicleState.Off
+                                new_state = VehicleState.Preconditioning if engine_start_remote == EngineStartRemote.Yes else VehicleState.Idle
                         elif inferred_key == InferredKey.KeyIn:
                             if engine_start_normal := get_EngineStartNormal(Hash.EngineStartNormal, 'trip'):
                                 new_state = VehicleState.On if engine_start_normal == EngineStartNormal.Yes else VehicleState.Accessory
@@ -109,7 +109,7 @@ class StateTransistion:
                     ### fix this
                     if key_state := get_KeyState(Hash.KeyState, 'preconditioning'):
                         if key_state == KeyState.Sleeping or key_state == KeyState.Off:
-                            new_state = VehicleState.Off
+                            new_state = VehicleState.Idle
                         elif key_state == KeyState.On or key_state == KeyState.Cranking:
                             new_state = VehicleState.On
                 else:
@@ -127,7 +127,7 @@ class StateTransistion:
                     if inferred_key := get_InferredKey(Hash.InferredKey, 'plugged_in'):
                         if inferred_key == InferredKey.KeyOut:
                             if engine_start_remote := get_EngineStartRemote(Hash.EngineStartRemote, 'plugged_in'):
-                                new_state = VehicleState.Preconditioning if engine_start_remote == EngineStartRemote.Yes else VehicleState.Off
+                                new_state = VehicleState.Preconditioning if engine_start_remote == EngineStartRemote.Yes else VehicleState.Idle
                         elif inferred_key == InferredKey.KeyIn:
                             if engine_start_normal := get_EngineStartNormal(Hash.EngineStartNormal, 'plugged_in'):
                                 new_state = VehicleState.On if engine_start_normal == EngineStartNormal.Yes else VehicleState.Accessory
@@ -224,7 +224,7 @@ class StateTransistion:
                         elif inferred_key := get_InferredKey(Hash.InferredKey, 'charging_ended'):
                             if inferred_key == InferredKey.KeyOut:
                                 if engine_start_remote := get_EngineStartRemote(Hash.EngineStartRemote, 'charging_ended'):
-                                    new_state = VehicleState.Preconditioning if engine_start_remote == EngineStartRemote.Yes else VehicleState.Off
+                                    new_state = VehicleState.Preconditioning if engine_start_remote == EngineStartRemote.Yes else VehicleState.Idle
                             elif inferred_key == InferredKey.KeyIn:
                                 if engine_start_normal := get_EngineStartNormal(Hash.EngineStartNormal, 'charging_ended'):
                                     new_state = VehicleState.On if engine_start_normal == EngineStartNormal.Yes else VehicleState.Accessory
@@ -237,7 +237,7 @@ class StateTransistion:
                 if charging_status == ChargingStatus.NotReady or charging_status == ChargingStatus.Done:
                     if key_state := get_KeyState(Hash.KeyState):
                         if key_state == KeyState.Sleeping or key_state == KeyState.Off:
-                            new_state = VehicleState.Off
+                            new_state = VehicleState.Idle
                         elif key_state == KeyState.On or key_state == KeyState.Cranking:
                             VehicleState.On
                 else:

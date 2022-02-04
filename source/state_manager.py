@@ -29,9 +29,9 @@ class StateManager(StateTransistion):
 
     _state_file_lookup = {
         VehicleState.Unknown:           {'state_file': 'json/state/unknown.json',           'state_keys': [Hash.InferredKey]},
-#        VehicleState.Unknown:           {'state_file': 'json/other/bcm_coverage.json',           'state_keys': [Hash.InferredKey]},
+        #VehicleState.Unknown:           {'state_file': 'json/other/bcm_coverage.json',           'state_keys': [Hash.InferredKey]},
 
-        VehicleState.Off:               {'state_file': 'json/state/off.json',               'state_keys': [Hash.InferredKey, Hash.ChargePlugConnected]},
+        VehicleState.Idle:              {'state_file': 'json/state/idle.json',              'state_keys': [Hash.InferredKey, Hash.ChargePlugConnected]},
         VehicleState.Accessory:         {'state_file': 'json/state/accessory.json',         'state_keys': [Hash.InferredKey, Hash.ChargePlugConnected]},
         VehicleState.On:                {'state_file': 'json/state/on.json',                'state_keys': [Hash.InferredKey, Hash.ChargePlugConnected, Hash.GearCommanded]},
         VehicleState.PluggedIn:         {'state_file': 'json/state/pluggedin.json',         'state_keys': [Hash.ChargePlugConnected, Hash.ChargingStatus]},
@@ -54,7 +54,7 @@ class StateManager(StateTransistion):
         self._command_queue_lock = Lock()
         state_functions = {
             VehicleState.Unknown: self.unknown,
-            VehicleState.Off: self.off,
+            VehicleState.Idle: self.idle,
             VehicleState.Accessory: self.accessory,
             VehicleState.On: self.on,
             VehicleState.Trip: self.trip,

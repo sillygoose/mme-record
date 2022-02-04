@@ -10,13 +10,12 @@ import datetime
 from typing import List
 
 from influxdb_client import InfluxDBClient, WritePrecision
-from influxdb_client.client.write_api import WriteOptions, SYNCHRONOUS
+from influxdb_client.client.write_api import SYNCHRONOUS
 from influxdb_client.rest import ApiException
-from urllib3 import Retry
 
 from config.configuration import Configuration
 
-# from exceptions import FailedInitialization
+from exceptions import FailedInitialization
 from urllib3.exceptions import ReadTimeoutError, ConnectTimeoutError, NewConnectionError
 
 
@@ -52,8 +51,14 @@ def influxdb_connect(influxdb_config: Configuration):
         _connect_influxdb_client()
 
         if not os.path.exists(InfluxDB._backup_file):
-            with open(InfluxDB._backup_file, 'w') as _:
-                pass
+            path = os.path.dirname(InfluxDB._backup_file)
+            if not os.path.exists(path):
+                os.mkdir(path)
+            try:
+                with open(InfluxDB._backup_file, 'w') as _:
+                    pass
+            except FileNotFoundError:
+                raise FailedInitialization(f"Unable to create InfluxDB backup file {InfluxDB._backup_file}")
         else:
             write_lp_points([])
 
@@ -67,7 +72,7 @@ def _connect_influxdb_client():
             try:
                 InfluxDB._query_api.query(f'from(bucket: "{InfluxDB._bucket}") |> range(start: -1m)')
                 _LOGGER.info(f"Connected to the InfluxDB database at {InfluxDB._url}, bucket '{InfluxDB._bucket}'")
-            except (ApiException, NewConnectionError, ConnectTimeoutError):
+            except (ApiException, NewConnectionError, ConnectTimeoutError, ReadTimeoutError):
                 _LOGGER.error(f"Unable to access bucket '{InfluxDB._bucket}' at {InfluxDB._url}")
         else:
             _LOGGER.error(f"Failed to get InfluxDBClient from {InfluxDB._url} (check url, token, and/or organization)")
@@ -96,7 +101,6 @@ def influxdb_disconnect():
 def write_lp_points(lp_points: List) -> None:
     try:
         if len(lp_points) > 0:
-            _LOGGER.info(f"Attempting write of {len(lp_points)} points to {InfluxDB._url}")
             InfluxDB._write_api.write(bucket=InfluxDB._bucket, record=lp_points, write_precision=WritePrecision.S)
             _LOGGER.info(f"Wrote {len(lp_points)} points to {InfluxDB._url}")
         if os.path.getsize(InfluxDB._backup_file):

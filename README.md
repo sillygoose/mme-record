@@ -25,7 +25,7 @@ Both utilities can be configured via a YAML configuration file.  Definitions for
 
 <a id='whats-new'></a>
 ## What's new
-- InfluxDB support
+- InfluxDB support (now with backing cache if internet connection is lost)
 - YAML secrets supported
 - switched to venv for Python3.10 support
 - catch SIGTERM to write out cached data before exiting
@@ -190,7 +190,7 @@ I run both **Playback** and **Record** in VS Code on a Raspberry Pi with CAN0 bu
 <a id='utilities'></a>
 ## Utilities
 ### Extract
-I found I needed the ability to sniff the CAN buses but this is not possible on the Mustang Mach-E as the Gateway module makes ure there is no traffic to sniff.  Extract is a work-around to this problem, you can use to extract some or all the DIDs in a module and run these in **Record** to look for state changes.  Just temporarily replace the `unknown.json` with the output file of Extract and exercise the vehicle to capture state changes.
+I found I needed the ability to sniff the CAN buses but this is not possible on the Mustang Mach-E as the Gateway module makes sure there is no traffic to sniff.  **Extract** is a work-around to this problem, you can use this to extract some or all the DIDs in a module and run these in **Record** to look for state changes.  Just temporarily replace the `unknown.json` with the output file of Extract and exercise the vehicle to capture state changes.
 
 #
 <a id='thanks'></a>
