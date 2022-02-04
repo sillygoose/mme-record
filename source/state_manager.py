@@ -148,7 +148,7 @@ class StateManager(StateTransistion):
     def change_state(self, new_state: VehicleState) -> None:
         if self._state == new_state or new_state == VehicleState.Unchanged:
             return
-        _LOGGER.info(f"Vehicle state changed from '{self._state.name}' to '{new_state.name}'" if self._state else f"Vehicle state set to '{new_state.name}'")
+        _LOGGER.info(f"'{self._vehicle_name}' state changed from '{self._state.name}' to '{new_state.name}'" if self._state else f"'{self._vehicle_name}' state set to '{new_state.name}'")
 
         self._putback_enabled = False
         self._flush_queue()

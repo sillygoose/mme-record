@@ -29,6 +29,8 @@ class Hash(Enum):
     HvbCurrent              = '07E4:48F9:hvb_current'
     HvbPower                = 'FFFF:8000:hvb_power'
     HvbEnergy               = 'FFFF:8000:hvb_energy'
+    HvbEnergyLost           = 'FFFF:8000:hvb_energy_lost'
+    HvbEnergyGained         = 'FFFF:8000:hvb_energy_gained'
     HvbSoC                  = '07E4:4801:hvb_soc'
     HvbSoCD                 = '07E4:4845:hvb_socd'
     HvbEtE                  = '07E4:4848:hvb_ete'

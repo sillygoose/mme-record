@@ -507,9 +507,10 @@ class CodecHvbMaxChargeCurrent(Codec):
 
 class CodecLvbDcDcEnable(Codec):
     def decode(self, payload):
-        lvb_dcdc_enable = struct.unpack('>H', payload)[0] & 0x0001
+        lvb_dcdc = struct.unpack('>H', payload)[0]
+        lvb_dcdc_enable = bool(lvb_dcdc & 0x0100)
         states = [{'lvb_dcdc_enable': lvb_dcdc_enable}]
-        return {'payload': payload, 'states': states, 'decoded': f"LVB DC-DC enable is {lvb_dcdc_enable}"}
+        return {'payload': payload, 'states': states, 'decoded': f"DC-DC bit field ({lvb_dcdc:04X}): lvb_dcdc_enable={lvb_dcdc_enable}"}
 
     def __len__(self):
         return 2

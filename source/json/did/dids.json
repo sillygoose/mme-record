@@ -124,7 +124,7 @@
         "states": [
             {
                 "name": "key_state",
-                "value": 5
+                "value": -1
             }
         ]
     },
@@ -140,7 +140,7 @@
         "states": [
             {
                 "name": "inferred_key",
-                "value": 2
+                "value": -1
             }
         ]
     },
@@ -157,19 +157,19 @@
         "states": [
             {
                 "name": "engine_start_normal",
-                "value": 0
+                "value": -1
             },
             {
                 "name": "engine_start_disable",
-                "value": 0
+                "value": -1
             },
             {
                 "name": "engine_start_remote",
-                "value": 0
+                "value": -1
             },
             {
                 "name": "engine_start_extended",
-                "value": 0
+                "value": -1
             }
         ]
     },
@@ -185,7 +185,7 @@
         "states": [
             {
                 "name": "hvb_temp",
-                "value": 64
+                "value": -1
             }
         ]
     },
@@ -201,7 +201,7 @@
         "states": [
             {
                 "name": "hvb_soc",
-                "value": 31366
+                "value": -1
             }
         ]
     },
@@ -221,7 +221,7 @@
         "states": [
             {
                 "name": "hvb_voltage",
-                "value": 35517
+                "value": -1
             }
         ]
     },
@@ -237,7 +237,7 @@
         "states": [
             {
                 "name": "lvb_dcdc_lv_current",
-                "value": 27
+                "value": -1
             }
         ]
     },
@@ -253,7 +253,7 @@
         "states": [
             {
                 "name": "lvb_dcdc_hv_current",
-                "value": 58
+                "value": -1
             }
         ]
     },
@@ -271,7 +271,7 @@
         "states": [
             {
                 "name": "lvb_dcdc_enable",
-                "value": 390
+                "value": -1
             }
         ]
     },

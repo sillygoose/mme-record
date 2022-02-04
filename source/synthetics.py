@@ -36,12 +36,23 @@ def update_synthetics(hash: Hash) -> List[dict]:
                 _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: HVB power is {hvb_power:.0f} W (calculated)")
 
                 interval = (interval_end - interval_start) * 0.000000001
-                hvb_energy = get_state_value(Hash.HvbEnergy, 0.0)
-                hvb_energy += (hvb_power_interval_start * interval) / 3600
+                delta_hvb_energy = (hvb_power_interval_start * interval) / 3600
+
+                hvb_energy = get_state_value(Hash.HvbEnergy, 0.0) + delta_hvb_energy
                 set_state(Hash.HvbEnergy, hvb_energy)
                 arbitration_id, did_id, synthetic_name = hash_fields(Hash.HvbEnergy)
                 synthetics.append({'arbitration_id': arbitration_id, 'did_id': did_id, 'name': synthetic_name, 'value': hvb_energy})
                 _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: HVB energy is {hvb_energy:.0f} Wh (calculated)")
+
+                if delta_hvb_energy < 0:
+                    hvb_energy_gained = get_state_value(Hash.HvbEnergyGained, 0.0)
+                    set_state(Hash.HvbEnergyLost, hvb_energy_gained)
+                    _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: HVB energy gained is {hvb_energy_gained:.0f} Wh (calculated)")
+                else:
+                    hvb_energy_lost = get_state_value(Hash.HvbEnergyLost, 0.0)
+                    set_state(Hash.HvbEnergyLost, hvb_energy_lost)
+                    _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: HVB energy gained is {hvb_energy_lost:.0f} Wh (calculated)")
+
             elif synthetic_hash == Hash.LvbPower:
                 lvb_power_interval_start, interval_start = get_state(Hash.LvbPower, 0.0)
 
@@ -58,6 +69,7 @@ def update_synthetics(hash: Hash) -> List[dict]:
                 arbitration_id, did_id, synthetic_name = hash_fields(Hash.LvbEnergy)
                 synthetics.append({'arbitration_id': arbitration_id, 'did_id': did_id, 'name': synthetic_name, 'value': lvb_energy})
                 _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: LVB energy is {lvb_energy:.0f} Wh (calculated)")
+
             elif synthetic_hash == Hash.ChargerInputPower:
                 charger_input_power_interval_start, interval_start = get_state(Hash.ChargerInputPower, 0.0)
 
@@ -75,6 +87,7 @@ def update_synthetics(hash: Hash) -> List[dict]:
                 arbitration_id, did_id, synthetic_name = hash_fields(Hash.ChargerInputEnergy)
                 synthetics.append({'arbitration_id': arbitration_id, 'did_id': did_id, 'name': synthetic_name, 'value': charger_input_energy})
                 _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: AC charger input energy is {charger_input_energy:.0f} Wh (calculated)")
+
             elif synthetic_hash == Hash.ChargerOutputPower:
                 charger_output_power_interval_start, interval_start = get_state(Hash.ChargerOutputPower, 0.0)
 
