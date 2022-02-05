@@ -1,0 +1,56 @@
+# YAML configuraton file for the Mustang Mach-E CANbus Record/Playback utilities
+# This version is used by the Record/Playback utilities runing as a system service
+mme:
+    vehicle:
+        name:   'Greta'
+        vin:    '12345678901234567'
+
+    record:
+        # You can control the record options here.
+        #
+        # dest_path:                        path where the output files are written
+        # dest_file:                        filename for the output file series
+        # file_writes:                      number of records collected before writing an output file, set to 0 to disable file writes (default: 200)
+        # did_read:                         specify the number of DID per request (default is 1)
+        # born_on:                          timestamp added to DID 0xDD00 to get current GMT time (not used at this time)
+        # request_timeout:                  max time in seconds to wait for a response of any kind, positive or negative, after sending a request (default: 1.0)
+        # p2_timeout:                       max time in seconds to wait for a first response (positive, negative, or NRC 0x78) (default: 1.0)
+        # p2_star_timeout:                  max time in seconds to wait for a response (positive, negative, or NRC0x78) after the reception of
+        #                                   a negative response with code 0x78 (requestCorrectlyReceived-ResponsePending) (default: 1.0)
+        dest_path:                          'record-files'
+        dest_file:                          'pluggedin_20220204'
+        file_writes:                        500
+        did_read:                           1
+        born_on:                            1623167753
+        request_timeout:                    1.0
+        p2_timeout:                         1.0
+        p2_star_timeout:                    1.0
+
+    playback:
+        # You can control the playback options here:
+        #
+        # speedup:                          speed up playback by compressing dead time (default: true)
+        # source_path:                      source path to find the playback files
+        # source_file:                      source file name for the playback files
+        # rx_consecutive_frame_timeout:     triggers a timeout if a consecutive frame is not received (default: 1.0)
+        # rx_flowcontrol_timeout:           triggers a timeout if a flow control is not received (default: 1.0)
+        speedup:                            false
+        source_path:                        'playback-files'
+        source_file:                        'ac_charge_20220125'
+        rx_consecutive_frame_timeout:       1.0
+        rx_flowcontrol_timeout:             1.0
+
+    influxdb2:
+        # InfluxDB configuration options:
+        #   enable                          set to True to enable InfluxDB output (required)
+        #   bucket                          set to the InfluxDB bucket (required)
+        #   url                             set to the InfluxDB server URL and port (required)
+        #   org                             set to the organization (required)
+        #   token                           set to a valid token (required)
+        #   block_size                      set to desired write block size (defaults to 500 records per write)
+        enable:                             true
+        org:                                !secret influxdb2_org
+        url:                                !secret influxdb2_url
+        token:                              !secret influxdb2_token
+        bucket:                             'ev-test'
+        block_size:                         100

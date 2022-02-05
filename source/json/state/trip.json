@@ -121,7 +121,7 @@
         "arbitration_id": 2000,
         "arbitration_id_hex": "07D0",
         "enable": true,
-        "period": 10,
+        "period": 5,
         "dids": [
             {
                 "did_name": "GPS",
@@ -151,7 +151,7 @@
         "arbitration_id": 1830,
         "arbitration_id_hex": "0726",
         "enable": true,
-        "period": 30,
+        "period": 5,
         "dids": [
             {
                 "did_name": "LvbVoltage",
