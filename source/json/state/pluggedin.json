@@ -57,11 +57,26 @@
         ]
     },
     {
+        "module": "DCDC",
+        "arbitration_id": 1862,
+        "arbitration_id_hex": "0746",
+        "enable": true,
+        "period": 5,
+        "dids": [
+            {
+                "did_name": "LvbDcDcEnable",
+                "did_id": 18493,
+                "did_id_hex": "483D",
+                "codec_id": 18493
+            }
+        ]
+    },
+    {
         "module": "BCM",
         "arbitration_id": 1830,
         "arbitration_id_hex": "0726",
         "enable": true,
-        "period": 30,
+        "period": 10,
         "dids": [
             {
                 "did_name": "LvbVoltage",
@@ -80,6 +95,21 @@
                 "did_id": 16424,
                 "did_id_hex": "4028",
                 "codec_id": 16424
+            }
+        ]
+    },
+    {
+        "module": "BECM",
+        "arbitration_id": 2020,
+        "arbitration_id_hex": "07E4",
+        "enable": true,
+        "period": 30,
+        "dids": [
+            {
+                "did_name": "HvbEtE",
+                "did_id": 18504,
+                "did_id_hex": "4848",
+                "codec_id": 18504
             }
         ]
     }

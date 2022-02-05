@@ -17,7 +17,7 @@ mme:
         # p2_star_timeout:                  max time in seconds to wait for a response (positive, negative, or NRC0x78) after the reception of
         #                                   a negative response with code 0x78 (requestCorrectlyReceived-ResponsePending) (default: 1.0)
         dest_path:                          'record-files'
-        dest_file:                          'idle_20220204'
+        dest_file:                          'pluggedin_20220204'
         file_writes:                        500
         did_read:                           1
         born_on:                            1623167753
@@ -46,7 +46,7 @@ mme:
         #   url                             set to the InfluxDB server URL and port (required)
         #   org                             set to the organization (required)
         #   token                           set to a valid token (required)
-        #   block_size                      set to desire write block size (defaults to 500 records per write)
+        #   block_size                      set to desired write block size (defaults to 500 records per write)
         enable:                             true
         org:                                'Parker Lane'
         url:                                'http://100.120.3.79:8086'

@@ -45,13 +45,13 @@ def update_synthetics(hash: Hash) -> List[dict]:
                 _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: HVB energy is {hvb_energy:.0f} Wh (calculated)")
 
                 if delta_hvb_energy < 0:
-                    hvb_energy_gained = get_state_value(Hash.HvbEnergyGained, 0.0)
-                    set_state(Hash.HvbEnergyLost, hvb_energy_gained)
+                    hvb_energy_gained = get_state_value(Hash.HvbEnergyGained, 0.0) + delta_hvb_energy
+                    set_state(Hash.HvbEnergyGained, hvb_energy_gained)
                     _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: HVB energy gained is {hvb_energy_gained:.0f} Wh (calculated)")
                 else:
-                    hvb_energy_lost = get_state_value(Hash.HvbEnergyLost, 0.0)
+                    hvb_energy_lost = get_state_value(Hash.HvbEnergyLost, 0.0) + delta_hvb_energy
                     set_state(Hash.HvbEnergyLost, hvb_energy_lost)
-                    _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: HVB energy gained is {hvb_energy_lost:.0f} Wh (calculated)")
+                    _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: HVB energy lost is {hvb_energy_lost:.0f} Wh (calculated)")
 
             elif synthetic_hash == Hash.LvbPower:
                 lvb_power_interval_start, interval_start = get_state(Hash.LvbPower, 0.0)

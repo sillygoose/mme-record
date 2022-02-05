@@ -46,7 +46,7 @@ mme:
         #   url                             set to the InfluxDB server URL and port (required)
         #   org                             set to the organization (required)
         #   token                           set to a valid token (required)
-        #   block_size                      set to desire write block size (defaults to 500 records per write)
+        #   block_size                      set to desired write block size (defaults to 500 records per write)
         enable:                             true
         org:                                !secret influxdb2_org
         url:                                !secret influxdb2_url

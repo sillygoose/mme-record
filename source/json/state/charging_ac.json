@@ -69,6 +69,33 @@
         ]
     },
     {
+        "module": "BCM",
+        "arbitration_id": 1830,
+        "arbitration_id_hex": "0726",
+        "enable": true,
+        "period": 10,
+        "dids": [
+            {
+                "did_name": "LvbVoltage",
+                "did_id": 16426,
+                "did_id_hex": "402A",
+                "codec_id": 16426
+            },
+            {
+                "did_name": "LvbCurrent",
+                "did_id": 16427,
+                "did_id_hex": "402B",
+                "codec_id": 16427
+            },
+            {
+                "did_name": "LvbSoc",
+                "did_id": 16424,
+                "did_id_hex": "4028",
+                "codec_id": 16424
+            }
+        ]
+    },
+    {
         "module": "BECM",
         "arbitration_id": 2020,
         "arbitration_id_hex": "07E4",
