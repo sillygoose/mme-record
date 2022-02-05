@@ -132,15 +132,31 @@ class RecordStateManager(StateManager):
                 for response_record in responses:
                     arbitration_id = response_record.get('arbitration_id')
                     response = response_record.get('response')
-                    if response.positive == False:
+                    if response.positive == False and response.invalid_reason == 'request timed out':
                         did_list = response_record.get('did_list')
-                        state_details = {'type': 'NegativeResponse', 'time': round(time(), 6), 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_list': did_list}
-                        self.update_vehicle_state(state_details)
-                        #_LOGGER.debug(f"The request from {arbitration_id:04X} returned the following response: {response.invalid_reason}")
+                        current_time = time()
+                        for did_id in did_list:
+                            key = f"{arbitration_id:04X}:{did_id:04X}"
+                            states = self._did_manager.did_states(did_id)
+                            _, packing_length = self._did_manager.did_packing(did_id)
+                            for state in states:
+                                default_value = state.get('value')
+                                payload = []
+                                for _ in range(packing_length):
+                                    payload.append(default_value)
+                                state_details = {'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did_id, 'did_id_hex': f"{did_id:04X}", 'payload': payload}
+                                if self._did_state_cache.get(key, None) is None or self._did_state_cache.get(key).get('payload', None) != payload:
+                                    self._did_state_cache[key] = {'time': round(current_time, 6), 'payload': payload}
+                                    self._file_manager.write_record(state_details)
+                                    if codec := self._codec_manager.codec(did_id):
+                                        decoded = codec.decode(None, bytearray(payload))
+                                        _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: {decoded.get('decoded')} (default value)")
+                                    influxdb_state_data = self.update_vehicle_state(state_details)
+                                    influxdb_write_record(influxdb_state_data)
                         continue
 
                     for did_id in response.service_data.values:
-                        key = f"{arbitration_id:04X} {did_id:04X}"
+                        key = f"{arbitration_id:04X}:{did_id:04X}"
                         payload = response.service_data.values[did_id].get('payload')
                         current_time = time()
                         state_details = {'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did_id, 'did_id_hex': f"{did_id:04X}", 'payload': list(payload)}

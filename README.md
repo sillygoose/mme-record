@@ -32,6 +32,7 @@ Both utilities can be configured via a YAML configuration file.  Definitions for
 - new command line options for setting the YAML and log files
 - service files for running Record and/or Playback as a Linux service
 - Extract utility
+- added default value for read requests that timeout or error
 
 <a id='requirements'></a>
 ## Requirements

@@ -1,7 +1,7 @@
 import logging
 import json
 
-from typing import List
+from typing import List, Tuple
 
 from exceptions import RuntimeError
 
@@ -22,6 +22,17 @@ class DIDManager:
     def did_name(self, did_id: int) -> str:
         did_record = self._dids_by_id.get(did_id, None)
         return None if did_record is None else did_record.get('did_name')
+
+    def did_packing(self, did_id: int) -> Tuple[str, int]:
+        _packing_lengths = {'B': 1, 'b': 1, 'H': 2, 'h': 2, 't': 3, 'T': 3, 'L': 4, 'l': 4}
+        did_record = self._dids_by_id.get(did_id, None)
+        packing = did_record.get('packing', None)
+        packing_length = _packing_lengths.get(packing, 0)
+        return (packing, packing_length)
+
+    def did_states(self, did_id: int) -> List[dict]:
+        did_record = self._dids_by_id.get(did_id, None)
+        return None if did_record is None else did_record.get('states')
 
     def _dids_organized_by_name(self, dids: List[dict]) -> dict:
         dids_by_names = {}

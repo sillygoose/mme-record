@@ -178,12 +178,12 @@ class StateTransistion:
                         charger_input_energy = get_state_value(Hash.ChargerInputEnergy, 0.0)
                         set_state(Hash.ChargerInputEnergy, charger_input_energy)
                         self._charging_session[Hash.ChargerInputEnergy] = charger_input_energy
-                        _LOGGER.debug(f"Saved charger input energy initial value: {charger_input_energy}")
+                        _LOGGER.debug(f"Saved charger input energy initial value: {charger_input_energy:.0f}")
                     if self._charging_session.get(Hash.ChargerOutputEnergy) is None:
                         charger_output_energy = get_state_value(Hash.ChargerOutputEnergy, 0.0)
                         set_state(Hash.ChargerOutputEnergy, charger_output_energy)
                         self._charging_session[Hash.ChargerOutputEnergy] = charger_output_energy
-                        _LOGGER.debug(f"Saved charger output energy initial value: {charger_output_energy}")
+                        _LOGGER.debug(f"Saved charger output energy initial value: {charger_output_energy:.0f}")
 
                     if charging_status == ChargingStatus.Charging:
                         if evse_type := get_EvseType(Hash.EvseType, 'charging_starting'):
