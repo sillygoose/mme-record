@@ -22,6 +22,12 @@
         "period": 10,
         "dids": [
             {
+                "did_name": "HvbCCR",
+                "did_id": 18498,
+                "did_id_hex": "4842",
+                "codec_id": 18498
+            },
+            {
                 "did_name": "HvbVoltage",
                 "did_id": 18445,
                 "did_id_hex": "480D",
@@ -102,6 +108,12 @@
         "enable": true,
         "period": 10,
         "dids": [
+            {
+                "did_name": "HvbMaxCC",
+                "did_id": 18620,
+                "did_id_hex": "48BC",
+                "codec_id": 18620
+            },
             {
                 "did_name": "HvbSoc",
                 "did_id": 18433,

@@ -216,9 +216,9 @@ class CodecHvbSocD(Codec):
 
 class CodecHvbEtE(Codec):
     def decode(self, payload):
-        hvb_ete = struct.unpack('>H', payload)[0] * 0.002
+        hvb_ete = struct.unpack('>H', payload)[0] * 2
         states = [{'hvb_ete': hvb_ete}]
-        return {'payload': payload, 'states': states, 'decoded': f"HVB energy to empty is {hvb_ete:.3f} kWh"}
+        return {'payload': payload, 'states': states, 'decoded': f"HVB energy to empty is {hvb_ete:.0f} Wh"}
 
     def __len__(self):
         return 2

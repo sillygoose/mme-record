@@ -123,6 +123,7 @@ def write_lp_points(lp_points: List) -> None:
 def influxdb_charging_session(session: dict, vehicle: str) -> None:
     """
             charging_session = {
+                'type':             charger_type,
                 'time':             starting_time,
                 'duration':         duration_seconds,
                 'location':         {'latitude': latitude, 'longitude': longitude},
@@ -133,9 +134,11 @@ def influxdb_charging_session(session: dict, vehicle: str) -> None:
                 'kwh_added':        kwh_added,
                 'kwh_used':         kwh_used,
                 'efficiency':       charging_efficiency,
+                'max_power':        max_input_power,
             }
     """
     charging_session = []
+    charger_type = session.get('type')
     ts = session.get('time')
     duration = session.get('duration')
     end_ts = ts + duration
@@ -151,21 +154,22 @@ def influxdb_charging_session(session: dict, vehicle: str) -> None:
     kwh_added = session.get('kwh_added')
     kwh_used = session.get('kwh_used')
     efficiency = session.get('efficiency')
+    max_input_power = session.get('max_power')
     tag_value = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%dT%H:%M')
     charging_session.append(
         f"charging" \
-        f",vehicle={vehicle},session={tag_value} " \
+        f",vehicle={vehicle},session={tag_value},session={charger_type} " \
         f"odometer={odometer},latitude={latitude},longitude={longitude},duration={duration}," \
         f"soc_begin={starting_soc},soc_end={ending_soc},socd_begin={starting_socd},socd_end={ending_socd}," \
-        f"ete_begin={starting_ete},ete_end={ending_ete},kwh_used={kwh_used},efficiency={efficiency}," \
-        f"kwh_added={kwh_added} {ts}")
+        f"ete_begin={starting_ete},ete_end={ending_ete},max_power={max_input_power}," \
+        f"kwh_added={kwh_added},kwh_used={kwh_used},efficiency={efficiency} {ts}")
     charging_session.append(
         f"charging" \
-        f",vehicle={vehicle},session={tag_value} " \
+        f",vehicle={vehicle},session={tag_value},session={charger_type} " \
         f"odometer={odometer},latitude={latitude},longitude={longitude},duration={duration}," \
         f"soc_begin=0.0,soc_end=0.0,socd_begin=0.0,socd_end=0.0," \
-        f"ete_begin=0.0,ete_end=0.0,kwh_used=0.0,efficiency=0.0," \
-        f"kwh_added=0.0 {end_ts}")
+        f"ete_begin=0.0,ete_end=0.0,max_power=0.0," \
+        f"kwh_added=0.0,kwh_used=0.0,efficiency=0.0 {end_ts}")
     write_lp_points(charging_session)
 
 

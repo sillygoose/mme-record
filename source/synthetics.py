@@ -79,6 +79,10 @@ def update_synthetics(hash: Hash) -> List[dict]:
                 synthetics.append({'arbitration_id': arbitration_id, 'did_id': did_id, 'name': synthetic_name, 'value': charger_input_power})
                 _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: AC charger input power is {charger_input_power:.0f} W (calculated)")
 
+                if charger_input_power > get_state_value(Hash.ChargerInputPowerMax, 0.0):
+                    set_state(Hash.ChargerInputPowerMax, charger_input_power)
+                    _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: AC charger maximum input power is {charger_input_power:.0f} W (calculated)")
+
                 interval = (interval_end - interval_start) * 0.000000001
                 charger_input_energy_in = get_state_value(Hash.ChargerInputEnergy, 0.0)
                 charger_input_energy_delta = (charger_input_power_interval_start * interval) / 3600
@@ -96,6 +100,10 @@ def update_synthetics(hash: Hash) -> List[dict]:
                 arbitration_id, did_id, synthetic_name = hash_fields(Hash.ChargerOutputPower)
                 synthetics.append({'arbitration_id': arbitration_id, 'did_id': did_id, 'name': synthetic_name, 'value': charger_output_power})
                 _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: AC charger output power is {charger_output_power:.0f} W (calculated)")
+
+                if charger_output_power > get_state_value(Hash.ChargerOutputPowerMax, 0.0):
+                    set_state(Hash.ChargerOutputPowerMax, charger_output_power)
+                    _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: AC charger maximum output power is {charger_output_power:.0f} W (calculated)")
 
                 interval = (interval_end - interval_start) * 0.000000001
                 charger_output_energy = get_state_value(Hash.ChargerOutputEnergy, 0.0)

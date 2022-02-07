@@ -98,6 +98,7 @@ class StateManager(StateTransistion):
 
     def _outgoing_state(self, state: VehicleState) -> None:
         if state == VehicleState.Charging_Ended:
+            charger_type = self._charging_session.get('type')
             starting_time = self._charging_session.get('time')
             ending_time = int(time.time())
             duration_seconds = ending_time - starting_time
@@ -105,6 +106,7 @@ class StateManager(StateTransistion):
             starting_socd = self._charging_session.get(Hash.HvbSoCD)
             starting_ete = self._charging_session.get(Hash.HvbEtE)
             starting_charging_input_energy = self._charging_session.get(Hash.ChargerInputEnergy, 0.0)
+            starting_lvb_energy = self._charging_session.get(Hash.LvbEnergy)
             latitude = self._charging_session.get(Hash.GpsLatitude, 0.0)
             longitude = self._charging_session.get(Hash.GpsLongitude, 0.0)
             odometer = self._charging_session.get(Hash.LoresOdometer, 0)
@@ -113,13 +115,18 @@ class StateManager(StateTransistion):
             ending_socd = get_state_value(Hash.HvbSoCD)
             ending_ete = get_state_value(Hash.HvbEtE)
             ending_charging_input_energy = get_state_value(Hash.ChargerInputEnergy)
-            kwh_added = ending_ete - starting_ete
-            kwh_used = (ending_charging_input_energy - starting_charging_input_energy) * 0.001
-            charging_efficiency = kwh_added / kwh_used if kwh_used > 0 else 0.0
+            ending_lvb_energy = get_state_value(Hash.LvbEnergy)
+            delta_lvb_energy = ending_lvb_energy - starting_lvb_energy
+            delta_hvb_energy = ending_ete - starting_ete
+            wh_added = delta_hvb_energy + delta_lvb_energy
+            wh_used = ending_charging_input_energy - starting_charging_input_energy
+            charging_efficiency = wh_added / wh_used if wh_used > 0 else 0.0
+            max_input_power = get_state_value(Hash.ChargerInputPowerMax)
             session_datetime = datetime.datetime.fromtimestamp(starting_time).strftime('%Y-%m-%d %H:%M')
             hours, rem = divmod(duration_seconds, 3600)
             minutes, _ = divmod(rem, 60)
             charging_session = {
+                'type':             charger_type,
                 'time':             starting_time,
                 'duration':         duration_seconds,
                 'location':         {'latitude': latitude, 'longitude': longitude},
@@ -127,17 +134,19 @@ class StateManager(StateTransistion):
                 'soc':              {'starting': starting_soc, 'ending': ending_soc},
                 'socd':             {'starting': starting_socd, 'ending': ending_socd},
                 'ete':              {'starting': starting_ete, 'ending': ending_ete},
-                'kwh_added':        kwh_added,
-                'kwh_used':         kwh_used,
+                'kwh_added':        wh_added * 0.001,
+                'kwh_used':         wh_used * 0.001,
                 'efficiency':       charging_efficiency,
+                'max_power':        max_input_power,
             }
             _LOGGER.info(f"Charging session statistics:")
-            _LOGGER.info(f"   session started at {session_datetime} for {hours} hours, {minutes} minutes")
+            _LOGGER.info(f"   {charger_type} charging session started at {session_datetime} for {hours} hours, {minutes} minutes")
             _LOGGER.info(f"   location was ({latitude:.05f},{longitude:.05f}), odometer is {odometer} km")
             _LOGGER.info(f"   starting SoC was {starting_socd:.01f}%, ending SoC was {ending_socd:.01f}%")
-            _LOGGER.info(f"   starting EtE was {starting_ete:.03f} kWh, ending EtE was {ending_ete:.03f} kWh")
-            _LOGGER.info(f"   {kwh_added:.03f} kWh were added, requiring {kwh_used:.03f} kWh from the AC charger")
+            _LOGGER.info(f"   starting EtE was {starting_ete:.0f} Wh, ending EtE was {ending_ete:.0f} Wh, LVB delta energy was {delta_lvb_energy:.0f} Wh")
+            _LOGGER.info(f"   {wh_added:.0f} Wh were added, requiring {wh_used:.0f} Wh from the AC charger")
             _LOGGER.info(f"   overall efficiency is {(charging_efficiency*100):.01f}%")
+            _LOGGER.info(f"   maximum input power {max_input_power:.0f} W")
             influxdb_charging_session(session=charging_session, vehicle=self._vehicle_name)
             self._charging_session = None
 

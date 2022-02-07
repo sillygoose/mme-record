@@ -31,7 +31,7 @@
         "arbitration_id": 2018,
         "arbitration_id_hex": "07E2",
         "enable": true,
-        "period": 5,
+        "period": 1,
         "dids": [
             {
                 "did_name": "ChargerOutputCurrent",

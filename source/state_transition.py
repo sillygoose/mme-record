@@ -145,33 +145,39 @@ class StateTransistion:
             self._charging_session = {
                 'time': int(time.time()),
             }
+            set_state(Hash.ChargerInputPowerMax, 0)
+            set_state(Hash.ChargerOutputPowerMax, 0)
 
         new_state = VehicleState.Unchanged
         for key in self.state_keys(VehicleState.Charging_Starting):
             if charging_status := get_ChargingStatus(key, 'charging_starting'):
                 if charging_status == ChargingStatus.Ready or charging_status == ChargingStatus.Wait or charging_status == ChargingStatus.Charging:
+                    if self._charging_session.get(Hash.LvbEnergy) is None:
+                        if (lvb_energy := get_state_value(Hash.LvbEnergy, None)) is not None:
+                            self._charging_session[Hash.LvbEnergy] = lvb_energy
+                            _LOGGER.debug(f"Saved lvb_energy initial value: {lvb_energy:.0f}")
                     if self._charging_session.get(Hash.HvbEtE) is None:
-                        if hvb_ete := get_state_value(Hash.HvbEtE, None):
+                        if (hvb_ete := get_state_value(Hash.HvbEtE, None)) is not None:
                             self._charging_session[Hash.HvbEtE] = hvb_ete
-                            _LOGGER.debug(f"Saved hvb_ete initial value: {hvb_ete:.03f}")
+                            _LOGGER.debug(f"Saved hvb_ete initial value: {hvb_ete:.0f}")
                     if self._charging_session.get(Hash.HvbSoC) is None:
-                        if soc := get_state_value(Hash.HvbSoC, None):
+                        if (soc := get_state_value(Hash.HvbSoC, None)) is not None:
                             self._charging_session[Hash.HvbSoC] = soc
                             _LOGGER.debug(f"Saved soc initial value: {soc:.03f}")
                     if self._charging_session.get(Hash.HvbSoCD) is None:
-                        if soc_displayed := get_state_value(Hash.HvbSoCD, None):
+                        if (soc_displayed := get_state_value(Hash.HvbSoCD, None)) is not None:
                             self._charging_session[Hash.HvbSoCD] = soc_displayed
                             _LOGGER.debug(f"Saved socd initial value: {soc_displayed:.01f}")
                     if self._charging_session.get(Hash.GpsLatitude) is None:
-                        if latitude := get_state_value(Hash.GpsLatitude, None):
+                        if (latitude := get_state_value(Hash.GpsLatitude, None)) is not None:
                             self._charging_session[Hash.GpsLatitude] = latitude
                             _LOGGER.debug(f"Saved latitude initial value: {latitude:.05f}")
                     if self._charging_session.get(Hash.GpsLongitude) is None:
-                        if longitude := get_state_value(Hash.GpsLongitude, None):
+                        if (longitude := get_state_value(Hash.GpsLongitude, None)) is not None:
                             self._charging_session[Hash.GpsLongitude] = longitude
                             _LOGGER.debug(f"Saved longitude initial value: {longitude:.05f}")
                     if self._charging_session.get(Hash.LoresOdometer) is None:
-                        if lores_odometer := get_state_value(Hash.LoresOdometer, None):
+                        if (lores_odometer := get_state_value(Hash.LoresOdometer, None)) is not None:
                             self._charging_session[Hash.LoresOdometer] = lores_odometer
                             _LOGGER.debug(f"Saved lores_odometer initial value: {lores_odometer}")
                     if self._charging_session.get(Hash.ChargerInputEnergy) is None:
@@ -189,6 +195,7 @@ class StateTransistion:
                         if evse_type := get_EvseType(Hash.EvseType, 'charging_starting'):
                             if evse_type == EvseType.BasAC:
                                 new_state = VehicleState.Charging_AC
+                                self._charging_session['type'] = 'AC'
                             elif evse_type != EvseType.NoType:
                                 _LOGGER.error(f"While in '{VehicleState.Charging_Starting.name}', 'EvseType' returned an unexpected state: {evse_type}")
                 else:

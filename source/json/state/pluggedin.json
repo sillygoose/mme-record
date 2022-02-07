@@ -5,6 +5,7 @@
         "arbitration_id_hex": "0726",
         "enable": true,
         "period": 5,
+        "offset": 1,
         "dids": [
             {
                 "did_name": "EngineStart",
@@ -32,6 +33,7 @@
         "arbitration_id_hex": "07E2",
         "enable": true,
         "period": 5,
+        "offset": 1,
         "dids": [
             {
                 "did_name": "ChargePlugConnected",
@@ -47,6 +49,7 @@
         "arbitration_id_hex": "07E4",
         "enable": true,
         "period": 5,
+        "offset": 1,
         "dids": [
             {
                 "did_name": "ChargingStatus",

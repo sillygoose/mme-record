@@ -47,11 +47,13 @@ class Hash(Enum):
     ChargerInputVoltage     = '07E2:485E:charger_input_voltage'
     ChargerInputCurrent     = '07E2:485F:charger_input_current'
     ChargerInputPower       = 'FFFF:8002:charger_input_power'
+    ChargerInputPowerMax    = 'FFFF:8002:charger_input_power_max'
     ChargerInputEnergy      = 'FFFF:8002:charger_input_energy'
 
     ChargerOutputVoltage    = '07E2:484A:charger_output_voltage'
     ChargerOutputCurrent    = '07E2:4850:charger_output_current'
     ChargerOutputPower      = 'FFFF:8003:charger_output_power'
+    ChargerOutputPowerMax   = 'FFFF:8003:charger_output_power_max'
     ChargerOutputEnergy     = 'FFFF:8003:charger_output_energy'
 
     GpsLatitude             = '07D0:8012:gps_latitude'
