@@ -32,6 +32,12 @@ def set_state(hash: Hash, value: Any) -> int:
     StateEngine._state[hash] = (value, ts)
     return ts
 
+def delete_state(hash: Hash) -> None:
+    try:
+        StateEngine._state.pop(hash)
+    except KeyError:
+        pass
+
 def hash_fields(hash: Hash) -> Tuple[int, int, str]:
     hash_fields = hash.value.split(':')
     return int(hash_fields[0], base=16), int(hash_fields[1], base=16), hash_fields[2]

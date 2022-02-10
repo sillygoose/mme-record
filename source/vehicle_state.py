@@ -3,9 +3,6 @@ import logging
 from enum import Enum, unique, auto
 
 
-_LOGGER = logging.getLogger('mme')
-
-
 @unique
 class VehicleState(Enum):
         Unknown = auto()            # initial state until another is determined
