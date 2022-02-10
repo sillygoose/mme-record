@@ -254,6 +254,7 @@ def check_config(config):
                 {'record': {'required': True, 'keys': [
                     {'dest_path': {'required': True, 'keys': [], 'type': str}},
                     {'dest_file': {'required': True, 'keys': [], 'type': str}},
+                    {'gps_server': {'required': False, 'keys': [], 'type': str}},
                     {'file_writes': {'required': False, 'keys': [], 'type': int}},
                     {'did_read': {'required': False, 'keys': [], 'type': int}},
                     {'born_on': {'required': False, 'keys': [], 'type': int}},

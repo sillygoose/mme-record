@@ -9,6 +9,7 @@ import time
 import datetime
 
 from typing import List
+from config.configuration import Configuration
 
 from codec_manager import *
 
@@ -44,12 +45,12 @@ class StateManager(StateTransistion):
         VehicleState.Charging_DCFC:     {'state_file': 'json/state/charging_dcfc.json',     'state_keys': [Hash.ChargingStatus, Hash.EvseType]},
     }
 
-    def __init__(self, config) -> None:
+    def __init__(self, config: Configuration) -> None:
         super().__init__(StateManager._state_file_lookup)
         self._vehicle_name = config.vehicle.name
         self._state = None
         self._putback_enabled = False
-        self._codec_manager = CodecManager()
+        self._codec_manager = CodecManager(config)
         self._command_queue = PriorityQueue()
         self._command_queue_lock = Lock()
         state_functions = {

@@ -10,6 +10,7 @@ mme:
         #
         # dest_path:                        path where the output files are written
         # dest_file:                        filename for the output file series
+        # gps_server:                       optional IP address/port for high-resolution GPS data
         # file_writes:                      number of records collected before writing an output file, set to 0 to disable file writes (default: 200)
         # did_read:                         specify the number of DID per request (default is 1)
         # born_on:                          timestamp added to DID 0xDD00 to get current GMT time (not used at this time)
@@ -18,7 +19,8 @@ mme:
         # p2_star_timeout:                  max time in seconds to wait for a response (positive, negative, or NRC0x78) after the reception of
         #                                   a negative response with code 0x78 (requestCorrectlyReceived-ResponsePending) (default: 1.0)
         dest_path:                          'record-files'
-        dest_file:                          'pluggedin_20220204'
+        dest_file:                          'pluggedin_20220209'
+        gps_server:                         'http://100.93.138.71:8080'
         file_writes:                        500
         did_read:                           1
         born_on:                            1623167753
@@ -52,5 +54,5 @@ mme:
         org:                                !secret influxdb2_org
         url:                                !secret influxdb2_url
         token:                              !secret influxdb2_token
-        bucket:                             'ev-test'
+        bucket:                             'ev'
         block_size:                         100

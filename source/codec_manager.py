@@ -1,8 +1,16 @@
+import logging
 import struct
+
+import requests
+from requests.exceptions import ConnectionError, ConnectTimeout, ReadTimeout, HTTPError, InvalidURL, InvalidSchema
 
 from udsoncan import DidCodec
 
 from did import DidId
+from config.configuration import Configuration
+
+
+_LOGGER = logging.getLogger('mme')
 
 
 class Codec(DidCodec):
@@ -112,19 +120,52 @@ class CodecGearCommanded(Codec):
 
 class CodecGPS(Codec):
     def decode(self, payload):
-        gps_elevation, gps_latitude, gps_longitude, gps_fix, gps_speed, gps_bearing = struct.unpack('>HllBHH', payload)
+        # default to using MME GPS data
+        gps_elevation, gps_latitude, gps_longitude, _, gps_speed, gps_bearing = struct.unpack('>HllBHH', payload)
         gps_latitude /= 60.0
         gps_longitude /= 60.0
         gps_speed *= 3.6
-        gps_data = f"GPS: ({gps_latitude:2.5f}, {gps_longitude:2.5f}), elevation {gps_elevation} m, bearing {gps_bearing}°, speed {gps_speed:3.1f} kph, fix is {gps_fix}"
         states = [
                 {'gps_elevation': gps_elevation},
                 {'gps_latitude': gps_latitude},
                 {'gps_longitude': gps_longitude},
-                {'gps_fix': gps_fix},
                 {'gps_speed': gps_speed},
                 {'gps_bearing': gps_bearing},
             ]
+
+        # Use GPS server if available alternate
+        if CodecManager._gps_server:
+            try:
+                gps_response = requests.get(CodecManager._gps_server, timeout=0.2)
+                phone_gps = gps_response.json()
+                gps_latitude = phone_gps.get('latitude')
+                gps_longitude = phone_gps.get('longitude')
+                gps_elevation = phone_gps.get('altitude')
+                states = [
+                        {'gps_elevation': gps_elevation},
+                        {'gps_latitude': gps_latitude},
+                        {'gps_longitude': gps_longitude},
+                    ]
+                if (gps_speed := phone_gps.get('speed')) >= 0.0:
+                    states.append({'gps_speed': gps_speed * 3.6})
+                if (gps_bearing := phone_gps.get('course')) >= 0.0:
+                    states.append({'gps_bearing': gps_bearing})
+            except InvalidSchema as e:
+                _LOGGER.error(f"InvalidSchema error: {e}")
+            except InvalidURL as e:
+                _LOGGER.error(f"InvalidURL error: {e}")
+            except HTTPError as e:
+                _LOGGER.error(f"HTTP error: {e}")
+            except ReadTimeout as e:
+                _LOGGER.error(f"Read Time out: {e}")
+            except ConnectTimeout as e:
+                _LOGGER.error(f"Time out connecting to GPS server: {e}")
+            except ConnectionError as e:
+                _LOGGER.error(f"Unable to connect to GPS server: {e}")
+            except Exception as e:
+                _LOGGER.exception(f"Unexpected exception: {e}")
+
+        gps_data = f"GPS: ({gps_latitude:2.8f}, {gps_longitude:2.8f}), elevation {gps_elevation:.01f} m, bearing {gps_bearing}°, speed {gps_speed:3.1f} kph"
         return {'payload': payload, 'states': states, 'decoded': gps_data}
 
     def __len__(self):
@@ -588,8 +629,10 @@ class CodecManager:
         DidId.EngineRunTime:                  CodecEngineRunTime,
     }
 
-    def __init__(self) -> None:
+    def __init__(self, config: Configuration) -> None:
         self._codec_lookup = CodecManager._codec_lookup
+        record_config = dict(config.record)
+        CodecManager._gps_server = record_config.get('gps_server', None)
 
     def codec(self, did_id: int) -> Codec:
         try:

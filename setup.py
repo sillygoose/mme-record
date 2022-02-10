@@ -4,7 +4,7 @@
 from pathlib import Path
 from setuptools import setup
 
-VERSION = "0.8.5"
+VERSION = "0.8.6"
 URL = "https://github.com/sillygoose/mme-record.git"
 
 setup(
@@ -19,6 +19,7 @@ setup(
     author_email="sillygoose@me.com",
     license="MIT",
     install_requires=[
+        "requests",
         "python-configuration",
         "pyyaml",
         "python-can",
