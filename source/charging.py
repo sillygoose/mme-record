@@ -13,6 +13,7 @@ from did import EngineStartRemote, EngineStartNormal
 from vehicle_state import VehicleState, CallType
 from hash import *
 from influxdb import influxdb_charging_session
+from config.configuration import Configuration
 
 
 _LOGGER = logging.getLogger('mme')
@@ -20,7 +21,8 @@ _LOGGER = logging.getLogger('mme')
 
 class Charging:
 
-    def __init__(self) -> None:
+    def __init__(self, config: Configuration) -> None:
+        self._charging_vehicle_name = config.vehicle.name
         self._charging_session = None
 
     def charging_starting(self, state_keys: List, call_type: CallType = CallType.Default) -> VehicleState:
@@ -170,7 +172,7 @@ class Charging:
             _LOGGER.info(f"   {wh_added:.0f} Wh were added, requiring {wh_used:.0f} Wh from the AC charger")
             _LOGGER.info(f"   overall efficiency is {(charging_efficiency*100):.01f}%")
             _LOGGER.info(f"   maximum input power {max_input_power:.0f} W")
-            influxdb_charging_session(session=charging_session, vehicle=self._vehicle_name)
+            influxdb_charging_session(session=charging_session, vehicle=self._charging_vehicle_name)
             self._charging_session = None
         return new_state
 

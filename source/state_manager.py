@@ -14,12 +14,11 @@ from codec_manager import *
 
 from hash import *
 from synthetics import update_synthetics
-from influxdb import influxdb_charging_session
 from vehicle_state import CallType, VehicleState
 from exceptions import RuntimeError
 
 from state_transition import StateTransistion
-from state_engine import get_state_value, set_state
+from state_engine import set_state
 
 
 _LOGGER = logging.getLogger('mme')
@@ -49,8 +48,8 @@ class StateManager(StateTransistion):
     }
 
     def __init__(self, config: Configuration) -> None:
-        super().__init__()
-        self._vehicle_name = config.vehicle.name
+        super().__init__(config)
+        self._config = dict(config.record)
         self._state = None
         self._state_function = None
         self._putback_enabled = False

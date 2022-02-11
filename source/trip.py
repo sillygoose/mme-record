@@ -2,6 +2,8 @@ import logging
 import time
 from typing import List
 
+from config.configuration import Configuration
+
 from state_engine import get_InferredKey, get_GearCommanded
 from state_engine import get_EngineStartRemote, get_EngineStartNormal
 
@@ -17,7 +19,8 @@ _LOGGER = logging.getLogger('mme')
 
 class Trip:
 
-    def __init__(self) -> None:
+    def __init__(self, config: Configuration) -> None:
+        self._trip_vehicle_name = config.vehicle.name
         self._trip_log = None
 
     def trip_starting(self, state_keys: List, call_type: CallType = CallType.Default) -> VehicleState:

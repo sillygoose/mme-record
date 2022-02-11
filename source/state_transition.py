@@ -1,7 +1,7 @@
 import logging
 
 from typing import List
-from source.charging import Charging
+from config.configuration import Configuration
 
 from state_engine import get_InferredKey, get_ChargePlugConnected, get_GearCommanded, get_ChargingStatus, get_KeyState
 from state_engine import get_EngineStartRemote, get_EngineStartDisable, get_EngineStartNormal
@@ -20,9 +20,9 @@ _LOGGER = logging.getLogger('mme')
 
 class StateTransistion(Charging, Trip):
 
-    def __init__(self) -> None:
-        Charging.__init__(self)
-        Trip.__init__(self)
+    def __init__(self, config: Configuration) -> None:
+        Charging.__init__(self, config)
+        Trip.__init__(self, config)
 
     def unknown(self, state_keys: List, call_type: CallType = CallType.Default) -> VehicleState:
         new_state = VehicleState.Unchanged
