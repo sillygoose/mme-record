@@ -22,7 +22,8 @@ class PlaybackDID:
         self._states = []
         for state in states:
             # variable = state.get('name', None)
-            value = state.get('value', None)
+            value = state.get('initial_value', None)
+            assert value is not None
             self._states.append(value)
 
     def did_id(self) -> int:

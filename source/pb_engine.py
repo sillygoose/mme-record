@@ -16,7 +16,7 @@ _LOGGER = logging.getLogger('mme')
 class PlaybackEngine:
 
     def __init__(self, config: Configuration, active_modules: dict, module_manager: ModuleManager) -> None:
-        playback_config = dict(config)
+        playback_config = dict(config.playback)
         self._active_modules = active_modules
         self._module_manager = module_manager
         self._filename = f"{playback_config.get('source_path')}/{playback_config.get('source_file')}.json"

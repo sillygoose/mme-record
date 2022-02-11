@@ -27,7 +27,7 @@ class Playback:
         self._config = config
         self._module_manager = ModuleManager()
         self._did_manager = DIDManager()
-        self._codec_manager = CodecManager()
+        self._codec_manager = CodecManager(config)
         self._dids = self._did_manager.dids()
         self._modules = self._add_modules(self._module_manager.modules())
         self._add_dids(self._dids)
@@ -90,7 +90,7 @@ def main() -> None:
 
         if config := parse_yaml_file(yaml_file=yaml_file):
             SigTermCatcher(_sigterm)
-            playback = Playback(config=config.mme.playback)
+            playback = Playback(config=config.mme)
             try:
                 playback.start()
             except KeyboardInterrupt:

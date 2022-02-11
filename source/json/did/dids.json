@@ -14,7 +14,7 @@
         "states": [
             {
                 "name": "hires_speed",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -33,7 +33,7 @@
         "states": [
             {
                 "name": "gear_commanded",
-                "value": 70
+                "initial_value": 70
             }
         ]
     },
@@ -49,7 +49,7 @@
         "states": [
             {
                 "name": "lvb_soc",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -67,7 +67,7 @@
         "states": [
             {
                 "name": "lvb_voltage",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -83,7 +83,7 @@
         "states": [
             {
                 "name": "lvb_current",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -99,7 +99,7 @@
         "states": [
             {
                 "name": "hires_odometer",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -124,7 +124,7 @@
         "states": [
             {
                 "name": "key_state",
-                "value": 1
+                "initial_value": 1
             }
         ]
     },
@@ -140,7 +140,7 @@
         "states": [
             {
                 "name": "inferred_key",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -157,19 +157,19 @@
         "states": [
             {
                 "name": "engine_start_normal",
-                "value": 0
+                "initial_value": 0
             },
             {
                 "name": "engine_start_disable",
-                "value": 0
+                "initial_value": 0
             },
             {
                 "name": "engine_start_remote",
-                "value": 0
+                "initial_value": 0
             },
             {
                 "name": "engine_start_extended",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -185,7 +185,7 @@
         "states": [
             {
                 "name": "hvb_temp",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -201,7 +201,7 @@
         "states": [
             {
                 "name": "hvb_soc",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -221,7 +221,7 @@
         "states": [
             {
                 "name": "hvb_voltage",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -237,7 +237,7 @@
         "states": [
             {
                 "name": "lvb_dcdc_lv_current",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -253,7 +253,7 @@
         "states": [
             {
                 "name": "lvb_dcdc_hv_current",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -271,7 +271,7 @@
         "states": [
             {
                 "name": "lvb_dcdc_enable",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -289,7 +289,7 @@
         "states": [
             {
                 "name": "hvb_charge_current_requested",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -308,7 +308,7 @@
         "states": [
             {
                 "name": "charge_plug_connected",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -326,7 +326,7 @@
         "states": [
             {
                 "name": "hvb_charge_voltage_requested",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -344,7 +344,7 @@
         "states": [
             {
                 "name": "hvb_socd",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -360,7 +360,7 @@
         "states": [
             {
                 "name": "hvb_ete",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -378,7 +378,7 @@
         "states": [
             {
                 "name": "charger_output_voltage",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -395,7 +395,7 @@
         "states": [
             {
                 "name": "charging_status",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -412,7 +412,7 @@
         "states": [
             {
                 "name": "charger_input_power_available",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -430,7 +430,7 @@
         "states": [
             {
                 "name": "charger_status",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -448,7 +448,7 @@
         "states": [
             {
                 "name": "charger_output_current",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -466,7 +466,7 @@
         "states": [
             {
                 "name": "evse_type",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -482,7 +482,7 @@
         "states": [
             {
                 "name": "charger_input_voltage",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -498,7 +498,7 @@
         "states": [
             {
                 "name": "charger_input_current",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -514,7 +514,7 @@
         "states": [
             {
                 "name": "charger_input_frequency",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -530,7 +530,7 @@
         "states": [
             {
                 "name": "charger_pilot_duty_cycle",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -546,7 +546,7 @@
         "states": [
             {
                 "name": "charger_pilot_voltage",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -563,7 +563,7 @@
         "states": [
             {
                 "name": "evse_digital_mode",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -581,7 +581,7 @@
         "states": [
             {
                 "name": "hvb_max_charge_current",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -599,7 +599,7 @@
         "states": [
             {
                 "name": "charger_max_power",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -615,7 +615,7 @@
         "states": [
             {
                 "name": "hvb_current",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -631,7 +631,7 @@
         "states": [
             {
                 "name": "charger_power_limit",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -647,7 +647,7 @@
         "states": [
             {
                 "name": "hvb_soh",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -664,7 +664,7 @@
         "states": [
             {
                 "name": "gear_displayed",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -680,27 +680,27 @@
         "states": [
             {
                 "name": "gps_elevation",
-                "value": 0
+                "initial_value": 0
             },
             {
                 "name": "gps_latitude",
-                "value": 0
+                "initial_value": 0
             },
             {
                 "name": "gps_longitude",
-                "value": 0
+                "initial_value": 0
             },
             {
                 "name": "gps_fix",
-                "value": 0
+                "initial_value": 0
             },
             {
                 "name": "gps_speed",
-                "value": 0
+                "initial_value": 0
             },
             {
                 "name": "gps_bearing",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -740,7 +740,7 @@
         "states": [
             {
                 "name": "time",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -769,7 +769,7 @@
         "states": [
             {
                 "name": "lores_odometer",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -786,7 +786,7 @@
         "states": [
             {
                 "name": "interior_temp",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -813,7 +813,7 @@
         "states": [
             {
                 "name": "exterior_temp",
-                "value": 0
+                "initial_value": 0
             }
         ]
     },
@@ -832,7 +832,7 @@
         "states": [
             {
                 "name": "engine_runtime",
-                "value": 0
+                "initial_value": 0
             }
         ]
     }

@@ -39,7 +39,7 @@ class PlaybackModule:
         if module_lookup is None:
             raise FailedInitialization(f"The module '{name}' is not supported by Playback or cannot be created")
 
-        playback_config = dict(config)
+        playback_config = dict(config.playback)
         PlaybackModule.isotp_params['rx_flowcontrol_timeout'] = int(playback_config.get('rx_flowcontrol_timeout', 1.0) * 1000)
         PlaybackModule.isotp_params['rx_consecutive_frame_timeout'] = int(playback_config.get('rx_consecutive_frame_timeout', 1.0) * 1000)
 

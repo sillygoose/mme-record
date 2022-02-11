@@ -140,7 +140,9 @@ class RecordStateManager(StateManager):
                             states = self._did_manager.did_states(did_id)
                             _, packing_length = self._did_manager.did_packing(did_id)
                             for state in states:
-                                default_value = state.get('value')
+                                default_value = state.get('default_value', None)
+                                if default_value is None:
+                                    break
                                 payload = []
                                 for _ in range(packing_length):
                                     payload.append(default_value)
