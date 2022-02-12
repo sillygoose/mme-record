@@ -48,8 +48,8 @@ class StateManager(StateTransistion):
     }
 
     def __init__(self, config: Configuration) -> None:
-        super().__init__(config)
-        self._config = dict(config.record)
+        super().__init__()
+        self._vehicle_name = config.vehicle.name
         self._state = None
         self._state_function = None
         self._putback_enabled = False

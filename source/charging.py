@@ -4,16 +4,15 @@ import datetime
 from typing import List
 
 from state_engine import get_state_value, set_state
-from state_engine import get_InferredKey, get_ChargePlugConnected, get_ChargingStatus, get_KeyState, get_EvseType
-from state_engine import get_EngineStartRemote, get_EngineStartNormal
+from state_engine import get_ChargePlugConnected, get_ChargingStatus, get_EvseType
+from state_engine import get_InferredKey, get_EngineStartRemote, get_EngineStartNormal
 
-from did import InferredKey, ChargePlugConnected, ChargingStatus, KeyState, EvseType
-from did import EngineStartRemote, EngineStartNormal
+from did import ChargePlugConnected, ChargingStatus, EvseType
+from did import InferredKey, EngineStartRemote, EngineStartNormal
 
 from vehicle_state import VehicleState, CallType
 from hash import *
 from influxdb import influxdb_charging_session
-from config.configuration import Configuration
 
 
 _LOGGER = logging.getLogger('mme')
@@ -21,13 +20,13 @@ _LOGGER = logging.getLogger('mme')
 
 class Charging:
 
-    def __init__(self, config: Configuration) -> None:
-        self._charging_vehicle_name = config.vehicle.name
+    def __init__(self) -> None:
         self._charging_session = None
 
     def charging_starting(self, state_keys: List, call_type: CallType = CallType.Default) -> VehicleState:
         new_state = VehicleState.Unchanged
         if call_type == CallType.Incoming:
+            assert self._charging_session is None
             self._charging_session = {
                 'time': int(time.time()),
             }
@@ -106,6 +105,16 @@ class Charging:
                         new_state = VehicleState.Charging_Ended
         return new_state
 
+    def charging_dcfc(self, state_keys: List, call_type: CallType = CallType.Default) -> VehicleState:
+        new_state = VehicleState.Unchanged
+        if call_type == CallType.Default:
+            for key in state_keys:
+                if charging_status := get_ChargingStatus(key, 'charging_dcfc'):
+                    if charging_status != ChargingStatus.Charging:
+                        _LOGGER.debug(f"Charging status changed to: {charging_status}")
+                        new_state = VehicleState.Charging_Ended
+        return new_state
+
     def charging_ended(self, state_keys: List, call_type: CallType = CallType.Default) -> VehicleState:
         new_state = VehicleState.Unchanged
         if call_type == CallType.Default:
@@ -172,21 +181,6 @@ class Charging:
             _LOGGER.info(f"   {wh_added:.0f} Wh were added, requiring {wh_used:.0f} Wh from the AC charger")
             _LOGGER.info(f"   overall efficiency is {(charging_efficiency*100):.01f}%")
             _LOGGER.info(f"   maximum input power {max_input_power:.0f} W")
-            influxdb_charging_session(session=charging_session, vehicle=self._charging_vehicle_name)
+            influxdb_charging_session(session=charging_session, vehicle=self._vehicle_name)
             self._charging_session = None
-        return new_state
-
-    def charging_dcfc(self, state_keys: List, call_type: CallType = CallType.Default) -> VehicleState:
-        new_state = VehicleState.Unchanged
-        if call_type == CallType.Default:
-            for key in state_keys:
-                if charging_status := get_ChargingStatus(key, 'charging_dcfc'):
-                    if charging_status == ChargingStatus.NotReady or charging_status == ChargingStatus.Done:
-                        if key_state := get_KeyState(Hash.KeyState):
-                            if key_state == KeyState.Sleeping or key_state == KeyState.Off:
-                                new_state = VehicleState.Idle
-                            elif key_state == KeyState.On or key_state == KeyState.Cranking:
-                                VehicleState.On
-                    else:
-                        _LOGGER.info(f"While in '{VehicleState.Charging_DCFC.name}', 'ChargingStatus' returned an unexpected response: {charging_status}")
         return new_state

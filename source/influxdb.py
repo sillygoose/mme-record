@@ -72,7 +72,9 @@ def _connect_influxdb_client():
             try:
                 InfluxDB._query_api.query(f'from(bucket: "{InfluxDB._bucket}") |> range(start: -1m)')
                 _LOGGER.info(f"Connected to the InfluxDB database at {InfluxDB._url}, bucket '{InfluxDB._bucket}'")
-            except (ApiException, NewConnectionError, ConnectTimeoutError, ReadTimeoutError):
+            except ApiException as e:
+                _LOGGER.error(f"InfluxDB ApiException: {e}")
+            except (NewConnectionError, ConnectTimeoutError, ReadTimeoutError):
                 _LOGGER.error(f"Unable to access bucket '{InfluxDB._bucket}' at {InfluxDB._url}")
         else:
             _LOGGER.error(f"Failed to get InfluxDBClient from {InfluxDB._url} (check url, token, and/or organization)")
@@ -111,9 +113,16 @@ def write_lp_points(lp_points: List) -> None:
                 with open(InfluxDB._backup_file, 'w') as _:
                     pass
                 _LOGGER.info(f"Wrote {len(cached_points)} cached points from backup file '{InfluxDB._backup_file}' to {InfluxDB._url}")
-            except (ApiException, ReadTimeoutError, ConnectTimeoutError):
+            except ApiException as e:
+                _LOGGER.error(f"Failed to write backup file: {e}")
+            except (ReadTimeoutError, ConnectTimeoutError):
                 _LOGGER.error(f"Failed to write backup file '{InfluxDB._backup_file}' contents to {InfluxDB._url}")
-    except (RuntimeError, ApiException, ReadTimeoutError, ConnectTimeoutError):
+    except ApiException as e:
+        _LOGGER.error(f"InfluxDB ApiException: {e}")
+        with open(InfluxDB._backup_file, 'a') as outfile:
+            for lp_point in InfluxDB._line_points:
+                outfile.write(f"{lp_point}\n")
+    except (RuntimeError, ReadTimeoutError, ConnectTimeoutError):
         with open(InfluxDB._backup_file, 'a') as outfile:
             for lp_point in InfluxDB._line_points:
                 outfile.write(f"{lp_point}\n")
@@ -158,14 +167,14 @@ def influxdb_charging_session(session: dict, vehicle: str) -> None:
     tag_value = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%dT%H:%M')
     charging_session.append(
         f"charging" \
-        f",vehicle={vehicle},session={tag_value},session={charger_type} " \
+        f",vehicle={vehicle},session={tag_value},charger_type={charger_type} " \
         f"odometer={odometer},latitude={latitude},longitude={longitude},duration={duration}," \
         f"soc_begin={starting_soc},soc_end={ending_soc},socd_begin={starting_socd},socd_end={ending_socd}," \
         f"ete_begin={starting_ete},ete_end={ending_ete},max_power={max_input_power}," \
         f"kwh_added={kwh_added},kwh_used={kwh_used},efficiency={efficiency} {ts}")
     charging_session.append(
         f"charging" \
-        f",vehicle={vehicle},session={tag_value},session={charger_type} " \
+        f",vehicle={vehicle},session={tag_value},charger_type={charger_type} " \
         f"odometer={odometer},latitude={latitude},longitude={longitude},duration={duration}," \
         f"soc_begin=0.0,soc_end=0.0,socd_begin=0.0,socd_end=0.0," \
         f"ete_begin=0.0,ete_end=0.0,max_power=0.0," \

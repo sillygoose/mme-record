@@ -158,8 +158,8 @@ class CodecGPS(Codec):
                 _LOGGER.error(f"HTTP error: {e}")
             except ReadTimeout as e:
                 _LOGGER.error(f"Read Time out: {e}")
-            except ConnectTimeout as e:
-                _LOGGER.error(f"Time out connecting to GPS server: {e}")
+            except ConnectTimeout:
+                pass
             except ConnectionError as e:
                 _LOGGER.error(f"Unable to connect to GPS server: {e}")
             except Exception as e:
