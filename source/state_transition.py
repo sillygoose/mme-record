@@ -1,7 +1,5 @@
 import logging
 
-from typing import List
-
 from state_engine import get_InferredKey, get_ChargePlugConnected, get_GearCommanded, get_ChargingStatus, get_KeyState
 from state_engine import get_EngineStartRemote, get_EngineStartDisable, get_EngineStartNormal
 

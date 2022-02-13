@@ -2,8 +2,6 @@ import logging
 import time
 import datetime
 
-from typing import List
-
 from state_engine import get_state_value, set_state
 from state_engine import get_InferredKey, get_GearCommanded
 from state_engine import get_EngineStartRemote, get_EngineStartDisable
@@ -44,21 +42,17 @@ class Trip:
 
         elif call_type == CallType.Default:
             requiredStates = [Hash.HiresOdometer, Hash.HvbSoCD, Hash.HvbEtE, Hash.GpsLatitude, Hash.GpsLongitude, Hash.GpsElevation, Hash.ExteriorTemperature]
-            ready_to_continue = True
             for state in requiredStates:
                 if (state_value := get_state_value(state, None)) is None:
                     return new_state
-                    #ready_to_continue = False
-                    #break
+                self._trip_log[state] = state_value
+
+            if gear_commanded := get_GearCommanded(Hash.GearCommanded, 'trip_starting'):
+                if gear_commanded != GearCommanded.Park:
+                    new_state = VehicleState.Trip
                 else:
-                    self._trip_log[state] = state_value
-            if ready_to_continue:
-                if gear_commanded := get_GearCommanded(Hash.GearCommanded, 'trip_starting'):
-                    if gear_commanded != GearCommanded.Park:
-                        new_state = VehicleState.Trip
-                    else:
-                        self._trip_log = None
-                        new_state = VehicleState.Idle
+                    self._trip_log = None
+                    new_state = VehicleState.Idle
         return new_state
 
     def trip_ending(self, call_type: CallType = CallType.Default) -> VehicleState:

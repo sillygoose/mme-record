@@ -161,7 +161,7 @@ def influxdb_charging_session(session: dict, vehicle: str) -> None:
     """
             charging_session = {
                 'type':             charger_type,
-                'time':             starting_time,
+                'time':             {'starting': starting_time, 'ending': ending_time},
                 'duration':         duration_seconds,
                 'location':         {'latitude': latitude, 'longitude': longitude},
                 'odometer':         odometer,

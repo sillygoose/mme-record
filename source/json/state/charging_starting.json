@@ -60,6 +60,27 @@
         ]
     },
     {
+        "module": "SOBDM",
+        "arbitration_id": 2018,
+        "arbitration_id_hex": "07E2",
+        "enable": true,
+        "period": 1,
+        "dids": [
+            {
+                "did_name": "ChargerOutputVoltage",
+                "did_id": 18506,
+                "did_id_hex": "484A",
+                "codec_id": 18506
+            },
+            {
+                "did_name": "ChargerInputVoltage",
+                "did_id": 18526,
+                "did_id_hex": "485E",
+                "codec_id": 18526
+            }
+        ]
+    },
+    {
         "module": "BECM",
         "arbitration_id": 2020,
         "arbitration_id_hex": "07E4",
