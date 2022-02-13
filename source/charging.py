@@ -45,95 +45,91 @@ class Charging:
             assert get_state_value(Hash.ChargerInputEnergy, None) is not None
             assert get_state_value(Hash.ChargerOutputEnergy, None) is not None
         elif call_type == CallType.Default:
-            for key in state_keys:
-                if charging_status := get_ChargingStatus(key, 'charging_starting'):
-                    if charging_status == ChargingStatus.Ready or charging_status == ChargingStatus.Wait or charging_status == ChargingStatus.Charging:
-                        if self._charging_session.get(Hash.LvbEnergy) is None:
-                            if (lvb_energy := get_state_value(Hash.LvbEnergy, None)) is not None:
-                                self._charging_session[Hash.LvbEnergy] = lvb_energy
-                                _LOGGER.debug(f"Saved lvb_energy initial value: {lvb_energy:.0f}")
-                        if self._charging_session.get(Hash.HvbEtE) is None:
-                            if (hvb_ete := get_state_value(Hash.HvbEtE, None)) is not None:
-                                self._charging_session[Hash.HvbEtE] = hvb_ete
-                                _LOGGER.debug(f"Saved hvb_ete initial value: {hvb_ete:.0f}")
-                        if self._charging_session.get(Hash.HvbSoC) is None:
-                            if (soc := get_state_value(Hash.HvbSoC, None)) is not None:
-                                self._charging_session[Hash.HvbSoC] = soc
-                                _LOGGER.debug(f"Saved soc initial value: {soc:.03f}")
-                        if self._charging_session.get(Hash.HvbSoCD) is None:
-                            if (soc_displayed := get_state_value(Hash.HvbSoCD, None)) is not None:
-                                self._charging_session[Hash.HvbSoCD] = soc_displayed
-                                _LOGGER.debug(f"Saved socd initial value: {soc_displayed:.01f}")
-                        if self._charging_session.get(Hash.GpsLatitude) is None:
-                            if (latitude := get_state_value(Hash.GpsLatitude, None)) is not None:
-                                self._charging_session[Hash.GpsLatitude] = latitude
-                                _LOGGER.debug(f"Saved latitude initial value: {latitude:.05f}")
-                        if self._charging_session.get(Hash.GpsLongitude) is None:
-                            if (longitude := get_state_value(Hash.GpsLongitude, None)) is not None:
-                                self._charging_session[Hash.GpsLongitude] = longitude
-                                _LOGGER.debug(f"Saved longitude initial value: {longitude:.05f}")
-                        if self._charging_session.get(Hash.LoresOdometer) is None:
-                            if (lores_odometer := get_state_value(Hash.LoresOdometer, None)) is not None:
-                                self._charging_session[Hash.LoresOdometer] = lores_odometer
-                                _LOGGER.debug(f"Saved lores_odometer initial value: {lores_odometer}")
-                        if self._charging_session.get(Hash.ChargerInputEnergy) is None:
-                            charger_input_energy = get_state_value(Hash.ChargerInputEnergy, 0.0)
-                            set_state(Hash.ChargerInputEnergy, charger_input_energy)
-                            self._charging_session[Hash.ChargerInputEnergy] = charger_input_energy
-                            _LOGGER.debug(f"Saved charger input energy initial value: {charger_input_energy:.0f}")
-                        if self._charging_session.get(Hash.ChargerOutputEnergy) is None:
-                            charger_output_energy = get_state_value(Hash.ChargerOutputEnergy, 0.0)
-                            set_state(Hash.ChargerOutputEnergy, charger_output_energy)
-                            self._charging_session[Hash.ChargerOutputEnergy] = charger_output_energy
-                            _LOGGER.debug(f"Saved charger output energy initial value: {charger_output_energy:.0f}")
+            if charging_status := get_ChargingStatus(Hash.ChargingStatus, 'charging_starting'):
+                if charging_status == ChargingStatus.Ready or charging_status == ChargingStatus.Wait or charging_status == ChargingStatus.Charging:
+                    if self._charging_session.get(Hash.LvbEnergy) is None:
+                        if (lvb_energy := get_state_value(Hash.LvbEnergy, None)) is not None:
+                            self._charging_session[Hash.LvbEnergy] = lvb_energy
+                            _LOGGER.debug(f"Saved lvb_energy initial value: {lvb_energy:.0f}")
+                    if self._charging_session.get(Hash.HvbEtE) is None:
+                        if (hvb_ete := get_state_value(Hash.HvbEtE, None)) is not None:
+                            self._charging_session[Hash.HvbEtE] = hvb_ete
+                            _LOGGER.debug(f"Saved hvb_ete initial value: {hvb_ete:.0f}")
+                    if self._charging_session.get(Hash.HvbSoC) is None:
+                        if (soc := get_state_value(Hash.HvbSoC, None)) is not None:
+                            self._charging_session[Hash.HvbSoC] = soc
+                            _LOGGER.debug(f"Saved soc initial value: {soc:.03f}")
+                    if self._charging_session.get(Hash.HvbSoCD) is None:
+                        if (soc_displayed := get_state_value(Hash.HvbSoCD, None)) is not None:
+                            self._charging_session[Hash.HvbSoCD] = soc_displayed
+                            _LOGGER.debug(f"Saved socd initial value: {soc_displayed:.01f}")
+                    if self._charging_session.get(Hash.GpsLatitude) is None:
+                        if (latitude := get_state_value(Hash.GpsLatitude, None)) is not None:
+                            self._charging_session[Hash.GpsLatitude] = latitude
+                            _LOGGER.debug(f"Saved latitude initial value: {latitude:.05f}")
+                    if self._charging_session.get(Hash.GpsLongitude) is None:
+                        if (longitude := get_state_value(Hash.GpsLongitude, None)) is not None:
+                            self._charging_session[Hash.GpsLongitude] = longitude
+                            _LOGGER.debug(f"Saved longitude initial value: {longitude:.05f}")
+                    if self._charging_session.get(Hash.LoresOdometer) is None:
+                        if (lores_odometer := get_state_value(Hash.LoresOdometer, None)) is not None:
+                            self._charging_session[Hash.LoresOdometer] = lores_odometer
+                            _LOGGER.debug(f"Saved lores_odometer initial value: {lores_odometer}")
+                    if self._charging_session.get(Hash.ChargerInputEnergy) is None:
+                        charger_input_energy = get_state_value(Hash.ChargerInputEnergy, 0.0)
+                        set_state(Hash.ChargerInputEnergy, charger_input_energy)
+                        self._charging_session[Hash.ChargerInputEnergy] = charger_input_energy
+                        _LOGGER.debug(f"Saved charger input energy initial value: {charger_input_energy:.0f}")
+                    if self._charging_session.get(Hash.ChargerOutputEnergy) is None:
+                        charger_output_energy = get_state_value(Hash.ChargerOutputEnergy, 0.0)
+                        set_state(Hash.ChargerOutputEnergy, charger_output_energy)
+                        self._charging_session[Hash.ChargerOutputEnergy] = charger_output_energy
+                        _LOGGER.debug(f"Saved charger output energy initial value: {charger_output_energy:.0f}")
 
-                        if charging_status == ChargingStatus.Charging:
-                            if evse_type := get_EvseType(Hash.EvseType, 'charging_starting'):
-                                if evse_type == EvseType.BasAC:
-                                    new_state = VehicleState.Charging_AC
-                                    self._charging_session['type'] = 'AC'
-                                elif evse_type != EvseType.NoType:
-                                    _LOGGER.error(f"While in '{VehicleState.Charging_Starting.name}', 'EvseType' returned an unexpected state: {evse_type}")
-                    else:
-                        _LOGGER.info(f"While in {VehicleState.Charging_Starting.name}, 'ChargingStatus' returned an unexpected response: {charging_status}")
+                    if charging_status == ChargingStatus.Charging:
+                        if evse_type := get_EvseType(Hash.EvseType, 'charging_starting'):
+                            if evse_type == EvseType.BasAC:
+                                new_state = VehicleState.Charging_AC
+                                self._charging_session['type'] = 'AC'
+                            elif evse_type != EvseType.NoType:
+                                _LOGGER.error(f"While in '{VehicleState.Charging_Starting.name}', 'EvseType' returned an unexpected state: {evse_type}")
+                else:
+                    _LOGGER.info(f"While in {VehicleState.Charging_Starting.name}, 'ChargingStatus' returned an unexpected response: {charging_status}")
         return new_state
 
     def charging_ac(selff, state_keys: List, call_type: CallType = CallType.Default) -> VehicleState:
         new_state = VehicleState.Unchanged
         if call_type == CallType.Default:
-            for key in state_keys:
-                if charging_status := get_ChargingStatus(key, 'charging_ac'):
-                    if charging_status != ChargingStatus.Charging:
-                        _LOGGER.debug(f"Charging status changed to: {charging_status}")
-                        new_state = VehicleState.Charging_Ended
+            if charging_status := get_ChargingStatus(Hash.ChargingStatus, 'charging_ac'):
+                if charging_status != ChargingStatus.Charging:
+                    _LOGGER.debug(f"Charging status changed to: {charging_status}")
+                    new_state = VehicleState.Charging_Ended
         return new_state
 
     def charging_dcfc(self, state_keys: List, call_type: CallType = CallType.Default) -> VehicleState:
         new_state = VehicleState.Unchanged
         if call_type == CallType.Default:
-            for key in state_keys:
-                if charging_status := get_ChargingStatus(key, 'charging_dcfc'):
-                    if charging_status != ChargingStatus.Charging:
-                        _LOGGER.debug(f"Charging status changed to: {charging_status}")
-                        new_state = VehicleState.Charging_Ended
+            if charging_status := get_ChargingStatus(Hash.ChargingStatus, 'charging_dcfc'):
+                if charging_status != ChargingStatus.Charging:
+                    _LOGGER.debug(f"Charging status changed to: {charging_status}")
+                    new_state = VehicleState.Charging_Ended
         return new_state
 
     def charging_ended(self, state_keys: List, call_type: CallType = CallType.Default) -> VehicleState:
         new_state = VehicleState.Unchanged
         if call_type == CallType.Default:
-            for key in state_keys:
-                if charging_status := get_ChargingStatus(key, 'charging_ended'):
-                    if charging_status != ChargingStatus.Charging:
-                        if charge_plug_connected := get_ChargePlugConnected(Hash.ChargePlugConnected, 'charging_ended'):
-                            if charge_plug_connected == ChargePlugConnected.Yes:
-                                new_state = VehicleState.PluggedIn
-                            elif inferred_key := get_InferredKey(Hash.InferredKey, 'charging_ended'):
-                                if inferred_key == InferredKey.KeyOut:
-                                    if engine_start_remote := get_EngineStartRemote(Hash.EngineStartRemote, 'charging_ended'):
-                                        new_state = VehicleState.Preconditioning if engine_start_remote == EngineStartRemote.Yes else VehicleState.Idle
-                                elif inferred_key == InferredKey.KeyIn:
-                                    if engine_start_normal := get_EngineStartNormal(Hash.EngineStartNormal, 'charging_ended'):
-                                        new_state = VehicleState.On if engine_start_normal == EngineStartNormal.Yes else VehicleState.Accessory
+            if charging_status := get_ChargingStatus(Hash.ChargingStatus, 'charging_ended'):
+                if charging_status != ChargingStatus.Charging:
+                    if charge_plug_connected := get_ChargePlugConnected(Hash.ChargePlugConnected, 'charging_ended'):
+                        if charge_plug_connected == ChargePlugConnected.Yes:
+                            new_state = VehicleState.PluggedIn
+                        elif inferred_key := get_InferredKey(Hash.InferredKey, 'charging_ended'):
+                            if inferred_key == InferredKey.KeyOut:
+                                if engine_start_remote := get_EngineStartRemote(Hash.EngineStartRemote, 'charging_ended'):
+                                    new_state = VehicleState.Preconditioning if engine_start_remote == EngineStartRemote.Yes else VehicleState.Idle
+                            elif inferred_key == InferredKey.KeyIn:
+                                if engine_start_normal := get_EngineStartNormal(Hash.EngineStartNormal, 'charging_ended'):
+                                    new_state = VehicleState.On if engine_start_normal == EngineStartNormal.Yes else VehicleState.Accessory
         elif call_type == CallType.Outgoing:
             charger_type = self._charging_session.get('type')
             starting_time = self._charging_session.get('time')
