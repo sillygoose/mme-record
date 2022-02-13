@@ -14,7 +14,9 @@ from did import InferredKey, EngineStartRemote, EngineStartNormal
 
 from vehicle_state import VehicleState, CallType
 from hash import *
+
 from influxdb import influxdb_charging_session
+from geocodio import GeocodioClient
 
 
 _LOGGER = logging.getLogger('mme')
@@ -24,6 +26,10 @@ class Charging:
 
     def __init__(self, config: Configuration) -> None:
         self._charging_session = None
+        self._geocodio_client = None
+        geocodio = dict(config.geocodio)
+        if geocodio.get('enable', False):
+            self._geocodio_client = GeocodioClient(geocodio.get('api_key'))
 
     def charging_starting(self, state_keys: List, call_type: CallType = CallType.Default) -> VehicleState:
         new_state = VehicleState.Unchanged
@@ -176,13 +182,17 @@ class Charging:
                 'max_power':        max_input_power,
             }
             _LOGGER.info(f"Charging session statistics:")
-            _LOGGER.info(f"   {charger_type} charging session started at {session_datetime} for {hours} hours, {minutes} minutes")
-            _LOGGER.info(f"   location was ({latitude:.05f},{longitude:.05f}), odometer is {odometer} km")
-            _LOGGER.info(f"   starting SoC was {starting_socd:.01f}%, ending SoC was {ending_socd:.01f}%")
-            _LOGGER.info(f"   starting EtE was {starting_ete:.0f} Wh, ending EtE was {ending_ete:.0f} Wh, LVB delta energy was {delta_lvb_energy:.0f} Wh")
-            _LOGGER.info(f"   {wh_added:.0f} Wh were added, requiring {wh_used:.0f} Wh from the AC charger")
-            _LOGGER.info(f"   overall efficiency is {(charging_efficiency*100):.01f}%")
-            _LOGGER.info(f"   maximum input power {max_input_power:.0f} W")
+            _LOGGER.info(f"    {charger_type} charging session started at {session_datetime} for {hours} hours, {minutes} minutes")
+            if self._geocodio_client is None:
+                _LOGGER.info(f"    location ({latitude:.06f},{longitude:.06f})")
+            else:
+                location = self._geocodio_client.reverse((latitude, longitude))
+                _LOGGER.info(f"     {location.formatted_address}")
+            _LOGGER.info(f"    starting SoC was {starting_socd:.01f}%, ending SoC was {ending_socd:.01f}%")
+            _LOGGER.info(f"    starting EtE was {starting_ete:.0f} Wh, ending EtE was {ending_ete:.0f} Wh, LVB delta energy was {delta_lvb_energy:.0f} Wh")
+            _LOGGER.info(f"    {wh_added:.0f} Wh were added, requiring {wh_used:.0f} Wh from the AC charger")
+            _LOGGER.info(f"    overall efficiency is {(charging_efficiency*100):.01f}%")
+            _LOGGER.info(f"    maximum input power {max_input_power:.0f} W")
             influxdb_charging_session(session=charging_session, vehicle=self._vehicle_name)
             self._charging_session = None
         return new_state
