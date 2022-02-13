@@ -163,5 +163,5 @@ class StateManager(StateTransistion):
                 return state_data
 
     def _update_state_machine(self) -> None:
-        if new_state := self._state_function():
+        if new_state := self._state_function(call_type = CallType.Default):
             self.change_state(new_state)

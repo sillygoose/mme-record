@@ -24,7 +24,12 @@ class Charging:
     def __init__(self) -> None:
         self._charging_session = None
 
-    def charging_starting(self,call_type: CallType = CallType.Default) -> VehicleState:
+    _requiredStates = [
+            Hash.LvbEnergy, Hash.LoresOdometer, Hash.HvbEtE, Hash.HvbSoC, Hash.HvbSoCD,
+            Hash.GpsLatitude, Hash.GpsLongitude, Hash.ChargerInputEnergy, Hash.ChargerOutputEnergy
+        ]
+
+    def charging_starting(self,call_type: CallType) -> VehicleState:
         new_state = VehicleState.Unchanged
         if call_type == CallType.Incoming:
             assert self._charging_session is None
@@ -35,8 +40,7 @@ class Charging:
             set_state(Hash.ChargerOutputPowerMax, 0)
 
         elif call_type == CallType.Outgoing:
-            requiredStates = [Hash.LvbEnergy, Hash.LoresOdometer, Hash.HvbEtE, Hash.HvbSoC, Hash.HvbSoCD, Hash.GpsLatitude, Hash.GpsLongitude, Hash.ChargerInputEnergy, Hash.ChargerOutputEnergy]
-            for state in requiredStates:
+            for state in Charging._requiredStates:
                 assert get_state_value(state, None) is not None
 
         elif call_type == CallType.Default:
@@ -53,8 +57,7 @@ class Charging:
                             if engine_start_normal := get_EngineStartNormal(Hash.EngineStartNormal, 'charging_starting'):
                                 new_state = VehicleState.On if engine_start_normal == EngineStartNormal.Yes else VehicleState.Accessory
 
-            requiredStates = [Hash.LvbEnergy, Hash.LoresOdometer, Hash.HvbEtE, Hash.HvbSoC, Hash.HvbSoCD, Hash.GpsLatitude, Hash.GpsLongitude, Hash.ChargerInputVoltage, Hash.ChargerOutputVoltage]
-            for state in requiredStates:
+            for state in Charging._requiredStates:
                 if (state_value := get_state_value(state, None)) is None:
                     return new_state
                 self._charging_session[state] = state_value
@@ -72,7 +75,7 @@ class Charging:
                     _LOGGER.info(f"While in {VehicleState.Charging_Starting.name}, 'ChargingStatus' returned an unexpected response: {charging_status}")
         return new_state
 
-    def charging_ac(selff, call_type: CallType = CallType.Default) -> VehicleState:
+    def charging_ac(selff, call_type: CallType) -> VehicleState:
         new_state = VehicleState.Unchanged
         if call_type == CallType.Default:
             if charging_status := get_ChargingStatus(Hash.ChargingStatus, 'charging_ac'):
@@ -81,7 +84,7 @@ class Charging:
                     new_state = VehicleState.Charging_Ended
         return new_state
 
-    def charging_dcfc(self, call_type: CallType = CallType.Default) -> VehicleState:
+    def charging_dcfc(self, call_type: CallType) -> VehicleState:
         new_state = VehicleState.Unchanged
         if call_type == CallType.Default:
             if charging_status := get_ChargingStatus(Hash.ChargingStatus, 'charging_dcfc'):
@@ -90,7 +93,7 @@ class Charging:
                     new_state = VehicleState.Charging_Ended
         return new_state
 
-    def charging_ended(self, call_type: CallType = CallType.Default) -> VehicleState:
+    def charging_ended(self, call_type: CallType) -> VehicleState:
         new_state = VehicleState.Unchanged
         if call_type == CallType.Outgoing:
             pass

@@ -24,7 +24,12 @@ class Trip:
     def __init__(self) -> None:
         self._trip_log = None
 
-    def trip_starting(self, call_type: CallType = CallType.Default) -> VehicleState:
+    _requiredStates = [
+            Hash.HiresOdometer, Hash.HvbSoCD, Hash.HvbEtE, Hash.GpsLatitude,
+            Hash.GpsLongitude, Hash.GpsElevation, Hash.ExteriorTemperature,
+        ]
+
+    def trip_starting(self, call_type: CallType) -> VehicleState:
         new_state = VehicleState.Unchanged
         if call_type == CallType.Incoming:
             assert self._trip_log is None
@@ -36,13 +41,11 @@ class Trip:
             set_state(Hash.HiresSpeedMax, 0)
 
         elif call_type == CallType.Outgoing:
-            requiredStates = [Hash.HiresOdometer, Hash.HvbSoCD, Hash.HvbEtE, Hash.GpsLatitude, Hash.GpsLongitude, Hash.GpsElevation, Hash.ExteriorTemperature]
-            for state in requiredStates:
+            for state in Trip._requiredStates:
                 assert get_state_value(state, None) is not None
 
         elif call_type == CallType.Default:
-            requiredStates = [Hash.HiresOdometer, Hash.HvbSoCD, Hash.HvbEtE, Hash.GpsLatitude, Hash.GpsLongitude, Hash.GpsElevation, Hash.ExteriorTemperature]
-            for state in requiredStates:
+            for state in Trip._requiredStates:
                 if (state_value := get_state_value(state, None)) is None:
                     return new_state
                 self._trip_log[state] = state_value
@@ -55,7 +58,17 @@ class Trip:
                     new_state = VehicleState.Idle
         return new_state
 
-    def trip_ending(self, call_type: CallType = CallType.Default) -> VehicleState:
+
+    def trip(self, call_type: CallType) -> VehicleState:
+        new_state = VehicleState.Unchanged
+        if call_type == CallType.Default:
+            if gear_commanded := get_GearCommanded(Hash.GearCommanded, 'trip'):
+                if gear_commanded == GearCommanded.Park:
+                    new_state = VehicleState.Trip_Ending
+        return new_state
+
+
+    def trip_ending(self, call_type: CallType) -> VehicleState:
         new_state = VehicleState.Unchanged
         if call_type == CallType.Outgoing:
             pass
@@ -108,12 +121,4 @@ class Trip:
             influxdb_record_trip(details=trip_details, vehicle=self._vehicle_name)
             self._trip_log = None
 
-        return new_state
-
-    def trip(self, call_type: CallType = CallType.Default) -> VehicleState:
-        new_state = VehicleState.Unchanged
-        if call_type == CallType.Default:
-            if gear_commanded := get_GearCommanded(Hash.GearCommanded, 'trip'):
-                if gear_commanded == GearCommanded.Park:
-                    new_state = VehicleState.Trip_Ending
         return new_state
