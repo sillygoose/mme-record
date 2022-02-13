@@ -6,6 +6,8 @@ import json
 
 import version
 import logfiles
+from geocoding import initialize_geocodio
+
 from readconfig import parse_yaml_file, parse_command_line
 from config.configuration import Configuration
 
@@ -27,6 +29,7 @@ class Record:
         self._response_queue = Queue(maxsize=10)
         self._module_manager = RecordModuleManager(config=config)
         self._did_manager = DIDManager()
+        initialize_geocodio(config)
         self._canbus_manager = RecordCanbusManager(config=config, request_queue=self._request_queue, response_queue=self._response_queue, module_manager=self._module_manager)
         self._state_manager = RecordStateManager(config=config, request_queue=self._request_queue, response_queue=self._response_queue)
 

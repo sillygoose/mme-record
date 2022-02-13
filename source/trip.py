@@ -2,13 +2,11 @@ import logging
 import time
 import datetime
 
-from typing import List, Tuple
-from config.configuration import Configuration
+from typing import List
 
 from state_engine import get_state_value, set_state
 from state_engine import get_InferredKey, get_GearCommanded
 from state_engine import get_EngineStartRemote, get_EngineStartDisable
-from state_engine import delete_did_cache
 
 from did import InferredKey, GearCommanded
 from did import EngineStartRemote, EngineStartDisable
@@ -17,7 +15,7 @@ from vehicle_state import VehicleState, CallType
 from hash import *
 
 from influxdb import influxdb_record_trip
-from geocodio import GeocodioClient
+from geocoding import reverse_geocode
 
 
 _LOGGER = logging.getLogger('mme')
@@ -25,12 +23,8 @@ _LOGGER = logging.getLogger('mme')
 
 class Trip:
 
-    def __init__(self, config: Configuration) -> None:
+    def __init__(self) -> None:
         self._trip_log = None
-        self._geocodio_client = None
-        geocodio = dict(config.geocodio)
-        if geocodio.get('enable', False):
-            self._geocodio_client = GeocodioClient(geocodio.get('api_key'))
 
     def trip_starting(self, state_keys: List, call_type: CallType = CallType.Default) -> VehicleState: ### get of of state_keys
         new_state = VehicleState.Unchanged
@@ -65,17 +59,6 @@ class Trip:
                         self._trip_log = None
                         new_state = VehicleState.Idle
         return new_state
-
-    def reverse_geocode(self, latitude: float, longitude: float) -> str:
-        if self._geocodio_client:
-            formatted_address = f"({latitude:.06f}, {longitude:.06f})"
-            reversed = self._geocodio_client.reverse((latitude, longitude))
-            components = self._geocodio_client.parse(reversed.formatted_address).get('address_components', None)
-            if components:
-                formatted_address = f"{components.get('formatted_street')}, {components.get('city')}, {components.get('state')}, {components.get('country')}"
-            return formatted_address
-        else:
-            return f"({latitude:.06f}, {longitude:.06f})"
 
     def trip_ending(self, state_keys: List, call_type: CallType = CallType.Default) -> VehicleState:
         new_state = VehicleState.Unchanged
@@ -115,13 +98,13 @@ class Trip:
             }
             _LOGGER.info(f"Trip started at {starting_datetime} and lasted for {hours} hours, {minutes} minutes")
             _LOGGER.info(f"        odometer {trip.get(Hash.HiresOdometer):.01f} km")
-            _LOGGER.info(f"        {self.reverse_geocode(trip.get(Hash.GpsLatitude), trip.get(Hash.GpsLongitude))}")
+            _LOGGER.info(f"        {reverse_geocode(trip.get(Hash.GpsLatitude), trip.get(Hash.GpsLongitude))}")
             _LOGGER.info(f"        elevation {trip.get(Hash.GpsElevation):.01f} m")
             _LOGGER.info(f"        SoC {trip.get(Hash.HvbSoCD)}%, EtE { trip.get(Hash.HvbEtE)} Wh")
             _LOGGER.info(f"        temperature {trip.get(Hash.ExteriorTemperature)}°")
             _LOGGER.info(f"ending at {ending_datetime}")
             _LOGGER.info(f"        odometer {get_state_value(Hash.HiresOdometer):.01f} km, distance covered {trip_distance:.01f}")
-            _LOGGER.info(f"        {self.reverse_geocode(get_state_value(Hash.GpsLatitude), get_state_value(Hash.GpsLongitude))}")
+            _LOGGER.info(f"        {reverse_geocode(get_state_value(Hash.GpsLatitude), get_state_value(Hash.GpsLongitude))}")
             _LOGGER.info(f"        elevation {get_state_value(Hash.GpsElevation):.01f} m, elevation change {elevation_change:.01f} m")
             _LOGGER.info(f"        SoC {get_state_value(Hash.HvbSoCD)}%, EtE {get_state_value(Hash.HvbEtE)} Wh")
             _LOGGER.info(f"        energy gained {get_state_value(Hash.HvbEnergyGained):.0f} Wh, energy lost {get_state_value(Hash.HvbEnergyLost):.0f} Wh")

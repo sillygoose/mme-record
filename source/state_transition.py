@@ -21,8 +21,8 @@ _LOGGER = logging.getLogger('mme')
 class StateTransistion(Charging, Trip):
 
     def __init__(self, config: Configuration) -> None:
-        Charging.__init__(self, config)
-        Trip.__init__(self, config)
+        Charging.__init__(self)
+        Trip.__init__(self)
 
     def unknown(self, state_keys: List, call_type: CallType = CallType.Default) -> VehicleState:
         new_state = VehicleState.Unchanged
