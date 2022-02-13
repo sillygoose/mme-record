@@ -48,7 +48,7 @@ class StateManager(StateTransistion):
     }
 
     def __init__(self, config: Configuration) -> None:
-        super().__init__(config)
+        super().__init__()
         self._vehicle_name = config.vehicle.name
         self._state = None
         self._state_function = None

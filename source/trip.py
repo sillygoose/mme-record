@@ -47,8 +47,9 @@ class Trip:
             ready_to_continue = True
             for state in requiredStates:
                 if (state_value := get_state_value(state, None)) is None:
-                    ready_to_continue = False
-                    break
+                    return new_state
+                    #ready_to_continue = False
+                    #break
                 else:
                     self._trip_log[state] = state_value
             if ready_to_continue:
