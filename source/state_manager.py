@@ -36,11 +36,11 @@ class StateManager(StateTransistion):
         VehicleState.PluggedIn:         {'state_file': 'json/state/pluggedin.json',         'state_keys': [Hash.ChargePlugConnected, Hash.ChargingStatus]},
         VehicleState.Charging_AC:       {'state_file': 'json/state/charging_ac.json',       'state_keys': [Hash.ChargingStatus]},
         VehicleState.Charging_Starting: {'state_file': 'json/state/charging_starting.json', 'state_keys': [Hash.ChargingStatus]},
-        VehicleState.Charging_Ended:    {'state_file': 'json/state/charging_ended.json',    'state_keys': [Hash.ChargingStatus]},
+        VehicleState.Charging_Ended:    {'state_file': 'json/state/charging_ended.json',    'state_keys': [Hash.InferredKey, Hash.ChargingStatus]},
 
         VehicleState.Trip_Starting:     {'state_file': 'json/state/trip_starting.json',     'state_keys': [Hash.GearCommanded]},
         VehicleState.Trip:              {'state_file': 'json/state/trip.json',              'state_keys': [Hash.GearCommanded]},
-        VehicleState.Trip_Ending:       {'state_file': 'json/state/trip_ending.json',       'state_keys': [Hash.GearCommanded]},
+        VehicleState.Trip_Ending:       {'state_file': 'json/state/trip_ending.json',       'state_keys': [Hash.InferredKey, Hash.GearCommanded]},
 
         ###
         VehicleState.Preconditioning:   {'state_file': 'json/state/preconditioning.json',   'state_keys': [Hash.ChargePlugConnected, Hash.ChargingStatus, Hash.EvseType]},
@@ -48,7 +48,7 @@ class StateManager(StateTransistion):
     }
 
     def __init__(self, config: Configuration) -> None:
-        super().__init__()
+        super().__init__(config)
         self._vehicle_name = config.vehicle.name
         self._state = None
         self._state_function = None

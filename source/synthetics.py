@@ -113,6 +113,21 @@ def update_synthetics(hash: Hash) -> List[dict]:
                 synthetics.append({'arbitration_id': arbitration_id, 'did_id': did_id, 'name': synthetic_name, 'value': charger_output_energy})
                 _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: AC charger output energy is {charger_output_energy:.0f} Wh (calculated)")
 
+            elif synthetic_hash == Hash.HiresSpeed:
+                hires_speed = get_state_value(Hash.HiresSpeed, 0.0)
+                if hires_speed > get_state_value(Hash.HiresSpeedMax, 0.0):
+                    set_state(Hash.HiresSpeedMax, hires_speed)
+                    _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: maximum speed is {hires_speed:.1f} W (calculated)")
+
+            elif synthetic_hash == Hash.GpsElevation:
+                gps_elevation = get_state_value(Hash.GpsElevation, 0.0)
+                if gps_elevation > get_state_value(Hash.GpsElevationMax, -99999999.0):
+                    set_state(Hash.GpsElevationMax, gps_elevation)
+                    _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: maximum elevation is {gps_elevation:.1f} W (calculated)")
+                if gps_elevation < get_state_value(Hash.GpsElevationMin, 99999999.0):
+                    set_state(Hash.GpsElevationMin, gps_elevation)
+                    _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: minimum elevation is {gps_elevation:.1f} W (calculated)")
+
     except ValueError:
         _LOGGER.debug(f"ValueError in update_synthetics({hash.value})")
         pass

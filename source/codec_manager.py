@@ -165,7 +165,7 @@ class CodecGPS(Codec):
             except Exception as e:
                 _LOGGER.exception(f"Unexpected GPS exception: {e}")
 
-        gps_data = f"GPS: ({gps_latitude:2.8f}, {gps_longitude:2.8f}), elevation {gps_elevation:.01f} m, bearing {gps_bearing}°, speed {gps_speed:3.1f} kph"
+        gps_data = f"GPS: ({gps_latitude:2.8f}, {gps_longitude:3.8f}), elevation {gps_elevation:.01f} m, bearing {gps_bearing}°, speed {gps_speed:3.1f} kph"
         return {'payload': payload, 'states': states, 'decoded': gps_data}
 
     def __len__(self):

@@ -1,6 +1,7 @@
 import logging
 
 from typing import List
+from config.configuration import Configuration
 
 from state_engine import get_InferredKey, get_ChargePlugConnected, get_GearCommanded, get_ChargingStatus, get_KeyState
 from state_engine import get_EngineStartRemote, get_EngineStartDisable, get_EngineStartNormal
@@ -19,9 +20,9 @@ _LOGGER = logging.getLogger('mme')
 
 class StateTransistion(Charging, Trip):
 
-    def __init__(self) -> None:
-        Charging.__init__(self)
-        Trip.__init__(self)
+    def __init__(self, config: Configuration) -> None:
+        Charging.__init__(self, config)
+        Trip.__init__(self, config)
 
     def unknown(self, state_keys: List, call_type: CallType = CallType.Default) -> VehicleState:
         new_state = VehicleState.Unchanged
@@ -45,8 +46,8 @@ class StateTransistion(Charging, Trip):
                         if engine_start_remote := get_EngineStartRemote(Hash.EngineStartRemote, 'idle'):
                             new_state = VehicleState.Preconditioning if engine_start_remote == EngineStartRemote.Yes else VehicleState.Idle
                     elif inferred_key == InferredKey.KeyIn:
-                        if engine_start_normal := get_EngineStartNormal(Hash.EngineStartNormal, 'idle'):
-                            new_state = VehicleState.On if engine_start_normal == EngineStartNormal.Yes else VehicleState.Accessory
+                        if engine_start_disable := get_EngineStartDisable(Hash.EngineStartDisable, 'idle'):
+                            new_state = VehicleState.On if engine_start_disable == EngineStartDisable.No else VehicleState.Accessory
                 elif charge_plug_connected := get_ChargePlugConnected(key, 'idle'):
                     if charge_plug_connected == ChargePlugConnected.Yes:
                         new_state = VehicleState.PluggedIn
@@ -61,8 +62,8 @@ class StateTransistion(Charging, Trip):
                         if engine_start_remote := get_EngineStartRemote(Hash.EngineStartRemote, 'accessory'):
                             new_state = VehicleState.Preconditioning if engine_start_remote == EngineStartRemote.Yes else VehicleState.Idle
                     elif inferred_key == InferredKey.KeyIn:
-                        if engine_start_normal := get_EngineStartNormal(Hash.EngineStartNormal, 'accessory'):
-                            new_state = VehicleState.On if engine_start_normal == EngineStartNormal.Yes else VehicleState.Accessory
+                        if engine_start_disable := get_EngineStartDisable(Hash.EngineStartDisable, 'accessory'):
+                            new_state = VehicleState.On if engine_start_disable == EngineStartDisable.No else VehicleState.Accessory
                 elif charge_plug_connected := get_ChargePlugConnected(key, 'accessory'):
                     if charge_plug_connected == ChargePlugConnected.Yes:
                         new_state = VehicleState.PluggedIn
@@ -77,14 +78,14 @@ class StateTransistion(Charging, Trip):
                         if engine_start_remote := get_EngineStartRemote(Hash.EngineStartRemote, 'on'):
                             new_state = VehicleState.Preconditioning if engine_start_remote == EngineStartRemote.Yes else VehicleState.Idle
                     elif inferred_key == InferredKey.KeyIn:
-                        if engine_start_normal := get_EngineStartNormal(Hash.EngineStartNormal, 'on'):
-                            new_state = VehicleState.On if engine_start_normal == EngineStartNormal.Yes else VehicleState.Accessory
+                        if engine_start_disable := get_EngineStartDisable(Hash.EngineStartDisable, 'on'):
+                            new_state = VehicleState.On if engine_start_disable == EngineStartDisable.No else VehicleState.Accessory
                 elif charge_plug_connected := get_ChargePlugConnected(key, 'on'):
                     if charge_plug_connected == ChargePlugConnected.Yes:
                         new_state = VehicleState.PluggedIn
                 elif gear_commanded := get_GearCommanded(key, 'on'):
                     if gear_commanded != GearCommanded.Park:
-                        new_state = VehicleState.Trip
+                        new_state = VehicleState.Trip_Starting
         return new_state
 
     def preconditioning(self, state_keys: List, call_type: CallType = CallType.Default) -> VehicleState:

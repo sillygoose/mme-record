@@ -1,7 +1,9 @@
 import logging
 import time
 import datetime
+
 from typing import List
+from config.configuration import Configuration
 
 from state_engine import get_state_value, set_state
 from state_engine import get_ChargePlugConnected, get_ChargingStatus, get_EvseType
@@ -20,7 +22,7 @@ _LOGGER = logging.getLogger('mme')
 
 class Charging:
 
-    def __init__(self) -> None:
+    def __init__(self, config: Configuration) -> None:
         self._charging_session = None
 
     def charging_starting(self, state_keys: List, call_type: CallType = CallType.Default) -> VehicleState:

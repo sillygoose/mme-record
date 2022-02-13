@@ -1,10 +1,4 @@
-import logging
-
 from enum import Enum, unique
-from exceptions import RuntimeError
-
-
-_LOGGER = logging.getLogger('mme')
 
 
 @unique
@@ -17,6 +11,7 @@ class Hash(Enum):
     ChargePlugConnected     = '07E2:4843:charge_plug_connected'
 
     HiresSpeed              = '07E0:1505:hires_speed'
+    HiresSpeedMax           = 'FFFF:1505:hires_speed_max'
     HiresOdometer           = '0720:404C:hires_odometer'
     LoresOdometer           = '07E4:DD01:lores_odometer'
 
@@ -62,6 +57,8 @@ class Hash(Enum):
     GpsSpeed                = '07D0:8012:gps_speed'
     GpsBearing              = '07D0:8012:gps_bearing'
     GpsFix                  = '07D0:8012:gps_fix'
+    GpsElevationMin         = '07D0:8012:gps_elevation_min'
+    GpsElevationMax         = '07D0:8012:gps_elevation_max'
 
     InteriorTemperature     = '07E2:DD04:interior_temp'
     ExteriorTemperature     = '07E6:DD05:exterior_temp'

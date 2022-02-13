@@ -14,6 +14,27 @@ _LOGGER = logging.getLogger('mme')
 class StateEngine:
 
     _state = {}
+    _did_cache = {}
+
+
+def initialize_did_cache() -> None:
+    StateEngine._did_cache = {}
+
+def get_did_cache(key: str) -> Any:
+    return StateEngine._did_cache.get(key, None)
+
+def set_did_cache(key: str, value: Any) -> None:
+    StateEngine._did_cache[key] = value
+
+def delete_did_cache(key: str) -> None:
+    try:
+        StateEngine._did_cache.pop(key)
+        _LOGGER.debug(f"Deleted DID cache entry '{key}'")
+    except KeyError:
+        _LOGGER.debug(f"Deleting DID cache entry '{key}' failed")
+        pass
+
+###
 
 def get_state_timestamp(hash: Hash) -> int:
     state = StateEngine._state.get(hash, (None, 0))

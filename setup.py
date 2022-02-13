@@ -26,6 +26,7 @@ setup(
         "can-isotp",
         "udsoncan",
         "influxdb-client",
+        'pygeocodio',
     ],
     zip_safe=True,
 )

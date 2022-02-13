@@ -129,6 +129,34 @@ def write_lp_points(lp_points: List) -> None:
         _LOGGER.error(f"Wrote {len(InfluxDB._line_points)} points to backup file '{InfluxDB._backup_file}'")
 
 
+def influxdb_record_trip(details: dict, vehicle: str) -> None:
+    """
+            trip_details = {
+                'time':                 starting_time,
+                'duration':             duration_seconds,
+                'odometer':             {'starting': trip.get(Hash.HiresOdometer), 'ending': get_state_value(Hash.HiresOdometer)},
+                'socd':                 {'starting': trip.get(Hash.HvbSoCD), 'ending': get_state_value(Hash.HvbSoCD)},
+                'ete':                  {'starting': trip.get(Hash.HvbEtE), 'ending': get_state_value(Hash.HvbEtE)},
+                'latitude':             {'starting': trip.get(Hash.GpsLatitude), 'ending': get_state_value(Hash.GpsLatitude)},
+                'longitude':            {'starting': trip.get(Hash.GpsLongitude), 'ending': get_state_value(Hash.GpsLongitude)},
+                'elevation':            {'starting': trip.get(Hash.GpsElevation), 'ending': get_state_value(Hash.GpsElevation)},
+                'temperature':          {'starting': trip.get(Hash.ExteriorTemperature), 'ending': get_state_value(Hash.ExteriorTemperature)},
+            }
+    """
+    trip = []
+    """
+    tag_value = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%dT%H:%M')
+    trip.append(
+        f"trip" \
+        f",vehicle={vehicle},session={tag_value} " \
+        f"odometer={odometer},latitude={latitude},longitude={longitude},duration={duration}," \
+        f"soc_begin={starting_soc},soc_end={ending_soc},socd_begin={starting_socd},socd_end={ending_socd}," \
+        f"ete_begin={starting_ete},ete_end={ending_ete},max_power={max_input_power}," \
+        f"kwh_added={kwh_added},kwh_used={kwh_used},efficiency={efficiency} {ts}")
+    """
+    write_lp_points(trip)
+
+
 def influxdb_charging_session(session: dict, vehicle: str) -> None:
     """
             charging_session = {

@@ -33,6 +33,7 @@ Both utilities can be configured via a YAML configuration file.  Definitions for
 - service files for running Record and/or Playback as a Linux service
 - Extract utility
 - added default value for read requests that timeout or error
+- Geocodio reverse geocoding added
 
 <a id='requirements'></a>
 ## Requirements
@@ -46,6 +47,7 @@ Both utilities can be configured via a YAML configuration file.  Definitions for
   - can-isotp
   - udsoncan
   - influxdb-client
+  - pygeocodio
 
   Both **Record** and **Playback** use SocketCAN for the networking and use UDS and ISO-TP protocols on top of the SocketCAN connections.  You need to have access to both of the OBDII connector HSCAN and MSCAN buses if you wish to access all of the vehicle modules.  My hardware setup consists of:
   - Raspberry Pi 4
@@ -204,3 +206,4 @@ Thanks for the following packages used to build this software:
 - [ISO-TP](https://github.com/pylessard/python-can-isotp)
 - [YAML configuration file support](https://python-configuration.readthedocs.io)
 - [InfluxDB Python API](https://influxdb-client.readthedocs.io/en/stable/api.html)
+- [Geocodio Python API](https://github.com/bennylope/pygeocodio)

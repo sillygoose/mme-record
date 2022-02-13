@@ -18,7 +18,7 @@ mme:
         # p2_star_timeout:                  max time in seconds to wait for a response (positive, negative, or NRC0x78) after the reception of
         #                                   a negative response with code 0x78 (requestCorrectlyReceived-ResponsePending) (default: 1.0)
         dest_path:                          'record-files'
-        dest_file:                          'test-1'
+        dest_file:                          'test-trip-1'
         gps_server:                         'http://100.93.138.71:8080'
         file_writes:                        500
         did_read:                           1
@@ -55,3 +55,10 @@ mme:
         bucket:                             'ev-test' # !secret influxdb2_bucket
         token:                              !secret influxdb2_token
         block_size:                         200
+
+    geocodio:
+        # Geocodio configuration options:
+        #   enable                          set to True to enable Geocodio reverse geocoding
+        #   api_key                         your Geocodio API key
+        enable:                             true
+        api_key:                            !secret geocodio_apikey

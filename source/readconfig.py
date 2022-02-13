@@ -277,6 +277,10 @@ def check_config(config):
                     {'token': {'required': True, 'keys': [], 'type': str}},
                     {'block_size': {'required': False, 'keys': [], 'type': int}},
                 ]}},
+                {'geocodio': {'required': False, 'keys': [
+                    {'enable': {'required': True, 'keys': [], 'type': bool}},
+                    {'api_key': {'required': False, 'keys': [], 'type': str}},
+                ]}},
             ]},
         },
     ]

@@ -163,5 +163,71 @@
                 "codec_id": 18504
             }
         ]
+    },
+    {
+        "module": "IPC",
+        "arbitration_id": 1824,
+        "arbitration_id_hex": "0720",
+        "enable": true,
+        "period": 15,
+        "dids": [
+            {
+                "did_name": "HiresOdometer",
+                "did_id": 16460,
+                "did_id_hex": "404C",
+                "codec_id": 16460
+            }
+        ]
+    },
+    {
+        "module": "BECM",
+        "arbitration_id": 2020,
+        "arbitration_id_hex": "07E4",
+        "enable": true,
+        "period": 15,
+        "dids": [
+            {
+                "did_name": "HvbSocD",
+                "did_id": 18501,
+                "did_id_hex": "4845",
+                "codec_id": 18501
+            },
+            {
+                "did_name": "HvbEtE",
+                "did_id": 18504,
+                "did_id_hex": "4848",
+                "codec_id": 18504
+            }
+        ]
+    },
+    {
+        "module": "APIM",
+        "arbitration_id": 2000,
+        "arbitration_id_hex": "07D0",
+        "enable": true,
+        "period": 15,
+        "dids": [
+            {
+                "did_name": "GPS",
+                "did_id": 32786,
+                "did_id_hex": "8012",
+                "codec_id": 32786
+            }
+        ]
+    },
+    {
+        "module": "SOBDMC",
+        "arbitration_id": 2022,
+        "arbitration_id_hex": "07E6",
+        "enable": true,
+        "period": 15,
+        "dids": [
+            {
+                "did_name": "ExteriorTemp",
+                "did_id": 56581,
+                "did_id_hex": "DD05",
+                "codec_id": 56581
+            }
+        ]
     }
 ]

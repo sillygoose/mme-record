@@ -8,6 +8,7 @@ import json
 from config.configuration import Configuration
 
 from did_manager import DIDManager
+from state_engine import initialize_did_cache, get_did_cache, set_did_cache
 
 from record_filemgr import RecordFileManager
 from state_manager import StateManager
@@ -33,7 +34,7 @@ class RecordStateManager(StateManager):
         self._request_thread = Thread(target=self._request_task, args=(sync_queue,), name='state_request')
         self._response_thread = Thread(target=self._response_task, args=(sync_queue,), name='state_response')
         self._file_manager = RecordFileManager(config.record)
-        self._did_state_cache = {}
+        initialize_did_cache()
         influxdb_connect(config.influxdb2)
 
     def start(self) -> List[Thread]:
@@ -147,8 +148,8 @@ class RecordStateManager(StateManager):
                                 for _ in range(packing_length):
                                     payload.append(default_value)
                                 state_details = {'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did_id, 'did_id_hex': f"{did_id:04X}", 'payload': payload}
-                                if self._did_state_cache.get(key, None) is None or self._did_state_cache.get(key).get('payload', None) != payload:
-                                    self._did_state_cache[key] = {'time': round(current_time, 6), 'payload': payload}
+                                if get_did_cache(key) is None or get_did_cache(key) != payload:
+                                    set_did_cache(key, payload)
                                     self._file_manager.write_record(state_details)
                                     if codec := self._codec_manager.codec(did_id):
                                         decoded = codec.decode(None, bytearray(payload))
@@ -162,8 +163,8 @@ class RecordStateManager(StateManager):
                         payload = response.service_data.values[did_id].get('payload')
                         current_time = time()
                         state_details = {'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did_id, 'did_id_hex': f"{did_id:04X}", 'payload': list(payload)}
-                        if self._did_state_cache.get(key, None) is None or self._did_state_cache.get(key).get('payload', None) != payload:
-                            self._did_state_cache[key] = {'time': round(current_time, 6), 'payload': payload}
+                        if get_did_cache(key) is None or get_did_cache(key) != payload:
+                            set_did_cache(key, payload)
                             self._file_manager.write_record(state_details)
                             _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: {response.service_data.values[did_id].get('decoded')}")
                             influxdb_state_data = self.update_vehicle_state(state_details)
