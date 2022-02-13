@@ -23,7 +23,10 @@ class StateTransistion(Charging, Trip):
         Charging.__init__(self)
         Trip.__init__(self)
 
-    def unknown(self, state_keys: List, call_type: CallType = CallType.Default) -> VehicleState:
+    def dummy(self, call_type: CallType = CallType.Default) -> None:
+        pass
+
+    def unknown(self, call_type: CallType = CallType.Default) -> VehicleState:
         new_state = VehicleState.Unchanged
         if call_type == CallType.Default:
             if inferred_key := get_InferredKey(Hash.InferredKey, 'unknown'):
@@ -35,7 +38,7 @@ class StateTransistion(Charging, Trip):
                         new_state = VehicleState.On if engine_start_disable == EngineStartDisable.No else VehicleState.Accessory
         return new_state
 
-    def idle(self, state_keys: List, call_type: CallType = CallType.Default) -> VehicleState:
+    def idle(self, call_type: CallType = CallType.Default) -> VehicleState:
         new_state = VehicleState.Unchanged
         if call_type == CallType.Default:
             if inferred_key := get_InferredKey(Hash.InferredKey, 'idle'):
@@ -50,7 +53,7 @@ class StateTransistion(Charging, Trip):
                     new_state = VehicleState.PluggedIn
         return new_state
 
-    def accessory(self, state_keys: List, call_type: CallType = CallType.Default) -> VehicleState:
+    def accessory(self, call_type: CallType = CallType.Default) -> VehicleState:
         new_state = VehicleState.Unchanged
         if call_type == CallType.Default:
             if inferred_key := get_InferredKey(Hash.InferredKey, 'accessory'):
@@ -65,7 +68,7 @@ class StateTransistion(Charging, Trip):
                     new_state = VehicleState.PluggedIn
         return new_state
 
-    def on(self, state_keys: List, call_type: CallType = CallType.Default) -> VehicleState:
+    def on(self, call_type: CallType = CallType.Default) -> VehicleState:
         new_state = VehicleState.Unchanged
         if call_type == CallType.Default:
             if inferred_key := get_InferredKey(Hash.InferredKey, 'on'):
@@ -83,7 +86,7 @@ class StateTransistion(Charging, Trip):
                     new_state = VehicleState.Trip_Starting
         return new_state
 
-    def preconditioning(self, state_keys: List, call_type: CallType = CallType.Default) -> VehicleState:
+    def preconditioning(self, call_type: CallType = CallType.Default) -> VehicleState:
         new_state = VehicleState.Unchanged
         if call_type == CallType.Default:
             if charging_status := get_ChargingStatus(Hash.ChargingStatus, 'preconditioning'):
@@ -103,7 +106,7 @@ class StateTransistion(Charging, Trip):
                     new_state = VehicleState.Unknown
         return new_state
 
-    def plugged_in(self, state_keys: List, call_type: CallType = CallType.Default) -> VehicleState:
+    def plugged_in(self, call_type: CallType = CallType.Default) -> VehicleState:
         new_state = VehicleState.Unchanged
         if call_type == CallType.Default:
             if charge_plug_connected := get_ChargePlugConnected(Hash.ChargePlugConnected, 'plugged_in'):

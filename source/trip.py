@@ -26,7 +26,7 @@ class Trip:
     def __init__(self) -> None:
         self._trip_log = None
 
-    def trip_starting(self, state_keys: List, call_type: CallType = CallType.Default) -> VehicleState: ### get of of state_keys
+    def trip_starting(self, call_type: CallType = CallType.Default) -> VehicleState:
         new_state = VehicleState.Unchanged
         if call_type == CallType.Incoming:
             assert self._trip_log is None
@@ -61,7 +61,7 @@ class Trip:
                         new_state = VehicleState.Idle
         return new_state
 
-    def trip_ending(self, state_keys: List, call_type: CallType = CallType.Default) -> VehicleState:
+    def trip_ending(self, call_type: CallType = CallType.Default) -> VehicleState:
         new_state = VehicleState.Unchanged
         if call_type == CallType.Outgoing:
             pass
@@ -116,7 +116,7 @@ class Trip:
 
         return new_state
 
-    def trip(self, state_keys: List, call_type: CallType = CallType.Default) -> VehicleState:
+    def trip(self, call_type: CallType = CallType.Default) -> VehicleState:
         new_state = VehicleState.Unchanged
         if call_type == CallType.Default:
             if gear_commanded := get_GearCommanded(Hash.GearCommanded, 'trip'):

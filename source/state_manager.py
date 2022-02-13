@@ -27,31 +27,31 @@ _LOGGER = logging.getLogger('mme')
 class StateManager(StateTransistion):
 
     _state_file_lookup = {
-        VehicleState.Unknown:           {'state_file': 'json/state/unknown.json',           'state_keys': [Hash.InferredKey]},
-        VehicleState.Idle:              {'state_file': 'json/state/idle.json',              'state_keys': [Hash.InferredKey, Hash.ChargePlugConnected]},
+        VehicleState.Unknown:           {'state_file': 'json/state/unknown.json'},
+        VehicleState.Idle:              {'state_file': 'json/state/idle.json'},
 
-        VehicleState.Accessory:         {'state_file': 'json/state/accessory.json',         'state_keys': [Hash.InferredKey, Hash.ChargePlugConnected]},
-        VehicleState.On:                {'state_file': 'json/state/on.json',                'state_keys': [Hash.InferredKey, Hash.ChargePlugConnected, Hash.GearCommanded]},
+        VehicleState.Accessory:         {'state_file': 'json/state/accessory.json'},
+        VehicleState.On:                {'state_file': 'json/state/on.json'},
 
-        VehicleState.PluggedIn:         {'state_file': 'json/state/pluggedin.json',         'state_keys': [Hash.ChargePlugConnected, Hash.ChargingStatus]},
-        VehicleState.Charging_AC:       {'state_file': 'json/state/charging_ac.json',       'state_keys': [Hash.ChargingStatus]},
-        VehicleState.Charging_Starting: {'state_file': 'json/state/charging_starting.json', 'state_keys': [Hash.ChargingStatus]},
-        VehicleState.Charging_Ended:    {'state_file': 'json/state/charging_ended.json',    'state_keys': [Hash.InferredKey, Hash.ChargingStatus]},
+        VehicleState.PluggedIn:         {'state_file': 'json/state/pluggedin.json'},
+        VehicleState.Charging_AC:       {'state_file': 'json/state/charging_ac.json'},
+        VehicleState.Charging_Starting: {'state_file': 'json/state/charging_starting.json'},
+        VehicleState.Charging_Ended:    {'state_file': 'json/state/charging_ended.json'},
 
-        VehicleState.Trip_Starting:     {'state_file': 'json/state/trip_starting.json',     'state_keys': [Hash.GearCommanded]},
-        VehicleState.Trip:              {'state_file': 'json/state/trip.json',              'state_keys': [Hash.GearCommanded]},
-        VehicleState.Trip_Ending:       {'state_file': 'json/state/trip_ending.json',       'state_keys': [Hash.InferredKey, Hash.GearCommanded]},
+        VehicleState.Trip_Starting:     {'state_file': 'json/state/trip_starting.json'},
+        VehicleState.Trip:              {'state_file': 'json/state/trip.json'},
+        VehicleState.Trip_Ending:       {'state_file': 'json/state/trip_ending.json'},
 
         ###
-        VehicleState.Preconditioning:   {'state_file': 'json/state/preconditioning.json',   'state_keys': [Hash.ChargePlugConnected, Hash.ChargingStatus, Hash.EvseType]},
-        VehicleState.Charging_DCFC:     {'state_file': 'json/state/charging_dcfc.json',     'state_keys': [Hash.ChargingStatus, Hash.EvseType]},
+        VehicleState.Preconditioning:   {'state_file': 'json/state/preconditioning.json'},
+        VehicleState.Charging_DCFC:     {'state_file': 'json/state/charging_dcfc.json'},
     }
 
     def __init__(self, config: Configuration) -> None:
         super().__init__()
         self._vehicle_name = config.vehicle.name
         self._state = None
-        self._state_function = None
+        self._state_function = self.dummy
         self._putback_enabled = False
         self._codec_manager = CodecManager(config)
         self._command_queue = PriorityQueue()
@@ -113,15 +113,13 @@ class StateManager(StateTransistion):
         self._putback_enabled = False
         self._flush_queue()
 
-        if state_keys := self._get_state_keys(self._state):
-            self._state_function(state_keys=state_keys, call_type = CallType.Outgoing)
+        self._state_function(call_type = CallType.Outgoing)
         self._state = new_state
         self._state_time = time.time()
         self._state_function = self._get_state_function(new_state)
         self._state_file = self._get_state_file(new_state)
         self._queue_commands = self._load_state_definition(self._state_file)
-        state_keys = self._get_state_keys(self._state)
-        self._state_function(state_keys=state_keys, call_type = CallType.Incoming)
+        self._state_function(call_type = CallType.Incoming)
 
     def _flush_queue(self) -> None:
         with self._command_queue_lock:
@@ -140,11 +138,6 @@ class StateManager(StateTransistion):
                     payload = (time.time() + offset, period, [module])
                     self._command_queue.put(payload)
             self._putback_enabled = True
-
-    def _get_state_keys(self, state: VehicleState) -> List[str]:
-        if state is None:
-            return None
-        return StateManager._state_file_lookup.get(state).get('state_keys')
 
     def _get_state_file(self, state) -> List[str]:
         return StateManager._state_file_lookup.get(state).get('state_file')
@@ -170,6 +163,5 @@ class StateManager(StateTransistion):
                 return state_data
 
     def _update_state_machine(self) -> None:
-        state_keys = self._get_state_keys(self._state)
-        if new_state := self._state_function(state_keys=state_keys):
+        if new_state := self._state_function():
             self.change_state(new_state)

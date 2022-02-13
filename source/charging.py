@@ -26,7 +26,7 @@ class Charging:
     def __init__(self) -> None:
         self._charging_session = None
 
-    def charging_starting(self, state_keys: List, call_type: CallType = CallType.Default) -> VehicleState:
+    def charging_starting(self,call_type: CallType = CallType.Default) -> VehicleState:
         new_state = VehicleState.Unchanged
         if call_type == CallType.Incoming:
             assert self._charging_session is None
@@ -97,7 +97,7 @@ class Charging:
                     _LOGGER.info(f"While in {VehicleState.Charging_Starting.name}, 'ChargingStatus' returned an unexpected response: {charging_status}")
         return new_state
 
-    def charging_ac(selff, state_keys: List, call_type: CallType = CallType.Default) -> VehicleState:
+    def charging_ac(selff, call_type: CallType = CallType.Default) -> VehicleState:
         new_state = VehicleState.Unchanged
         if call_type == CallType.Default:
             if charging_status := get_ChargingStatus(Hash.ChargingStatus, 'charging_ac'):
@@ -106,7 +106,7 @@ class Charging:
                     new_state = VehicleState.Charging_Ended
         return new_state
 
-    def charging_dcfc(self, state_keys: List, call_type: CallType = CallType.Default) -> VehicleState:
+    def charging_dcfc(self, call_type: CallType = CallType.Default) -> VehicleState:
         new_state = VehicleState.Unchanged
         if call_type == CallType.Default:
             if charging_status := get_ChargingStatus(Hash.ChargingStatus, 'charging_dcfc'):
@@ -115,7 +115,7 @@ class Charging:
                     new_state = VehicleState.Charging_Ended
         return new_state
 
-    def charging_ended(self, state_keys: List, call_type: CallType = CallType.Default) -> VehicleState:
+    def charging_ended(self, call_type: CallType = CallType.Default) -> VehicleState:
         new_state = VehicleState.Unchanged
         if call_type == CallType.Default:
             if charging_status := get_ChargingStatus(Hash.ChargingStatus, 'charging_ended'):
