@@ -57,6 +57,8 @@ class Hash(Enum):
     GpsSpeed                = '07D0:8012:gps_speed'
     GpsBearing              = '07D0:8012:gps_bearing'
     GpsFix                  = '07D0:8012:gps_fix'
+    GpsElapsed              = '07D0:8012:gps_elapsed'
+    GpsSource               = '07D0:8012:gps_source'
     GpsElevationMin         = '07D0:8012:gps_elevation_min'
     GpsElevationMax         = '07D0:8012:gps_elevation_max'
 

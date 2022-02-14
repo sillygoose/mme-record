@@ -17,7 +17,7 @@ def initialize_geocodio(config: Configuration):
     try:
         if config.geocodio.enable:
             Geocoding._geocodio_client = GeocodioClient(config.geocodio.api_key)
-            _LOGGER.info(f"Using the geocod.io service for reverse geocoding of addresses")
+            _LOGGER.info(f"Using the geocod.io service for reverse geocoding of locations")
     except AttributeError:
         _LOGGER.error(f"YAML file error setting up geocod.io reverse geocoding")
         pass

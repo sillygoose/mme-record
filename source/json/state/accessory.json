@@ -93,27 +93,6 @@
         ]
     },
     {
-        "module": "SOBDMB",
-        "arbitration_id": 2023,
-        "arbitration_id_hex": "07E7",
-        "enable": true,
-        "period": 60,
-        "dids": [
-            {
-                "did_name": "HvbCHOp",
-                "did_id": 18655,
-                "did_id_hex": "48DF",
-                "codec_id": 18655
-            },
-            {
-                "did_name": "HvbCHP",
-                "did_id": 18654,
-                "did_id_hex": "48DE",
-                "codec_id": 18654
-            }
-        ]
-    },
-    {
         "module": "SOBDMC",
         "arbitration_id": 2022,
         "arbitration_id_hex": "07E6",

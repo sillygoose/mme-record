@@ -217,16 +217,8 @@ def influxdb_write_record(data_points: List[dict], flush=False) -> None:
         arb_id = data_point.get('arbitration_id')
         did_id = data_point.get('did_id')
         did_name = data_point.get('name')
-
-        v_type = ''
         value = data_point.get('value')
-        if isinstance(value, float):
-            v_type = ''
-        elif isinstance(value, bool):
-            v_type = ''
-        elif isinstance(value, int):
-            v_type = 'i'
-        lp_points.append(f"dids,arb_id={arb_id:04X},did_id={did_id:04X} {did_name}={value}{v_type} {ts}")
+        lp_points.append(f"dids,arb_id={arb_id:04X},did_id={did_id:04X} {did_name}={value} {ts}")
     InfluxDB._line_points += lp_points
 
     if len(InfluxDB._line_points) >= InfluxDB._block_size or flush == True:

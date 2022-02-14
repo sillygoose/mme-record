@@ -70,7 +70,7 @@
         "arbitration_id": 2020,
         "arbitration_id_hex": "07E4",
         "enable": true,
-        "period": 3,
+        "period": 2,
         "dids": [
             {
                 "did_name": "HvbVoltage",
@@ -106,7 +106,7 @@
         "arbitration_id": 2016,
         "arbitration_id_hex": "07E0",
         "enable": true,
-        "period": 3,
+        "period": 1,
         "dids": [
             {
                 "did_name": "HiresSpeed",
@@ -121,7 +121,7 @@
         "arbitration_id": 2000,
         "arbitration_id_hex": "07D0",
         "enable": true,
-        "period": 5,
+        "period": 4,
         "dids": [
             {
                 "did_name": "GPS",
@@ -136,7 +136,7 @@
         "arbitration_id": 1824,
         "arbitration_id_hex": "0720",
         "enable": true,
-        "period": 10,
+        "period": 7,
         "dids": [
             {
                 "did_name": "HiresOdometer",

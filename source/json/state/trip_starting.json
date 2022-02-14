@@ -22,6 +22,12 @@
         "period": 1,
         "dids": [
             {
+                "did_name": "HvbVoltage",
+                "did_id": 18445,
+                "did_id_hex": "480D",
+                "codec_id": 18445
+            },
+            {
                 "did_name": "HvbSocD",
                 "did_id": 18501,
                 "did_id_hex": "4845",
