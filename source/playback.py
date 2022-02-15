@@ -27,7 +27,7 @@ class Playback:
         self._config = config
         self._module_manager = ModuleManager()
         self._did_manager = DIDManager()
-        self._codec_manager = CodecManager(config)
+        self._codec_manager = CodecManager(config.playback)
         self._dids = self._did_manager.dids()
         self._modules = self._add_modules(self._module_manager.modules())
         self._add_dids(self._dids)

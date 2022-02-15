@@ -37,6 +37,15 @@ def update_synthetics(hash: Hash) -> List[dict]:
                 synthetics.append({'arbitration_id': arbitration_id, 'did_id': did_id, 'name': synthetic_name, 'value': hvb_power})
                 _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: HVB power: {hvb_power:.0f} W (calculated)")
 
+                if hvb_power > get_state_value(Hash.HvbPowerMax, -9999999.0):
+                    set_state(Hash.HvbPowerMax, hvb_power)
+                    arbitration_id, did_id, synthetic_name = hash_fields(Hash.HvbPowerMax)
+                    _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: Maximum power seen: {hvb_power:.0f} W (calculated)")
+                if hvb_power < get_state_value(Hash.HvbPowerMin, 9999999.0):
+                    set_state(Hash.HvbPowerMin, hvb_power)
+                    arbitration_id, did_id, synthetic_name = hash_fields(Hash.HvbPowerMin)
+                    _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: Minimum power seen: {hvb_power:.0f} W (calculated)")
+
                 interval = (interval_end - interval_start) * 0.000000001
                 delta_hvb_energy = (hvb_power_interval_start * interval) / 3600
 

@@ -34,6 +34,7 @@ Both utilities can be configured via a YAML configuration file.  Definitions for
 - Extract utility
 - added default value for read requests that timeout or error
 - Geocodio reverse geocoding added
+- access accurate GPS location using iPhone app
 
 <a id='requirements'></a>
 ## Requirements

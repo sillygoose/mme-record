@@ -41,11 +41,14 @@ class RecordFileManager:
 
     def _write_file(self) -> None:
         if len(self._data_points) > 0:
-            json_data = json.dumps(self._data_points, indent = 4, sort_keys=False)[2:-2]
-            with open(self._filename, 'a') as outfile:
-                if self._writes > 0:
-                    outfile.write(',\n')
-                outfile.write(json_data)
-            _LOGGER.info(f"Wrote {len(self._data_points)} data points to output file '{self._filename}'")
-            self._writes += 1
-            self._data_points = []
+            try:
+                json_data = json.dumps(self._data_points, indent = 4, sort_keys=False)[2:-2]
+                with open(self._filename, 'a') as outfile:
+                    if self._writes > 0:
+                        outfile.write(',\n')
+                    outfile.write(json_data)
+                _LOGGER.info(f"Wrote {len(self._data_points)} data points to output file '{self._filename}'")
+                self._writes += 1
+                self._data_points = []
+            except TypeError as e:
+                _LOGGER.error(f"Error converting to JSON: {e}")

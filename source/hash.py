@@ -23,6 +23,8 @@ class Hash(Enum):
     HvbVoltage              = '07E4:480D:hvb_voltage'
     HvbCurrent              = '07E4:48F9:hvb_current'
     HvbPower                = 'FFFF:8000:hvb_power'
+    HvbPowerMax             = 'FFFF:8000:hvb_power_max'
+    HvbPowerMin             = 'FFFF:8000:hvb_power_min'
     HvbEnergy               = 'FFFF:8000:hvb_energy'
     HvbEnergyLost           = 'FFFF:8000:hvb_energy_lost'
     HvbEnergyGained         = 'FFFF:8000:hvb_energy_gained'

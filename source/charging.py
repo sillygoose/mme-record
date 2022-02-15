@@ -41,7 +41,8 @@ class Charging:
 
         elif call_type == CallType.Outgoing:
             for state in Charging._requiredStates:
-                assert get_state_value(state, None) is not None
+                assert get_state_value(state, None) is not None, f"{state.name}"
+            _LOGGER.info(f"Starting charging session, HVB SoC: {get_state_value(Hash.HvbSoCD):.01f}%, HVB EtE: {get_state_value(Hash.HvbEtE):.0f} Wh")
 
         elif call_type == CallType.Default:
             if charging_status := get_ChargingStatus(Hash.ChargingStatus, 'charging_starting'):

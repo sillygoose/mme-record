@@ -19,7 +19,7 @@ mme:
         # p2_star_timeout:                  max time in seconds to wait for a response (positive, negative, or NRC0x78) after the reception of
         #                                   a negative response with code 0x78 (requestCorrectlyReceived-ResponsePending) (default: 1.0)
         dest_path:                          'record-files'
-        dest_file:                          'trip-20220213'
+        dest_file:                          'trip-20220215'
         gps_server:                         'http://100.93.138.71:8080'
         file_writes:                        500
         did_read:                           1

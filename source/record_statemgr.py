@@ -161,14 +161,23 @@ class RecordStateManager(StateManager):
                     for did_id in response.service_data.values:
                         key = f"{arbitration_id:04X}:{did_id:04X}"
                         payload = response.service_data.values[did_id].get('payload')
+                        decoded_payload = None
+                        saved_payload = payload
+                        if codec := self._codec_manager.codec(did_id):
+                            decoded_payload = codec.decode(None, payload)
+                        if saved_payload != payload:
+                            pass
                         current_time = time()
                         state_details = {'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did_id, 'did_id_hex': f"{did_id:04X}", 'payload': list(payload)}
                         if get_did_cache(key) is None or get_did_cache(key) != payload:
                             set_did_cache(key, payload)
                             self._file_manager.write_record(state_details)
                             _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: {response.service_data.values[did_id].get('decoded')}")
-                            influxdb_state_data = self.update_vehicle_state(state_details)
-                            influxdb_write_record(influxdb_state_data)
+                            if decoded_payload:
+                                decoded_state_details = {'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did_id, 'did_id_hex': f"{did_id:04X}", 'payload': decoded_payload}
+                                influxdb_state_data = self.update_vehicle_state(decoded_state_details)
+                                state_details = None
+                                influxdb_write_record(influxdb_state_data)
                 self._update_state_machine()
                 self._response_queue.task_done()
 

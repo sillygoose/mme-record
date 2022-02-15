@@ -121,21 +121,27 @@ class CodecGearCommanded(Codec):
 class CodecGPS(Codec):
     def decode(self, payload):
         # default to using MME GPS data
-        gps_elevation, gps_latitude, gps_longitude, _, gps_speed, gps_bearing = struct.unpack('>HllBHH', payload)
+        gps_elevation, gps_latitude, gps_longitude, gps_fix, gps_speed, gps_bearing = struct.unpack('>HllBHH', payload)
         gps_latitude /= 60.0
         gps_longitude /= 60.0
         gps_speed *= 3.6
-        gps_elapsed = 0.0
+        saved_gps_bearing = gps_bearing
         states = [
-                {'gps_elevation': gps_elevation},
                 {'gps_latitude': gps_latitude},
                 {'gps_longitude': gps_longitude},
+                {'gps_elevation': gps_elevation},
                 {'gps_speed': gps_speed},
                 {'gps_bearing': gps_bearing},
             ]
+        gps_data = f"GPS: ({gps_latitude:3.8f}, {gps_longitude:3.8f}), elevation: {gps_elevation:.01f} m, bearing: {gps_bearing:.0f}°, speed: {gps_speed:3.1f} kph"
 
-        # Use GPS server if available alternate
+        # Use the external GPS server if available
         if CodecManager._gps_server:
+            states = [
+                    {'gps_elevation': gps_elevation},
+                    {'gps_speed': gps_speed},
+                    {'gps_bearing': gps_bearing},
+                ]
             try:
                 gps_response = requests.get(CodecManager._gps_server, timeout=1.5)
                 phone_gps = gps_response.json()
@@ -144,15 +150,25 @@ class CodecGPS(Codec):
                 gps_elevation = phone_gps.get('altitude')
                 gps_elapsed = gps_response.elapsed.seconds + round(gps_response.elapsed.microseconds/1000000, 3)
                 states = [
-                        {'gps_elevation': gps_elevation},
                         {'gps_latitude': gps_latitude},
                         {'gps_longitude': gps_longitude},
+                        {'gps_elevation': gps_elevation},
                         {'gps_elapsed': gps_elapsed},
                     ]
                 if (gps_speed := phone_gps.get('speed')) >= 0.0:
                     states.append({'gps_speed': gps_speed * 3.6})
                 if (gps_bearing := phone_gps.get('course')) >= 0.0:
                     states.append({'gps_bearing': gps_bearing})
+
+                gps_data = f"GPS: ({gps_latitude:3.8f}, {gps_longitude:3.8f}), elevation: {gps_elevation:.01f} m, bearing: {gps_bearing:.0f}°, speed: {gps_speed:3.1f} kph, elapsed: {gps_elapsed:.03f}"
+                gps_latitude = int(gps_latitude * 60)
+                gps_longitude = int(gps_longitude * 60)
+                gps_elevation = int(gps_elevation)
+                gps_speed = int(gps_speed / 3.6)
+                gps_bearing = saved_gps_bearing
+                new_payload = struct.pack('>HllBHH', gps_elevation, gps_latitude, gps_longitude, gps_fix, gps_speed, gps_bearing)
+                payload = new_payload
+
             except InvalidSchema as e:
                 _LOGGER.error(f"InvalidSchema error: {e}")
             except InvalidURL as e:
@@ -169,7 +185,6 @@ class CodecGPS(Codec):
             except Exception as e:
                 _LOGGER.exception(f"Unexpected GPS exception: {e}")
 
-        gps_data = f"GPS: ({gps_latitude:3.8f}, {gps_longitude:3.8f}), elevation: {gps_elevation:.01f} m, bearing: {gps_bearing:.0f}°, speed: {gps_speed:3.1f} kph, elapsed: {gps_elapsed:.03f}"
         return {'payload': payload, 'states': states, 'decoded': gps_data}
 
     def __len__(self):
@@ -253,7 +268,7 @@ class CodecHvbSocD(Codec):
     def decode(self, payload):
         hvb_socd = struct.unpack('>B', payload)[0] * 0.5
         states = [{'hvb_socd': hvb_socd}]
-        return {'payload': payload, 'states': states, 'decoded': f"HVB displayed SoC: {hvb_socd:.0f}% ({hvb_socd:.1f}%)"}
+        return {'payload': payload, 'states': states, 'decoded': f"HVB displayed SoC: {int(hvb_socd)}% ({hvb_socd:.1f}%)"}
 
     def __len__(self):
         return 1
@@ -635,8 +650,7 @@ class CodecManager:
 
     def __init__(self, config: Configuration) -> None:
         self._codec_lookup = CodecManager._codec_lookup
-        record_config = dict(config.record)
-        CodecManager._gps_server = record_config.get('gps_server', None)
+        CodecManager._gps_server = dict(config).get('gps_server', None)
 
     def codec(self, did_id: int) -> Codec:
         try:

@@ -136,7 +136,7 @@
         "arbitration_id": 1824,
         "arbitration_id_hex": "0720",
         "enable": true,
-        "period": 7,
+        "period": 5,
         "dids": [
             {
                 "did_name": "HiresOdometer",
