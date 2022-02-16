@@ -21,7 +21,7 @@ mme:
         dest_path:                          'record-files'
         dest_file:                          'trip-20220215'
         gps_server:                         'http://100.93.138.71:8080'
-        file_writes:                        500
+        file_writes:                        250
         did_read:                           1
         born_on:                            1623167753
         request_timeout:                    1.0

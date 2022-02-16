@@ -163,5 +163,35 @@
                 "codec_id": 18504
             }
         ]
+    },
+    {
+        "module": "IPC",
+        "arbitration_id": 1824,
+        "arbitration_id_hex": "0720",
+        "enable": true,
+        "period": 5,
+        "dids": [
+            {
+                "did_name": "HiresOdometer",
+                "did_id": 16460,
+                "did_id_hex": "404C",
+                "codec_id": 16460
+            }
+        ]
+    },
+    {
+        "module": "APIM",
+        "arbitration_id": 2000,
+        "arbitration_id_hex": "07D0",
+        "enable": true,
+        "period": 5,
+        "dids": [
+            {
+                "did_name": "GPS",
+                "did_id": 32786,
+                "did_id_hex": "8012",
+                "codec_id": 32786
+            }
+        ]
     }
 ]

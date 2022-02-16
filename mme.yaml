@@ -19,7 +19,7 @@ mme:
         #                                   a negative response with code 0x78 (requestCorrectlyReceived-ResponsePending) (default: 1.0)
         dest_path:                          'record-files'
         dest_file:                          'test-trip'
-        gps_server:                         'http://100.93.138.71:8080'
+        #gps_server:                         'http://100.93.138.71:8080'
         file_writes:                        500
         did_read:                           1
         born_on:                            1623167753
@@ -35,9 +35,9 @@ mme:
         # source_file:                      source file name for the playback files
         # rx_consecutive_frame_timeout:     triggers a timeout if a consecutive frame is not received (default: 1.0)
         # rx_flowcontrol_timeout:           triggers a timeout if a flow control is not received (default: 1.0)
-        speedup:                            true
+        speedup:                            false
         source_path:                        'playback-files'
-        source_file:                        'trip-20220213' # 'ac_charge_20220127-1' # 'ac_charge_20220124'
+        source_file:                        'trip-20220215'
         rx_consecutive_frame_timeout:       1.0
         rx_flowcontrol_timeout:             1.0
 

@@ -60,6 +60,7 @@ class Charging:
 
             for state in Charging._requiredStates:
                 if (state_value := get_state_value(state, None)) is None:
+                    _LOGGER.debug(f"Missing required state: '{state.name}'")
                     return new_state
                 self._charging_session[state] = state_value
 
@@ -158,7 +159,7 @@ class Charging:
             _LOGGER.info(f"    {charger_type} charging session started at {session_datetime} for {hours} hours, {minutes} minutes")
             _LOGGER.info(f"    location: {reverse_geocode(latitude, longitude)}")
             _LOGGER.info(f"    starting SoC: {starting_socd:.01f}%, ending SoC: {ending_socd:.01f}%")
-            _LOGGER.info(f"    starting EtE: {starting_ete:.0f} Wh, ending EtE: {ending_ete:.0f} Wh, LVB delta energy: {delta_lvb_energy:.0f} Wh")
+            _LOGGER.info(f"    starting EtE: {starting_ete:.0f} Wh, ending EtE: {ending_ete:.0f} Wh, LVB ΔWh: {delta_lvb_energy:.0f} Wh")
             _LOGGER.info(f"    {wh_added:.0f} Wh were added, requiring {wh_used:.0f} Wh from the charger")
             _LOGGER.info(f"    overall efficiency: {(charging_efficiency*100):.01f}%")
             _LOGGER.info(f"    maximum input power: {max_input_power:.0f} W")
