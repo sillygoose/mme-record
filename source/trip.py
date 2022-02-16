@@ -44,11 +44,13 @@ class Trip:
 
         elif call_type == CallType.Outgoing:
             for state in Trip._requiredStates:
-                assert get_state_value(state, None) is not None
+                assert get_state_value(state, None) is not None, f"{state.name}"
+            _LOGGER.info(f"Starting new trip, odometer: {get_state_value(Hash.HiresOdometer):.01f} km")
 
         elif call_type == CallType.Default:
             for state in Trip._requiredStates:
                 if (state_value := get_state_value(state, None)) is None:
+                    _LOGGER.debug(f"Missing required state: '{state.name}'")
                     return new_state
                 self._trip_log[state] = state_value
 
@@ -99,7 +101,7 @@ class Trip:
             kwh_used = (trip.get(Hash.HvbEtE) - get_state_value(Hash.HvbEtE)) * 0.001
             calculated_kwh_used = (get_state_value(Hash.HvbEnergy) - trip.get(Hash.HvbEnergy)) * 0.001
             efficiency_km_kwh = 0.0 if kwh_used == 0.0 else trip_distance / kwh_used
-            efficiency_miles_kwh = efficiency_km_kwh * 1.62
+            efficiency_miles_kwh = efficiency_km_kwh * 0.6213712
 
             trip_details = {
                 'time':                 starting_time,
@@ -123,7 +125,7 @@ class Trip:
             _LOGGER.info(f"        ending point: {reverse_geocode(get_state_value(Hash.GpsLatitude), get_state_value(Hash.GpsLongitude))}")
             _LOGGER.info(f"        ending elevation {get_state_value(Hash.GpsElevation):.01f} m, elevation change {elevation_change:.01f} m")
             _LOGGER.info(f"        minimum elevation seen: {min_elevation:.01f} m, maximum elevation seen {max_elevation:.01f} m")
-            _LOGGER.info(f"        ending SoC: {get_state_value(Hash.HvbSoCD)}%, ending EtE: {get_state_value(Hash.HvbEtE)} Wh, kWh used: {kwh_used:.03f}, calculated kWh used: {calculated_kwh_used:.03f} kWh")
+            _LOGGER.info(f"        ending SoC: {get_state_value(Hash.HvbSoCD)}%, ending EtE: {get_state_value(Hash.HvbEtE)} Wh, ΔEtE: {kwh_used:.03f} kWh, calculated ΔEtE: {calculated_kwh_used:.03f} kWh")
             _LOGGER.info(f"        maximum power seen: {get_state_value(Hash.HvbPowerMax):.0f} W, minimum power seen: {get_state_value(Hash.HvbPowerMin):.0f} W")
             _LOGGER.info(f"        energy gained: {get_state_value(Hash.HvbEnergyGained):.0f} Wh, energy lost: {get_state_value(Hash.HvbEnergyLost):.0f} Wh")
             _LOGGER.info(f"        energy efficiency: {efficiency_km_kwh:.02f} km/kWh ({efficiency_miles_kwh:.02f} mi/kWh)")

@@ -133,7 +133,7 @@ class CodecGPS(Codec):
                 {'gps_speed': gps_speed},
                 {'gps_bearing': gps_bearing},
             ]
-        gps_data = f"GPS: ({gps_latitude:3.8f}, {gps_longitude:3.8f}), elevation: {gps_elevation:.01f} m, bearing: {gps_bearing:.0f}°, speed: {gps_speed:3.1f} kph"
+        gps_data = f"GPS: ({gps_latitude:3.6f}, {gps_longitude:3.6f}), elevation: {gps_elevation:.0f} m, bearing: {gps_bearing:.0f}°, speed: {gps_speed:3.1f} kph"
 
         # Use the external GPS server if available
         if CodecManager._gps_server:
@@ -153,6 +153,7 @@ class CodecGPS(Codec):
                         {'gps_latitude': gps_latitude},
                         {'gps_longitude': gps_longitude},
                         {'gps_elevation': gps_elevation},
+                        {'gps_fix': 255},
                         {'gps_elapsed': gps_elapsed},
                     ]
                 if (gps_speed := phone_gps.get('speed')) >= 0.0:
@@ -160,11 +161,12 @@ class CodecGPS(Codec):
                 if (gps_bearing := phone_gps.get('course')) >= 0.0:
                     states.append({'gps_bearing': gps_bearing})
 
-                gps_data = f"GPS: ({gps_latitude:3.8f}, {gps_longitude:3.8f}), elevation: {gps_elevation:.01f} m, bearing: {gps_bearing:.0f}°, speed: {gps_speed:3.1f} kph, elapsed: {gps_elapsed:.03f}"
+                gps_data = f"GPS: ({gps_latitude:3.6f}, {gps_longitude:3.6f}), elevation: {gps_elevation:.01f} m, bearing: {gps_bearing:.0f}°, speed: {gps_speed:3.1f} kph, elapsed: {gps_elapsed:.03f}"
                 gps_latitude = int(gps_latitude * 60)
                 gps_longitude = int(gps_longitude * 60)
                 gps_elevation = int(gps_elevation)
                 gps_speed = int(gps_speed / 3.6)
+                gps_fix = 255
                 gps_bearing = saved_gps_bearing
                 new_payload = struct.pack('>HllBHH', gps_elevation, gps_latitude, gps_longitude, gps_fix, gps_speed, gps_bearing)
                 payload = new_payload
