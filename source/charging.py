@@ -141,7 +141,7 @@ class Charging:
 
             _LOGGER.info(f"'{vehicle}' charging session results:")
             _LOGGER.info(f"    {charger_type} charging session started at {session_datetime} for {hours} hours, {minutes} minutes")
-            _LOGGER.info(f"    odometer: {odometer_km(odometer):.01f} km ({odometer_miles(odometer):.01f} miles)")
+            _LOGGER.info(f"    odometer: {odometer_km(odometer):.01f} km ({odometer_miles(odometer):.01f} mi)")
             _LOGGER.info(f"    location: {reverse_geocode(latitude, longitude)}")
             _LOGGER.info(f"    starting SoC: {socd(starting_socd)}%, ending SoC: {socd(ending_socd)}%")
             _LOGGER.info(f"    starting EtE: {starting_ete} Wh, ending EtE: {ending_ete} Wh, LVB ΔWh: {delta_lvb_energy} Wh")

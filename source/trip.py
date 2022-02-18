@@ -43,7 +43,8 @@ class Trip:
         elif call_type == CallType.Outgoing:
             for hash in Trip._requiredHashes:
                 assert get_state_value(hash, None) is not None, f"{hash.name}"
-            _LOGGER.info(f"Starting new trip, odometer: {odometer_km(get_state_value(Hash.HiresOdometer)):.01f} km ({odometer_miles(get_state_value(Hash.HiresOdometer)):.01f} mi)")
+            odometer = get_state_value(Hash.HiresOdometer)
+            _LOGGER.info(f"Starting new trip, odometer: {odometer_km(odometer):.01f} km ({odometer_miles(odometer):.01f} mi)")
 
         elif call_type == CallType.Default:
             for hash in Trip._requiredHashes:
@@ -112,7 +113,7 @@ class Trip:
             energy_gained = set_state(Hash.TR_EnergyGained, int(get_state_value(Hash.HvbEnergyGained)))
             energy_lost = set_state(Hash.TR_EnergyLost, int(get_state_value(Hash.HvbEnergyLost)))
 
-            trip_distance = odometer_km(set_state(Hash.TR_Distance, int(get_state_value(Hash.HiresOdometer) - trip.get(Hash.HiresOdometer))))
+            trip_distance = odometer_km(set_state(Hash.TR_Distance, get_state_value(Hash.HiresOdometer) - trip.get(Hash.HiresOdometer)))
             elevation_change = set_state(Hash.TR_ElevationChange, get_state_value(Hash.GpsElevation) - trip.get(Hash.GpsElevation))
             max_elevation = set_state(Hash.TR_MaxElevation, get_state_value(Hash.GpsElevationMax))
             min_elevation = set_state(Hash.TR_MinElevation, get_state_value(Hash.GpsElevationMin))
