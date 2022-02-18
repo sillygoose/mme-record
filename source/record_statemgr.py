@@ -33,8 +33,8 @@ class RecordStateManager(StateManager):
         sync_queue = Queue()
         self._request_thread = Thread(target=self._request_task, args=(sync_queue,), name='state_request')
         self._response_thread = Thread(target=self._response_task, args=(sync_queue,), name='state_response')
-        self._file_manager = RecordFileManager(config.record)
         initialize_did_cache()
+        self._file_manager = RecordFileManager(config.record)
         influxdb_connect(config.influxdb2)
 
     def start(self) -> List[Thread]:
@@ -162,11 +162,8 @@ class RecordStateManager(StateManager):
                         key = f"{arbitration_id:04X}:{did_id:04X}"
                         payload = response.service_data.values[did_id].get('payload')
                         decoded_payload = None
-                        saved_payload = payload
                         if codec := self._codec_manager.codec(did_id):
                             decoded_payload = codec.decode(None, payload)
-                        if saved_payload != payload:
-                            pass
                         current_time = time()
                         state_details = {'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did_id, 'did_id_hex': f"{did_id:04X}", 'payload': list(payload)}
                         if get_did_cache(key) is None or get_did_cache(key) != payload:
@@ -175,8 +172,8 @@ class RecordStateManager(StateManager):
                             _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: {response.service_data.values[did_id].get('decoded')}")
                             if decoded_payload:
                                 decoded_state_details = {'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did_id, 'did_id_hex': f"{did_id:04X}", 'payload': decoded_payload}
-                                influxdb_state_data = self.update_vehicle_state(decoded_state_details)
-                                state_details = None
+                                influxdb_state_data = self.update_vehicle_state(decoded_state_details) ###do writes in update_vehicle_state
+                                ### state_details = None ###
                                 influxdb_write_record(influxdb_state_data)
                 self._update_state_machine()
                 self._response_queue.task_done()

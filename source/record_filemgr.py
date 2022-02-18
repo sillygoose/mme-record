@@ -16,6 +16,7 @@ class RecordFileManager:
         self._dest_path = config_record.get('dest_path', None)
         self._dest_file = config_record.get('dest_file', None)
         self._filename = f"{self._dest_path}/{self._dest_file}.json"
+        _LOGGER.info(f"Writing to state file '{self._filename}'")
 
     def start(self) -> None:
         self._open()

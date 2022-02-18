@@ -2,7 +2,7 @@ import logging
 import time
 import datetime
 
-from state_engine import get_state_value, set_state
+from state_engine import get_state_value, set_state, odometer_km, odometer_miles, socd
 from state_engine import get_ChargePlugConnected, get_ChargingStatus, get_EvseType
 from state_engine import get_InferredKey, get_EngineStartRemote, get_EngineStartNormal
 
@@ -12,7 +12,7 @@ from did import InferredKey, EngineStartRemote, EngineStartNormal
 from vehicle_state import VehicleState, CallType
 from hash import *
 
-from influxdb import influxdb_charging_session
+from influxdb import influxdb_charging
 from geocoding import reverse_geocode
 
 
@@ -24,9 +24,9 @@ class Charging:
     def __init__(self) -> None:
         self._charging_session = None
 
-    _requiredStates = [
-            Hash.LvbEnergy, Hash.LoresOdometer, Hash.HvbEtE, Hash.HvbSoC, Hash.HvbSoCD,
-            Hash.GpsLatitude, Hash.GpsLongitude, Hash.ChargerInputEnergy, Hash.ChargerOutputEnergy
+    _requiredHashes = [
+            Hash.LvbEnergy, Hash.HvbEtE, Hash.HvbSoCD,
+            Hash.ChargerInputEnergy, Hash.ChargerOutputEnergy
         ]
 
     def charging_starting(self,call_type: CallType) -> VehicleState:
@@ -42,32 +42,33 @@ class Charging:
         elif call_type == CallType.Outgoing:
             for state in Charging._requiredStates:
                 assert get_state_value(state, None) is not None, f"{state.name}"
-            _LOGGER.info(f"Starting charging session, HVB SoC: {get_state_value(Hash.HvbSoCD):.01f}%, HVB EtE: {get_state_value(Hash.HvbEtE):.0f} Wh")
+            _LOGGER.info(f"Starting charging session, HVB SoC: {socd(get_state_value(Hash.HvbSoCD))}%, HVB EtE: {get_state_value(Hash.HvbEtE):.0f} Wh")
 
         elif call_type == CallType.Default:
-            if charging_status := get_ChargingStatus(Hash.ChargingStatus, 'charging_starting'):
+            if charging_status := get_ChargingStatus('charging_starting'):
                 if charging_status != ChargingStatus.Charging:
-                    if charge_plug_connected := get_ChargePlugConnected(Hash.ChargePlugConnected, 'charging_starting'):
+                    if charge_plug_connected := get_ChargePlugConnected('charging_starting'):
                         if charge_plug_connected == ChargePlugConnected.No:
                             new_state = VehicleState.Idle
-                    if inferred_key := get_InferredKey(Hash.InferredKey, 'charging_starting'):
+                    if inferred_key := get_InferredKey('charging_starting'):
                         if inferred_key == InferredKey.KeyOut:
-                            if engine_start_remote := get_EngineStartRemote(Hash.EngineStartRemote, 'charging_starting'):
+                            if engine_start_remote := get_EngineStartRemote('charging_starting'):
                                 new_state = VehicleState.Preconditioning if engine_start_remote == EngineStartRemote.Yes else VehicleState.Idle
                         elif inferred_key == InferredKey.KeyIn:
-                            if engine_start_normal := get_EngineStartNormal(Hash.EngineStartNormal, 'charging_starting'):
+                            if engine_start_normal := get_EngineStartNormal('charging_starting'):
                                 new_state = VehicleState.On if engine_start_normal == EngineStartNormal.Yes else VehicleState.Accessory
 
-            for state in Charging._requiredStates:
-                if (state_value := get_state_value(state, None)) is None:
-                    _LOGGER.debug(f"Missing required state: '{state.name}'")
+            for hash in Charging._requiredStates:
+                if (hash_value := get_state_value(hash, None)) is None:
+                    arbitration_id, did_id, _ = get_hash_fields(hash)
+                    _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: Missing required DID: '{hash.name}'")
                     return new_state
-                self._charging_session[state] = state_value
+                self._charging_session[hash] = hash_value
 
-            if charging_status := get_ChargingStatus(Hash.ChargingStatus, 'charging_starting'):
+            if charging_status := get_ChargingStatus('charging_starting'):
                 if charging_status == ChargingStatus.Ready or charging_status == ChargingStatus.Wait or charging_status == ChargingStatus.Charging:
                     if charging_status == ChargingStatus.Charging:
-                        if evse_type := get_EvseType(Hash.EvseType, 'charging_starting'):
+                        if evse_type := get_EvseType('charging_starting'):
                             if evse_type == EvseType.BasAC:
                                 new_state = VehicleState.Charging_AC
                                 self._charging_session['type'] = 'AC'
@@ -80,7 +81,7 @@ class Charging:
     def charging_ac(selff, call_type: CallType) -> VehicleState:
         new_state = VehicleState.Unchanged
         if call_type == CallType.Default:
-            if charging_status := get_ChargingStatus(Hash.ChargingStatus, 'charging_ac'):
+            if charging_status := get_ChargingStatus('charging_ac'):
                 if charging_status != ChargingStatus.Charging:
                     _LOGGER.debug(f"Charging status changed to: {charging_status}")
                     new_state = VehicleState.Charging_Ended
@@ -89,7 +90,7 @@ class Charging:
     def charging_dcfc(self, call_type: CallType) -> VehicleState:
         new_state = VehicleState.Unchanged
         if call_type == CallType.Default:
-            if charging_status := get_ChargingStatus(Hash.ChargingStatus, 'charging_dcfc'):
+            if charging_status := get_ChargingStatus('charging_dcfc'):
                 if charging_status != ChargingStatus.Charging:
                     _LOGGER.debug(f"Charging status changed to: {charging_status}")
                     new_state = VehicleState.Charging_Ended
@@ -101,68 +102,59 @@ class Charging:
             pass
 
         elif call_type == CallType.Default:
-            if charging_status := get_ChargingStatus(Hash.ChargingStatus, 'charging_ended'):
+            if charging_status := get_ChargingStatus('charging_ended'):
                 if charging_status != ChargingStatus.Charging:
-                    if charge_plug_connected := get_ChargePlugConnected(Hash.ChargePlugConnected, 'charging_ended'):
+                    if charge_plug_connected := get_ChargePlugConnected('charging_ended'):
                         if charge_plug_connected == ChargePlugConnected.Yes:
                             new_state = VehicleState.PluggedIn
-                        elif inferred_key := get_InferredKey(Hash.InferredKey, 'charging_ended'):
+                        elif inferred_key := get_InferredKey('charging_ended'):
                             if inferred_key == InferredKey.KeyOut:
-                                if engine_start_remote := get_EngineStartRemote(Hash.EngineStartRemote, 'charging_ended'):
+                                if engine_start_remote := get_EngineStartRemote('charging_ended'):
                                     new_state = VehicleState.Preconditioning if engine_start_remote == EngineStartRemote.Yes else VehicleState.Idle
                             elif inferred_key == InferredKey.KeyIn:
-                                if engine_start_normal := get_EngineStartNormal(Hash.EngineStartNormal, 'charging_ended'):
+                                if engine_start_normal := get_EngineStartNormal('charging_ended'):
                                     new_state = VehicleState.On if engine_start_normal == EngineStartNormal.Yes else VehicleState.Accessory
 
         elif call_type == CallType.Incoming:
             session = self._charging_session
-            charger_type = session.get('type')
-            starting_time = session.get('time')
-            ending_time = int(time.time())
-            starting_soc = session.get(Hash.HvbSoC)
-            starting_socd = session.get(Hash.HvbSoCD)
-            starting_ete = session.get(Hash.HvbEtE)
-            starting_charging_input_energy = session.get(Hash.ChargerInputEnergy, 0.0)
-            starting_lvb_energy = session.get(Hash.LvbEnergy)
-            latitude = session.get(Hash.GpsLatitude, 0.0)
-            longitude = session.get(Hash.GpsLongitude, 0.0)
-            odometer = session.get(Hash.LoresOdometer, 0)
+            vehicle = set_state(Hash.Vehicle, self._vehicle_name)
+            charger_type = set_state(Hash.CS_ChargerType, session.get('type'))
+            starting_time = set_state(Hash.CS_StartTime, session.get('time'))
+            ending_time = set_state(Hash.CS_EndTime, int(time.time()))
+            starting_socd = set_state(Hash.CS_StartSoCD, session.get(Hash.HvbSoCD))
+            ending_socd = set_state(Hash.CS_EndSoCD, get_state_value(Hash.HvbSoCD))
+            starting_ete = set_state(Hash.CS_StartEtE, session.get(Hash.HvbEtE))
+            ending_ete = set_state(Hash.CS_EndEte, get_state_value(Hash.HvbEtE))
+            odometer = set_state(Hash.CS_Odometer, get_state_value(Hash.LoresOdometer))
+            latitude = set_state(Hash.CS_Latitude, get_state_value(Hash.GpsLatitude))
+            longitude = set_state(Hash.CS_Longitude, get_state_value(Hash.GpsLongitude))
+            max_input_power = set_state(Hash.CS_MaxInputPower, get_state_value(Hash.ChargerInputPowerMax))
 
-            ending_soc = get_state_value(Hash.HvbSoC)
-            ending_socd = get_state_value(Hash.HvbSoCD)
-            ending_ete = get_state_value(Hash.HvbEtE)
-            ending_charging_input_energy = get_state_value(Hash.ChargerInputEnergy)
-            ending_lvb_energy = get_state_value(Hash.LvbEnergy)
-            delta_lvb_energy = ending_lvb_energy - starting_lvb_energy
+            delta_lvb_energy = get_state_value(Hash.LvbEnergy) - session.get(Hash.LvbEnergy)
             delta_hvb_energy = ending_ete - starting_ete
-            wh_added = delta_hvb_energy + delta_lvb_energy
-            wh_used = ending_charging_input_energy - starting_charging_input_energy
-            charging_efficiency = wh_added / wh_used if wh_used > 0 else 0.0
-            max_input_power = get_state_value(Hash.ChargerInputPowerMax)
+            wh_added = set_state(Hash.CS_WhAdded, int(delta_hvb_energy + delta_lvb_energy))
+            wh_used = set_state(Hash.CS_WhUsed, int(get_state_value(Hash.ChargerInputEnergy) - session.get(Hash.ChargerInputEnergy, 0.0)))
+            charging_efficiency = set_state(Hash.CS_ChargingEfficiency, wh_added / wh_used if wh_used > 0 else 0.0)
             session_datetime = datetime.datetime.fromtimestamp(starting_time).strftime('%Y-%m-%d %H:%M')
             hours, rem = divmod(ending_time - starting_time, 3600)
             minutes, _ = divmod(rem, 60)
-            charging_session = {
-                'type':             charger_type,
-                'time':             {'starting': starting_time, 'ending': ending_time},
-                'location':         {'latitude': latitude, 'longitude': longitude},
-                'odometer':         odometer,
-                'soc':              {'starting': starting_soc, 'ending': ending_soc},
-                'socd':             {'starting': starting_socd, 'ending': ending_socd},
-                'ete':              {'starting': starting_ete, 'ending': ending_ete},
-                'kwh_added':        wh_added * 0.001,
-                'kwh_used':         wh_used * 0.001,
-                'efficiency':       charging_efficiency,
-                'max_power':        max_input_power,
-            }
-            _LOGGER.info(f"Charging session statistics:")
+
+            _LOGGER.info(f"'{vehicle}' charging session results:")
             _LOGGER.info(f"    {charger_type} charging session started at {session_datetime} for {hours} hours, {minutes} minutes")
+            _LOGGER.info(f"    odometer: {odometer_km(odometer):.01f} km ({odometer_miles(odometer):.01f} miles)")
             _LOGGER.info(f"    location: {reverse_geocode(latitude, longitude)}")
-            _LOGGER.info(f"    starting SoC: {starting_socd:.01f}%, ending SoC: {ending_socd:.01f}%")
-            _LOGGER.info(f"    starting EtE: {starting_ete:.0f} Wh, ending EtE: {ending_ete:.0f} Wh, LVB ΔWh: {delta_lvb_energy:.0f} Wh")
-            _LOGGER.info(f"    {wh_added:.0f} Wh were added, requiring {wh_used:.0f} Wh from the charger")
+            _LOGGER.info(f"    starting SoC: {socd(starting_socd)}%, ending SoC: {socd(ending_socd)}%")
+            _LOGGER.info(f"    starting EtE: {starting_ete} Wh, ending EtE: {ending_ete} Wh, LVB ΔWh: {delta_lvb_energy} Wh")
+            _LOGGER.info(f"    {wh_added} Wh were added, requiring {wh_used} Wh from the charger")
             _LOGGER.info(f"    overall efficiency: {(charging_efficiency*100):.01f}%")
-            _LOGGER.info(f"    maximum input power: {max_input_power:.0f} W")
-            influxdb_charging_session(session=charging_session, vehicle=self._vehicle_name)
+            _LOGGER.info(f"    maximum input power: {max_input_power} W")
+
+            tags = [Hash.CS_ChargerType, Hash.Vehicle]
+            fields = [
+                    Hash.CS_Latitude, Hash.CS_Longitude, Hash.CS_Odometer,
+                    Hash.CS_StartSoCD, Hash.CS_EndSoCD, Hash.CS_StartEtE, Hash.CS_EndEte,
+                    Hash.CS_WhAdded, Hash.CS_WhUsed, Hash.CS_ChargingEfficiency, Hash.CS_MaxInputPower,
+                ]
+            influxdb_charging(tags=tags, fields=fields, charge_start=Hash.CS_StartTime, charge_end=Hash.CS_EndTime)
             self._charging_session = None
         return new_state

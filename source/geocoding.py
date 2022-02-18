@@ -32,7 +32,7 @@ def reverse_geocode(latitude: float, longitude: float) -> str:
             if components:
                 formatted_address = f"{components.get('formatted_street')}, {components.get('city')}, {components.get('state')}, {components.get('country')}"
         except (GeocodioAuthError, GeocodioDataError, GeocodioServerError, GeocodioError) as e:
-            _LOGGER.error(f"geocod.io reverse geocoding error: {e}")
+            pass # _LOGGER.error(f"geocod.io reverse geocoding error: {e}")
         finally:
             return formatted_address
     else:

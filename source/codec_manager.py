@@ -9,6 +9,8 @@ from udsoncan import DidCodec
 from did import DidId
 from config.configuration import Configuration
 
+from state_engine import odometer_km, odometer_miles
+
 
 _LOGGER = logging.getLogger('mme')
 
@@ -133,7 +135,7 @@ class CodecGPS(Codec):
                 {'gps_speed': gps_speed},
                 {'gps_bearing': gps_bearing},
             ]
-        gps_data = f"GPS: ({gps_latitude:3.6f}, {gps_longitude:3.6f}), elevation: {gps_elevation:.0f} m, bearing: {gps_bearing:.0f}°, speed: {gps_speed:3.1f} kph"
+        gps_data = f"GPS: ({gps_latitude:3.6f}, {gps_longitude:3.6f}), elevation: {gps_elevation:.0f} m, bearing: {gps_bearing}°, speed: {gps_speed:3.1f} kph, fix: {gps_fix}"
 
         # Use the external GPS server if available
         if CodecManager._gps_server:
@@ -168,8 +170,7 @@ class CodecGPS(Codec):
                 gps_speed = int(gps_speed / 3.6)
                 gps_fix = 255
                 gps_bearing = saved_gps_bearing
-                new_payload = struct.pack('>HllBHH', gps_elevation, gps_latitude, gps_longitude, gps_fix, gps_speed, gps_bearing)
-                payload = new_payload
+                payload = struct.pack('>HllBHH', gps_elevation, gps_latitude, gps_longitude, gps_fix, gps_speed, gps_bearing)
 
             except InvalidSchema as e:
                 _LOGGER.error(f"InvalidSchema error: {e}")
@@ -196,9 +197,9 @@ class CodecGPS(Codec):
 class CodecLoresOdometer(Codec):
     def decode(self, payload):
         odometer_high, odometer_low = struct.unpack('>HB', payload)
-        lores_odometer = odometer_high * 256 + odometer_low
+        lores_odometer = float(odometer_high * 256 + odometer_low)
         states = [{'lores_odometer': lores_odometer}]
-        return {'payload': payload, 'states': states, 'decoded': f"Lores odometer: {lores_odometer} km"}
+        return {'payload': payload, 'states': states, 'decoded': f"Lores odometer: {lores_odometer:.01f} km ({odometer_miles(lores_odometer):.01f} mi)"}
 
     def __len__(self):
         return 3
@@ -209,7 +210,7 @@ class CodecHiresOdometer(Codec):
         odometer_high, odometer_low = struct.unpack('>HB', payload)
         hires_odometer = (odometer_high * 256 + odometer_low) * 0.1
         states = [{'hires_odometer': hires_odometer}]
-        return {'payload': payload, 'states': states, 'decoded': f"Hires odometer: {hires_odometer:.1f} km"}
+        return {'payload': payload, 'states': states, 'decoded': f"Hires odometer: {odometer_km(hires_odometer):.01f} km ({odometer_miles(hires_odometer):.01f} mi)"}
 
     def __len__(self):
         return 3
@@ -267,10 +268,11 @@ class CodecHvbSoc(Codec):
 
 
 class CodecHvbSocD(Codec):
+    # SocD is twice the value, so moves in 0.5 units
     def decode(self, payload):
-        hvb_socd = struct.unpack('>B', payload)[0] * 0.5
+        hvb_socd = struct.unpack('>B', payload)[0]
         states = [{'hvb_socd': hvb_socd}]
-        return {'payload': payload, 'states': states, 'decoded': f"HVB displayed SoC: {int(hvb_socd)}% ({hvb_socd:.1f}%)"}
+        return {'payload': payload, 'states': states, 'decoded': f"HVB displayed SoC: {int(hvb_socd * 0.5)}% ({(hvb_socd * 0.5):.1f}%)"}
 
     def __len__(self):
         return 1

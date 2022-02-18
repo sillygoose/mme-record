@@ -2,7 +2,7 @@ import logging
 import time
 import datetime
 
-from state_engine import get_state_value, set_state
+from state_engine import get_state_value, set_state, odometer_km, odometer_miles, socd, speed_kph, speed_mph
 from state_engine import get_InferredKey, get_GearCommanded
 from state_engine import get_EngineStartRemote, get_EngineStartDisable
 
@@ -12,7 +12,7 @@ from did import EngineStartRemote, EngineStartDisable
 from vehicle_state import VehicleState, CallType
 from hash import *
 
-from influxdb import influxdb_record_trip
+from influxdb import influxdb_trip
 from geocoding import reverse_geocode
 
 
@@ -24,9 +24,9 @@ class Trip:
     def __init__(self) -> None:
         self._trip_log = None
 
-    _requiredStates = [
-            Hash.HiresOdometer, Hash.HvbSoCD, Hash.HvbEtE, Hash.GpsLatitude, Hash.HvbEnergy,
-            Hash.GpsLongitude, Hash.GpsElevation, Hash.ExteriorTemperature,
+    _requiredHashes = [
+            Hash.HiresOdometer, Hash.HvbSoCD, Hash.HvbEtE, Hash.HvbEnergy, Hash.ExteriorTemperature,
+            Hash.GpsLatitude, Hash.GpsLongitude, Hash.GpsElevation,
         ]
 
     def trip_starting(self, call_type: CallType) -> VehicleState:
@@ -39,22 +39,21 @@ class Trip:
             set_state(Hash.HvbEnergyGained, 0)
             set_state(Hash.HvbEnergyLost, 0)
             set_state(Hash.HiresSpeedMax, 0)
-            set_state(Hash.GpsElevationMin, 999999)
-            set_state(Hash.GpsElevationMax, -999999)
 
         elif call_type == CallType.Outgoing:
-            for state in Trip._requiredStates:
-                assert get_state_value(state, None) is not None, f"{state.name}"
-            _LOGGER.info(f"Starting new trip, odometer: {get_state_value(Hash.HiresOdometer):.01f} km")
+            for hash in Trip._requiredHashes:
+                assert get_state_value(hash, None) is not None, f"{hash.name}"
+            _LOGGER.info(f"Starting new trip, odometer: {odometer_km(get_state_value(Hash.HiresOdometer)):.01f} km ({odometer_miles(get_state_value(Hash.HiresOdometer)):.01f} mi)")
 
         elif call_type == CallType.Default:
-            for state in Trip._requiredStates:
-                if (state_value := get_state_value(state, None)) is None:
-                    _LOGGER.debug(f"Missing required state: '{state.name}'")
+            for hash in Trip._requiredHashes:
+                if (hash_value := get_state_value(hash, None)) is None:
+                    arbitration_id, did_id, _ = get_hash_fields(hash)
+                    _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: Missing required DID: '{hash.name}'")
                     return new_state
-                self._trip_log[state] = state_value
+                self._trip_log[hash] = hash_value
 
-            if gear_commanded := get_GearCommanded(Hash.GearCommanded, 'trip_starting'):
+            if gear_commanded := get_GearCommanded('trip_starting'):
                 if gear_commanded != GearCommanded.Park:
                     new_state = VehicleState.Trip
                 else:
@@ -66,7 +65,7 @@ class Trip:
     def trip(self, call_type: CallType) -> VehicleState:
         new_state = VehicleState.Unchanged
         if call_type == CallType.Default:
-            if gear_commanded := get_GearCommanded(Hash.GearCommanded, 'trip'):
+            if gear_commanded := get_GearCommanded('trip'):
                 if gear_commanded == GearCommanded.Park:
                     new_state = VehicleState.Trip_Ending
         return new_state
@@ -77,61 +76,82 @@ class Trip:
         if call_type == CallType.Outgoing:
             pass
         elif call_type == CallType.Default:
-            if inferred_key := get_InferredKey(Hash.InferredKey, 'trip_ending'):
+            if inferred_key := get_InferredKey('trip_ending'):
                 if inferred_key == InferredKey.KeyOut:
-                    if engine_start_remote := get_EngineStartRemote(Hash.EngineStartRemote, 'trip_ending'):
+                    if engine_start_remote := get_EngineStartRemote('trip_ending'):
                         new_state = VehicleState.Preconditioning if engine_start_remote == EngineStartRemote.Yes else VehicleState.Idle
                 elif inferred_key == InferredKey.KeyIn:
-                    if engine_start_disable := get_EngineStartDisable(Hash.EngineStartDisable, 'trip_ending'):
+                    if engine_start_disable := get_EngineStartDisable('trip_ending'):
                         new_state = VehicleState.On if engine_start_disable == EngineStartDisable.No else VehicleState.Accessory
         elif call_type == CallType.Incoming:
-            starting_time = self._trip_log.get('time')
-            ending_time = int(time.time())
-            duration_seconds = ending_time - starting_time
-
             trip = self._trip_log
+            vehicle = set_state(Hash.Vehicle, self._vehicle_name)
+            starting_time = set_state(Hash.TR_StartTime, trip.get('time'))
+            ending_time = set_state(Hash.TR_EndTime, int(time.time()))
             starting_datetime = datetime.datetime.fromtimestamp(starting_time).strftime('%Y-%m-%d %H:%M')
             ending_datetime = datetime.datetime.fromtimestamp(ending_time).strftime('%Y-%m-%d %H:%M')
+            duration_seconds = ending_time - starting_time
             hours, rem = divmod(duration_seconds, 3600)
-            minutes, _ = divmod(rem, 60)
-            trip_distance = get_state_value(Hash.HiresOdometer) - trip.get(Hash.HiresOdometer)
-            elevation_change = get_state_value(Hash.GpsElevation) - trip.get(Hash.GpsElevation)
-            max_elevation = get_state_value(Hash.GpsElevationMax)
-            min_elevation = get_state_value(Hash.GpsElevationMin)
-            kwh_used = (trip.get(Hash.HvbEtE) - get_state_value(Hash.HvbEtE)) * 0.001
-            calculated_kwh_used = (get_state_value(Hash.HvbEnergy) - trip.get(Hash.HvbEnergy)) * 0.001
+            minutes, seconds = divmod(rem, 60)
+
+            starting_odometer = set_state(Hash.TR_OdometerStart, trip.get(Hash.HiresOdometer))
+            starting_latitude = set_state(Hash.TR_LatitudeStart, trip.get(Hash.GpsLatitude))
+            starting_longitude = set_state(Hash.TR_LongitudeStart, trip.get(Hash.GpsLongitude))
+            starting_elevation = set_state(Hash.TR_ElevationStart, trip.get(Hash.GpsElevation))
+            starting_temperature = set_state(Hash.TR_ExteriorStart, trip.get(Hash.ExteriorTemperature))
+            starting_socd = set_state(Hash.TR_SocDStart, trip.get(Hash.HvbSoCD))
+            starting_ete = set_state(Hash.TR_EtEStart, trip.get(Hash.HvbEtE))
+
+            ending_odometer = set_state(Hash.TR_OdometerEnd, get_state_value(Hash.HiresOdometer))
+            ending_latitude = set_state(Hash.TR_LatitudeEnd, get_state_value(Hash.GpsLatitude))
+            ending_longitude = set_state(Hash.TR_LongitudeEnd, get_state_value(Hash.GpsLongitude))
+            ending_elevation = set_state(Hash.TR_ElevationEnd, get_state_value(Hash.GpsElevation))
+            ending_temperature = set_state(Hash.TR_ExteriorEnd, get_state_value(Hash.ExteriorTemperature))
+            ending_socd = set_state(Hash.TR_SocDEnd, get_state_value(Hash.HvbSoCD))
+            ending_ete = set_state(Hash.TR_EtEEnd, get_state_value(Hash.HvbEtE))
+            energy_gained = set_state(Hash.TR_EnergyGained, int(get_state_value(Hash.HvbEnergyGained)))
+            energy_lost = set_state(Hash.TR_EnergyLost, int(get_state_value(Hash.HvbEnergyLost)))
+
+            trip_distance = odometer_km(set_state(Hash.TR_Distance, int(get_state_value(Hash.HiresOdometer) - trip.get(Hash.HiresOdometer))))
+            elevation_change = set_state(Hash.TR_ElevationChange, get_state_value(Hash.GpsElevation) - trip.get(Hash.GpsElevation))
+            max_elevation = set_state(Hash.TR_MaxElevation, get_state_value(Hash.GpsElevationMax))
+            min_elevation = set_state(Hash.TR_MinElevation, get_state_value(Hash.GpsElevationMin))
+            max_speed = set_state(Hash.TR_MaxSpeed, speed_kph(get_state_value(Hash.HiresSpeedMax)))
+            wh_used = set_state(Hash.TR_EnergyUsed, (trip.get(Hash.HvbEtE) - get_state_value(Hash.HvbEtE)))
+            calculated_wh_used = get_state_value(Hash.HvbEnergy) - trip.get(Hash.HvbEnergy)
+            kwh_used = wh_used * 0.001
             efficiency_km_kwh = 0.0 if kwh_used == 0.0 else trip_distance / kwh_used
             efficiency_miles_kwh = efficiency_km_kwh * 0.6213712
 
-            trip_details = {
-                'time':                 starting_time,
-                'duration':             duration_seconds,
-                'odometer':             {'starting': trip.get(Hash.HiresOdometer), 'ending': get_state_value(Hash.HiresOdometer)},
-                'socd':                 {'starting': trip.get(Hash.HvbSoCD), 'ending': get_state_value(Hash.HvbSoCD)},
-                'ete':                  {'starting': trip.get(Hash.HvbEtE), 'ending': get_state_value(Hash.HvbEtE)},
-                'latitude':             {'starting': trip.get(Hash.GpsLatitude), 'ending': get_state_value(Hash.GpsLatitude)},
-                'longitude':            {'starting': trip.get(Hash.GpsLongitude), 'ending': get_state_value(Hash.GpsLongitude)},
-                'elevation':            {'starting': trip.get(Hash.GpsElevation), 'ending': get_state_value(Hash.GpsElevation), 'min': min_elevation, 'max': max_elevation},
-                'exterior_t':           {'starting': trip.get(Hash.ExteriorTemperature), 'ending': get_state_value(Hash.ExteriorTemperature)},
-            }
-            _LOGGER.info(f"Trip started at {starting_datetime} and lasted for {hours} hours, {minutes} minutes")
-            _LOGGER.info(f"        starting odometer: {trip.get(Hash.HiresOdometer):.01f} km")
-            _LOGGER.info(f"        starting point: {reverse_geocode(trip.get(Hash.GpsLatitude), trip.get(Hash.GpsLongitude))}")
-            _LOGGER.info(f"        starting elevation: {trip.get(Hash.GpsElevation):.01f} m")
-            _LOGGER.info(f"        starting SoC: {trip.get(Hash.HvbSoCD)}%, starting EtE: {trip.get(Hash.HvbEtE)} Wh")
-            _LOGGER.info(f"        starting temperature: {trip.get(Hash.ExteriorTemperature)}°C")
+            _LOGGER.info(f"Trip in '{vehicle}' started at {starting_datetime} and lasted for {hours} hours, {minutes} minutes, {seconds} seconds")
+            _LOGGER.info(f"        starting odometer: {odometer_km(starting_odometer):.01f} km ({odometer_miles(starting_odometer):.01f} mi)")
+            _LOGGER.info(f"        starting point: {reverse_geocode(starting_latitude, starting_longitude)}")
+            _LOGGER.info(f"        starting elevation: {starting_elevation:.01f} m")
+            _LOGGER.info(f"        starting SoC: {socd(starting_socd)}%, starting EtE: {starting_ete} Wh")
+            _LOGGER.info(f"        starting temperature: {starting_temperature}°C")
             _LOGGER.info(f"ending at {ending_datetime}")
-            _LOGGER.info(f"        ending odometer: {get_state_value(Hash.HiresOdometer):.01f} km, distance covered: {trip_distance:.01f} km")
-            _LOGGER.info(f"        ending point: {reverse_geocode(get_state_value(Hash.GpsLatitude), get_state_value(Hash.GpsLongitude))}")
-            _LOGGER.info(f"        ending elevation {get_state_value(Hash.GpsElevation):.01f} m, elevation change {elevation_change:.01f} m")
+            _LOGGER.info(f"        ending odometer: {odometer_km(ending_odometer):.01f} km ({odometer_miles(ending_odometer):.01f} mi)")
+            _LOGGER.info(f"        ending point: {reverse_geocode(ending_latitude, ending_longitude)}")
+            _LOGGER.info(f"        distance covered: {odometer_km(trip_distance):.01f} km ({odometer_miles(trip_distance):.01f} mi)")
+            _LOGGER.info(f"        ending elevation {ending_elevation:.01f} m, elevation change {elevation_change:.01f} m")
             _LOGGER.info(f"        minimum elevation seen: {min_elevation:.01f} m, maximum elevation seen {max_elevation:.01f} m")
-            _LOGGER.info(f"        ending SoC: {get_state_value(Hash.HvbSoCD)}%, ending EtE: {get_state_value(Hash.HvbEtE)} Wh, ΔEtE: {kwh_used:.03f} kWh, calculated ΔEtE: {calculated_kwh_used:.03f} kWh")
-            _LOGGER.info(f"        maximum power seen: {get_state_value(Hash.HvbPowerMax):.0f} W, minimum power seen: {get_state_value(Hash.HvbPowerMin):.0f} W")
-            _LOGGER.info(f"        energy gained: {get_state_value(Hash.HvbEnergyGained):.0f} Wh, energy lost: {get_state_value(Hash.HvbEnergyLost):.0f} Wh")
+            _LOGGER.info(f"        ending SoC: {socd(ending_socd)}%, ending EtE: {ending_ete} Wh, ΔEtE: {wh_used} Wh, calculated ΔEtE: {int(calculated_wh_used)} Wh")
+            _LOGGER.info(f"        maximum power seen: {get_state_value(Hash.HvbPowerMax)} W, minimum power seen: {get_state_value(Hash.HvbPowerMin)} W")
+            _LOGGER.info(f"        energy gained: {energy_gained} Wh, energy lost: {energy_lost} Wh")
             _LOGGER.info(f"        energy efficiency: {efficiency_km_kwh:.02f} km/kWh ({efficiency_miles_kwh:.02f} mi/kWh)")
-            _LOGGER.info(f"        maximum speed seen: {get_state_value(Hash.HiresSpeedMax):.01f} kph")
-            _LOGGER.info(f"        ending temperature: {get_state_value(Hash.ExteriorTemperature)}°C")
-            influxdb_record_trip(details=trip_details, vehicle=self._vehicle_name)
+            _LOGGER.info(f"        maximum speed seen: {max_speed:.01f} kph ({speed_mph(max_speed):.01f} mph)")
+            _LOGGER.info(f"        ending temperature: {ending_temperature}°C")
+
+            tags = [Hash.Vehicle]
+            fields = [
+                    Hash.TR_OdometerStart, Hash.TR_OdometerEnd,
+                    Hash.TR_Distance, Hash.TR_ElevationChange,
+                    Hash.TR_LatitudeStart, Hash.TR_LatitudeEnd, Hash.TR_LongitudeStart, Hash.TR_LongitudeEnd, Hash.TR_ElevationStart, Hash.TR_ElevationEnd,
+                    Hash.TR_SocDStart, Hash.TR_SocDEnd, Hash.TR_EtEStart, Hash.TR_EtEEnd, Hash.TR_EnergyGained, Hash.TR_EnergyLost, Hash.TR_EnergyUsed,
+                    Hash.TR_ExteriorStart, Hash.TR_ExteriorEnd,
+                    Hash.TR_MaxElevation, Hash.TR_MinElevation, Hash.TR_MaxSpeed,
+                ]
+            influxdb_trip(tags=tags, fields=fields, trip_start=Hash.TR_StartTime)
             self._trip_log = None
 
         return new_state

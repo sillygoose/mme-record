@@ -77,7 +77,6 @@
         "arbitration_id_hex": "07E2",
         "enable": true,
         "period": 1,
-        "offset": 5,
         "dids": [
             {
                 "did_name": "GearCommanded",

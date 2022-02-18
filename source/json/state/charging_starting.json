@@ -25,18 +25,6 @@
                 "codec_id": 18501
             },
             {
-                "did_name": "HvbCCR",
-                "did_id": 18498,
-                "did_id_hex": "4842",
-                "codec_id": 18498
-            },
-            {
-                "did_name": "HvbMaxCC",
-                "did_id": 18620,
-                "did_id_hex": "48BC",
-                "codec_id": 18620
-            },
-            {
                 "did_name": "HvbEtE",
                 "did_id": 18504,
                 "did_id_hex": "4848",
@@ -86,7 +74,6 @@
         "arbitration_id_hex": "07E4",
         "enable": true,
         "period": 1,
-        "offset": 2,
         "dids": [
             {
                 "did_name": "EvseType",

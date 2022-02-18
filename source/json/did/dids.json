@@ -83,7 +83,7 @@
         "states": [
             {
                 "name": "lvb_current",
-                "initial_value": 0
+                "initial_value": 127
             }
         ]
     },

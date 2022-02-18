@@ -18,6 +18,10 @@ from config.configuration import Configuration
 from exceptions import FailedInitialization
 from urllib3.exceptions import ReadTimeoutError, ConnectTimeoutError, NewConnectionError
 
+from state_engine import get_state_value, set_state
+from hash import *
+from did import EvseType
+
 
 _LOGGER = logging.getLogger("mme")
 
@@ -73,7 +77,7 @@ def _connect_influxdb_client():
                 InfluxDB._query_api.query(f'from(bucket: "{InfluxDB._bucket}") |> range(start: -1m)')
                 _LOGGER.info(f"Connected to the InfluxDB database at {InfluxDB._url}, bucket '{InfluxDB._bucket}'")
             except ApiException as e:
-                _LOGGER.error(f"InfluxDB ApiException: {e}")
+                raise FailedInitialization(f"An exception occurred during InfluxDB query: {e.message}")
             except (NewConnectionError, ConnectTimeoutError, ReadTimeoutError):
                 _LOGGER.error(f"Unable to access bucket '{InfluxDB._bucket}' at {InfluxDB._url}")
         else:
@@ -129,85 +133,66 @@ def write_lp_points(lp_points: List) -> None:
         _LOGGER.error(f"Wrote {len(InfluxDB._line_points)} points to backup file '{InfluxDB._backup_file}'")
 
 
-def influxdb_record_trip(details: dict, vehicle: str) -> None:
-    """
-            trip_details = {
-                'time':                 starting_time,
-                'duration':             duration_seconds,
-                'odometer':             {'starting': trip.get(Hash.HiresOdometer), 'ending': get_state_value(Hash.HiresOdometer)},
-                'socd':                 {'starting': trip.get(Hash.HvbSoCD), 'ending': get_state_value(Hash.HvbSoCD)},
-                'ete':                  {'starting': trip.get(Hash.HvbEtE), 'ending': get_state_value(Hash.HvbEtE)},
-                'latitude':             {'starting': trip.get(Hash.GpsLatitude), 'ending': get_state_value(Hash.GpsLatitude)},
-                'longitude':            {'starting': trip.get(Hash.GpsLongitude), 'ending': get_state_value(Hash.GpsLongitude)},
-                'elevation':            {'starting': trip.get(Hash.GpsElevation), 'ending': get_state_value(Hash.GpsElevation)},
-                'temperature':          {'starting': trip.get(Hash.ExteriorTemperature), 'ending': get_state_value(Hash.ExteriorTemperature)},
-            }
-    """
-    trip = []
-    """
-    tag_value = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%dT%H:%M')
-    trip.append(
-        f"trip" \
-        f",vehicle={vehicle},session={tag_value} " \
-        f"odometer={odometer},latitude={latitude},longitude={longitude},duration={duration}," \
-        f"soc_begin={starting_soc},soc_end={ending_soc},socd_begin={starting_socd},socd_end={ending_socd}," \
-        f"ete_begin={starting_ete},ete_end={ending_ete},max_power={max_input_power}," \
-        f"kwh_added={kwh_added},kwh_used={kwh_used},efficiency={efficiency} {ts}")
-    """
-    write_lp_points(trip)
+def influxdb_trip(tags: List[Hash], fields: List[Hash], trip_start: Hash) -> None:
+    ts_start = get_state_value(trip_start)
+    tag_value = datetime.datetime.fromtimestamp(ts_start).strftime('%Y-%m-%dT%H:%M')
+
+    trip_lp = f"trip,session={tag_value}"
+    for _, hash in enumerate(tags):
+        field_name, field_type = get_db_fields(hash)
+        trip_lp += ',' + field_name + '=' + str(get_state_value(hash))
+        if field_type == 'int':
+            trip_lp += 'i'
+    trip_lp += ' '
+
+    for index, hash in enumerate(fields):
+        if index >= 1:
+            trip_lp += ','
+        field_name, field_type = get_db_fields(hash)
+        trip_lp += field_name + '=' + str(get_state_value(hash))
+        if field_type == 'int':
+            trip_lp += 'i'
+    trip_lp += f" {ts_start}"
+
+    write_lp_points([trip_lp])
 
 
-def influxdb_charging_session(session: dict, vehicle: str) -> None:
-    """
-            charging_session = {
-                'type':             charger_type,
-                'time':             {'starting': starting_time, 'ending': ending_time},
-                'duration':         duration_seconds,
-                'location':         {'latitude': latitude, 'longitude': longitude},
-                'odometer':         odometer,
-                'soc':              {'starting': starting_soc, 'ending': ending_soc},
-                'socd':             {'starting': starting_socd, 'ending': ending_socd},
-                'ete':              {'starting': starting_ete, 'ending': ending_ete},
-                'kwh_added':        kwh_added,
-                'kwh_used':         kwh_used,
-                'efficiency':       charging_efficiency,
-                'max_power':        max_input_power,
-            }
-    """
-    charging_session = []
-    charger_type = session.get('type')
-    ts = session.get('time')
-    duration = session.get('duration')
-    end_ts = ts + duration
-    latitude = session.get('location').get('latitude')
-    longitude = session.get('location').get('longitude')
-    odometer = session.get('odometer')
-    starting_soc = session.get('soc').get('starting')
-    ending_soc = session.get('soc').get('ending')
-    starting_socd = session.get('socd').get('starting')
-    ending_socd = session.get('socd').get('ending')
-    starting_ete = session.get('ete').get('starting')
-    ending_ete = session.get('ete').get('ending')
-    kwh_added = session.get('kwh_added')
-    kwh_used = session.get('kwh_used')
-    efficiency = session.get('efficiency')
-    max_input_power = session.get('max_power')
-    tag_value = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%dT%H:%M')
-    charging_session.append(
-        f"charging" \
-        f",vehicle={vehicle},session={tag_value},charger_type={charger_type} " \
-        f"odometer={odometer},latitude={latitude},longitude={longitude},duration={duration}," \
-        f"soc_begin={starting_soc},soc_end={ending_soc},socd_begin={starting_socd},socd_end={ending_socd}," \
-        f"ete_begin={starting_ete},ete_end={ending_ete},max_power={max_input_power}," \
-        f"kwh_added={kwh_added},kwh_used={kwh_used},efficiency={efficiency} {ts}")
-    charging_session.append(
-        f"charging" \
-        f",vehicle={vehicle},session={tag_value},charger_type={charger_type} " \
-        f"odometer={odometer},latitude={latitude},longitude={longitude},duration={duration}," \
-        f"soc_begin=0.0,soc_end=0.0,socd_begin=0.0,socd_end=0.0," \
-        f"ete_begin=0.0,ete_end=0.0,max_power=0.0," \
-        f"kwh_added=0.0,kwh_used=0.0,efficiency=0.0 {end_ts}")
-    write_lp_points(charging_session)
+def influxdb_charging(tags: List[Hash], fields: List[Hash], charge_start: Hash, charge_end: Hash) -> None:
+    ts_start = get_state_value(charge_start)
+    ts_end = get_state_value(charge_end)
+    tag_value = datetime.datetime.fromtimestamp(ts_start).strftime('%Y-%m-%dT%H:%M')
+
+    session_start = f"charging,session={tag_value}"
+    session_end = f"charging,session={tag_value}"
+    for _, hash in enumerate(tags):
+        field_name, field_type = get_db_fields(hash)
+        session_start += ',' + field_name + '=' + str(get_state_value(hash))
+        session_end += ',' + field_name + '=' + str(get_state_value(hash))
+        if field_type == 'int':
+            session_start += 'i'
+            session_end += 'i'
+    session_start += ' '
+    session_end += ' '
+
+    for index, hash in enumerate(fields):
+        if index >= 1:
+            session_start += ','
+        field_name, field_type = get_db_fields(hash)
+        session_start += field_name + '=' + str(get_state_value(hash))
+        if field_type == 'int':
+            session_start += 'i'
+    session_start += f" {ts_start}"
+
+    for index, hash in enumerate(fields):
+        if index >= 1:
+            session_end += ','
+        field_name, field_type = get_db_fields(hash)
+        session_end += field_name + '=' + str(0)
+        if field_type == 'int':
+            session_end += 'i'
+    session_end += f" {ts_end}"
+
+    write_lp_points([session_start, session_end])
 
 
 def influxdb_write_record(data_points: List[dict], flush=False) -> None:
@@ -225,3 +210,29 @@ def influxdb_write_record(data_points: List[dict], flush=False) -> None:
         if len(InfluxDB._line_points) > 0:
             write_lp_points(InfluxDB._line_points)
             InfluxDB._line_points = []
+
+if __name__ == '__main__':
+    set_state(Hash.CS_Vehicle, 'Greta')
+    set_state(Hash.CS_ChargerType, 'AC')
+    set_state(Hash.CS_StartTime, 0)
+    set_state(Hash.CS_EndTime, 20000)
+    set_state(Hash.CS_StartSoCD, 60)
+    set_state(Hash.CS_EndSoCD, 80)
+    set_state(Hash.CS_StartEtE, 30000)
+    set_state(Hash.CS_EndEte, 50000)
+    set_state(Hash.CS_Odometer, 10000)
+    set_state(Hash.CS_Latitude, 42.0)
+    set_state(Hash.CS_Longitude, -76.0)
+    set_state(Hash.CS_MaxInputPower, 10000)
+    set_state(Hash.CS_WhAdded, 25000)
+    set_state(Hash.CS_WhUsed, 30000)
+    set_state(Hash.CS_ChargingEfficiency, 0.91)
+
+    tag_list = [Hash.CS_ChargerType, Hash.CS_Vehicle]
+    field_list = [
+            Hash.CS_Latitude, Hash.CS_Longitude, Hash.CS_Odometer,
+            Hash.CS_StartSoCD, Hash.CS_EndSoCD, Hash.CS_StartEtE, Hash.CS_EndEte,
+            Hash.CS_WhAdded, Hash.CS_WhUsed, Hash.CS_ChargingEfficiency, Hash.CS_MaxInputPower,
+        ]
+    influxdb_charging(tag_list=tag_list, field_list=field_list, charge_start=Hash.CS_StartTime, charge_end=Hash.CS_EndTime)
+    pass
