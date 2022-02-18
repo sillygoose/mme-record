@@ -113,15 +113,14 @@ class Trip:
             energy_gained = set_state(Hash.TR_EnergyGained, int(get_state_value(Hash.HvbEnergyGained)))
             energy_lost = set_state(Hash.TR_EnergyLost, int(get_state_value(Hash.HvbEnergyLost)))
 
-            trip_distance = odometer_km(set_state(Hash.TR_Distance, get_state_value(Hash.HiresOdometer) - trip.get(Hash.HiresOdometer)))
+            trip_distance = set_state(Hash.TR_Distance, get_state_value(Hash.HiresOdometer) - trip.get(Hash.HiresOdometer))
             elevation_change = set_state(Hash.TR_ElevationChange, get_state_value(Hash.GpsElevation) - trip.get(Hash.GpsElevation))
             max_elevation = set_state(Hash.TR_MaxElevation, get_state_value(Hash.GpsElevationMax))
             min_elevation = set_state(Hash.TR_MinElevation, get_state_value(Hash.GpsElevationMin))
             max_speed = set_state(Hash.TR_MaxSpeed, speed_kph(get_state_value(Hash.HiresSpeedMax)))
             wh_used = set_state(Hash.TR_EnergyUsed, (trip.get(Hash.HvbEtE) - get_state_value(Hash.HvbEtE)))
             calculated_wh_used = get_state_value(Hash.HvbEnergy) - trip.get(Hash.HvbEnergy)
-            kwh_used = wh_used * 0.001
-            efficiency_km_kwh = 0.0 if kwh_used == 0.0 else trip_distance / kwh_used
+            efficiency_km_kwh = 0.0 if wh_used == 0.0 else trip_distance / (wh_used * 0.001)
             efficiency_miles_kwh = efficiency_km_kwh * 0.6213712
 
             _LOGGER.info(f"Trip in '{vehicle}' started at {starting_datetime} and lasted for {hours} hours, {minutes} minutes, {seconds} seconds")
