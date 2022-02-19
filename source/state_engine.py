@@ -135,16 +135,16 @@ def get_EngineStartDisable(state: str) -> EngineStartDisable:
             _LOGGER.debug(f"While in '{state}', 'EngineStartDisable' had an unexpected value: {engine_start_disable}")
         return None
 
-def odometer_km(raw_odometer: float) -> float:
-    return raw_odometer
+def odometer_km(raw_odometer: int) -> float:
+    return raw_odometer * 0.1
 
-def odometer_miles(raw_odometer: float) -> float:
+def odometer_miles(raw_odometer: int) -> float:
     return odometer_km(raw_odometer) * 0.6213712
 
-def speed_kph(raw_speed: int) -> float:
+def speed_kph(raw_speed: float) -> float:
     return raw_speed
 
-def speed_mph(raw_speed: int) -> float:
+def speed_mph(raw_speed: float) -> float:
     return speed_kph(raw_speed) * 0.6213712
 
 def socd(raw_socd: int, digits: int = 0) -> Any:

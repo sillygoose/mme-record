@@ -129,12 +129,12 @@ def update_synthetics(hash: Hash) -> List[dict]:
                     _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: Maximum speed seen: {hires_speed:.1f} kph (calculated)")
 
             elif synthetic_hash == Hash.GpsElevationMin:
-                gps_elevation = get_state_value(Hash.GpsElevation, 0.0)
-                if gps_elevation > get_state_value(Hash.GpsElevationMax, -99999999.0):
+                gps_elevation = get_state_value(Hash.GpsElevation, 0)
+                if gps_elevation > get_state_value(Hash.GpsElevationMax, -99999999):
                     set_state(Hash.GpsElevationMax, gps_elevation)
                     arbitration_id, did_id, synthetic_name = get_hash_fields(Hash.GpsElevationMax)
                     _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: Maximum GPS elevation seen: {gps_elevation:.1f} m (calculated)")
-                if gps_elevation < get_state_value(Hash.GpsElevationMin, 99999999.0):
+                if gps_elevation < get_state_value(Hash.GpsElevationMin, 99999999):
                     set_state(Hash.GpsElevationMin, gps_elevation)
                     arbitration_id, did_id, synthetic_name = get_hash_fields(Hash.GpsElevationMin)
                     _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: Minimum GPS elevation seen: {gps_elevation:.1f} m (calculated)")

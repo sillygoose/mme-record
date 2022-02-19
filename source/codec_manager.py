@@ -9,7 +9,7 @@ from udsoncan import DidCodec
 from did import DidId
 from config.configuration import Configuration
 
-from state_engine import odometer_km, odometer_miles
+from state_engine import odometer_km, odometer_miles, speed_kph, speed_mph
 
 
 _LOGGER = logging.getLogger('mme')
@@ -123,70 +123,75 @@ class CodecGearCommanded(Codec):
 class CodecGPS(Codec):
     def decode(self, payload):
         # default to using MME GPS data
-        gps_elevation, gps_latitude, gps_longitude, gps_fix, gps_speed, gps_bearing = struct.unpack('>HllBHH', payload)
-        gps_latitude /= 60.0
-        gps_longitude /= 60.0
-        gps_speed *= 3.6
-        saved_gps_bearing = gps_bearing
-        states = [
-                {'gps_latitude': gps_latitude},
-                {'gps_longitude': gps_longitude},
-                {'gps_elevation': gps_elevation},
-                {'gps_speed': gps_speed},
-                {'gps_bearing': gps_bearing},
-            ]
-        gps_data = f"GPS: ({gps_latitude:3.6f}, {gps_longitude:3.6f}), elevation: {gps_elevation:.0f} m, bearing: {gps_bearing}°, speed: {gps_speed:3.1f} kph, fix: {gps_fix}"
-
-        # Use the external GPS server if available
-        if CodecManager._gps_server:
+        gps_elevation, gps_latitude, gps_longitude, gps_fix, gps_speed, gps_bearing = struct.unpack('>hllBHH', payload)
+        if gps_fix == 255:
+            # saved hires GPS data
+            gps_elevation, gps_latitude, gps_longitude, gps_fix, gps_speed, gps_bearing = struct.unpack('>hffBHH', payload)
+            gps_speed *= 3.6
             states = [
+                    {'gps_latitude': gps_latitude},
+                    {'gps_longitude': gps_longitude},
                     {'gps_elevation': gps_elevation},
                     {'gps_speed': gps_speed},
                     {'gps_bearing': gps_bearing},
                 ]
-            try:
-                gps_response = requests.get(CodecManager._gps_server, timeout=1.5)
-                phone_gps = gps_response.json()
-                gps_latitude = phone_gps.get('latitude')
-                gps_longitude = phone_gps.get('longitude')
-                gps_elevation = phone_gps.get('altitude')
-                gps_elapsed = gps_response.elapsed.seconds + round(gps_response.elapsed.microseconds/1000000, 3)
-                states = [
-                        {'gps_latitude': gps_latitude},
-                        {'gps_longitude': gps_longitude},
-                        {'gps_elevation': gps_elevation},
-                        {'gps_fix': 255},
-                        {'gps_elapsed': gps_elapsed},
-                    ]
-                if (gps_speed := phone_gps.get('speed')) >= 0.0:
-                    states.append({'gps_speed': gps_speed * 3.6})
-                if (gps_bearing := phone_gps.get('course')) >= 0.0:
-                    states.append({'gps_bearing': gps_bearing})
+            gps_data = f"GPS: ({gps_latitude:3.8f}, {gps_longitude:3.8f}), elevation: {gps_elevation} m, bearing: {gps_bearing}°, speed: {gps_speed:.01f} kph, fix: {gps_fix}"
+        else:
+            # vehicle lores GPS data
+            gps_latitude = float(gps_latitude / 60.0)
+            gps_longitude = float(gps_longitude / 60.0)
+            gps_speed *= 3.6
+            states = [
+                    {'gps_latitude': gps_latitude},
+                    {'gps_longitude': gps_longitude},
+                    {'gps_elevation': gps_elevation},
+                    {'gps_speed': gps_speed},
+                    {'gps_bearing': gps_bearing},
+                ]
+            gps_data = f"GPS: ({gps_latitude:3.6f}, {gps_longitude:3.6f}), elevation: {gps_elevation} m, bearing: {gps_bearing}°, speed: {gps_speed:.01f} kph, fix: {gps_fix}"
 
-                gps_data = f"GPS: ({gps_latitude:3.6f}, {gps_longitude:3.6f}), elevation: {gps_elevation:.01f} m, bearing: {gps_bearing:.0f}°, speed: {gps_speed:3.1f} kph, elapsed: {gps_elapsed:.03f}"
-                gps_latitude = int(gps_latitude * 60)
-                gps_longitude = int(gps_longitude * 60)
-                gps_elevation = int(gps_elevation)
-                gps_speed = int(gps_speed / 3.6)
-                gps_fix = 255
-                gps_bearing = saved_gps_bearing
-                payload = struct.pack('>HllBHH', gps_elevation, gps_latitude, gps_longitude, gps_fix, gps_speed, gps_bearing)
+            # Use the external GPS server if available
+            if CodecManager._gps_server:
+                # if successful modify the payload to reflect the hires GPS data
+                try:
+                    gps_response = requests.get(CodecManager._gps_server, timeout=0.25)
+                    phone_gps = gps_response.json()
+                    gps_latitude = float(phone_gps.get('latitude'))
+                    gps_longitude = float(phone_gps.get('longitude'))
+                    gps_elevation = int(phone_gps.get('altitude'))
+                    gps_speed = int(phone_gps.get('speed'))
+                    gps_bearing = int(phone_gps.get('course'))
+                    gps_elapsed = gps_response.elapsed.seconds + round(gps_response.elapsed.microseconds/1000000, 3)
+                    states = [
+                            {'gps_latitude': gps_latitude},
+                            {'gps_longitude': gps_longitude},
+                            {'gps_elevation': gps_elevation},
+                        ]
+                    gps_speed = 0
+                    if gps_speed >= 0:
+                        states.append({'gps_speed': gps_speed})
+                    gps_bearing = 0
+                    if gps_bearing >= 0:
+                        states.append({'gps_bearing': gps_bearing})
 
-            except InvalidSchema as e:
-                _LOGGER.error(f"InvalidSchema error: {e}")
-            except InvalidURL as e:
-                _LOGGER.error(f"InvalidURL error: {e}")
-            except HTTPError as e:
-                _LOGGER.error(f"HTTP error: {e}")
-            except ReadTimeout as e:
-                _LOGGER.error(f"Read Time out: {e}")
-            except ConnectTimeout:
-                pass
-            except ConnectionError as e:
-                pass
-                #_LOGGER.error(f"Unable to connect to GPS server: {e}")
-            except Exception as e:
-                _LOGGER.exception(f"Unexpected GPS exception: {e}")
+                    gps_data = f"GPS: ({gps_latitude:3.8f}, {gps_longitude:3.8f}), elevation: {gps_elevation} m, bearing: {gps_bearing}°, speed: {gps_speed:.01f} kph, elapsed: {gps_elapsed:.03f}"
+                    payload = struct.pack('>hffBHH', int(gps_elevation), float(gps_latitude), float(gps_longitude), 255, int(gps_speed / 3.6), gps_bearing)
+
+                except InvalidSchema as e:
+                    _LOGGER.error(f"InvalidSchema error: {e}")
+                except InvalidURL as e:
+                    _LOGGER.error(f"InvalidURL error: {e}")
+                except HTTPError as e:
+                    _LOGGER.error(f"HTTP error: {e}")
+                except ReadTimeout as e:
+                    _LOGGER.error(f"Read Time out: {e}")
+                except ConnectTimeout:
+                    pass
+                except ConnectionError as e:
+                    pass
+                    #_LOGGER.error(f"Unable to connect to GPS server: {e}")
+                except Exception as e:
+                    _LOGGER.exception(f"Unexpected GPS exception: {e}")
 
         return {'payload': payload, 'states': states, 'decoded': gps_data}
 
@@ -197,9 +202,9 @@ class CodecGPS(Codec):
 class CodecLoresOdometer(Codec):
     def decode(self, payload):
         odometer_high, odometer_low = struct.unpack('>HB', payload)
-        lores_odometer = float(odometer_high * 256 + odometer_low)
+        lores_odometer = (odometer_high * 256 + odometer_low) * 10
         states = [{'lores_odometer': lores_odometer}]
-        return {'payload': payload, 'states': states, 'decoded': f"Lores odometer: {lores_odometer:.01f} km ({odometer_miles(lores_odometer):.01f} mi)"}
+        return {'payload': payload, 'states': states, 'decoded': f"Lores odometer: {odometer_km(lores_odometer):.01f} km ({odometer_miles(lores_odometer):.01f} mi)"}
 
     def __len__(self):
         return 3
@@ -208,7 +213,7 @@ class CodecLoresOdometer(Codec):
 class CodecHiresOdometer(Codec):
     def decode(self, payload):
         odometer_high, odometer_low = struct.unpack('>HB', payload)
-        hires_odometer = (odometer_high * 256 + odometer_low) * 0.1
+        hires_odometer = odometer_high * 256 + odometer_low
         states = [{'hires_odometer': hires_odometer}]
         return {'payload': payload, 'states': states, 'decoded': f"Hires odometer: {odometer_km(hires_odometer):.01f} km ({odometer_miles(hires_odometer):.01f} mi)"}
 
@@ -221,7 +226,7 @@ class CodecHiresSpeed(Codec):
         hires_speed = struct.unpack('>H', payload)[0]
         hires_speed = hires_speed / 128.0
         states = [{'hires_speed': hires_speed}]
-        return {'payload': payload, 'states': states, 'decoded': f"Speed: {hires_speed:.01f} kph"}
+        return {'payload': payload, 'states': states, 'decoded': f"Hires Speed: {speed_kph(hires_speed):.01f} kph ({speed_mph(hires_speed):.01f} kph)"}
 
     def __len__(self):
         return 2

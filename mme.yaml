@@ -17,9 +17,9 @@ mme:
         # p2_timeout:                       max time in seconds to wait for a first response (positive, negative, or NRC 0x78) (default: 1.0)
         # p2_star_timeout:                  max time in seconds to wait for a response (positive, negative, or NRC0x78) after the reception of
         #                                   a negative response with code 0x78 (requestCorrectlyReceived-ResponsePending) (default: 1.0)
-        dest_path:                          'record-files'
-        dest_file:                          'nothing'
-        #gps_server:                         'http://172.20.10.1:8080'
+        dest_path:                          record-files
+        dest_file:                          test-trip
+        gps_server:                         http://172.20.10.1:8080
         file_writes:                        500
         did_read:                           1
         born_on:                            1623167753
@@ -37,7 +37,7 @@ mme:
         # rx_flowcontrol_timeout:           triggers a timeout if a flow control is not received (default: 1.0)
         speedup:                            true
         source_path:                        playback-files
-        source_file:                        trip-20220217 # 'short-trip' # 'trip-20220215'
+        source_file:                        test-trip # 'short-trip' # 'trip-20220215'
         rx_consecutive_frame_timeout:       1.0
         rx_flowcontrol_timeout:             1.0
 
@@ -52,7 +52,7 @@ mme:
         enable:                             true
         org:                                !secret influxdb2_org
         url:                                !secret influxdb2_url
-        bucket:                             'ev-test1' # !secret influxdb2_bucket
+        bucket:                             'ev-test' # !secret influxdb2_bucket
         token:                              !secret influxdb2_token
         block_size:                         200
 

@@ -173,7 +173,6 @@ class RecordStateManager(StateManager):
                             if decoded_payload:
                                 decoded_state_details = {'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did_id, 'did_id_hex': f"{did_id:04X}", 'payload': decoded_payload}
                                 influxdb_state_data = self.update_vehicle_state(decoded_state_details) ###do writes in update_vehicle_state
-                                ### state_details = None ###
                                 influxdb_write_record(influxdb_state_data)
                 self._update_state_machine()
                 self._response_queue.task_done()
