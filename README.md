@@ -8,6 +8,7 @@
 - [Installation](#installation)
 - [Running](#running)
 - [State files](#state_files)
+- [Data Typing](#datatyping)
 - [Debugging](#debugging)
 - [Utilities](#utilities)
 - [Thanks](#thanks)
@@ -178,12 +179,37 @@ Here is a sample state file entry with an explanation of the fields it might con
         ]
     }
 ```
-    module                required
-    arbitration_id        required
-    arbitration_id_hex    optional, easier to recognize than the hexidecimal version
+    module                module name (required)
+    arbitration_id        the aribitration ID assigned to the module (required)
+    arbitration_id_hex    optional, easier to recognize than 'arbitration_id' (but )JSON has no hexidecimal support)
     enable                enables this entry, default setting is true
     period                how often this entry will be scheduled (every 5 seconds in this example)
     offset                when this entry will start, default is 0 (this example will start after two seconds has passed)
+    dids                  a list of DID dictionaries that you wish to send to the vehicle
+
+Each DID dictonary contains the following fields:
+    did_name            name assigned to the DID (required)
+    did_id              ID assigned to the DID (required)
+    did_id_hex          optional, easier to recognize than 'did_id' (JSON has no hexidecimal support)
+    codec_id            Codec assigned to decode the DID response, normally the 'did_id' but could be different
+
+#
+<a id='datatyping'></a>
+## Data Typing
+The data used in the software follows the following rules:
+    voltage                 V (float)
+    current                 A (float)
+    power                   W (int)
+    energy                  Wh (int)
+    distance                km (int)
+    speed                   kph (float)
+    latitude, longitude     ° (float)
+    hvb_soc                 % (float)
+    enumerations            (int)
+
+Most data follow the type encoded in the CAN bus responses, some may be scaled type int, for example the odometer data is type int but represents tenths of kilometers.
+
+These types are also used to encode the InfluxDB fields, changing a data type may be cause for deleting the bucket and starting fresh.
 
 #
 <a id='debugging'></a>

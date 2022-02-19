@@ -177,19 +177,10 @@ class CodecGPS(Codec):
                     gps_data = f"GPS: ({gps_latitude:3.8f}, {gps_longitude:3.8f}), elevation: {gps_elevation} m, bearing: {gps_bearing}°, speed: {gps_speed:.01f} kph, elapsed: {gps_elapsed:.03f}"
                     payload = struct.pack('>hffBHH', int(gps_elevation), float(gps_latitude), float(gps_longitude), 255, int(gps_speed / 3.6), gps_bearing)
 
-                except InvalidSchema as e:
-                    _LOGGER.error(f"InvalidSchema error: {e}")
-                except InvalidURL as e:
-                    _LOGGER.error(f"InvalidURL error: {e}")
-                except HTTPError as e:
-                    _LOGGER.error(f"HTTP error: {e}")
-                except ReadTimeout as e:
-                    _LOGGER.error(f"Read Time out: {e}")
-                except ConnectTimeout:
+                except (ReadTimeout, HTTPError, InvalidURL, InvalidSchema) as e:
+                    _LOGGER.error(f"{e}")
+                except (ConnectTimeout, ConnectionError):
                     pass
-                except ConnectionError as e:
-                    pass
-                    #_LOGGER.error(f"Unable to connect to GPS server: {e}")
                 except Exception as e:
                     _LOGGER.exception(f"Unexpected GPS exception: {e}")
 

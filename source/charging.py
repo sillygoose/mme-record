@@ -40,9 +40,9 @@ class Charging:
             set_state(Hash.ChargerOutputPowerMax, 0)
 
         elif call_type == CallType.Outgoing:
-            for state in Charging._requiredStates:
+            for state in Charging._requiredHashes:
                 assert get_state_value(state, None) is not None, f"{state.name}"
-            _LOGGER.info(f"Starting charging session, HVB SoC: {socd(get_state_value(Hash.HvbSoCD))}%, HVB EtE: {get_state_value(Hash.HvbEtE):.0f} Wh")
+            _LOGGER.info(f"Starting charging session, HVB SoC: {socd(get_state_value(Hash.HvbSoCD))}%, HVB EtE: {get_state_value(Hash.HvbEtE)} Wh")
 
         elif call_type == CallType.Default:
             if charging_status := get_ChargingStatus('charging_starting'):
@@ -58,7 +58,7 @@ class Charging:
                             if engine_start_normal := get_EngineStartNormal('charging_starting'):
                                 new_state = VehicleState.On if engine_start_normal == EngineStartNormal.Yes else VehicleState.Accessory
 
-            for hash in Charging._requiredStates:
+            for hash in Charging._requiredHashes:
                 if (hash_value := get_state_value(hash, None)) is None:
                     arbitration_id, did_id, _ = get_hash_fields(hash)
                     _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: Missing required DID: '{hash.name}'")
