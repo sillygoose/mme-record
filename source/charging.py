@@ -119,8 +119,8 @@ class Charging:
             session = self._charging_session
             vehicle = set_state(Hash.Vehicle, self._vehicle_name)
             charger_type = set_state(Hash.CS_ChargerType, session.get('type'))
-            starting_time = set_state(Hash.CS_StartTime, session.get('time'))
-            ending_time = set_state(Hash.CS_EndTime, int(time.time()))
+            starting_time = set_state(Hash.CS_TimeStart, session.get('time'))
+            ending_time = set_state(Hash.CS_TimeEnd, int(time.time()))
             starting_socd = set_state(Hash.CS_StartSoCD, session.get(Hash.HvbSoCD))
             ending_socd = set_state(Hash.CS_EndSoCD, get_state_value(Hash.HvbSoCD))
             starting_ete = set_state(Hash.CS_StartEtE, session.get(Hash.HvbEtE))
@@ -151,10 +151,11 @@ class Charging:
 
             tags = [Hash.CS_ChargerType, Hash.Vehicle]
             fields = [
+                    Hash.CS_TimeStart, Hash.CS_TimeEnd,
                     Hash.CS_Latitude, Hash.CS_Longitude, Hash.CS_Odometer,
                     Hash.CS_StartSoCD, Hash.CS_EndSoCD, Hash.CS_StartEtE, Hash.CS_EndEte,
                     Hash.CS_WhAdded, Hash.CS_WhUsed, Hash.CS_ChargingEfficiency, Hash.CS_MaxInputPower,
                 ]
-            influxdb_charging(tags=tags, fields=fields, charge_start=Hash.CS_StartTime, charge_end=Hash.CS_EndTime)
+            influxdb_charging(tags=tags, fields=fields, charge_start=Hash.CS_TimeStart)
             self._charging_session = None
         return new_state

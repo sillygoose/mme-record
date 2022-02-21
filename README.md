@@ -201,13 +201,11 @@ The data used in the software follows the following rules:
     current                 A (float)
     power                   W (int)
     energy                  Wh (int)
-    distance                km (int)
+    distance                km (float)
     speed                   kph (float)
     latitude, longitude     ° (float)
     hvb_soc                 % (float)
     enumerations            (int)
-
-Most data follow the type encoded in the CAN bus responses, some may be scaled type int, for example the odometer data is type int but represents tenths of kilometers.
 
 These types are also used to encode the InfluxDB fields, changing a data type may be cause for deleting the bucket and starting fresh.
 

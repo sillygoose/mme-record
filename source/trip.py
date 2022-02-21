@@ -87,8 +87,8 @@ class Trip:
         elif call_type == CallType.Incoming:
             trip = self._trip_log
             vehicle = set_state(Hash.Vehicle, self._vehicle_name)
-            starting_time = set_state(Hash.TR_StartTime, trip.get('time'))
-            ending_time = set_state(Hash.TR_EndTime, int(time.time()))
+            starting_time = set_state(Hash.TR_TimeStart, trip.get('time'))
+            ending_time = set_state(Hash.TR_TimeEnd, int(time.time()))
             starting_datetime = datetime.datetime.fromtimestamp(starting_time).strftime('%Y-%m-%d %H:%M')
             ending_datetime = datetime.datetime.fromtimestamp(ending_time).strftime('%Y-%m-%d %H:%M')
             duration_seconds = ending_time - starting_time
@@ -144,6 +144,7 @@ class Trip:
 
             tags = [Hash.Vehicle]
             fields = [
+                    Hash.TR_TimeStart, Hash.TR_TimeEnd,
                     Hash.TR_OdometerStart, Hash.TR_OdometerEnd,
                     Hash.TR_Distance, Hash.TR_ElevationChange,
                     Hash.TR_LatitudeStart, Hash.TR_LatitudeEnd, Hash.TR_LongitudeStart, Hash.TR_LongitudeEnd, Hash.TR_ElevationStart, Hash.TR_ElevationEnd,
@@ -151,7 +152,7 @@ class Trip:
                     Hash.TR_ExteriorStart, Hash.TR_ExteriorEnd,
                     Hash.TR_MaxElevation, Hash.TR_MinElevation, Hash.TR_MaxSpeed,
                 ]
-            influxdb_trip(tags=tags, fields=fields, trip_start=Hash.TR_StartTime)
+            influxdb_trip(tags=tags, fields=fields, trip_start=Hash.TR_TimeStart)
             self._trip_log = None
 
         return new_state

@@ -157,22 +157,16 @@ def influxdb_trip(tags: List[Hash], fields: List[Hash], trip_start: Hash) -> Non
     write_lp_points([trip_lp])
 
 
-def influxdb_charging(tags: List[Hash], fields: List[Hash], charge_start: Hash, charge_end: Hash) -> None:
+def influxdb_charging(tags: List[Hash], fields: List[Hash], charge_start: Hash) -> None:
     ts_start = get_state_value(charge_start)
-    ts_end = get_state_value(charge_end)
     tag_value = datetime.datetime.fromtimestamp(ts_start).strftime('%Y-%m-%dT%H:%M')
-
     session_start = f"charging,session={tag_value}"
-    session_end = f"charging,session={tag_value}"
     for _, hash in enumerate(tags):
         field_name, field_type = get_db_fields(hash)
         session_start += ',' + field_name + '=' + str(get_state_value(hash))
-        session_end += ',' + field_name + '=' + str(get_state_value(hash))
         if field_type == 'int':
             session_start += 'i'
-            session_end += 'i'
     session_start += ' '
-    session_end += ' '
 
     for index, hash in enumerate(fields):
         if index >= 1:
@@ -183,16 +177,7 @@ def influxdb_charging(tags: List[Hash], fields: List[Hash], charge_start: Hash, 
             session_start += 'i'
     session_start += f" {ts_start}"
 
-    for index, hash in enumerate(fields):
-        if index >= 1:
-            session_end += ','
-        field_name, field_type = get_db_fields(hash)
-        session_end += field_name + '=' + str(0)
-        if field_type == 'int':
-            session_end += 'i'
-    session_end += f" {ts_end}"
-
-    write_lp_points([session_start, session_end])
+    write_lp_points([session_start])
 
 
 def influxdb_write_record(data_points: List[dict], flush=False) -> None:
@@ -212,10 +197,10 @@ def influxdb_write_record(data_points: List[dict], flush=False) -> None:
             InfluxDB._line_points = []
 
 if __name__ == '__main__':
-    set_state(Hash.CS_Vehicle, 'Greta')
+    set_state(Hash.Vehicle, 'Greta')
     set_state(Hash.CS_ChargerType, 'AC')
-    set_state(Hash.CS_StartTime, 0)
-    set_state(Hash.CS_EndTime, 20000)
+    set_state(Hash.CS_TimeStart, 0)
+    set_state(Hash.CS_TimeEnd, 20000)
     set_state(Hash.CS_StartSoCD, 60)
     set_state(Hash.CS_EndSoCD, 80)
     set_state(Hash.CS_StartEtE, 30000)
@@ -228,11 +213,12 @@ if __name__ == '__main__':
     set_state(Hash.CS_WhUsed, 30000)
     set_state(Hash.CS_ChargingEfficiency, 0.91)
 
-    tag_list = [Hash.CS_ChargerType, Hash.CS_Vehicle]
+    tag_list = [Hash.CS_ChargerType, Hash.Vehicle]
     field_list = [
-            Hash.CS_Latitude, Hash.CS_Longitude, Hash.CS_Odometer,
-            Hash.CS_StartSoCD, Hash.CS_EndSoCD, Hash.CS_StartEtE, Hash.CS_EndEte,
-            Hash.CS_WhAdded, Hash.CS_WhUsed, Hash.CS_ChargingEfficiency, Hash.CS_MaxInputPower,
-        ]
-    influxdb_charging(tag_list=tag_list, field_list=field_list, charge_start=Hash.CS_StartTime, charge_end=Hash.CS_EndTime)
+        Hash.CS_TimeStart, Hash.CS_TimeEnd,
+        Hash.CS_Latitude, Hash.CS_Longitude, Hash.CS_Odometer,
+        Hash.CS_StartSoCD, Hash.CS_EndSoCD, Hash.CS_StartEtE, Hash.CS_EndEte,
+        Hash.CS_WhAdded, Hash.CS_WhUsed, Hash.CS_ChargingEfficiency, Hash.CS_MaxInputPower,
+    ]
+    influxdb_charging(tag_list=tag_list, field_list=field_list, charge_start=Hash.CS_TimeStart)
     pass

@@ -80,8 +80,8 @@ class Hash(Enum):
     ExteriorTemperature     = '07E6:DD05:exterior_temp'
 
     CS_ChargerType          = 'FFFF:9000:cs_charger_type'
-    CS_StartTime            = 'FFFF:9000:cs_start_time'
-    CS_EndTime              = 'FFFF:9000:cs_end_time'
+    CS_TimeStart            = 'FFFF:9000:cs_time_start'
+    CS_TimeEnd              = 'FFFF:9000:cs_time_end'
     CS_StartSoCD            = 'FFFF:9000:cs_start_socd'
     CS_EndSoCD              = 'FFFF:9000:cs_end_socd'
     CS_StartEtE             = 'FFFF:9000:cs_start_ete'
@@ -94,8 +94,8 @@ class Hash(Enum):
     CS_WhAdded              = 'FFFF:9000:cs_wh_added'
     CS_WhUsed               = 'FFFF:9000:cs_wh_used'
 
-    TR_StartTime            = 'FFFF:9001:tr_start_time'
-    TR_EndTime              = 'FFFF:9001:tr_end_time'
+    TR_TimeStart            = 'FFFF:9001:tr_time_start'
+    TR_TimeEnd              = 'FFFF:9001:tr_time_end'
     TR_Distance             = 'FFFF:9001:tr_distance'
     TR_ElevationChange      = 'FFFF:9001:tr_elevation_change'
 
@@ -133,8 +133,8 @@ _db_stuff = {
 
     Hash.HiresSpeed:                {'db_name': 'hires_speed',              'type': 'float'},
     Hash.HiresSpeedMax:             {'db_name': 'hires_speed_max',          'type': 'float'},
-    Hash.HiresOdometer:             {'db_name': 'hires_odometer',           'type': 'int'},
-    Hash.LoresOdometer:             {'db_name': 'lores_odometer',           'type': 'int'},
+    Hash.HiresOdometer:             {'db_name': 'hires_odometer',           'type': 'float'},
+    Hash.LoresOdometer:             {'db_name': 'lores_odometer',           'type': 'float'},
 
     Hash.EngineStartNormal:         {'db_name': 'engine_start_normal',       'type': 'int'},
     Hash.EngineStartDisable:        {'db_name': 'engine_start_disable',      'type': 'int'},
@@ -194,13 +194,13 @@ _db_stuff = {
     Hash.Vehicle:                   {'db_name': 'vehicle',                   'type': 'str'},
 
     Hash.CS_ChargerType:            {'db_name': 'charger_type',              'type': 'str'},
-    Hash.CS_StartTime:              {'db_name': 'cs_start_time',             'type': 'int'},
-    Hash.CS_EndTime:                {'db_name': 'cs_end_time',               'type': 'int'},
+    Hash.CS_TimeStart:              {'db_name': 'cs_time_start',             'type': 'int'},
+    Hash.CS_TimeEnd:                {'db_name': 'cs_time_end',               'type': 'int'},
     Hash.CS_StartSoCD:              {'db_name': 'cs_start_socd',             'type': 'int'},
     Hash.CS_EndSoCD:                {'db_name': 'cs_end_socd',               'type': 'int'},
     Hash.CS_StartEtE:               {'db_name': 'cs_start_ete',              'type': 'int'},
     Hash.CS_EndEte:                 {'db_name': 'cs_end_ete',                'type': 'int'},
-    Hash.CS_Odometer:               {'db_name': 'cs_odometer',               'type': 'int'},
+    Hash.CS_Odometer:               {'db_name': 'cs_odometer',               'type': 'float'},
     Hash.CS_Latitude:               {'db_name': 'cs_latitude',               'type': 'float'},
     Hash.CS_Longitude:              {'db_name': 'cs_longitude',              'type': 'float'},
     Hash.CS_MaxInputPower:          {'db_name': 'cs_max_input_power',        'type': 'int'},
@@ -208,8 +208,8 @@ _db_stuff = {
     Hash.CS_WhAdded:                {'db_name': 'cs_wh_added',               'type': 'int'},
     Hash.CS_WhUsed:                 {'db_name': 'cs_wh_used',                'type': 'int'},
 
-    Hash.TR_StartTime:              {'db_name': 'tr_start_time',             'type': 'int'},
-    Hash.TR_EndTime:                {'db_name': 'tr_end_time',               'type': 'int'},
+    Hash.TR_TimeStart:              {'db_name': 'tr_time_start',             'type': 'int'},
+    Hash.TR_TimeEnd:                {'db_name': 'tr_time_end',               'type': 'int'},
     Hash.TR_Distance:               {'db_name': 'tr_distance',               'type': 'float'},
     Hash.TR_ElevationChange:        {'db_name': 'tr_elevation_change',       'type': 'int'},
     Hash.TR_MaxElevation:           {'db_name': 'tr_elevation_max',          'type': 'int'},
@@ -219,8 +219,8 @@ _db_stuff = {
     Hash.TR_EnergyLost:             {'db_name': 'tr_wh_lost',                'type': 'int'},
     Hash.TR_MaxSpeed:               {'db_name': 'tr_max_speed',              'type': 'float'},
 
-    Hash.TR_OdometerStart:          {'db_name': 'tr_odometer_start',         'type': 'int'},
-    Hash.TR_OdometerEnd:            {'db_name': 'tr_odometer_end',           'type': 'int'},
+    Hash.TR_OdometerStart:          {'db_name': 'tr_odometer_start',         'type': 'float'},
+    Hash.TR_OdometerEnd:            {'db_name': 'tr_odometer_end',           'type': 'float'},
     Hash.TR_LatitudeStart:          {'db_name': 'tr_latitude_start',         'type': 'float'},
     Hash.TR_LatitudeEnd:            {'db_name': 'tr_latitude_end',           'type': 'float'},
     Hash.TR_LongitudeStart:         {'db_name': 'tr_longitude_start',        'type': 'float'},
