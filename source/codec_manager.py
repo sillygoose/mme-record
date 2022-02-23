@@ -159,23 +159,22 @@ class CodecGPS(Codec):
                     gps_latitude = float(phone_gps.get('latitude'))
                     gps_longitude = float(phone_gps.get('longitude'))
                     gps_elevation = int(phone_gps.get('altitude'))
-                    gps_speed = int(phone_gps.get('speed'))
-                    gps_bearing = int(phone_gps.get('course'))
+                    gps_speed = int(phone_gps.get('speed'), -1.0)
+                    gps_speed *= 3.6
+                    gps_bearing = int(phone_gps.get('course'), -1.0)
                     gps_elapsed = gps_response.elapsed.seconds + round(gps_response.elapsed.microseconds/1000000, 3)
                     states = [
                             {'gps_latitude': gps_latitude},
                             {'gps_longitude': gps_longitude},
                             {'gps_elevation': gps_elevation},
                         ]
-                    gps_speed = 0
-                    if gps_speed >= 0:
+                    if gps_speed >= 0.0:
                         states.append({'gps_speed': gps_speed})
-                    gps_bearing = 0
-                    if gps_bearing >= 0:
+                    if gps_bearing >= 0.0:
                         states.append({'gps_bearing': gps_bearing})
 
                     gps_data = f"GPS: ({gps_latitude:3.8f}, {gps_longitude:3.8f}), elevation: {gps_elevation} m, bearing: {gps_bearing}°, speed: {gps_speed:.01f} kph, elapsed: {gps_elapsed:.03f}"
-                    payload = struct.pack('>hffBHH', int(gps_elevation), float(gps_latitude), float(gps_longitude), 255, int(gps_speed / 3.6), gps_bearing)
+                    payload = struct.pack('>hffBHH', int(gps_elevation), float(gps_latitude), float(gps_longitude), 255, int(gps_speed / 3.6), int(gps_bearing))
 
                 except (ReadTimeout, HTTPError, InvalidURL, InvalidSchema) as e:
                     _LOGGER.error(f"{e}")

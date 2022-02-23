@@ -4,7 +4,7 @@
         "arbitration_id": 2018,
         "arbitration_id_hex": "07E2",
         "enable": true,
-        "period": 5,
+        "period": 3,
         "dids": [
             {
                 "did_name": "GearCommanded",
@@ -121,7 +121,7 @@
         "arbitration_id": 2000,
         "arbitration_id_hex": "07D0",
         "enable": true,
-        "period": 4,
+        "period": 2,
         "dids": [
             {
                 "did_name": "GPS",
