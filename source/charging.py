@@ -2,7 +2,7 @@ import logging
 import time
 import datetime
 
-from state_engine import get_state_value, set_state, odometer_km, odometer_miles, socd
+from state_engine import get_state_value, set_state, odometer_km, odometer_miles
 from state_engine import get_ChargePlugConnected, get_ChargingStatus, get_EvseType
 from state_engine import get_InferredKey, get_EngineStartRemote, get_EngineStartNormal
 
@@ -42,7 +42,7 @@ class Charging:
         elif call_type == CallType.Outgoing:
             for state in Charging._requiredHashes:
                 assert get_state_value(state, None) is not None, f"{state.name}"
-            _LOGGER.info(f"Starting charging session, HVB SoC: {socd(get_state_value(Hash.HvbSoCD))}%, HVB EtE: {get_state_value(Hash.HvbEtE)} Wh")
+            _LOGGER.info(f"Starting charging session, HVB SoC: {get_state_value(Hash.HvbSoCD)}%, HVB EtE: {get_state_value(Hash.HvbEtE)} Wh")
 
         elif call_type == CallType.Default:
             if charging_status := get_ChargingStatus('charging_starting'):
@@ -143,7 +143,7 @@ class Charging:
             _LOGGER.info(f"    {charger_type} charging session started at {session_datetime} for {hours} hours, {minutes} minutes")
             _LOGGER.info(f"    odometer: {odometer_km(odometer):.01f} km ({odometer_miles(odometer):.01f} mi)")
             _LOGGER.info(f"    location: {reverse_geocode(latitude, longitude)}")
-            _LOGGER.info(f"    starting SoC: {socd(starting_socd)}%, ending SoC: {socd(ending_socd)}%")
+            _LOGGER.info(f"    starting SoC: {starting_socd:.01f}%, ending SoC: {ending_socd:.01f}%")
             _LOGGER.info(f"    starting EtE: {starting_ete} Wh, ending EtE: {ending_ete} Wh, LVB ΔWh: {delta_lvb_energy} Wh")
             _LOGGER.info(f"    {wh_added} Wh were added, requiring {wh_used} Wh from the charger")
             _LOGGER.info(f"    overall efficiency: {(charging_efficiency*100):.01f}%")

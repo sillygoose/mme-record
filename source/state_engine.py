@@ -146,6 +146,3 @@ def speed_kph(raw_speed: float) -> float:
 
 def speed_mph(raw_speed: float) -> float:
     return speed_kph(raw_speed) * 0.6213712
-
-def socd(raw_socd: int, digits: int = 0) -> Any:
-    return int(raw_socd * 0.5) if digits == 0 else raw_socd * 0.5

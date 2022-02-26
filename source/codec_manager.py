@@ -263,11 +263,10 @@ class CodecHvbSoc(Codec):
 
 
 class CodecHvbSocD(Codec):
-    # SocD is twice the value, so moves in 0.5 units
     def decode(self, payload):
-        hvb_socd = struct.unpack('>B', payload)[0]
+        hvb_socd = float(struct.unpack('>B', payload)[0]) * 0.5
         states = [{'hvb_socd': hvb_socd}]
-        return {'payload': payload, 'states': states, 'decoded': f"HVB displayed SoC: {int(hvb_socd * 0.5)}% ({(hvb_socd * 0.5):.1f}%)"}
+        return {'payload': payload, 'states': states, 'decoded': f"HVB displayed SoC: {hvb_socd:.01f}%"}
 
     def __len__(self):
         return 1

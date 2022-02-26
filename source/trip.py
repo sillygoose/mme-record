@@ -2,7 +2,7 @@ import logging
 import time
 import datetime
 
-from state_engine import get_state_value, set_state, odometer_km, odometer_miles, socd, speed_kph, speed_mph
+from state_engine import get_state_value, set_state, odometer_km, odometer_miles, speed_kph, speed_mph
 from state_engine import get_InferredKey, get_GearCommanded
 from state_engine import get_EngineStartRemote, get_EngineStartDisable
 
@@ -127,7 +127,7 @@ class Trip:
             _LOGGER.info(f"        starting odometer: {odometer_km(starting_odometer):.01f} km ({odometer_miles(starting_odometer):.01f} mi)")
             _LOGGER.info(f"        starting point: {reverse_geocode(starting_latitude, starting_longitude)}")
             _LOGGER.info(f"        starting elevation: {starting_elevation} m")
-            _LOGGER.info(f"        starting SoC: {socd(starting_socd)}%, starting EtE: {starting_ete} Wh")
+            _LOGGER.info(f"        starting SoC: {starting_socd:.01f}%, starting EtE: {starting_ete} Wh")
             _LOGGER.info(f"        starting temperature: {starting_temperature}°C")
             _LOGGER.info(f"ending at {ending_datetime}")
             _LOGGER.info(f"        ending odometer: {odometer_km(ending_odometer):.01f} km ({odometer_miles(ending_odometer):.01f} mi)")
@@ -135,7 +135,7 @@ class Trip:
             _LOGGER.info(f"        distance covered: {odometer_km(trip_distance):.01f} km ({odometer_miles(trip_distance):.01f} mi)")
             _LOGGER.info(f"        ending elevation {ending_elevation} m, elevation change {elevation_change} m")
             _LOGGER.info(f"        minimum elevation seen: {min_elevation} m, maximum elevation seen {max_elevation} m")
-            _LOGGER.info(f"        ending SoC: {socd(ending_socd)}%, ending EtE: {ending_ete} Wh, ΔEtE: {wh_used} Wh, calculated ΔEtE: {int(calculated_wh_used)} Wh")
+            _LOGGER.info(f"        ending SoC: {ending_socd:.01f}%, ending EtE: {ending_ete} Wh, ΔEtE: {wh_used} Wh, calculated ΔEtE: {int(calculated_wh_used)} Wh")
             _LOGGER.info(f"        maximum power seen: {get_state_value(Hash.HvbPowerMax)} W, minimum power seen: {get_state_value(Hash.HvbPowerMin)} W")
             _LOGGER.info(f"        energy gained: {energy_gained} Wh, energy lost: {energy_lost} Wh")
             _LOGGER.info(f"        energy efficiency: {efficiency_km_kwh:.02f} km/kWh ({efficiency_miles_kwh:.02f} mi/kWh)")
