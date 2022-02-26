@@ -197,6 +197,7 @@ Each DID dictonary contains the following fields:
 <a id='datatyping'></a>
 ## Data Typing
 The data used in the software follows the following rules:
+
     voltage (V)                 float
     current (A)                 float
     power (W)                   int
