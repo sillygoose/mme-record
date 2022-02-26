@@ -318,9 +318,9 @@ class CodecHvbCHOp(Codec):
 
 class CodecLvbSoc(Codec):
     def decode(self, payload):
-        lvb_soc = struct.unpack('>B', payload)[0]
+        lvb_soc = float(struct.unpack('>B', payload)[0])
         states = [{'lvb_soc': lvb_soc}]
-        return {'payload': payload, 'states': states, 'decoded': f"LVB SoC: {lvb_soc}%"}
+        return {'payload': payload, 'states': states, 'decoded': f"LVB SoC: {lvb_soc:.0f}%"}
 
     def __len__(self):
         return 1

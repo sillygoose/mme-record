@@ -197,15 +197,15 @@ Each DID dictonary contains the following fields:
 <a id='datatyping'></a>
 ## Data Typing
 The data used in the software follows the following rules:
-    voltage                 V (float)
-    current                 A (float)
-    power                   W (int)
-    energy                  Wh (int)
-    distance                km (float)
-    speed                   kph (float)
-    latitude, longitude     ° (float)
-    hvb_soc                 % (float)
-    enumerations            (int)
+    voltage (V)                 float
+    current (A)                 float
+    power (W)                   int
+    energy (Wh)                 int
+    distance (km)               float
+    speed (kph)                 float
+    latitude, longitude (°)     float
+    %                           float
+    enumerations                int
 
 These types are also used to encode the InfluxDB fields, changing a data type may be cause for deleting the bucket and starting fresh.
 

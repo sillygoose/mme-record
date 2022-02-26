@@ -160,7 +160,7 @@ _db_stuff = {
     Hash.LvbCurrent:                {'db_name': 'lvb_current',               'type': 'float'},
     Hash.LvbPower:                  {'db_name': 'lvb_power',                 'type': 'int'},
     Hash.LvbEnergy:                 {'db_name': 'lvb_energy',                'type': 'int'},
-    Hash.LvbSoC:                    {'db_name': 'lvb_soc',                   'type': 'int'},
+    Hash.LvbSoC:                    {'db_name': 'lvb_soc',                   'type': 'float'},
     Hash.LvbDcdcLvCurrent:          {'db_name': 'lvb_dcdc_lv_current',       'type': 'int'},
     Hash.LvbDcdcHvCurrent:          {'db_name': 'lvb_dcdc_hv_current',       'type': 'int'},
     Hash.LvbDcdcEnable:             {'db_name': 'lvb_dcdc_enable',           'type': 'int'},

@@ -134,7 +134,7 @@ class Charging:
             delta_hvb_energy = ending_ete - starting_ete
             wh_added = set_state(Hash.CS_WhAdded, int(delta_hvb_energy + delta_lvb_energy))
             wh_used = set_state(Hash.CS_WhUsed, int(get_state_value(Hash.ChargerInputEnergy) - session.get(Hash.ChargerInputEnergy, 0.0)))
-            charging_efficiency = set_state(Hash.CS_ChargingEfficiency, wh_added / wh_used if wh_used > 0 else 0.0)
+            charging_efficiency = (set_state(Hash.CS_ChargingEfficiency, wh_added / wh_used * 100.0) if wh_used > 0 else 0.0)
             session_datetime = datetime.datetime.fromtimestamp(starting_time).strftime('%Y-%m-%d %H:%M')
             hours, rem = divmod(ending_time - starting_time, 3600)
             minutes, _ = divmod(rem, 60)
@@ -146,7 +146,7 @@ class Charging:
             _LOGGER.info(f"    starting SoC: {starting_socd:.01f}%, ending SoC: {ending_socd:.01f}%")
             _LOGGER.info(f"    starting EtE: {starting_ete} Wh, ending EtE: {ending_ete} Wh, LVB ΔWh: {delta_lvb_energy} Wh")
             _LOGGER.info(f"    {wh_added} Wh were added, requiring {wh_used} Wh from the charger")
-            _LOGGER.info(f"    overall efficiency: {(charging_efficiency*100):.01f}%")
+            _LOGGER.info(f"    overall efficiency: {charging_efficiency:.01f}%")
             _LOGGER.info(f"    maximum input power: {max_input_power} W")
 
             tags = [Hash.CS_ChargerType, Hash.Vehicle]
