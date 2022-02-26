@@ -188,6 +188,7 @@ Here is a sample state file entry with an explanation of the fields it might con
     dids                  a list of DID dictionaries that you wish to send to the vehicle
 
 Each DID dictonary contains the following fields:
+
     did_name            name assigned to the DID (required)
     did_id              ID assigned to the DID (required)
     did_id_hex          optional, easier to recognize than 'did_id' (JSON has no hexidecimal support)
