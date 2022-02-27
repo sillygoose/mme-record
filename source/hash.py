@@ -1,7 +1,7 @@
 import logging
 
 from enum import Enum, unique
-from typing import Tuple, Any
+from typing import Tuple
 
 
 _LOGGER = logging.getLogger('mme')
@@ -105,7 +105,9 @@ class Hash(Enum):
     TR_Efficiency           = 'FFFF:9001:tr_efficiency'
     TR_EnergyGained         = 'FFFF:9001:tr_wh_gained'
     TR_EnergyLost           = 'FFFF:9001:tr_wh_lost'
+    TR_EnergyEfficiency     = 'FFFF:9001:tr_energy_efficiency'
     TR_MaxSpeed             = 'FFFF:9001:tr_max_speed'
+    TR_AverageSpeed         = 'FFFF:9001:tr_average_speed'
 
     TR_OdometerStart        = 'FFFF:9001:tr_odometer_start'
     TR_OdometerEnd          = 'FFFF:9001:tr_odometer_end'
@@ -216,8 +218,10 @@ _db_stuff = {
     Hash.TR_MinElevation:           {'db_name': 'tr_elevation_min',          'type': 'int'},
     Hash.TR_EnergyUsed:             {'db_name': 'tr_wh_used',                'type': 'int'},
     Hash.TR_EnergyGained:           {'db_name': 'tr_wh_gained',              'type': 'int'},
+    Hash.TR_EnergyEfficiency:       {'db_name': 'tr_energy_efficiency',      'type': 'float'},
     Hash.TR_EnergyLost:             {'db_name': 'tr_wh_lost',                'type': 'int'},
     Hash.TR_MaxSpeed:               {'db_name': 'tr_max_speed',              'type': 'float'},
+    Hash.TR_AverageSpeed:           {'db_name': 'tr_average_speed',          'type': 'float'},
 
     Hash.TR_OdometerStart:          {'db_name': 'tr_odometer_start',         'type': 'float'},
     Hash.TR_OdometerEnd:            {'db_name': 'tr_odometer_end',           'type': 'float'},

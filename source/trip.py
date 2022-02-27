@@ -118,9 +118,10 @@ class Trip:
             max_elevation = set_state(Hash.TR_MaxElevation, get_state_value(Hash.GpsElevationMax))
             min_elevation = set_state(Hash.TR_MinElevation, get_state_value(Hash.GpsElevationMin))
             max_speed = set_state(Hash.TR_MaxSpeed, speed_kph(get_state_value(Hash.HiresSpeedMax)))
+            average_speed = set_state(Hash.TR_AverageSpeed, ((trip_distance / duration_seconds) * 3600) if duration_seconds > 0 else 0.0)
             wh_used = set_state(Hash.TR_EnergyUsed, (trip.get(Hash.HvbEtE) - get_state_value(Hash.HvbEtE)))
             calculated_wh_used = get_state_value(Hash.HvbEnergy) - trip.get(Hash.HvbEnergy)
-            efficiency_km_kwh = 0.0 if wh_used == 0.0 else trip_distance / (wh_used * 0.001)
+            efficiency_km_kwh = set_state(Hash.TR_EnergyEfficiency, 0.0 if wh_used == 0.0 else trip_distance / (wh_used * 0.001))
             efficiency_miles_kwh = efficiency_km_kwh * 0.6213712
 
             _LOGGER.info(f"Trip in '{vehicle}' started at {starting_datetime} and lasted for {hours} hours, {minutes} minutes, {seconds} seconds")
@@ -134,23 +135,25 @@ class Trip:
             _LOGGER.info(f"        ending point: {reverse_geocode(ending_latitude, ending_longitude)}")
             _LOGGER.info(f"        distance covered: {odometer_km(trip_distance):.01f} km ({odometer_miles(trip_distance):.01f} mi)")
             _LOGGER.info(f"        ending elevation {ending_elevation} m, elevation change {elevation_change} m")
-            _LOGGER.info(f"        minimum elevation seen: {min_elevation} m, maximum elevation seen {max_elevation} m")
+            _LOGGER.info(f"        minimum elevation: {min_elevation} m, maximum elevation: {max_elevation} m")
             _LOGGER.info(f"        ending SoC: {ending_socd:.01f}%, ending EtE: {ending_ete} Wh, ΔEtE: {wh_used} Wh, calculated ΔEtE: {int(calculated_wh_used)} Wh")
-            _LOGGER.info(f"        maximum power seen: {get_state_value(Hash.HvbPowerMax)} W, minimum power seen: {get_state_value(Hash.HvbPowerMin)} W")
+            _LOGGER.info(f"        maximum power: {get_state_value(Hash.HvbPowerMax)} W, minimum power seen: {get_state_value(Hash.HvbPowerMin)} W")
             _LOGGER.info(f"        energy gained: {energy_gained} Wh, energy lost: {energy_lost} Wh")
             _LOGGER.info(f"        energy efficiency: {efficiency_km_kwh:.02f} km/kWh ({efficiency_miles_kwh:.02f} mi/kWh)")
-            _LOGGER.info(f"        maximum speed seen: {max_speed:.01f} kph ({speed_mph(max_speed):.01f} mph)")
+            _LOGGER.info(f"        maximum speed: {max_speed:.01f} kph ({speed_mph(max_speed):.01f} mph)")
+            _LOGGER.info(f"        average speed: {average_speed:.01f} kph ({speed_mph(average_speed):.01f} mph)")
             _LOGGER.info(f"        ending temperature: {ending_temperature}°C")
 
             tags = [Hash.Vehicle]
             fields = [
                     Hash.TR_TimeStart, Hash.TR_TimeEnd,
-                    Hash.TR_OdometerStart, Hash.TR_OdometerEnd,
-                    Hash.TR_Distance, Hash.TR_ElevationChange,
+                    Hash.TR_OdometerStart, Hash.TR_OdometerEnd, Hash.TR_Distance,
                     Hash.TR_LatitudeStart, Hash.TR_LatitudeEnd, Hash.TR_LongitudeStart, Hash.TR_LongitudeEnd, Hash.TR_ElevationStart, Hash.TR_ElevationEnd,
-                    Hash.TR_SocDStart, Hash.TR_SocDEnd, Hash.TR_EtEStart, Hash.TR_EtEEnd, Hash.TR_EnergyGained, Hash.TR_EnergyLost, Hash.TR_EnergyUsed,
+                    Hash.TR_MaxElevation, Hash.TR_MinElevation, Hash.TR_ElevationChange,
+                    Hash.TR_SocDStart, Hash.TR_SocDEnd, Hash.TR_EtEStart, Hash.TR_EtEEnd,
+                    Hash.TR_EnergyGained, Hash.TR_EnergyLost, Hash.TR_EnergyUsed, Hash.TR_EnergyEfficiency,
+                    Hash.TR_MaxSpeed, Hash.TR_AverageSpeed,
                     Hash.TR_ExteriorStart, Hash.TR_ExteriorEnd,
-                    Hash.TR_MaxElevation, Hash.TR_MinElevation, Hash.TR_MaxSpeed,
                 ]
             influxdb_trip(tags=tags, fields=fields, trip_start=Hash.TR_TimeStart)
             self._trip_log = None
