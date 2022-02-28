@@ -3,6 +3,7 @@ import time
 import datetime
 
 from state_engine import get_state_value, set_state, odometer_km, odometer_miles, speed_kph, speed_mph
+from state_engine import delete_did_cache
 from state_engine import get_InferredKey, get_GearCommanded
 from state_engine import get_EngineStartRemote, get_EngineStartDisable
 
@@ -39,6 +40,9 @@ class Trip:
             set_state(Hash.HvbEnergyGained, 0)
             set_state(Hash.HvbEnergyLost, 0)
             set_state(Hash.HiresSpeedMax, 0)
+            set_state(Hash.ExtTemperatureSum, 0)
+            set_state(Hash.ExtTemperatureCount, 0)
+            delete_did_cache(Hash.ExteriorTemperature)
 
         elif call_type == CallType.Outgoing:
             for hash in Trip._requiredHashes:
@@ -123,6 +127,7 @@ class Trip:
             calculated_wh_used = get_state_value(Hash.HvbEnergy) - trip.get(Hash.HvbEnergy)
             efficiency_km_kwh = set_state(Hash.TR_EnergyEfficiency, 0.0 if wh_used == 0.0 else trip_distance / (wh_used * 0.001))
             efficiency_miles_kwh = efficiency_km_kwh * 0.6213712
+            average_temperature = set_state(Hash.TR_ExteriorAverage, int(get_state_value(Hash.ExtTemperatureSum) / get_state_value(Hash.ExtTemperatureCount)))
 
             _LOGGER.info(f"Trip in '{vehicle}' started at {starting_datetime} and lasted for {hours} hours, {minutes} minutes, {seconds} seconds")
             _LOGGER.info(f"        starting odometer: {odometer_km(starting_odometer):.01f} km ({odometer_miles(starting_odometer):.01f} mi)")
@@ -143,6 +148,7 @@ class Trip:
             _LOGGER.info(f"        maximum speed: {max_speed:.01f} kph ({speed_mph(max_speed):.01f} mph)")
             _LOGGER.info(f"        average speed: {average_speed:.01f} kph ({speed_mph(average_speed):.01f} mph)")
             _LOGGER.info(f"        ending temperature: {ending_temperature}°C")
+            _LOGGER.info(f"        average temperature: {average_temperature}°C")
 
             tags = [Hash.Vehicle]
             fields = [
@@ -153,7 +159,7 @@ class Trip:
                     Hash.TR_SocDStart, Hash.TR_SocDEnd, Hash.TR_EtEStart, Hash.TR_EtEEnd,
                     Hash.TR_EnergyGained, Hash.TR_EnergyLost, Hash.TR_EnergyUsed, Hash.TR_EnergyEfficiency,
                     Hash.TR_MaxSpeed, Hash.TR_AverageSpeed,
-                    Hash.TR_ExteriorStart, Hash.TR_ExteriorEnd,
+                    Hash.TR_ExteriorStart, Hash.TR_ExteriorEnd, Hash.TR_ExteriorAverage,
                 ]
             influxdb_trip(tags=tags, fields=fields, trip_start=Hash.TR_TimeStart)
             self._trip_log = None

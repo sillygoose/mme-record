@@ -3,7 +3,7 @@ from time import time_ns
 
 from typing import Any, Tuple
 
-from hash import Hash
+from hash import Hash, get_hash_fields
 from did import EngineStartRemote, EngineStartNormal, EngineStartDisable, ChargePlugConnected
 from did import KeyState, ChargingStatus, EvseType, GearCommanded, InferredKey
 
@@ -26,12 +26,14 @@ def get_did_cache(key: str) -> Any:
 def set_did_cache(key: str, value: Any) -> None:
     StateEngine._did_cache[key] = value
 
-def delete_did_cache(key: str) -> None:
+def delete_did_cache(hash: Hash) -> None:
     try:
+        arbitration_id, did_id, _ = get_hash_fields(hash)
+        key = f"{arbitration_id:04X}:{did_id:04X}"
         StateEngine._did_cache.pop(key)
-        _LOGGER.debug(f"Deleted DID cache entry '{key}'")
+        _LOGGER.debug(f"Deleted DID cache entry '{hash}'")
     except KeyError:
-        _LOGGER.debug(f"Deleting DID cache entry '{key}' failed")
+        _LOGGER.debug(f"Deleting DID cache entry '{hash}' failed")
         pass
 
 ###

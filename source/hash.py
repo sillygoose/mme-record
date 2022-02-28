@@ -78,6 +78,8 @@ class Hash(Enum):
 
     InteriorTemperature     = '07E2:DD04:interior_temp'
     ExteriorTemperature     = '07E6:DD05:exterior_temp'
+    ExtTemperatureSum       = '07E6:DD05:exterior_temp_sum'
+    ExtTemperatureCount     = '07E6:DD05:exterior_temp_count'
 
     CS_ChargerType          = 'FFFF:9000:cs_charger_type'
     CS_TimeStart            = 'FFFF:9000:cs_time_start'
@@ -123,7 +125,7 @@ class Hash(Enum):
     TR_EtEEnd               = 'FFFF:9001:tr_ete_end'
     TR_ExteriorStart        = 'FFFF:9001:tr_exterior_start'
     TR_ExteriorEnd          = 'FFFF:9001:tr_exterior_end'
-
+    TR_ExteriorAverage      = 'FFFF:9001:tr_exterior_average'
 
 _db_stuff = {
     Hash.KeyState:                  {'db_name': 'key_state',                'type': 'int'},
@@ -192,7 +194,8 @@ _db_stuff = {
 
     Hash.InteriorTemperature:       {'db_name': 'interior_temp',             'type': 'int'},
     Hash.ExteriorTemperature:       {'db_name': 'exterior_temp',             'type': 'int'},
-
+    Hash.ExtTemperatureSum:         {'db_name': 'ext_temp_sum',              'type': 'int'},
+    Hash.ExtTemperatureCount:       {'db_name': 'ext_temp_count',            'type': 'int'},
     Hash.Vehicle:                   {'db_name': 'vehicle',                   'type': 'str'},
 
     Hash.CS_ChargerType:            {'db_name': 'charger_type',              'type': 'str'},
@@ -233,6 +236,7 @@ _db_stuff = {
     Hash.TR_ElevationEnd:           {'db_name': 'tr_elevation_end',          'type': 'int'},
     Hash.TR_ExteriorStart:          {'db_name': 'tr_exterior_start',         'type': 'int'},
     Hash.TR_ExteriorEnd:            {'db_name': 'tr_exterior_end',           'type': 'int'},
+    Hash.TR_ExteriorAverage:        {'db_name': 'tr_exterior_average',       'type': 'int'},
     Hash.TR_SocDStart:              {'db_name': 'tr_socd_start',             'type': 'float'},
     Hash.TR_SocDEnd:                {'db_name': 'tr_socd_end',               'type': 'float'},
     Hash.TR_EtEStart:               {'db_name': 'tr_ete_start',              'type': 'int'},

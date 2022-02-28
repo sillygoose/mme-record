@@ -216,7 +216,7 @@ class CodecHiresSpeed(Codec):
         hires_speed = struct.unpack('>H', payload)[0]
         hires_speed = hires_speed / 128.0
         states = [{'hires_speed': hires_speed}]
-        return {'payload': payload, 'states': states, 'decoded': f"Hires Speed: {speed_kph(hires_speed):.01f} kph ({speed_mph(hires_speed):.01f} kph)"}
+        return {'payload': payload, 'states': states, 'decoded': f"Hires Speed: {speed_kph(hires_speed):.01f} kph ({speed_mph(hires_speed):.01f} mph)"}
 
     def __len__(self):
         return 2

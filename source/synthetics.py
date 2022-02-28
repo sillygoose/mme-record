@@ -22,6 +22,7 @@ class Synthetics:
         Hash.ChargerOutputCurrent:      Hash.ChargerOutputPower,
         Hash.HiresSpeed:                Hash.HiresSpeedMax,
         Hash.GpsElevation:              Hash.GpsElevationMin,
+        Hash.ExteriorTemperature:       Hash.ExtTemperatureSum,
     }
 
 
@@ -138,6 +139,12 @@ def update_synthetics(hash: Hash) -> List[dict]:
                     set_state(Hash.GpsElevationMin, gps_elevation)
                     arbitration_id, did_id, synthetic_name = get_hash_fields(Hash.GpsElevationMin)
                     _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: Minimum GPS elevation seen: {gps_elevation:.1f} m (calculated)")
+
+            elif synthetic_hash == Hash.ExtTemperatureSum:
+                ext_count = set_state(Hash.ExtTemperatureCount, get_state_value(Hash.ExtTemperatureCount, 0) + 1)
+                ext_sum = set_state(Hash.ExtTemperatureSum, get_state_value(Hash.ExtTemperatureSum, 0) + get_state_value(Hash.ExteriorTemperature, 0))
+                arbitration_id, did_id, synthetic_name = get_hash_fields(Hash.ExtTemperatureSum)
+                _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: Exterior temperature sum/count: {ext_sum}/{ext_count} (calculated)")
 
     except ValueError:
         _LOGGER.debug(f"ValueError in update_synthetics({hash.value})")
