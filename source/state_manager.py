@@ -42,7 +42,6 @@ class StateManager(StateTransistion):
         VehicleState.Trip:              {'state_file': 'json/state/trip.json'},
         VehicleState.Trip_Ending:       {'state_file': 'json/state/trip_ending.json'},
 
-        ###
         VehicleState.Preconditioning:   {'state_file': 'json/state/preconditioning.json'},
         VehicleState.Charging_DCFC:     {'state_file': 'json/state/charging_dcfc.json'},
     }

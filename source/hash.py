@@ -9,270 +9,155 @@ _LOGGER = logging.getLogger('mme')
 
 @unique
 class Hash(Enum):
-    Vehicle                 = 'FFFF:9002:vehicle'
-    KeyState                = '0716:411F:key_state'
-    InferredKey             = '0726:417D:inferred_key'
-    EvseType                = '07E4:4851:evse_type'
-    ChargingStatus          = '07E4:484D:charging_status'
-    GearCommanded           = '07E2:1E12:gear_commanded'
-    ChargePlugConnected     = '07E2:4843:charge_plug_connected'
+    Vehicle                     = 'FFFF:9002:vehicle:str'
+    KeyState                    = '0716:411F:key_state:int'
+    InferredKey                 = '0726:417D:inferred_key:int'
+    EvseType                    = '07E4:4851:evse_type:int'
+    ChargingStatus              = '07E4:484D:charging_status:int'
+    GearCommanded               = '07E2:1E12:gear_commanded:int'
+    ChargePlugConnected         = '07E2:4843:charge_plug_connected:int'
 
-    HiresSpeed              = '07E0:1505:hires_speed'
-    HiresSpeedMax           = 'FFFF:1505:hires_speed_max'
-    HiresOdometer           = '0720:404C:hires_odometer'
-    LoresOdometer           = '07E4:DD01:lores_odometer'
+    HiresSpeed                  = '07E0:1505:hires_speed:float'
+    HiresSpeedMax               = 'FFFF:1505:hires_speed_max:float'
+    HiresOdometer               = '0720:404C:hires_odometer:float'
+    LoresOdometer               = '07E4:DD01:lores_odometer:float'
 
-    EngineStartNormal       = '0726:41B9:engine_start_normal'
-    EngineStartDisable      = '0726:41B9:engine_start_disable'
-    EngineStartRemote       = '0726:41B9:engine_start_remote'
-    EngineStartExtended     = '0726:41B9:engine_start_extended'
+    EngineStartNormal           = '0726:41B9:engine_start_normal:int'
+    EngineStartDisable          = '0726:41B9:engine_start_disable:int'
+    EngineStartRemote           = '0726:41B9:engine_start_remote:int'
+    EngineStartExtended         = '0726:41B9:engine_start_extended:int'
 
-    HvbVoltage              = '07E4:480D:hvb_voltage'
-    HvbCurrent              = '07E4:48F9:hvb_current'
-    HvbPower                = 'FFFF:8000:hvb_power'
-    HvbPowerMax             = 'FFFF:8000:hvb_power_max'
-    HvbPowerMin             = 'FFFF:8000:hvb_power_min'
-    HvbEnergy               = 'FFFF:8000:hvb_energy'
-    HvbEnergyLost           = 'FFFF:8000:hvb_energy_lost'
-    HvbEnergyGained         = 'FFFF:8000:hvb_energy_gained'
-    HvbSoH                  = '07E4:490C:hvb_soh'
-    HvbSoC                  = '07E4:4801:hvb_soc'
-    HvbSoCD                 = '07E4:4845:hvb_socd'
-    HvbEtE                  = '07E4:4848:hvb_ete'
-    HvbTemp                 = '07E4:4800:hvb_temp'
-    HvbCHOp                 = '07E7:48DF:hvb_chop'
-    HvbCHP                  = '07E7:48DE:hvb_chp'
-    HvbChargeCurrentRequested  = '07E4:4842:hvb_charge_current_requested'
-    HvbMaxChargeCurrent     = '07E4:48BC:hvb_max_charge_current'
+    HvbVoltage                  = '07E4:480D:hvb_voltage:float'
+    HvbCurrent                  = '07E4:48F9:hvb_current:float'
+    HvbPower                    = 'FFFF:8000:hvb_power:int'
+    HvbPowerMax                 = 'FFFF:8000:hvb_power_max:int'
+    HvbPowerMin                 = 'FFFF:8000:hvb_power_min:int'
+    HvbEnergy                   = 'FFFF:8000:hvb_energy:int'
+    HvbEnergyLost               = 'FFFF:8000:hvb_energy_lost:int'
+    HvbEnergyGained             = 'FFFF:8000:hvb_energy_gained:int'
+    HvbSoH                      = '07E4:490C:hvb_soh:float'
+    HvbSoC                      = '07E4:4801:hvb_soc:float'
+    HvbSoCD                     = '07E4:4845:hvb_socd:float'
+    HvbEtE                      = '07E4:4848:hvb_ete:int'
+    HvbTemp                     = '07E4:4800:hvb_temp:int'
+    HvbCHOp                     = '07E7:48DF:hvb_chop:int'
+    HvbCHP                      = '07E7:48DE:hvb_chp:int'
+    HvbChargeCurrentRequested   = '07E4:4842:hvb_charge_current_requested:float'
+    HvbMaxChargeCurrent         = '07E4:48BC:hvb_max_charge_current:float'
 
-    LvbVoltage              = '0726:402A:lvb_voltage'
-    LvbCurrent              = '0726:402B:lvb_current'
-    LvbPower                = 'FFFF:8001:lvb_power'
-    LvbEnergy               = 'FFFF:8001:lvb_energy'
-    LvbSoC                  = '0726:4028:lvb_soc'
-    LvbDcdcLvCurrent        = '07E4:4836:lvb_dcdc_lv_current'
-    LvbDcdcHvCurrent        = '07E4:483A:lvb_dcdc_hv_current'
-    LvbDcdcEnable           = '0746:483D:lvb_dcdc_enable'
+    LvbVoltage                  = '0726:402A:lvb_voltage:float'
+    LvbCurrent                  = '0726:402B:lvb_current:float'
+    LvbPower                    = 'FFFF:8001:lvb_power:int'
+    LvbEnergy                   = 'FFFF:8001:lvb_energy:int'
+    LvbSoC                      = '0726:4028:lvb_soc:float'
+    LvbDcdcLvCurrent            = '07E4:4836:lvb_dcdc_lv_current:float' # not implemented
+    LvbDcdcHvCurrent            = '07E4:483A:lvb_dcdc_hv_current:float' # not implemented
+    LvbDcdcEnable               = '0746:483D:lvb_dcdc_enable:int'
 
-    ChargerInputVoltage     = '07E2:485E:charger_input_voltage'
-    ChargerInputCurrent     = '07E2:485F:charger_input_current'
-    ChargerInputPower       = 'FFFF:8002:charger_input_power'
-    ChargerInputPowerMax    = 'FFFF:8002:charger_input_power_max'
-    ChargerInputEnergy      = 'FFFF:8002:charger_input_energy'
+    ChargerInputVoltage         = '07E2:485E:charger_input_voltage:float'
+    ChargerInputCurrent         = '07E2:485F:charger_input_current:float'
+    ChargerInputPower           = 'FFFF:8002:charger_input_power:int'
+    ChargerInputPowerMax        = 'FFFF:8002:charger_input_power_max:int'
+    ChargerInputEnergy          = 'FFFF:8002:charger_input_energy:int'
 
-    ChargerOutputVoltage    = '07E2:484A:charger_output_voltage'
-    ChargerOutputCurrent    = '07E2:4850:charger_output_current'
-    ChargerOutputPower      = 'FFFF:8003:charger_output_power'
-    ChargerOutputPowerMax   = 'FFFF:8003:charger_output_power_max'
-    ChargerOutputEnergy     = 'FFFF:8003:charger_output_energy'
+    ChargerOutputVoltage        = '07E2:484A:charger_output_voltage:float'
+    ChargerOutputCurrent        = '07E2:4850:charger_output_current:float'
+    ChargerOutputPower          = 'FFFF:8003:charger_output_power:int'
+    ChargerOutputPowerMax       = 'FFFF:8003:charger_output_power_max:int'
+    ChargerOutputEnergy         = 'FFFF:8003:charger_output_energy:int'
 
-    GpsLatitude             = '07D0:8012:gps_latitude'
-    GpsLongitude            = '07D0:8012:gps_longitude'
-    GpsElevation            = '07D0:8012:gps_elevation'
-    GpsSpeed                = '07D0:8012:gps_speed'
-    GpsBearing              = '07D0:8012:gps_bearing'
-    GpsFix                  = '07D0:8012:gps_fix'
-    GpsElapsed              = '07D0:8012:gps_elapsed'
-    GpsSource               = '07D0:8012:gps_source'
-    GpsElevationMin         = '07D0:8012:gps_elevation_min'
-    GpsElevationMax         = '07D0:8012:gps_elevation_max'
+    GpsLatitude                 = '07D0:8012:gps_latitude:float'
+    GpsLongitude                = '07D0:8012:gps_longitude:float'
+    GpsElevation                = '07D0:8012:gps_elevation:int'
+    GpsSpeed                    = '07D0:8012:gps_speed:float'
+    GpsBearing                  = '07D0:8012:gps_bearing:int'
+    GpsFix                      = '07D0:8012:gps_fix:int'
+    GpsElapsed                  = '07D0:8012:gps_elapsed:float'
+    GpsSource                   = '07D0:8012:gps_source:int'
+    GpsElevationMin             = '07D0:8012:gps_elevation_min:int'
+    GpsElevationMax             = '07D0:8012:gps_elevation_max:int'
 
-    InteriorTemperature     = '07E2:DD04:interior_temp'
-    ExteriorTemperature     = '07E6:DD05:exterior_temp'
-    ExtTemperatureSum       = '07E6:DD05:exterior_temp_sum'
-    ExtTemperatureCount     = '07E6:DD05:exterior_temp_count'
+    InteriorTemperature         = '07E2:DD04:interior_temp:int'
+    ExteriorTemperature         = '07E6:DD05:exterior_temp:int'
+    ExtTemperatureSum           = '07E6:DD05:exterior_temp_sum:int'
+    ExtTemperatureCount         = '07E6:DD05:exterior_temp_count:int'
 
-    CS_ChargerType          = 'FFFF:9000:cs_charger_type'
-    CS_TimeStart            = 'FFFF:9000:cs_time_start'
-    CS_TimeEnd              = 'FFFF:9000:cs_time_end'
-    CS_SoCDStart            = 'FFFF:9000:cs_socd_start'
-    CS_SoCDEnd              = 'FFFF:9000:cs_socd_end'
-    CS_EtEStart             = 'FFFF:9000:cs_ete_start'
-    CS_EteEnd               = 'FFFF:9000:cs_ete_end'
-    CS_HvbSoH               = 'FFFF:9000:cs_hvb_soh'
-    CS_Odometer             = 'FFFF:9000:cs_odometer'
-    CS_Latitude             = 'FFFF:9000:cs_latitude'
-    CS_Longitude            = 'FFFF:9000:cs_longitude'
-    CS_ChargeLocation       = 'FFFF:9000:cs_charge_location'
-    CS_MaxInputPower        = 'FFFF:9000:cs_max_input_power'
-    CS_ChargingEfficiency   = 'FFFF:9000:cs_charging_efficiency'
-    CS_WhAdded              = 'FFFF:9000:cs_wh_added'
-    CS_WhUsed               = 'FFFF:9000:cs_wh_used'
-    CS_HvbTempStart         = 'FFFF:9000:hvb_temp_start'
-    CS_HvbTempEnd           = 'FFFF:9000:hvb_temp_end'
+    CS_ChargerType              = 'FFFF:9000:cs_charger_type:str'
+    CS_TimeStart                = 'FFFF:9000:cs_time_start:int'
+    CS_TimeEnd                  = 'FFFF:9000:cs_time_end:int'
+    CS_SoCDStart                = 'FFFF:9000:cs_socd_start:float'
+    CS_SoCDEnd                  = 'FFFF:9000:cs_socd_end:float'
+    CS_EtEStart                 = 'FFFF:9000:cs_ete_start:int'
+    CS_EteEnd                   = 'FFFF:9000:cs_ete_end:int'
+    CS_HvbSoH                   = 'FFFF:9000:cs_hvb_soh:float'
+    CS_Odometer                 = 'FFFF:9000:cs_odometer:float'
+    CS_Latitude                 = 'FFFF:9000:cs_latitude:float'
+    CS_Longitude                = 'FFFF:9000:cs_longitude:float'
+    CS_ChargeLocation           = 'FFFF:9000:cs_charge_location:str'
+    CS_MaxInputPower            = 'FFFF:9000:cs_max_input_power:int'
+    CS_ChargingEfficiency       = 'FFFF:9000:cs_charging_efficiency:float'
+    CS_WhAdded                  = 'FFFF:9000:cs_wh_added:int'
+    CS_WhUsed                   = 'FFFF:9000:cs_wh_used:int'
+    CS_HvbTempStart             = 'FFFF:9000:cs_hvb_temp_start:int'
+    CS_HvbTempEnd               = 'FFFF:9000:cs_hvb_temp_end:int'
 
-    TR_TimeStart            = 'FFFF:9001:tr_time_start'
-    TR_TimeEnd              = 'FFFF:9001:tr_time_end'
-    TR_Distance             = 'FFFF:9001:tr_distance'
-    TR_ElevationChange      = 'FFFF:9001:tr_elevation_change'
-    TR_LocationStarting     = 'FFFF:9001:tr_location_start'
-    TR_LocationEnding       = 'FFFF:9001:tr_location_end'
+    TR_TimeStart                = 'FFFF:9001:tr_time_start:int'
+    TR_TimeEnd                  = 'FFFF:9001:tr_time_end:int'
+    TR_LocationStarting         = 'FFFF:9001:tr_location_start:str'
+    TR_LocationEnding           = 'FFFF:9001:tr_location_end:str'
+    TR_Distance                 = 'FFFF:9001:tr_distance:float'
+    TR_ElevationChange          = 'FFFF:9001:tr_elevation_change:int'
 
-    TR_MaxElevation         = 'FFFF:9001:tr_elevation_max'
-    TR_MinElevation         = 'FFFF:9001:tr_elevation_min'
-    TR_EnergyUsed           = 'FFFF:9001:tr_wh_used'
-    TR_Efficiency           = 'FFFF:9001:tr_efficiency'
-    TR_EnergyGained         = 'FFFF:9001:tr_wh_gained'
-    TR_EnergyLost           = 'FFFF:9001:tr_wh_lost'
-    TR_EnergyEfficiency     = 'FFFF:9001:tr_energy_efficiency'
-    TR_MaxSpeed             = 'FFFF:9001:tr_max_speed'
-    TR_AverageSpeed         = 'FFFF:9001:tr_average_speed'
+    TR_MaxElevation             = 'FFFF:9001:tr_elevation_max:int'
+    TR_MinElevation             = 'FFFF:9001:tr_elevation_min:int'
+    TR_EnergyUsed               = 'FFFF:9001:tr_wh_used:int'
+    TR_EnergyGained             = 'FFFF:9001:tr_wh_gained:int'
+    TR_EnergyLost               = 'FFFF:9001:tr_wh_lost:int'
+    TR_EnergyEfficiency         = 'FFFF:9001:tr_energy_efficiency:float'
+    TR_MaxSpeed                 = 'FFFF:9001:tr_max_speed:float'
+    TR_AverageSpeed             = 'FFFF:9001:tr_average_speed:float'
 
-    TR_OdometerStart        = 'FFFF:9001:tr_odometer_start'
-    TR_OdometerEnd          = 'FFFF:9001:tr_odometer_end'
-    TR_LatitudeStart        = 'FFFF:9001:tr_latitude_start'
-    TR_LatitudeEnd          = 'FFFF:9001:tr_latitude_end'
-    TR_LongitudeStart       = 'FFFF:9001:tr_longitude_start'
-    TR_LongitudeEnd         = 'FFFF:9001:tr_longitude_end'
-    TR_ElevationStart       = 'FFFF:9001:tr_elevation_start'
-    TR_ElevationEnd         = 'FFFF:9001:tr_elevation_end'
-    TR_SocDStart            = 'FFFF:9001:tr_socd_start'
-    TR_SocDEnd              = 'FFFF:9001:tr_socd_end'
-    TR_EtEStart             = 'FFFF:9001:tr_ete_start'
-    TR_EtEEnd               = 'FFFF:9001:tr_ete_end'
-    TR_ExteriorStart        = 'FFFF:9001:tr_exterior_start'
-    TR_ExteriorEnd          = 'FFFF:9001:tr_exterior_end'
-    TR_ExteriorAverage      = 'FFFF:9001:tr_exterior_average'
+    TR_OdometerStart            = 'FFFF:9001:tr_odometer_start:float'
+    TR_OdometerEnd              = 'FFFF:9001:tr_odometer_end:float'
+    TR_LatitudeStart            = 'FFFF:9001:tr_latitude_start:float'
+    TR_LatitudeEnd              = 'FFFF:9001:tr_latitude_end:float'
+    TR_LongitudeStart           = 'FFFF:9001:tr_longitude_start:float'
+    TR_LongitudeEnd             = 'FFFF:9001:tr_longitude_end:float'
+    TR_ElevationStart           = 'FFFF:9001:tr_elevation_start:int'
+    TR_ElevationEnd             = 'FFFF:9001:tr_elevation_end:int'
+    TR_SocDStart                = 'FFFF:9001:tr_socd_start:float'
+    TR_SocDEnd                  = 'FFFF:9001:tr_socd_end:float'
+    TR_EtEStart                 = 'FFFF:9001:tr_ete_start:int'
+    TR_EtEEnd                   = 'FFFF:9001:tr_ete_end:int'
+    TR_ExteriorStart            = 'FFFF:9001:tr_exterior_start:int'
+    TR_ExteriorEnd              = 'FFFF:9001:tr_exterior_end:int'
+    TR_ExteriorAverage          = 'FFFF:9001:tr_exterior_average:int'
 
-_db_stuff = {
-    Hash.KeyState:                  {'db_name': 'key_state',                'type': 'int'},
-    Hash.InferredKey:               {'db_name': 'inferred_key',             'type': 'int'},
-    Hash.EvseType:                  {'db_name': 'evse_type',                'type': 'int'},
-    Hash.ChargingStatus:            {'db_name': 'charging_status',          'type': 'int'},
-    Hash.GearCommanded:             {'db_name': 'gear_commanded',           'type': 'int'},
-    Hash.ChargePlugConnected:       {'db_name': 'charge_plug_connected',    'type': 'int'},
 
-    Hash.HiresSpeed:                {'db_name': 'hires_speed',              'type': 'float'},
-    Hash.HiresSpeedMax:             {'db_name': 'hires_speed_max',          'type': 'float'},
-    Hash.HiresOdometer:             {'db_name': 'hires_odometer',           'type': 'float'},
-    Hash.LoresOdometer:             {'db_name': 'lores_odometer',           'type': 'float'},
-
-    Hash.EngineStartNormal:         {'db_name': 'engine_start_normal',       'type': 'int'},
-    Hash.EngineStartDisable:        {'db_name': 'engine_start_disable',      'type': 'int'},
-    Hash.EngineStartRemote:         {'db_name': 'engine_start_remote',       'type': 'int'},
-    Hash.EngineStartExtended:       {'db_name': 'engine_start_extended',     'type': 'int'},
-
-    Hash.HvbVoltage:                {'db_name': 'hvb_voltage',               'type': 'float'},
-    Hash.HvbCurrent:                {'db_name': 'hvb_current',               'type': 'float'},
-    Hash.HvbPower:                  {'db_name': 'hvb_power',                 'type': 'int'},
-    Hash.HvbPowerMax:               {'db_name': 'hvb_power_max',             'type': 'int'},
-    Hash.HvbPowerMin:               {'db_name': 'hvb_power_min',             'type': 'int'},
-    Hash.HvbEnergy:                 {'db_name': 'hvb_energy',                'type': 'int'},
-    Hash.HvbEnergyLost:             {'db_name': 'hvb_energy_lost',           'type': 'int'},
-    Hash.HvbEnergyGained:           {'db_name': 'hvb_energy_gained',         'type': 'int'},
-    Hash.HvbSoH:                    {'db_name': 'hvb_soh',                   'type': 'float'},
-    Hash.HvbSoC:                    {'db_name': 'hvb_soc',                   'type': 'float'},
-    Hash.HvbSoCD:                   {'db_name': 'hvb_socd',                  'type': 'float'},
-    Hash.HvbEtE:                    {'db_name': 'hvb_ete',                   'type': 'int'},
-    Hash.HvbTemp:                   {'db_name': 'hvb_temp',                  'type': 'int'},
-    Hash.HvbCHOp:                   {'db_name': 'hvb_chop',                  'type': 'int'},
-    Hash.HvbCHP:                    {'db_name': 'hvb_chp',                   'type': 'int'},
-
-    Hash.LvbVoltage:                {'db_name': 'lvb_voltage',               'type': 'float'},
-    Hash.LvbCurrent:                {'db_name': 'lvb_current',               'type': 'float'},
-    Hash.LvbPower:                  {'db_name': 'lvb_power',                 'type': 'int'},
-    Hash.LvbEnergy:                 {'db_name': 'lvb_energy',                'type': 'int'},
-    Hash.LvbSoC:                    {'db_name': 'lvb_soc',                   'type': 'float'},
-    Hash.LvbDcdcLvCurrent:          {'db_name': 'lvb_dcdc_lv_current',       'type': 'int'},
-    Hash.LvbDcdcHvCurrent:          {'db_name': 'lvb_dcdc_hv_current',       'type': 'int'},
-    Hash.LvbDcdcEnable:             {'db_name': 'lvb_dcdc_enable',           'type': 'int'},
-
-    Hash.ChargerInputVoltage:       {'db_name': 'charger_input_voltage',     'type': 'float'},
-    Hash.ChargerInputCurrent:       {'db_name': 'charger_input_current',     'type': 'float'},
-    Hash.ChargerInputPower:         {'db_name': 'charger_input_power',       'type': 'int'},
-    Hash.ChargerInputPowerMax:      {'db_name': 'charger_input_power_max',   'type': 'int'},
-    Hash.ChargerInputEnergy:        {'db_name': 'charger_input_energy',      'type': 'int'},
-
-    Hash.ChargerOutputVoltage:      {'db_name': 'charger_output_voltage',    'type': 'float'},
-    Hash.ChargerOutputCurrent:      {'db_name': 'charger_output_current',    'type': 'float'},
-    Hash.ChargerOutputPower:        {'db_name': 'charger_output_power',      'type': 'int'},
-    Hash.ChargerOutputPowerMax:     {'db_name': 'charger_output_power_max',  'type': 'int'},
-    Hash.ChargerOutputEnergy:       {'db_name': 'charger_output_energy',     'type': 'int'},
-
-    Hash.GpsLatitude:               {'db_name': 'gps_latitude',              'type': 'float'},
-    Hash.GpsLongitude:              {'db_name': 'gps_longitude',             'type': 'float'},
-    Hash.GpsElevation:              {'db_name': 'gps_elevation',             'type': 'int'},
-    Hash.GpsSpeed:                  {'db_name': 'gps_speed',                 'type': 'float'},
-    Hash.GpsBearing:                {'db_name': 'gps_bearing',               'type': 'int'},
-    Hash.GpsFix:                    {'db_name': 'gps_fix',                   'type': 'int'},
-    Hash.GpsElapsed:                {'db_name': 'gps_elapsed',               'type': 'float'},
-    Hash.GpsSource:                 {'db_name': 'gps_source',                'type': 'int'},
-    Hash.GpsElevationMin:           {'db_name': 'gps_elevation_min',         'type': 'int'},
-    Hash.GpsElevationMax:           {'db_name': 'gps_elevation_max',         'type': 'int'},
-
-    Hash.InteriorTemperature:       {'db_name': 'interior_temp',             'type': 'int'},
-    Hash.ExteriorTemperature:       {'db_name': 'exterior_temp',             'type': 'int'},
-    Hash.ExtTemperatureSum:         {'db_name': 'ext_temp_sum',              'type': 'int'},
-    Hash.ExtTemperatureCount:       {'db_name': 'ext_temp_count',            'type': 'int'},
-    Hash.Vehicle:                   {'db_name': 'vehicle',                   'type': 'str'},
-
-    Hash.CS_ChargerType:            {'db_name': 'cs_charger_type',           'type': 'str'},
-    Hash.CS_TimeStart:              {'db_name': 'cs_time_start',             'type': 'int'},
-    Hash.CS_TimeEnd:                {'db_name': 'cs_time_end',               'type': 'int'},
-    Hash.CS_SoCDStart:              {'db_name': 'cs_socd_start',             'type': 'float'},
-    Hash.CS_SoCDEnd:                {'db_name': 'cs_socd_end',               'type': 'float'},
-    Hash.CS_EtEStart:               {'db_name': 'cs_ete_start',              'type': 'int'},
-    Hash.CS_EteEnd:                 {'db_name': 'cs_ete_end',                'type': 'int'},
-    Hash.CS_Odometer:               {'db_name': 'cs_odometer',               'type': 'float'},
-    Hash.CS_Latitude:               {'db_name': 'cs_latitude',               'type': 'float'},
-    Hash.CS_Longitude:              {'db_name': 'cs_longitude',              'type': 'float'},
-    Hash.CS_ChargeLocation:         {'db_name': 'cs_charge_location',        'type': 'str'},
-    Hash.CS_MaxInputPower:          {'db_name': 'cs_max_input_power',        'type': 'int'},
-    Hash.CS_ChargingEfficiency:     {'db_name': 'cs_efficiency',             'type': 'float'},
-    Hash.CS_WhAdded:                {'db_name': 'cs_wh_added',               'type': 'int'},
-    Hash.CS_WhUsed:                 {'db_name': 'cs_wh_used',                'type': 'int'},
-    Hash.CS_HvbTempStart:           {'db_name': 'cs_hvb_temp_start',         'type': 'int'},
-    Hash.CS_HvbTempEnd:             {'db_name': 'cs_hvb_temp_end',           'type': 'int'},
-    Hash.CS_HvbSoH:                 {'db_name': 'cs_hvb_soh',                'type': 'float'},
-
-    Hash.TR_TimeStart:              {'db_name': 'tr_time_start',             'type': 'int'},
-    Hash.TR_TimeEnd:                {'db_name': 'tr_time_end',               'type': 'int'},
-    Hash.TR_LocationStarting:       {'db_name': 'tr_location_start',         'type': 'str'},
-    Hash.TR_LocationEnding:         {'db_name': 'tr_location_end',           'type': 'str'},
-    Hash.TR_Distance:               {'db_name': 'tr_distance',               'type': 'float'},
-    Hash.TR_ElevationChange:        {'db_name': 'tr_elevation_change',       'type': 'int'},
-    Hash.TR_MaxElevation:           {'db_name': 'tr_elevation_max',          'type': 'int'},
-    Hash.TR_MinElevation:           {'db_name': 'tr_elevation_min',          'type': 'int'},
-    Hash.TR_EnergyUsed:             {'db_name': 'tr_wh_used',                'type': 'int'},
-    Hash.TR_EnergyGained:           {'db_name': 'tr_wh_gained',              'type': 'int'},
-    Hash.TR_EnergyEfficiency:       {'db_name': 'tr_energy_efficiency',      'type': 'float'},
-    Hash.TR_EnergyLost:             {'db_name': 'tr_wh_lost',                'type': 'int'},
-    Hash.TR_MaxSpeed:               {'db_name': 'tr_max_speed',              'type': 'float'},
-    Hash.TR_AverageSpeed:           {'db_name': 'tr_average_speed',          'type': 'float'},
-
-    Hash.TR_OdometerStart:          {'db_name': 'tr_odometer_start',         'type': 'float'},
-    Hash.TR_OdometerEnd:            {'db_name': 'tr_odometer_end',           'type': 'float'},
-    Hash.TR_LatitudeStart:          {'db_name': 'tr_latitude_start',         'type': 'float'},
-    Hash.TR_LatitudeEnd:            {'db_name': 'tr_latitude_end',           'type': 'float'},
-    Hash.TR_LongitudeStart:         {'db_name': 'tr_longitude_start',        'type': 'float'},
-    Hash.TR_LongitudeEnd:           {'db_name': 'tr_longitude_end',          'type': 'float'},
-    Hash.TR_ElevationStart:         {'db_name': 'tr_elevation_start',        'type': 'int'},
-    Hash.TR_ElevationEnd:           {'db_name': 'tr_elevation_end',          'type': 'int'},
-    Hash.TR_ExteriorStart:          {'db_name': 'tr_exterior_start',         'type': 'int'},
-    Hash.TR_ExteriorEnd:            {'db_name': 'tr_exterior_end',           'type': 'int'},
-    Hash.TR_ExteriorAverage:        {'db_name': 'tr_exterior_average',       'type': 'int'},
-    Hash.TR_SocDStart:              {'db_name': 'tr_socd_start',             'type': 'float'},
-    Hash.TR_SocDEnd:                {'db_name': 'tr_socd_end',               'type': 'float'},
-    Hash.TR_EtEStart:               {'db_name': 'tr_ete_start',              'type': 'int'},
-    Hash.TR_EtEEnd:                 {'db_name': 'tr_ete_end',                'type': 'int'},
-    Hash.TR_EnergyGained:           {'db_name': 'tr_energy_gained',          'type': 'int'},
-    Hash.TR_EnergyLost:             {'db_name': 'tr_energy_lost',            'type': 'int'},
-}
-
-def get_hash(hash_str: str) -> Hash:
+def get_hash(hash: str) -> Hash:
     try:
-        return Hash(hash_str)
+        hash_int = hash + ':int'
+        return Hash(hash_int)
     except ValueError:
-        _LOGGER.error(f"Hash error: no hash defined for hash string '{hash_str}'")
-        return None
+        try:
+            hash_float = hash + ':float'
+            return Hash(hash_float)
+        except ValueError:
+            try:
+                hash_str = hash + ':str'
+                return Hash(hash_str)
+            except ValueError:
+                _LOGGER.error(f"Hash error: no hash defined for hash string '{hash_str}'")
+                return None
 
 
-def get_hash_fields(hash: Hash) -> Tuple[int, int, str]:
+def get_hash_fields(hash: Hash) -> Tuple[int, int, str, str]:
     hash_fields = hash.value.split(':')
     return int(hash_fields[0], base=16), int(hash_fields[1], base=16), hash_fields[2]
 
 
 def get_db_fields(hash: Hash) -> Tuple[str, type]:
-    db_type = _db_stuff.get(hash).get('type')
-    db_name = _db_stuff.get(hash).get('db_name')
+    hash_fields = hash.value.split(':')
+    db_type = hash_fields[3]
+    db_name = hash_fields[2]
     return db_name, db_type

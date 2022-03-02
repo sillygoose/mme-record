@@ -36,7 +36,6 @@ def delete_did_cache(hash: Hash) -> None:
         _LOGGER.debug(f"Deleting DID cache entry '{hash}' failed")
         pass
 
-###
 
 def get_state_timestamp(hash: Hash) -> int:
     state = StateEngine._state.get(hash, (None, 0))

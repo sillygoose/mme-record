@@ -37,7 +37,7 @@ mme:
         # rx_flowcontrol_timeout:           triggers a timeout if a flow control is not received (default: 1.0)
         speedup:                            false
         source_path:                        'playback-files'
-        source_file:                        'short-charge' # 'trip-20220221'  # 'test-trip' # 'short-trip' # 'trip-20220215'
+        source_file:                        'charge-80-85' # 'trip-20220221'  # 'test-trip' # 'short-trip' # 'trip-20220215'
         rx_consecutive_frame_timeout:       1.0
         rx_flowcontrol_timeout:             1.0
 

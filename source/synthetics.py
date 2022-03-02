@@ -1,4 +1,5 @@
 import logging
+from time import time_ns
 
 from typing import List
 
@@ -141,8 +142,11 @@ def update_synthetics(hash: Hash) -> List[dict]:
                     _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: Minimum GPS elevation seen: {gps_elevation:.1f} m (calculated)")
 
             elif synthetic_hash == Hash.ExtTemperatureSum:
-                ext_count = set_state(Hash.ExtTemperatureCount, get_state_value(Hash.ExtTemperatureCount, 0) + 1)
-                ext_sum = set_state(Hash.ExtTemperatureSum, get_state_value(Hash.ExtTemperatureSum, 0) + get_state_value(Hash.ExteriorTemperature, 0))
+                ext_sum_interval_start, interval_start = get_state(Hash.ExtTemperatureSum, 0)
+                interval_minutes = int(((time_ns() - interval_start) * 0.000000001) / 60) + 1
+                interval_minutes = interval_minutes if interval_start > 0 else 1
+                ext_count = set_state(Hash.ExtTemperatureCount, get_state_value(Hash.ExtTemperatureCount, 0) + interval_minutes)
+                ext_sum = set_state(Hash.ExtTemperatureSum, ext_sum_interval_start + get_state_value(Hash.ExteriorTemperature, 0) * interval_minutes)
                 arbitration_id, did_id, synthetic_name = get_hash_fields(Hash.ExtTemperatureSum)
                 _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: Exterior temperature sum/count: {ext_sum}/{ext_count} (calculated)")
 
