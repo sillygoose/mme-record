@@ -36,6 +36,7 @@ Both utilities can be configured via a YAML configuration file.  Definitions for
 - added default value for read requests that timeout or error
 - Geocodio reverse geocoding added
 - access accurate GPS location using iPhone app
+- better vehicle data for viweing in a iPhone app
 
 <a id='requirements'></a>
 ## Requirements
@@ -208,6 +209,7 @@ The data used in the software follows the following rules:
     latitude, longitude (°)     float
     %                           float
     enumerations                int
+    text data                   str
 
 These types are also used to encode the InfluxDB fields, changing a data type may be cause for deleting the bucket and starting fresh.
 
