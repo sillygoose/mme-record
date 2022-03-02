@@ -7,16 +7,22 @@
         "period": 1,
         "dids": [
             {
+                "did_name": "HvbSoH",
+                "did_id": 18700,
+                "did_id_hex": "490C",
+                "codec_id": 18700
+            },
+            {
+                "did_name": "HvbTemp",
+                "did_id": 18432,
+                "did_id_hex": "4800",
+                "codec_id": 18432
+            },
+            {
                 "did_name": "LoresOdometer",
                 "did_id": 56577,
                 "did_id_hex": "DD01",
                 "codec_id": 56577
-            },
-            {
-                "did_name": "HvbSoc",
-                "did_id": 18433,
-                "did_id_hex": "4801",
-                "codec_id": 18433
             },
             {
                 "did_name": "HvbSocD",
@@ -29,21 +35,6 @@
                 "did_id": 18504,
                 "did_id_hex": "4848",
                 "codec_id": 18504
-            }
-        ]
-    },
-    {
-        "module": "APIM",
-        "arbitration_id": 2000,
-        "arbitration_id_hex": "07D0",
-        "enable": true,
-        "period": 1,
-        "dids": [
-            {
-                "did_name": "GPS",
-                "did_id": 32786,
-                "did_id_hex": "8012",
-                "codec_id": 32786
             }
         ]
     },
@@ -65,6 +56,21 @@
                 "did_id": 18526,
                 "did_id_hex": "485E",
                 "codec_id": 18526
+            }
+        ]
+    },
+    {
+        "module": "APIM",
+        "arbitration_id": 2000,
+        "arbitration_id_hex": "07D0",
+        "enable": true,
+        "period": 1,
+        "dids": [
+            {
+                "did_name": "GPS",
+                "did_id": 32786,
+                "did_id_hex": "8012",
+                "codec_id": 32786
             }
         ]
     },

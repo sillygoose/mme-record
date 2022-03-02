@@ -423,11 +423,11 @@ class CodecEvseDigitalMode(Codec):
         return 1
 
 
-class CodecHvbSOH(Codec):
+class CodecHvbSoH(Codec):
     def decode(self, payload):
-        hvb_soh = struct.unpack('>B', payload)[0] * 0.5
+        hvb_soh = float(struct.unpack('>B', payload)[0]) * 0.5
         states = [{'hvb_soh': hvb_soh}]
-        return {'payload': payload, 'states': states, 'decoded': f"HVB SoH: {hvb_soh:.2f} %"}
+        return {'payload': payload, 'states': states, 'decoded': f"HVB SoH: {hvb_soh:.1f} %"}
 
     def __len__(self):
         return 1
@@ -614,7 +614,7 @@ class CodecManager:
         DidId.HvbSoc:                         CodecHvbSoc,
         DidId.HvbSocD:                        CodecHvbSocD,
         DidId.HvbEtE:                         CodecHvbEtE,
-        DidId.HvbSOH:                         CodecHvbSOH,
+        DidId.HvbSoH:                         CodecHvbSoH,
         DidId.HvbTemp:                        CodecHvbTemp,
         DidId.HvbVoltage:                     CodecHvbVoltage,
         DidId.HvbCurrent:                     CodecHvbCurrent,

@@ -7,6 +7,12 @@
         "period": 15,
         "dids": [
             {
+                "did_name": "HvbTemp",
+                "did_id": 18432,
+                "did_id_hex": "4800",
+                "codec_id": 18432
+            },
+            {
                 "did_name": "ChargingStatus",
                 "did_id": 18509,
                 "did_id_hex": "484D",

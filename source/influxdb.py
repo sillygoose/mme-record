@@ -135,49 +135,58 @@ def write_lp_points(lp_points: List) -> None:
 
 def influxdb_trip(tags: List[Hash], fields: List[Hash], trip_start: Hash) -> None:
     ts_start = get_state_value(trip_start)
-    tag_value = datetime.datetime.fromtimestamp(ts_start).strftime('%Y-%m-%dT%H:%M')
+    time_tag = datetime.datetime.fromtimestamp(ts_start).strftime('%Y-%m-%dT%H:%M')
 
-    trip_lp = f"trip,session={tag_value}"
+    line_protocol = f"trip,session={time_tag}"
     for _, hash in enumerate(tags):
-        field_name, field_type = get_db_fields(hash)
-        trip_lp += ',' + field_name + '=' + str(get_state_value(hash))
-        if field_type == 'int':
-            trip_lp += 'i'
-    trip_lp += ' '
+        tag_name, tag_type = get_db_fields(hash)
+        if tag_type == 'str':
+            line_protocol += ',' + tag_name + '=' + f'"{get_state_value(hash)}"'
+        else:
+            _LOGGER.warning(f"Only string types allowed as tag values: {field_name}")
+    line_protocol += ' '
 
     for index, hash in enumerate(fields):
         if index >= 1:
-            trip_lp += ','
+            line_protocol += ','
         field_name, field_type = get_db_fields(hash)
-        trip_lp += field_name + '=' + str(get_state_value(hash))
+        field_value = str(get_state_value(hash))
+        if field_type == 'str':
+            field_value = f'"{field_value}"'
+        line_protocol += field_name + '=' + field_value
         if field_type == 'int':
-            trip_lp += 'i'
-    trip_lp += f" {ts_start}"
-
-    write_lp_points([trip_lp])
+            line_protocol += 'i'
+    line_protocol += f" {ts_start}"
+    write_lp_points([line_protocol])
+    _LOGGER.info(f"Trip timestamp: {ts_start}")
 
 
 def influxdb_charging(tags: List[Hash], fields: List[Hash], charge_start: Hash) -> None:
     ts_start = get_state_value(charge_start)
-    tag_value = datetime.datetime.fromtimestamp(ts_start).strftime('%Y-%m-%dT%H:%M')
-    session_start = f"charging,session={tag_value}"
+    time_tag = datetime.datetime.fromtimestamp(ts_start).strftime('%Y-%m-%dT%H:%M')
+
+    line_protocol = f"charging,session={time_tag}"
     for _, hash in enumerate(tags):
-        field_name, field_type = get_db_fields(hash)
-        session_start += ',' + field_name + '=' + str(get_state_value(hash))
-        if field_type == 'int':
-            session_start += 'i'
-    session_start += ' '
+        tag_name, tag_type = get_db_fields(hash)
+        if tag_type == 'str':
+            line_protocol += ',' + tag_name + '=' + f'"{get_state_value(hash)}"'
+        else:
+            _LOGGER.warning(f"Only string types allowed as tag values: {field_name}")
+    line_protocol += ' '
 
     for index, hash in enumerate(fields):
         if index >= 1:
-            session_start += ','
+            line_protocol += ','
         field_name, field_type = get_db_fields(hash)
-        session_start += field_name + '=' + str(get_state_value(hash))
+        field_value = str(get_state_value(hash))
+        if field_type == 'str':
+            field_value = f'"{field_value}"'
+        line_protocol += field_name + '=' + field_value
         if field_type == 'int':
-            session_start += 'i'
-    session_start += f" {ts_start}"
-
-    write_lp_points([session_start])
+            line_protocol += 'i'
+    line_protocol += f" {ts_start}"
+    write_lp_points([line_protocol])
+    _LOGGER.info(f"Charging session timestamp: {ts_start}")
 
 
 def influxdb_write_record(data_points: List[dict], flush=False) -> None:

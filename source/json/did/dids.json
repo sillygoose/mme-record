@@ -639,7 +639,7 @@
         "did_id": 18700,
         "did_id_hex": "490C",
         "enable": true,
-        "did_name": "HvbSoh",
+        "did_name": "HvbSoH",
         "modules": [
             "BECM"
         ],

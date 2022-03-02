@@ -35,6 +35,7 @@ class Hash(Enum):
     HvbEnergy               = 'FFFF:8000:hvb_energy'
     HvbEnergyLost           = 'FFFF:8000:hvb_energy_lost'
     HvbEnergyGained         = 'FFFF:8000:hvb_energy_gained'
+    HvbSoH                  = '07E4:490C:hvb_soh'
     HvbSoC                  = '07E4:4801:hvb_soc'
     HvbSoCD                 = '07E4:4845:hvb_socd'
     HvbEtE                  = '07E4:4848:hvb_ete'
@@ -84,22 +85,28 @@ class Hash(Enum):
     CS_ChargerType          = 'FFFF:9000:cs_charger_type'
     CS_TimeStart            = 'FFFF:9000:cs_time_start'
     CS_TimeEnd              = 'FFFF:9000:cs_time_end'
-    CS_StartSoCD            = 'FFFF:9000:cs_start_socd'
-    CS_EndSoCD              = 'FFFF:9000:cs_end_socd'
-    CS_StartEtE             = 'FFFF:9000:cs_start_ete'
-    CS_EndEte               = 'FFFF:9000:cs_end_ete'
+    CS_SoCDStart            = 'FFFF:9000:cs_socd_start'
+    CS_SoCDEnd              = 'FFFF:9000:cs_socd_end'
+    CS_EtEStart             = 'FFFF:9000:cs_ete_start'
+    CS_EteEnd               = 'FFFF:9000:cs_ete_end'
+    CS_HvbSoH               = 'FFFF:9000:cs_hvb_soh'
     CS_Odometer             = 'FFFF:9000:cs_odometer'
     CS_Latitude             = 'FFFF:9000:cs_latitude'
     CS_Longitude            = 'FFFF:9000:cs_longitude'
+    CS_ChargeLocation       = 'FFFF:9000:cs_charge_location'
     CS_MaxInputPower        = 'FFFF:9000:cs_max_input_power'
     CS_ChargingEfficiency   = 'FFFF:9000:cs_charging_efficiency'
     CS_WhAdded              = 'FFFF:9000:cs_wh_added'
     CS_WhUsed               = 'FFFF:9000:cs_wh_used'
+    CS_HvbTempStart         = 'FFFF:9000:hvb_temp_start'
+    CS_HvbTempEnd           = 'FFFF:9000:hvb_temp_end'
 
     TR_TimeStart            = 'FFFF:9001:tr_time_start'
     TR_TimeEnd              = 'FFFF:9001:tr_time_end'
     TR_Distance             = 'FFFF:9001:tr_distance'
     TR_ElevationChange      = 'FFFF:9001:tr_elevation_change'
+    TR_LocationStarting     = 'FFFF:9001:tr_location_start'
+    TR_LocationEnding       = 'FFFF:9001:tr_location_end'
 
     TR_MaxElevation         = 'FFFF:9001:tr_elevation_max'
     TR_MinElevation         = 'FFFF:9001:tr_elevation_min'
@@ -153,6 +160,7 @@ _db_stuff = {
     Hash.HvbEnergy:                 {'db_name': 'hvb_energy',                'type': 'int'},
     Hash.HvbEnergyLost:             {'db_name': 'hvb_energy_lost',           'type': 'int'},
     Hash.HvbEnergyGained:           {'db_name': 'hvb_energy_gained',         'type': 'int'},
+    Hash.HvbSoH:                    {'db_name': 'hvb_soh',                   'type': 'float'},
     Hash.HvbSoC:                    {'db_name': 'hvb_soc',                   'type': 'float'},
     Hash.HvbSoCD:                   {'db_name': 'hvb_socd',                  'type': 'float'},
     Hash.HvbEtE:                    {'db_name': 'hvb_ete',                   'type': 'int'},
@@ -198,23 +206,29 @@ _db_stuff = {
     Hash.ExtTemperatureCount:       {'db_name': 'ext_temp_count',            'type': 'int'},
     Hash.Vehicle:                   {'db_name': 'vehicle',                   'type': 'str'},
 
-    Hash.CS_ChargerType:            {'db_name': 'charger_type',              'type': 'str'},
+    Hash.CS_ChargerType:            {'db_name': 'cs_charger_type',           'type': 'str'},
     Hash.CS_TimeStart:              {'db_name': 'cs_time_start',             'type': 'int'},
     Hash.CS_TimeEnd:                {'db_name': 'cs_time_end',               'type': 'int'},
-    Hash.CS_StartSoCD:              {'db_name': 'cs_start_socd',             'type': 'float'},
-    Hash.CS_EndSoCD:                {'db_name': 'cs_end_socd',               'type': 'float'},
-    Hash.CS_StartEtE:               {'db_name': 'cs_start_ete',              'type': 'int'},
-    Hash.CS_EndEte:                 {'db_name': 'cs_end_ete',                'type': 'int'},
+    Hash.CS_SoCDStart:              {'db_name': 'cs_socd_start',             'type': 'float'},
+    Hash.CS_SoCDEnd:                {'db_name': 'cs_socd_end',               'type': 'float'},
+    Hash.CS_EtEStart:               {'db_name': 'cs_ete_start',              'type': 'int'},
+    Hash.CS_EteEnd:                 {'db_name': 'cs_ete_end',                'type': 'int'},
     Hash.CS_Odometer:               {'db_name': 'cs_odometer',               'type': 'float'},
     Hash.CS_Latitude:               {'db_name': 'cs_latitude',               'type': 'float'},
     Hash.CS_Longitude:              {'db_name': 'cs_longitude',              'type': 'float'},
+    Hash.CS_ChargeLocation:         {'db_name': 'cs_charge_location',        'type': 'str'},
     Hash.CS_MaxInputPower:          {'db_name': 'cs_max_input_power',        'type': 'int'},
     Hash.CS_ChargingEfficiency:     {'db_name': 'cs_efficiency',             'type': 'float'},
     Hash.CS_WhAdded:                {'db_name': 'cs_wh_added',               'type': 'int'},
     Hash.CS_WhUsed:                 {'db_name': 'cs_wh_used',                'type': 'int'},
+    Hash.CS_HvbTempStart:           {'db_name': 'cs_hvb_temp_start',         'type': 'int'},
+    Hash.CS_HvbTempEnd:             {'db_name': 'cs_hvb_temp_end',           'type': 'int'},
+    Hash.CS_HvbSoH:                 {'db_name': 'cs_hvb_soh',                'type': 'float'},
 
     Hash.TR_TimeStart:              {'db_name': 'tr_time_start',             'type': 'int'},
     Hash.TR_TimeEnd:                {'db_name': 'tr_time_end',               'type': 'int'},
+    Hash.TR_LocationStarting:       {'db_name': 'tr_location_start',         'type': 'str'},
+    Hash.TR_LocationEnding:         {'db_name': 'tr_location_end',           'type': 'str'},
     Hash.TR_Distance:               {'db_name': 'tr_distance',               'type': 'float'},
     Hash.TR_ElevationChange:        {'db_name': 'tr_elevation_change',       'type': 'int'},
     Hash.TR_MaxElevation:           {'db_name': 'tr_elevation_max',          'type': 'int'},

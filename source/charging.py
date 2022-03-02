@@ -23,13 +23,14 @@ class Charging:
 
     def __init__(self) -> None:
         self._charging_session = None
+        self._exiting = False
 
     _requiredHashes = [
-            Hash.LvbEnergy, Hash.HvbEtE, Hash.HvbSoCD,
+            Hash.HvbTemp, Hash.LvbEnergy, Hash.HvbEtE, Hash.HvbSoCD, Hash.HvbSoH,
             Hash.ChargerInputEnergy, Hash.ChargerOutputEnergy
         ]
 
-    def charging_starting(self,call_type: CallType) -> VehicleState:
+    def charging_starting(self, call_type: CallType) -> VehicleState:
         new_state = VehicleState.Unchanged
         if call_type == CallType.Incoming:
             assert self._charging_session is None
@@ -40,13 +41,17 @@ class Charging:
             set_state(Hash.ChargerOutputPowerMax, 0)
 
         elif call_type == CallType.Outgoing:
-            for state in Charging._requiredHashes:
-                assert get_state_value(state, None) is not None, f"{state.name}"
-            _LOGGER.info(f"Starting charging session, HVB SoC: {get_state_value(Hash.HvbSoCD)}%, HVB EtE: {get_state_value(Hash.HvbEtE)} Wh")
+            if self._exiting == False:
+                for state in Charging._requiredHashes:
+                    assert get_state_value(state, None) is not None, f"{state.name}"
+                _LOGGER.info(f"Starting charging session, HVB SoC: {get_state_value(Hash.HvbSoCD)}%, HVB temp: {get_state_value(Hash.HvbTemp)}°C")
+            else:
+                self._charging_session = None
+                self._exiting = False
 
         elif call_type == CallType.Default:
             if charging_status := get_ChargingStatus('charging_starting'):
-                if charging_status != ChargingStatus.Charging:
+                if charging_status not in [ChargingStatus.Charging, ChargingStatus.Ready]:
                     if charge_plug_connected := get_ChargePlugConnected('charging_starting'):
                         if charge_plug_connected == ChargePlugConnected.No:
                             new_state = VehicleState.Idle
@@ -57,6 +62,8 @@ class Charging:
                         elif inferred_key == InferredKey.KeyIn:
                             if engine_start_normal := get_EngineStartNormal('charging_starting'):
                                 new_state = VehicleState.On if engine_start_normal == EngineStartNormal.Yes else VehicleState.Accessory
+            if new_state != VehicleState.Unchanged:
+                self._exiting = True
 
             for hash in Charging._requiredHashes:
                 if (hash_value := get_state_value(hash, None)) is None:
@@ -121,13 +128,17 @@ class Charging:
             charger_type = set_state(Hash.CS_ChargerType, session.get('type'))
             starting_time = set_state(Hash.CS_TimeStart, session.get('time'))
             ending_time = set_state(Hash.CS_TimeEnd, int(time.time()))
-            starting_socd = set_state(Hash.CS_StartSoCD, session.get(Hash.HvbSoCD))
-            ending_socd = set_state(Hash.CS_EndSoCD, get_state_value(Hash.HvbSoCD))
-            starting_ete = set_state(Hash.CS_StartEtE, session.get(Hash.HvbEtE))
-            ending_ete = set_state(Hash.CS_EndEte, get_state_value(Hash.HvbEtE))
+            hvb_soh = set_state(Hash.CS_HvbSoH, session.get(Hash.HvbSoH))
+            starting_hvb_temp = set_state(Hash.CS_HvbTempStart, session.get(Hash.HvbTemp))
+            ending_hvb_temp = set_state(Hash.CS_HvbTempEnd, get_state_value(Hash.HvbTemp))
+            starting_socd = set_state(Hash.CS_SoCDStart, session.get(Hash.HvbSoCD))
+            ending_socd = set_state(Hash.CS_SoCDEnd, get_state_value(Hash.HvbSoCD))
+            starting_ete = set_state(Hash.CS_EtEStart, session.get(Hash.HvbEtE))
+            ending_ete = set_state(Hash.CS_EteEnd, get_state_value(Hash.HvbEtE))
             odometer = set_state(Hash.CS_Odometer, get_state_value(Hash.LoresOdometer))
             latitude = set_state(Hash.CS_Latitude, get_state_value(Hash.GpsLatitude))
             longitude = set_state(Hash.CS_Longitude, get_state_value(Hash.GpsLongitude))
+            chargeLocation = set_state(Hash.CS_ChargeLocation, reverse_geocode(latitude=latitude, longitude=longitude))
             max_input_power = set_state(Hash.CS_MaxInputPower, get_state_value(Hash.ChargerInputPowerMax))
 
             delta_lvb_energy = get_state_value(Hash.LvbEnergy) - session.get(Hash.LvbEnergy)
@@ -142,19 +153,24 @@ class Charging:
             _LOGGER.info(f"'{vehicle}' charging session results:")
             _LOGGER.info(f"    {charger_type} charging session started at {session_datetime} for {hours} hours, {minutes} minutes")
             _LOGGER.info(f"    odometer: {odometer_km(odometer):.01f} km ({odometer_miles(odometer):.01f} mi)")
-            _LOGGER.info(f"    location: {reverse_geocode(latitude, longitude)}")
+            _LOGGER.info(f"    location: {chargeLocation}")
+            _LOGGER.info(f"    starting HvB temperature: {starting_hvb_temp}°C, ending HvB temperature: {ending_hvb_temp}°C")
             _LOGGER.info(f"    starting SoC: {starting_socd:.01f}%, ending SoC: {ending_socd:.01f}%")
             _LOGGER.info(f"    starting EtE: {starting_ete} Wh, ending EtE: {ending_ete} Wh, LVB ΔWh: {delta_lvb_energy} Wh")
             _LOGGER.info(f"    {wh_added} Wh were added, requiring {wh_used} Wh from the charger")
             _LOGGER.info(f"    overall efficiency: {charging_efficiency:.01f}%")
             _LOGGER.info(f"    maximum input power: {max_input_power} W")
+            _LOGGER.info(f"    HVB state of health: {hvb_soh}%")
 
-            tags = [Hash.CS_ChargerType, Hash.Vehicle]
+            tags = [Hash.Vehicle]
             fields = [
                     Hash.CS_TimeStart, Hash.CS_TimeEnd,
-                    Hash.CS_Latitude, Hash.CS_Longitude, Hash.CS_Odometer,
-                    Hash.CS_StartSoCD, Hash.CS_EndSoCD, Hash.CS_StartEtE, Hash.CS_EndEte,
-                    Hash.CS_WhAdded, Hash.CS_WhUsed, Hash.CS_ChargingEfficiency, Hash.CS_MaxInputPower,
+                    Hash.CS_Latitude, Hash.CS_Longitude, Hash.CS_ChargeLocation,
+                    Hash.CS_Odometer, Hash.CS_HvbTempStart, Hash.CS_HvbTempEnd,
+                    Hash.CS_SoCDStart, Hash.CS_SoCDEnd, Hash.CS_EtEStart, Hash.CS_EteEnd,
+                    Hash.CS_WhAdded, Hash.CS_WhUsed, Hash.CS_ChargingEfficiency,
+                    Hash.CS_MaxInputPower, Hash.CS_HvbSoH,
+                    Hash.CS_ChargerType,
                 ]
             influxdb_charging(tags=tags, fields=fields, charge_start=Hash.CS_TimeStart)
             self._charging_session = None

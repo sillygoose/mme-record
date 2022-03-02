@@ -41,7 +41,7 @@ class DidId(Enum):
     HvbCHOp = 0x48DF
     HvbCurrent = 0x48F9
     ChargePowerLimit = 0x48FB
-    HvbSOH = 0x490C
+    HvbSoH = 0x490C
     GearDisplayed = 0x6310
     Gps = 0x8012
     Time = 0xDD00
