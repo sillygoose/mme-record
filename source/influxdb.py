@@ -20,7 +20,6 @@ from urllib3.exceptions import ReadTimeoutError, ConnectTimeoutError, NewConnect
 
 from state_engine import get_state_value, set_state
 from hash import *
-from did import EvseType
 
 
 _LOGGER = logging.getLogger("mme")

@@ -30,7 +30,7 @@ def reverse_geocode(latitude: float, longitude: float) -> str:
             reversed = Geocoding._geocodio_client.reverse((latitude, longitude))
             components = Geocoding._geocodio_client.parse(reversed.formatted_address).get('address_components', None)
             if components:
-                formatted_address = f"{components.get('formatted_street')}, {components.get('city')}, {components.get('state')}, {components.get('country')}"
+                formatted_address = f"{components.get('formatted_street')}, {components.get('city')}, {components.get('state')}"
         except (GeocodioAuthError, GeocodioDataError, GeocodioServerError, GeocodioError) as e:
             pass # _LOGGER.error(f"geocod.io reverse geocoding error: {e}")
         finally:

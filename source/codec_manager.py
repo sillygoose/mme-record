@@ -427,7 +427,7 @@ class CodecHvbSoH(Codec):
     def decode(self, payload):
         hvb_soh = float(struct.unpack('>B', payload)[0]) * 0.5
         states = [{'hvb_soh': hvb_soh}]
-        return {'payload': payload, 'states': states, 'decoded': f"HVB SoH: {hvb_soh:.1f} %"}
+        return {'payload': payload, 'states': states, 'decoded': f"HVB SoH: {hvb_soh:.1f}%"}
 
     def __len__(self):
         return 1
