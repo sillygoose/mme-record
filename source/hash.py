@@ -52,7 +52,7 @@ class Hash(Enum):
     LvbSoC                      = '0726:4028:lvb_soc:float'
     LvbDcdcLvCurrent            = '07E4:4836:lvb_dcdc_lv_current:float' # not implemented
     LvbDcdcHvCurrent            = '07E4:483A:lvb_dcdc_hv_current:float' # not implemented
-    LvbDcdcEnable               = '0746:483D:lvb_dcdc_enable:int'
+    LvbDcdcEnable               = '0746:483D:lvb_dcdc_enable:bool'
 
     ChargerInputVoltage         = '07E2:485E:charger_input_voltage:float'
     ChargerInputCurrent         = '07E2:485F:charger_input_current:float'
