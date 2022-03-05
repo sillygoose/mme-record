@@ -24,6 +24,8 @@ class Synthetics:
         Hash.HiresSpeed:                Hash.HiresSpeedMax,
         Hash.GpsElevation:              Hash.GpsElevationMin,
         Hash.ExteriorTemperature:       Hash.ExtTemperatureSum,
+        Hash.HiresOdometer:             Hash.WhPerKilometer,
+        Hash.GpsLatitude:               Hash.WhPerGpsSegment,
     }
 
 
@@ -135,11 +137,11 @@ def update_synthetics(hash: Hash) -> List[dict]:
                 if gps_elevation > get_state_value(Hash.GpsElevationMax, -99999999):
                     set_state(Hash.GpsElevationMax, gps_elevation)
                     arbitration_id, did_id, synthetic_name = get_hash_fields(Hash.GpsElevationMax)
-                    _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: Maximum GPS elevation seen: {gps_elevation:.1f} m (calculated)")
+                    _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: Maximum GPS elevation seen: {gps_elevation} m (calculated)")
                 if gps_elevation < get_state_value(Hash.GpsElevationMin, 99999999):
                     set_state(Hash.GpsElevationMin, gps_elevation)
                     arbitration_id, did_id, synthetic_name = get_hash_fields(Hash.GpsElevationMin)
-                    _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: Minimum GPS elevation seen: {gps_elevation:.1f} m (calculated)")
+                    _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: Minimum GPS elevation seen: {gps_elevation} m (calculated)")
 
             elif synthetic_hash == Hash.ExtTemperatureSum:
                 ext_sum_interval_start, interval_start = get_state(Hash.ExtTemperatureSum, 0)
@@ -149,6 +151,35 @@ def update_synthetics(hash: Hash) -> List[dict]:
                 ext_sum = set_state(Hash.ExtTemperatureSum, ext_sum_interval_start + get_state_value(Hash.ExteriorTemperature, 0) * interval_minutes)
                 arbitration_id, did_id, synthetic_name = get_hash_fields(Hash.ExtTemperatureSum)
                 _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: Exterior temperature sum/count: {ext_sum}/{ext_count} (calculated)")
+
+            elif synthetic_hash == Hash.WhPerKilometer:
+                odometer_start = get_state_value(Hash.WhPerKilometerOdometerStart, -1)
+                odometer_end = get_state_value(Hash.HiresOdometer, 0)
+                set_state(Hash.WhPerKilometerOdometerStart, odometer_end)
+                delta_odometer = odometer_end - odometer_start
+
+                wh_start = get_state_value(Hash.WhPerKilometerStart, -1)
+                wh_end = get_state_value(Hash.HvbEtE, 0)
+                set_state(Hash.WhPerKilometerStart, wh_end)
+
+                if wh_start >= 0:
+                    delta_wh = wh_end - wh_start
+                    wh_per_kilometer = int(delta_wh / delta_odometer)
+                    set_state(Hash.WhPerKilometer, wh_per_kilometer)
+                    arbitration_id, did_id, synthetic_name = get_hash_fields(Hash.WhPerKilometer)
+                    synthetics.append({'arbitration_id': arbitration_id, 'did_id': did_id, 'name': synthetic_name, 'value': wh_per_kilometer})
+                    _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: Efficiency: {wh_per_kilometer} Wh/km (calculated)")
+
+            elif synthetic_hash == Hash.WhPerGpsSegment:
+                wh_start = get_state_value(Hash.WhPerGpsSegmentStart, -1)
+                wh_end = get_state_value(Hash.HvbEtE, 0)
+                set_state(Hash.WhPerGpsSegmentStart, wh_end)
+                if wh_start >= 0:
+                    delta_wh = wh_end - wh_start
+                    set_state(Hash.WhPerGpsSegment, delta_wh)
+                    arbitration_id, did_id, synthetic_name = get_hash_fields(Hash.WhPerGpsSegment)
+                    synthetics.append({'arbitration_id': arbitration_id, 'did_id': did_id, 'name': synthetic_name, 'value': delta_wh})
+                    _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: GPS segment efficiency: {delta_wh} Wh/segment (calculated)")
 
     except ValueError:
         _LOGGER.debug(f"ValueError in update_synthetics({hash.value})")

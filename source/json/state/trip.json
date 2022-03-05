@@ -52,10 +52,10 @@
         "period": 30,
         "dids": [
             {
-                "did_name": "HvbEtE",
-                "did_id": 18504,
-                "did_id_hex": "4848",
-                "codec_id": 18504
+                "did_name": "HvbTemp",
+                "did_id": 18432,
+                "did_id_hex": "4800",
+                "codec_id": 18432
             },
             {
                 "did_name": "HvbSocD",
@@ -73,6 +73,12 @@
         "period": 2,
         "dids": [
             {
+                "did_name": "HvbEtE",
+                "did_id": 18504,
+                "did_id_hex": "4848",
+                "codec_id": 18504
+            },
+            {
                 "did_name": "HvbVoltage",
                 "did_id": 18445,
                 "did_id_hex": "480D",
@@ -83,21 +89,6 @@
                 "did_id": 18681,
                 "did_id_hex": "48F9",
                 "codec_id": 18681
-            }
-        ]
-    },
-    {
-        "module": "BECM",
-        "arbitration_id": 2020,
-        "arbitration_id_hex": "07E4",
-        "enable": true,
-        "period": 30,
-        "dids": [
-            {
-                "did_name": "HvbTemp",
-                "did_id": 18432,
-                "did_id_hex": "4800",
-                "codec_id": 18432
             }
         ]
     },

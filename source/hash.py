@@ -15,17 +15,17 @@ class Hash(Enum):
     EvseType                    = '07E4:4851:evse_type:int'
     ChargingStatus              = '07E4:484D:charging_status:int'
     GearCommanded               = '07E2:1E12:gear_commanded:int'
-    ChargePlugConnected         = '07E2:4843:charge_plug_connected:int'
+    ChargePlugConnected         = '07E2:4843:charge_plug_connected:bool'
 
     HiresSpeed                  = '07E0:1505:hires_speed:float'
     HiresSpeedMax               = 'FFFF:1505:hires_speed_max:float'
     HiresOdometer               = '0720:404C:hires_odometer:float'
     LoresOdometer               = '07E4:DD01:lores_odometer:float'
 
-    EngineStartNormal           = '0726:41B9:engine_start_normal:int'
-    EngineStartDisable          = '0726:41B9:engine_start_disable:int'
-    EngineStartRemote           = '0726:41B9:engine_start_remote:int'
-    EngineStartExtended         = '0726:41B9:engine_start_extended:int'
+    EngineStartNormal           = '0726:41B9:engine_start_normal:bool'
+    EngineStartDisable          = '0726:41B9:engine_start_disable:bool'
+    EngineStartRemote           = '0726:41B9:engine_start_remote:bool'
+    EngineStartExtended         = '0726:41B9:engine_start_extended:bool'
 
     HvbVoltage                  = '07E4:480D:hvb_voltage:float'
     HvbCurrent                  = '07E4:48F9:hvb_current:float'
@@ -81,6 +81,12 @@ class Hash(Enum):
     ExteriorTemperature         = '07E6:DD05:exterior_temp:int'
     ExtTemperatureSum           = '07E6:DD05:exterior_temp_sum:int'
     ExtTemperatureCount         = '07E6:DD05:exterior_temp_count:int'
+
+    WhPerKilometerOdometerStart = 'AAAA:0000:wh_per_kilometer_odometer_start:float'
+    WhPerKilometerStart         = 'AAAA:0001:wh_per_kilometer_wh_start:int'
+    WhPerKilometer              = 'AAAA:0002:wh_per_kilometer:int'
+    WhPerGpsSegmentStart        = 'AAAA:0003:wh_per_gps_segment_start:int'
+    WhPerGpsSegment             = 'AAAA:0004:wh_per_gps_segment:int'
 
     CS_ChargerType              = 'FFFF:9000:cs_charger_type:str'
     CS_TimeStart                = 'FFFF:9000:cs_time_start:int'
@@ -147,8 +153,12 @@ def get_hash(hash: str) -> Hash:
                 hash_str = hash + ':str'
                 return Hash(hash_str)
             except ValueError:
-                _LOGGER.error(f"Hash error: no hash defined for hash string '{hash_str}'")
-                return None
+                try:
+                    hash_str = hash + ':bool'
+                    return Hash(hash_str)
+                except ValueError:
+                    _LOGGER.error(f"Hash error: no hash defined for hash string '{hash_str}'")
+                    return None
 
 
 def get_hash_fields(hash: Hash) -> Tuple[int, int, str, str]:

@@ -196,13 +196,27 @@ def influxdb_write_record(data_points: List[dict], flush=False) -> None:
         did_id = data_point.get('did_id')
         did_name = data_point.get('name')
         value = data_point.get('value')
-        lp_points.append(f"dids,arb_id={arb_id:04X},did_id={did_id:04X} {did_name}={value} {ts}")
-    InfluxDB._line_points += lp_points
+        line_protocol = f"dids,arb_id={arb_id:04X},did_id={did_id:04X} {did_name}="
+        if hash := get_hash(f"{arb_id:04X}:{did_id:04X}:{did_name}"):
+            _, field_type = get_db_fields(hash)
+            if field_type == 'str':
+                value = f'"{value}"'
+            line_protocol += str(value)
+            if field_type == 'int':
+                line_protocol += 'i'
+            if field_type == 'bool':
+                line_protocol += ''
+            line_protocol += f" {ts}"
+            lp_points.append(line_protocol)
+            InfluxDB._line_points += lp_points
+        else:
+            _LOGGER.error(f"Can't find hash for: {arb_id:04X}:{did_id:04X}:{did_name}")
 
     if len(InfluxDB._line_points) >= InfluxDB._block_size or flush == True:
         if len(InfluxDB._line_points) > 0:
             write_lp_points(InfluxDB._line_points)
             InfluxDB._line_points = []
+
 
 if __name__ == '__main__':
     set_state(Hash.Vehicle, 'Greta')
