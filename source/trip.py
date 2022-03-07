@@ -151,6 +151,7 @@ class Trip:
             _LOGGER.info(f"        average speed: {average_speed:.01f} kph ({speed_mph(average_speed):.01f} mph)")
             _LOGGER.info(f"        ending temperature: {ending_temperature}°C")
             _LOGGER.info(f"        average temperature: {average_temperature}°C")
+            _LOGGER.info(f"        triptimestamps: {get_state_value(Hash.TR_TimeStart)}   {get_state_value(Hash.TR_TimeEnd)}")
 
             tags = [Hash.Vehicle]
             fields = [

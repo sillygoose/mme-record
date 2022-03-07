@@ -24,6 +24,7 @@ class Charging:
     def __init__(self) -> None:
         self._charging_session = None
         self._exiting = False
+        self._passcount = 0
 
     _requiredHashes = [
             Hash.HvbTemp, Hash.LvbEnergy, Hash.HvbEtE, Hash.HvbSoCD, Hash.HvbSoH,
@@ -105,24 +106,28 @@ class Charging:
 
     def charging_ended(self, call_type: CallType) -> VehicleState:
         new_state = VehicleState.Unchanged
-        if call_type == CallType.Outgoing:
-            pass
+        if call_type == CallType.Incoming:
+            # This will allow the DID reads to collect final values
+            self._passcount = 5
 
         elif call_type == CallType.Default:
-            if charging_status := get_ChargingStatus('charging_ended'):
-                if charging_status != ChargingStatus.Charging:
-                    if charge_plug_connected := get_ChargePlugConnected('charging_ended'):
-                        if charge_plug_connected == ChargePlugConnected.Yes:
-                            new_state = VehicleState.PluggedIn
-                        elif inferred_key := get_InferredKey('charging_ended'):
-                            if inferred_key == InferredKey.KeyOut:
-                                if engine_start_remote := get_EngineStartRemote('charging_ended'):
-                                    new_state = VehicleState.Preconditioning if engine_start_remote == EngineStartRemote.Yes else VehicleState.Idle
-                            elif inferred_key == InferredKey.KeyIn:
-                                if engine_start_normal := get_EngineStartNormal('charging_ended'):
-                                    new_state = VehicleState.On if engine_start_normal == EngineStartNormal.Yes else VehicleState.Accessory
+            if self._passcount > 0:
+                self._passcount -= 1
+            else:
+                if charging_status := get_ChargingStatus('charging_ended'):
+                    if charging_status != ChargingStatus.Charging:
+                        if charge_plug_connected := get_ChargePlugConnected('charging_ended'):
+                            if charge_plug_connected == ChargePlugConnected.Yes:
+                                new_state = VehicleState.PluggedIn
+                            elif inferred_key := get_InferredKey('charging_ended'):
+                                if inferred_key == InferredKey.KeyOut:
+                                    if engine_start_remote := get_EngineStartRemote('charging_ended'):
+                                        new_state = VehicleState.Preconditioning if engine_start_remote == EngineStartRemote.Yes else VehicleState.Idle
+                                elif inferred_key == InferredKey.KeyIn:
+                                    if engine_start_normal := get_EngineStartNormal('charging_ended'):
+                                        new_state = VehicleState.On if engine_start_normal == EngineStartNormal.Yes else VehicleState.Accessory
 
-        elif call_type == CallType.Incoming:
+        elif call_type == CallType.Outgoing:
             session = self._charging_session
             vehicle = set_state(Hash.Vehicle, self._vehicle_name)
             charger_type = set_state(Hash.CS_ChargerType, session.get('type'))
@@ -161,6 +166,7 @@ class Charging:
             _LOGGER.info(f"    overall efficiency: {charging_efficiency:.01f}%")
             _LOGGER.info(f"    maximum input power: {max_input_power} W")
             _LOGGER.info(f"    HVB state of health: {hvb_soh}%")
+            _LOGGER.info(f"    charging session timestamps: {get_state_value(Hash.CS_TimeStart)}   {get_state_value(Hash.CS_TimeEnd)}")
 
             tags = [Hash.Vehicle]
             fields = [

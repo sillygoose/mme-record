@@ -157,7 +157,6 @@ def influxdb_trip(tags: List[Hash], fields: List[Hash], trip_start: Hash) -> Non
             line_protocol += 'i'
     line_protocol += f" {ts_start}"
     write_lp_points([line_protocol])
-    _LOGGER.info(f"Trip timestamp: {ts_start}")
 
 
 def influxdb_charging(tags: List[Hash], fields: List[Hash], charge_start: Hash) -> None:
@@ -185,7 +184,6 @@ def influxdb_charging(tags: List[Hash], fields: List[Hash], charge_start: Hash) 
             line_protocol += 'i'
     line_protocol += f" {ts_start}"
     write_lp_points([line_protocol])
-    _LOGGER.info(f"Charging session timestamp: {ts_start}")
 
 
 def influxdb_write_record(data_points: List[dict], flush=False) -> None:
