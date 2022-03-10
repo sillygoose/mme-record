@@ -154,14 +154,21 @@ class CodecGPS(Codec):
             if CodecManager._gps_server:
                 # if successful modify the payload to reflect the hires GPS data
                 try:
-                    gps_response = requests.get(CodecManager._gps_server, timeout=0.25)
+                    gps_response = requests.get(CodecManager._gps_server, timeout=0.4)
                     phone_gps = gps_response.json()
                     gps_latitude = float(phone_gps.get('latitude'))
                     gps_longitude = float(phone_gps.get('longitude'))
                     gps_elevation = int(phone_gps.get('altitude'))
-                    gps_speed = int(phone_gps.get('speed'), -1.0)
-                    gps_speed *= 3.6
-                    gps_bearing = int(phone_gps.get('course'), -1.0)
+
+                    jps_speed = phone_gps.get('speed')
+                    if jps_speed >= 0.0:
+                        gps_speed = int(jps_speed)
+                        gps_speed *= 3.6
+
+                    jps_bearing = phone_gps.get('course')
+                    if jps_bearing >= 0.0:
+                        gps_bearing = int(jps_bearing)
+
                     gps_elapsed = gps_response.elapsed.seconds + round(gps_response.elapsed.microseconds/1000000, 3)
                     states = [
                             {'gps_latitude': gps_latitude},
@@ -175,11 +182,10 @@ class CodecGPS(Codec):
 
                     gps_data = f"GPS: ({gps_latitude:3.8f}, {gps_longitude:3.8f}), elevation: {gps_elevation} m, bearing: {gps_bearing}°, speed: {gps_speed:.01f} kph, elapsed: {gps_elapsed:.03f}"
                     payload = struct.pack('>hffBHH', int(gps_elevation), float(gps_latitude), float(gps_longitude), 255, int(gps_speed / 3.6), int(gps_bearing))
-
-                except (ReadTimeout, HTTPError, InvalidURL, InvalidSchema) as e:
+                    return {'payload': payload, 'states': states, 'decoded': gps_data}
+                except (ReadTimeout, HTTPError, InvalidURL, InvalidSchema, ConnectTimeout, ConnectionError) as e:
                     _LOGGER.error(f"{e}")
-                except (ConnectTimeout, ConnectionError):
-                    pass
+                    return None
                 except Exception as e:
                     _LOGGER.exception(f"Unexpected GPS exception: {e}")
 

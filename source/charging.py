@@ -166,18 +166,19 @@ class Charging:
             _LOGGER.info(f"    overall efficiency: {charging_efficiency:.01f}%")
             _LOGGER.info(f"    maximum input power: {max_input_power} W")
             _LOGGER.info(f"    HVB state of health: {hvb_soh}%")
-            _LOGGER.info(f"    charging session timestamps: {get_state_value(Hash.CS_TimeStart)}   {get_state_value(Hash.CS_TimeEnd)}")
 
-            tags = [Hash.Vehicle]
-            fields = [
-                    Hash.CS_TimeStart, Hash.CS_TimeEnd,
-                    Hash.CS_Latitude, Hash.CS_Longitude, Hash.CS_ChargeLocation,
-                    Hash.CS_Odometer, Hash.CS_HvbTempStart, Hash.CS_HvbTempEnd,
-                    Hash.CS_SoCDStart, Hash.CS_SoCDEnd, Hash.CS_EtEStart, Hash.CS_EteEnd,
-                    Hash.CS_WhAdded, Hash.CS_WhUsed, Hash.CS_ChargingEfficiency,
-                    Hash.CS_MaxInputPower, Hash.CS_HvbSoH,
-                    Hash.CS_ChargerType,
-                ]
-            influxdb_charging(tags=tags, fields=fields, charge_start=Hash.CS_TimeStart)
+            if ending_time - starting_time > 30:
+                _LOGGER.info(f"    charging session timestamps: {get_state_value(Hash.CS_TimeStart)}   {get_state_value(Hash.CS_TimeEnd)}")
+                tags = [Hash.Vehicle]
+                fields = [
+                        Hash.CS_TimeStart, Hash.CS_TimeEnd,
+                        Hash.CS_Latitude, Hash.CS_Longitude, Hash.CS_ChargeLocation,
+                        Hash.CS_Odometer, Hash.CS_HvbTempStart, Hash.CS_HvbTempEnd,
+                        Hash.CS_SoCDStart, Hash.CS_SoCDEnd, Hash.CS_EtEStart, Hash.CS_EteEnd,
+                        Hash.CS_WhAdded, Hash.CS_WhUsed, Hash.CS_ChargingEfficiency,
+                        Hash.CS_MaxInputPower, Hash.CS_HvbSoH,
+                        Hash.CS_ChargerType,
+                    ]
+                influxdb_charging(tags=tags, fields=fields, charge_start=Hash.CS_TimeStart)
             self._charging_session = None
         return new_state

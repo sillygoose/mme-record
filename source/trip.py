@@ -117,9 +117,9 @@ class Trip:
             energy_gained = set_state(Hash.TR_EnergyGained, int(get_state_value(Hash.HvbEnergyGained)))
             energy_lost = set_state(Hash.TR_EnergyLost, int(get_state_value(Hash.HvbEnergyLost)))
 
+            trip_distance = set_state(Hash.TR_Distance, odometer_km(ending_odometer - starting_odometer))
             startingLocation = set_state(Hash.TR_LocationStarting, reverse_geocode(starting_latitude, starting_longitude))
             endingLocation = set_state(Hash.TR_LocationEnding, reverse_geocode(ending_latitude, ending_longitude))
-            trip_distance = set_state(Hash.TR_Distance, odometer_km(get_state_value(Hash.HiresOdometer) - trip.get(Hash.HiresOdometer)))
             elevation_change = set_state(Hash.TR_ElevationChange, get_state_value(Hash.GpsElevation) - trip.get(Hash.GpsElevation))
             max_elevation = set_state(Hash.TR_MaxElevation, get_state_value(Hash.GpsElevationMax))
             min_elevation = set_state(Hash.TR_MinElevation, get_state_value(Hash.GpsElevationMin))
@@ -151,21 +151,22 @@ class Trip:
             _LOGGER.info(f"        average speed: {average_speed:.01f} kph ({speed_mph(average_speed):.01f} mph)")
             _LOGGER.info(f"        ending temperature: {ending_temperature}°C")
             _LOGGER.info(f"        average temperature: {average_temperature}°C")
-            _LOGGER.info(f"        triptimestamps: {get_state_value(Hash.TR_TimeStart)}   {get_state_value(Hash.TR_TimeEnd)}")
 
-            tags = [Hash.Vehicle]
-            fields = [
-                    Hash.TR_TimeStart, Hash.TR_TimeEnd,
-                    Hash.TR_LocationStarting, Hash.TR_LocationEnding,
-                    Hash.TR_OdometerStart, Hash.TR_OdometerEnd, Hash.TR_Distance,
-                    Hash.TR_LatitudeStart, Hash.TR_LatitudeEnd, Hash.TR_LongitudeStart, Hash.TR_LongitudeEnd, Hash.TR_ElevationStart, Hash.TR_ElevationEnd,
-                    Hash.TR_MaxElevation, Hash.TR_MinElevation, Hash.TR_ElevationChange,
-                    Hash.TR_SocDStart, Hash.TR_SocDEnd, Hash.TR_EtEStart, Hash.TR_EtEEnd,
-                    Hash.TR_EnergyGained, Hash.TR_EnergyLost, Hash.TR_EnergyUsed, Hash.TR_EnergyEfficiency,
-                    Hash.TR_MaxSpeed, Hash.TR_AverageSpeed,
-                    Hash.TR_ExteriorStart, Hash.TR_ExteriorEnd, Hash.TR_ExteriorAverage,
-                ]
-            influxdb_trip(tags=tags, fields=fields, trip_start=Hash.TR_TimeStart)
+            if trip_distance > 0.0:
+                _LOGGER.info(f"        trip timestamps: {get_state_value(Hash.TR_TimeStart)}   {get_state_value(Hash.TR_TimeEnd)}")
+                tags = [Hash.Vehicle]
+                fields = [
+                        Hash.TR_TimeStart, Hash.TR_TimeEnd,
+                        Hash.TR_LocationStarting, Hash.TR_LocationEnding,
+                        Hash.TR_OdometerStart, Hash.TR_OdometerEnd, Hash.TR_Distance,
+                        Hash.TR_LatitudeStart, Hash.TR_LatitudeEnd, Hash.TR_LongitudeStart, Hash.TR_LongitudeEnd, Hash.TR_ElevationStart, Hash.TR_ElevationEnd,
+                        Hash.TR_MaxElevation, Hash.TR_MinElevation, Hash.TR_ElevationChange,
+                        Hash.TR_SocDStart, Hash.TR_SocDEnd, Hash.TR_EtEStart, Hash.TR_EtEEnd,
+                        Hash.TR_EnergyGained, Hash.TR_EnergyLost, Hash.TR_EnergyUsed, Hash.TR_EnergyEfficiency,
+                        Hash.TR_MaxSpeed, Hash.TR_AverageSpeed,
+                        Hash.TR_ExteriorStart, Hash.TR_ExteriorEnd, Hash.TR_ExteriorAverage,
+                    ]
+                influxdb_trip(tags=tags, fields=fields, trip_start=Hash.TR_TimeStart)
             self._trip_log = None
 
         return new_state

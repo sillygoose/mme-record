@@ -152,8 +152,10 @@ class RecordStateManager(StateManager):
                                     set_did_cache(key, payload)
                                     self._file_manager.write_record(state_details)
                                     if codec := self._codec_manager.codec(did_id):
-                                        decoded = codec.decode(None, bytearray(payload))
-                                        _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: {decoded.get('decoded')} (default value)")
+                                        decoded_payload = codec.decode(None, bytearray(payload))
+                                        if decoded_payload is None:
+                                            break
+                                        _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: {decoded_payload.get('decoded')} (default value)")
                                     influxdb_state_data = self.update_vehicle_state(state_details)
                                     influxdb_write_record(influxdb_state_data)
                         continue
@@ -164,6 +166,8 @@ class RecordStateManager(StateManager):
                         decoded_payload = None
                         if codec := self._codec_manager.codec(did_id):
                             decoded_payload = codec.decode(None, payload)
+                            if decoded_payload is None:
+                                continue
                         current_time = time()
                         state_details = {'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did_id, 'did_id_hex': f"{did_id:04X}", 'payload': list(payload)}
                         if get_did_cache(key) is None or get_did_cache(key) != payload:

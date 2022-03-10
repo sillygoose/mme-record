@@ -157,6 +157,7 @@ def influxdb_trip(tags: List[Hash], fields: List[Hash], trip_start: Hash) -> Non
             line_protocol += 'i'
     line_protocol += f" {ts_start}"
     write_lp_points([line_protocol])
+    influxdb_write_record(data_points=[], flush=True)
 
 
 def influxdb_charging(tags: List[Hash], fields: List[Hash], charge_start: Hash) -> None:
@@ -184,6 +185,7 @@ def influxdb_charging(tags: List[Hash], fields: List[Hash], charge_start: Hash) 
             line_protocol += 'i'
     line_protocol += f" {ts_start}"
     write_lp_points([line_protocol])
+    influxdb_write_record(data_points=[], flush=True)
 
 
 def influxdb_write_record(data_points: List[dict], flush=False) -> None:
