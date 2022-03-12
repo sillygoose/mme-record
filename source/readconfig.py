@@ -259,6 +259,8 @@ def check_config(config):
                     {'did_read': {'required': False, 'keys': [], 'type': int}},
                     {'born_on': {'required': False, 'keys': [], 'type': int}},
                     {'request_timeout': {'required': False, 'keys': [], 'type': float}},
+                    {'trip_minimum': {'required': False, 'keys': [], 'type': float}},
+                    {'charge_minimum': {'required': False, 'keys': [], 'type': int}},
                     {'p2_timeout': {'required': False, 'keys': [], 'type': float}},
                     {'p2_star_timeout': {'required': False, 'keys': [], 'type': float}},
                 ]}},

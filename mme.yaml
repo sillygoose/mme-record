@@ -10,6 +10,8 @@ mme:
         # dest_path:                        path where the output files are written
         # dest_file:                        filename for the output file series
         # gps_server:                       optional IP address/port for high-resolution GPS data
+        # trip_minimum:                     minimum distance in km to travel to record a trip (default: 0.1)
+        # charge_minimum:                   seconds to charge to record a charging session (default: 180)
         # file_writes:                      number of records collected before writing an output file, set to 0 to disable file writes (default: 200)
         # did_read:                         specify the number of DID per request (default is 1)
         # born_on:                          timestamp added to DID 0xDD00 to get current GMT time (not used at this time)
@@ -20,12 +22,15 @@ mme:
         dest_path:                          'record-files'
         dest_file:                          'test-trip'
         gps_server:                         http://172.20.10.1:8080
+        trip_minimum:                       0.1
+        charge_minimum:                     180
         file_writes:                        500
         did_read:                           1
         born_on:                            1623167753
         request_timeout:                    1.0
         p2_timeout:                         1.0
         p2_star_timeout:                    1.0
+
 
     playback:
         # You can control the playback options here:

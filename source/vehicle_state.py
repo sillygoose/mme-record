@@ -21,8 +21,9 @@ class VehicleState(Enum):
 
     PluggedIn = auto()              # the vehicle has plugged in
     Preconditioning = auto()        # the vehicle is preconditioning (remote start)
-    Charge_Starting = auto()      # the vehicle is beginning a charging session
-    Charge_AC = auto()            # the vehicle is AC charging
-    Charge_DCFC = auto()          # the vehicle is DC fast charging
-    Charge_Ending = auto()         # the vehicle is no longer charging
+
+    Charge_Starting = auto()        # the vehicle is beginning a charging session
+    Charge_AC = auto()              # the vehicle is AC charging
+    Charge_DCFC = auto()            # the vehicle is DC fast charging
+    Charge_Ending = auto()          # the vehicle is no longer charging
 

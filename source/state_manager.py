@@ -56,6 +56,9 @@ class StateManager(StateTransistion):
         self._codec_manager = CodecManager(config.record)
         self._command_queue = PriorityQueue()
         self._command_queue_lock = Lock()
+        record_options = dict(config.record)
+        self._minimum_trip = record_options.get('trip_minimum', 0.1)
+        self._minimum_charge = record_options.get('charge_minimum', 0)
         state_functions = {
             VehicleState.Unknown:               self.unknown,
             VehicleState.Idle:                  self.idle,

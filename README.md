@@ -36,7 +36,8 @@ Both utilities can be configured via a YAML configuration file.  Definitions for
 - added default value for read requests that timeout or error
 - Geocodio reverse geocoding added
 - access accurate GPS location using iPhone app
-- better vehicle data for viweing in a iPhone app
+- better vehicle data for viewing in a iPhone app
+- define the minimum trip and charge in the YAML file
 
 <a id='requirements'></a>
 ## Requirements

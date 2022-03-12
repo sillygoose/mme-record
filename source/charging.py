@@ -173,7 +173,7 @@ class Charging:
             _LOGGER.info(f"    maximum input power: {max_input_power} W")
             _LOGGER.info(f"    HVB state of health: {hvb_soh}%")
 
-            if ending_time - starting_time > 180:
+            if ending_time - starting_time >= self._minimum_charge:
                 _LOGGER.info(f"    charging session timestamps: {get_state_value(Hash.CS_TimeStart)}   {get_state_value(Hash.CS_TimeEnd)}")
                 tags = [Hash.Vehicle]
                 fields = [
