@@ -120,7 +120,7 @@ class StateTransistion(Charging, Trip):
                 if charging_status == ChargingStatus.NotReady or charging_status == ChargingStatus.Wait:
                     pass
                 elif charging_status == ChargingStatus.Ready or charging_status == ChargingStatus.Charging:
-                    new_state = VehicleState.Charging_Starting
+                    new_state = VehicleState.Charge_Starting
                 else:
                     _LOGGER.info(f"While in {VehicleState.PluggedIn.name}, 'ChargingStatus' returned an unexpected state: {charging_status}")
         return new_state

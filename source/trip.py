@@ -63,7 +63,7 @@ class Trip:
                     new_state = VehicleState.Trip
                 else:
                     self._trip_log = None
-                    new_state = VehicleState.Idle
+                    new_state = VehicleState.On
         return new_state
 
 
@@ -78,9 +78,13 @@ class Trip:
 
     def trip_ending(self, call_type: CallType) -> VehicleState:
         new_state = VehicleState.Unchanged
-        if call_type == CallType.Outgoing:
-            pass
-        elif call_type == CallType.Default:
+        if call_type == CallType.Incoming:
+            return new_state
+
+        if call_type == CallType.Default:
+            if not self.command_queue_empty():
+                return new_state
+
             if inferred_key := get_InferredKey('trip_ending'):
                 if inferred_key == InferredKey.KeyOut:
                     if engine_start_remote := get_EngineStartRemote('trip_ending'):
@@ -88,7 +92,8 @@ class Trip:
                 elif inferred_key == InferredKey.KeyIn:
                     if engine_start_disable := get_EngineStartDisable('trip_ending'):
                         new_state = VehicleState.On if engine_start_disable == EngineStartDisable.No else VehicleState.Accessory
-        elif call_type == CallType.Incoming:
+
+        elif call_type == CallType.Outgoing:
             trip = self._trip_log
             vehicle = set_state(Hash.Vehicle, self._vehicle_name)
             starting_time = set_state(Hash.TR_TimeStart, trip.get('time'))

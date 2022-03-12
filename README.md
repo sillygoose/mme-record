@@ -180,13 +180,15 @@ Here is a sample state file entry with an explanation of the fields it might con
         ]
     }
 ```
-    module                module name (required)
-    arbitration_id        the aribitration ID assigned to the module (required)
-    arbitration_id_hex    optional, easier to recognize than 'arbitration_id' (but )JSON has no hexidecimal support)
-    enable                enables this entry, default setting is true
-    period                how often this entry will be scheduled (every 5 seconds in this example)
-    offset                when this entry will start, default is 0 (this example will start after two seconds has passed)
-    dids                  a list of DID dictionaries that you wish to send to the vehicle
+    module                  module name (required)
+    arbitration_id          the aribitration ID assigned to the module (required)
+    arbitration_id_hex      optional, easier to recognize than 'arbitration_id' (but )JSON has no hexidecimal support)
+    enable                  enables this entry, default setting is true
+    period                  how often this entry will be scheduled or 0 if to be scheduled once (every 5 seconds in this example)
+    offset                  when this entry will start, default is 0 (this example will start after two seconds has passed)
+    dids                    a list of DID dictionaries that you wish to send to the vehicle
+
+The period of 0 is a special case and is only used in the charge ending and trip ending state code to wait for the command queue to empty, signifying that the state variables are up-to-date and can be sampled one last time before recording the trip or charging session.
 
 Each DID dictonary contains the following fields:
 

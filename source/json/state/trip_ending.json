@@ -4,7 +4,7 @@
         "arbitration_id": 2020,
         "arbitration_id_hex": "07E4",
         "enable": true,
-        "period": 1,
+        "period": 0,
         "dids": [
             {
                 "did_name": "HvbSocD",
@@ -25,7 +25,7 @@
         "arbitration_id": 2000,
         "arbitration_id_hex": "07D0",
         "enable": true,
-        "period": 1,
+        "period": 0,
         "dids": [
             {
                 "did_name": "GPS",
@@ -40,7 +40,7 @@
         "arbitration_id": 2022,
         "arbitration_id_hex": "07E6",
         "enable": true,
-        "period": 1,
+        "period": 0,
         "dids": [
             {
                 "did_name": "ExteriorTemp",
@@ -55,8 +55,7 @@
         "arbitration_id": 2018,
         "arbitration_id_hex": "07E2",
         "enable": true,
-        "period": 1,
-        "offset": 5,
+        "period": 0,
         "dids": [
             {
                 "did_name": "GearCommanded",

@@ -1,7 +1,7 @@
 """
 State definitions
 """
-from asyncio.log import logger
+
 import logging
 from threading import Lock
 from queue import PriorityQueue
@@ -35,16 +35,16 @@ class StateManager(StateTransistion):
         VehicleState.On:                {'state_file': 'json/state/on.json'},
 
         VehicleState.PluggedIn:         {'state_file': 'json/state/pluggedin.json'},
-        VehicleState.Charging_AC:       {'state_file': 'json/state/charging_ac.json'},
-        VehicleState.Charging_Starting: {'state_file': 'json/state/charging_starting.json'},
-        VehicleState.Charging_Ended:    {'state_file': 'json/state/charging_ended.json'},
+        VehicleState.Preconditioning:   {'state_file': 'json/state/preconditioning.json'},
 
         VehicleState.Trip_Starting:     {'state_file': 'json/state/trip_starting.json'},
         VehicleState.Trip:              {'state_file': 'json/state/trip.json'},
         VehicleState.Trip_Ending:       {'state_file': 'json/state/trip_ending.json'},
 
-        VehicleState.Preconditioning:   {'state_file': 'json/state/preconditioning.json'},
-        VehicleState.Charging_DCFC:     {'state_file': 'json/state/charging_dcfc.json'},
+        VehicleState.Charge_Starting:   {'state_file': 'json/state/charge_starting.json'},
+        VehicleState.Charge_AC:         {'state_file': 'json/state/charge_ac.json'},
+        VehicleState.Charge_DCFC:       {'state_file': 'json/state/charge_dcfc.json'},
+        VehicleState.Charge_Ending:     {'state_file': 'json/state/charge_ending.json'},
     }
 
     def __init__(self, config: Configuration) -> None:
@@ -61,15 +61,19 @@ class StateManager(StateTransistion):
             VehicleState.Idle:                  self.idle,
             VehicleState.Accessory:             self.accessory,
             VehicleState.On:                    self.on,
+
             VehicleState.Trip_Starting:         self.trip_starting,
             VehicleState.Trip:                  self.trip,
             VehicleState.Trip_Ending:           self.trip_ending,
+
+            VehicleState.PluggedIn:             self.plugged_in,
             VehicleState.Preconditioning:       self.preconditioning,
             VehicleState.PluggedIn:             self.plugged_in,
-            VehicleState.Charging_AC:           self.charging_ac,
-            VehicleState.Charging_DCFC:         self.charging_dcfc,
-            VehicleState.Charging_Starting:     self.charging_starting,
-            VehicleState.Charging_Ended:        self.charging_ended,
+
+            VehicleState.Charge_Starting:       self.charge_starting,
+            VehicleState.Charge_AC:             self.charge_ac,
+            VehicleState.Charge_DCFC:           self.charge_dcfc,
+            VehicleState.Charge_Ending:         self.charge_ending,
         }
         assert len(state_functions) == len(StateManager._state_file_lookup)
         for k, v in StateManager._state_file_lookup.items():
@@ -83,6 +87,9 @@ class StateManager(StateTransistion):
 
     def current_state(self) -> VehicleState:
         return self._state
+
+    def command_queue_empty(self) -> bool:
+        return self._command_queue.empty()
 
     def _load_state_definition(self, file: str) -> List[dict]:
         with open(file) as infile:

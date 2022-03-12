@@ -4,7 +4,7 @@
         "arbitration_id": 2020,
         "arbitration_id_hex": "07E4",
         "enable": true,
-        "period": 1,
+        "period": 0,
         "dids": [
             {
                 "did_name": "HvbSoH",
@@ -37,7 +37,7 @@
         "arbitration_id": 2018,
         "arbitration_id_hex": "07E2",
         "enable": true,
-        "period": 1,
+        "period": 0,
         "dids": [
             {
                 "did_name": "ChargerInputCurrent",
@@ -58,7 +58,7 @@
         "arbitration_id": 2018,
         "arbitration_id_hex": "07E2",
         "enable": false,
-        "period": 1,
+        "period": 0,
         "dids": [
             {
                 "did_name": "ChargerOutputCurrent",
@@ -79,7 +79,7 @@
         "arbitration_id": 1830,
         "arbitration_id_hex": "0726",
         "enable": true,
-        "period": 1,
+        "period": 0,
         "dids": [
             {
                 "did_name": "LvbSoc",
@@ -94,8 +94,7 @@
         "arbitration_id": 2020,
         "arbitration_id_hex": "07E4",
         "enable": true,
-        "period": 1,
-        "offset": 2,
+        "period": 0,
         "dids": [
             {
                 "did_name": "ChargingStatus",
