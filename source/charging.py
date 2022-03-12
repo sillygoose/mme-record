@@ -27,8 +27,9 @@ class Charging:
         self._passcount = 0
 
     _requiredHashes = [
-            Hash.HvbTemp, Hash.LvbEnergy, Hash.HvbEtE, Hash.HvbSoCD, Hash.HvbSoH,
-            Hash.ChargerInputEnergy, Hash.ChargerOutputEnergy
+            Hash.HvbTemp, Hash.HvbEtE, Hash.HvbSoCD, Hash.HvbSoH,
+            Hash.LvbSoC, Hash.LvbEnergy,
+            Hash.ChargerInputEnergy
         ]
 
     def charging_starting(self, call_type: CallType) -> VehicleState:
@@ -133,24 +134,29 @@ class Charging:
             charger_type = set_state(Hash.CS_ChargerType, session.get('type'))
             starting_time = set_state(Hash.CS_TimeStart, session.get('time'))
             ending_time = set_state(Hash.CS_TimeEnd, int(time.time()))
-            hvb_soh = set_state(Hash.CS_HvbSoH, session.get(Hash.HvbSoH))
-            starting_hvb_temp = set_state(Hash.CS_HvbTempStart, session.get(Hash.HvbTemp))
-            ending_hvb_temp = set_state(Hash.CS_HvbTempEnd, get_state_value(Hash.HvbTemp))
-            starting_socd = set_state(Hash.CS_SoCDStart, session.get(Hash.HvbSoCD))
-            ending_socd = set_state(Hash.CS_SoCDEnd, get_state_value(Hash.HvbSoCD))
-            starting_ete = set_state(Hash.CS_EtEStart, session.get(Hash.HvbEtE))
-            ending_ete = set_state(Hash.CS_EteEnd, get_state_value(Hash.HvbEtE))
+
             odometer = set_state(Hash.CS_Odometer, get_state_value(Hash.LoresOdometer))
             latitude = set_state(Hash.CS_Latitude, get_state_value(Hash.GpsLatitude))
             longitude = set_state(Hash.CS_Longitude, get_state_value(Hash.GpsLongitude))
             chargeLocation = set_state(Hash.CS_ChargeLocation, reverse_geocode(latitude=latitude, longitude=longitude))
             max_input_power = set_state(Hash.CS_MaxInputPower, get_state_value(Hash.ChargerInputPowerMax))
 
-            delta_lvb_energy = get_state_value(Hash.LvbEnergy) - session.get(Hash.LvbEnergy)
-            delta_hvb_energy = ending_ete - starting_ete
-            wh_added = set_state(Hash.CS_WhAdded, int(delta_hvb_energy + delta_lvb_energy))
+            hvb_soh = set_state(Hash.CS_HvbSoH, session.get(Hash.HvbSoH))
+            hvb_starting_temp = set_state(Hash.CS_HvbTempStart, session.get(Hash.HvbTemp))
+            hvb_ending_temp = set_state(Hash.CS_HvbTempEnd, get_state_value(Hash.HvbTemp))
+            hvb_starting_soc = set_state(Hash.CS_HvbSoCStart, session.get(Hash.HvbSoCD))
+            hvb_ending_soc = set_state(Hash.CS_HvbSoCEnd, get_state_value(Hash.HvbSoCD))
+            hvb_starting_ete = set_state(Hash.CS_HvbEtEStart, session.get(Hash.HvbEtE))
+            hvb_ending_ete = set_state(Hash.CS_HvbEteEnd, get_state_value(Hash.HvbEtE))
+            hvb_delta_energy = set_state(Hash.CS_HvbWhAdded, hvb_ending_ete - hvb_starting_ete)
+
+            lvb_starting_soc = set_state(Hash.CS_LvbSoCStart, session.get(Hash.LvbSoC))
+            lvb_ending_soc = set_state(Hash.CS_LvbSoCEnd, get_state_value(Hash.LvbSoC))
+            lvb_delta_energy = set_state(Hash.CS_LvbWhAdded, get_state_value(Hash.LvbEnergy) - session.get(Hash.LvbEnergy))
+
+            wh_added = set_state(Hash.CS_WhAdded, int(hvb_delta_energy + lvb_delta_energy))
             wh_used = set_state(Hash.CS_WhUsed, int(get_state_value(Hash.ChargerInputEnergy) - session.get(Hash.ChargerInputEnergy, 0.0)))
-            charging_efficiency = (set_state(Hash.CS_ChargingEfficiency, wh_added / wh_used * 100.0) if wh_used > 0 else 0.0)
+            charging_efficiency = (set_state(Hash.CS_ChargingEfficiency, (wh_added / wh_used * 100.0) if wh_used > 0 else 0.0))
             session_datetime = datetime.datetime.fromtimestamp(starting_time).strftime('%Y-%m-%d %H:%M')
             hours, rem = divmod(ending_time - starting_time, 3600)
             minutes, _ = divmod(rem, 60)
@@ -159,24 +165,29 @@ class Charging:
             _LOGGER.info(f"    {charger_type} charging session started at {session_datetime} for {hours} hours, {minutes} minutes")
             _LOGGER.info(f"    odometer: {odometer_km(odometer):.01f} km ({odometer_miles(odometer):.01f} mi)")
             _LOGGER.info(f"    location: {chargeLocation}")
-            _LOGGER.info(f"    starting HvB temperature: {starting_hvb_temp}°C, ending HvB temperature: {ending_hvb_temp}°C")
-            _LOGGER.info(f"    starting SoC: {starting_socd:.01f}%, ending SoC: {ending_socd:.01f}%")
-            _LOGGER.info(f"    starting EtE: {starting_ete} Wh, ending EtE: {ending_ete} Wh, LVB ΔWh: {delta_lvb_energy} Wh")
+            _LOGGER.info(f"    starting HvB temperature: {hvb_starting_temp}°C, ending HvB temperature: {hvb_ending_temp}°C")
+            _LOGGER.info(f"    starting HVB SoC: {hvb_starting_soc:.01f}%, ending SoC: {hvb_ending_soc:.01f}%")
+            _LOGGER.info(f"    starting HVB EtE: {hvb_starting_ete} Wh, ending EtE: {hvb_ending_ete} Wh")
+            _LOGGER.info(f"    HVB ΔWh: {hvb_delta_energy} Wh, LVB ΔWh: {lvb_delta_energy} Wh")
+            _LOGGER.info(f"    starting LVB SoC: {lvb_starting_soc:.01f}%, ending SoC: {lvb_ending_soc:.01f}%")
             _LOGGER.info(f"    {wh_added} Wh were added, requiring {wh_used} Wh from the charger")
             _LOGGER.info(f"    overall efficiency: {charging_efficiency:.01f}%")
             _LOGGER.info(f"    maximum input power: {max_input_power} W")
             _LOGGER.info(f"    HVB state of health: {hvb_soh}%")
 
-            if ending_time - starting_time > 30:
+            if ending_time - starting_time > 180:
                 _LOGGER.info(f"    charging session timestamps: {get_state_value(Hash.CS_TimeStart)}   {get_state_value(Hash.CS_TimeEnd)}")
                 tags = [Hash.Vehicle]
                 fields = [
                         Hash.CS_TimeStart, Hash.CS_TimeEnd,
-                        Hash.CS_Latitude, Hash.CS_Longitude, Hash.CS_ChargeLocation,
-                        Hash.CS_Odometer, Hash.CS_HvbTempStart, Hash.CS_HvbTempEnd,
-                        Hash.CS_SoCDStart, Hash.CS_SoCDEnd, Hash.CS_EtEStart, Hash.CS_EteEnd,
-                        Hash.CS_WhAdded, Hash.CS_WhUsed, Hash.CS_ChargingEfficiency,
-                        Hash.CS_MaxInputPower, Hash.CS_HvbSoH,
+                        Hash.CS_Latitude, Hash.CS_Longitude, Hash.CS_ChargeLocation, Hash.CS_Odometer,
+                        Hash.CS_HvbTempStart, Hash.CS_HvbTempEnd,
+                        Hash.CS_HvbSoCStart, Hash.CS_HvbSoCEnd, Hash.CS_HvbEtEStart, Hash.CS_HvbEteEnd,
+                        Hash.CS_HvbWhAdded, Hash.CS_HvbSoH,
+                        Hash.CS_LvbSoCStart, Hash.CS_LvbSoCEnd, Hash.CS_LvbWhAdded,
+                        Hash.CS_WhAdded, Hash.CS_WhUsed,
+                        Hash.CS_ChargingEfficiency,
+                        Hash.CS_MaxInputPower,
                         Hash.CS_ChargerType,
                     ]
                 influxdb_charging(tags=tags, fields=fields, charge_start=Hash.CS_TimeStart)

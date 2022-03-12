@@ -183,9 +183,11 @@ class CodecGPS(Codec):
                     gps_data = f"GPS: ({gps_latitude:3.8f}, {gps_longitude:3.8f}), elevation: {gps_elevation} m, bearing: {gps_bearing}°, speed: {gps_speed:.01f} kph, elapsed: {gps_elapsed:.03f}"
                     payload = struct.pack('>hffBHH', int(gps_elevation), float(gps_latitude), float(gps_longitude), 255, int(gps_speed / 3.6), int(gps_bearing))
                     return {'payload': payload, 'states': states, 'decoded': gps_data}
-                except (ReadTimeout, HTTPError, InvalidURL, InvalidSchema, ConnectTimeout, ConnectionError) as e:
+                except (ReadTimeout, HTTPError, InvalidURL, InvalidSchema) as e:
                     _LOGGER.error(f"{e}")
                     return None
+                except (ConnectTimeout, ConnectionError) as e:
+                    pass
                 except Exception as e:
                     _LOGGER.exception(f"Unexpected GPS exception: {e}")
 
@@ -272,7 +274,7 @@ class CodecHvbSocD(Codec):
     def decode(self, payload):
         hvb_socd = float(struct.unpack('>B', payload)[0]) * 0.5
         states = [{'hvb_socd': hvb_socd}]
-        return {'payload': payload, 'states': states, 'decoded': f"HVB displayed SoC: {hvb_socd:.01f}%"}
+        return {'payload': payload, 'states': states, 'decoded': f"HVB SoC: {hvb_socd:.01f}%"}
 
     def __len__(self):
         return 1

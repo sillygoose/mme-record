@@ -49,18 +49,6 @@
         "period": 10,
         "dids": [
             {
-                "did_name": "ChargerOutputCurrent",
-                "did_id": 18512,
-                "did_id_hex": "4850",
-                "codec_id": 18512
-            },
-            {
-                "did_name": "ChargerOutputVoltage",
-                "did_id": 18506,
-                "did_id_hex": "484A",
-                "codec_id": 18506
-            },
-            {
                 "did_name": "ChargerInputCurrent",
                 "did_id": 18527,
                 "did_id_hex": "485F",
@@ -71,6 +59,27 @@
                 "did_id": 18526,
                 "did_id_hex": "485E",
                 "codec_id": 18526
+            }
+        ]
+    },
+    {
+        "module": "SOBDM",
+        "arbitration_id": 2018,
+        "arbitration_id_hex": "07E2",
+        "enable": false,
+        "period": 10,
+        "dids": [
+            {
+                "did_name": "ChargerOutputCurrent",
+                "did_id": 18512,
+                "did_id_hex": "4850",
+                "codec_id": 18512
+            },
+            {
+                "did_name": "ChargerOutputVoltage",
+                "did_id": 18506,
+                "did_id_hex": "484A",
+                "codec_id": 18506
             }
         ]
     },

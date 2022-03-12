@@ -1,6 +1,7 @@
 """
 State definitions
 """
+from asyncio.log import logger
 import logging
 from threading import Lock
 from queue import PriorityQueue
@@ -93,6 +94,7 @@ class StateManager(StateTransistion):
             except FileNotFoundError as e:
                 raise RuntimeError(f"{e}")
 
+        _LOGGER.debug(f"Loading state file '{file}'")
         for module in state_definition:
             dids = module.get('dids')
             for did in dids:
@@ -104,29 +106,25 @@ class StateManager(StateTransistion):
     def change_state(self, new_state: VehicleState) -> None:
         if self._state == new_state or new_state == VehicleState.Unchanged:
             return
+
+        self._state_function(call_type = CallType.Outgoing)
+
         if self._state is None:
             _LOGGER.info(f"'{self._vehicle_name}' state set to '{new_state.name}'")
         else:
             _LOGGER.info(f"'{self._vehicle_name}' state changed from '{self._state.name}' to '{new_state.name}'")
 
-        self._putback_enabled = False
-        self._flush_queue()
-
-        self._state_function(call_type = CallType.Outgoing)
         self._state = new_state
         self._state_time = time.time()
         self._state_function = self._get_state_function(new_state)
         self._state_file = self._get_state_file(new_state)
         self._queue_commands = self._load_state_definition(self._state_file)
+        self._load_queue()
         self._state_function(call_type = CallType.Incoming)
-
-    def _flush_queue(self) -> None:
-        with self._command_queue_lock:
-            while not self._command_queue.empty():
-                self._command_queue.get_nowait()
 
     def _load_queue(self) -> None:
         with self._command_queue_lock:
+            self._putback_enabled = False
             while not self._command_queue.empty():
                 self._command_queue.get_nowait()
             for module in self._queue_commands:

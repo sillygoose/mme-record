@@ -185,4 +185,3 @@ def update_synthetics(hash: Hash) -> List[dict]:
         _LOGGER.debug(f"ValueError in update_synthetics({hash.value})")
         pass
     return synthetics
-

@@ -73,7 +73,6 @@ class RecordStateManager(StateManager):
                         if self._exit_requested == True:
                             return
                         sleep(0.05)
-                        self._load_queue()
                         continue
 
                     # wait until it ready to send to the request queue

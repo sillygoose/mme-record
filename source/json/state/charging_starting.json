@@ -39,6 +39,21 @@
         ]
     },
     {
+        "module": "BCM",
+        "arbitration_id": 1830,
+        "arbitration_id_hex": "0726",
+        "enable": true,
+        "period": 1,
+        "dids": [
+            {
+                "did_name": "LvbSoc",
+                "did_id": 16424,
+                "did_id_hex": "4028",
+                "codec_id": 16424
+            }
+        ]
+    },
+    {
         "module": "SOBDM",
         "arbitration_id": 2018,
         "arbitration_id_hex": "07E2",
@@ -46,16 +61,25 @@
         "period": 1,
         "dids": [
             {
-                "did_name": "ChargerOutputVoltage",
-                "did_id": 18506,
-                "did_id_hex": "484A",
-                "codec_id": 18506
-            },
-            {
                 "did_name": "ChargerInputVoltage",
                 "did_id": 18526,
                 "did_id_hex": "485E",
                 "codec_id": 18526
+            }
+        ]
+    },
+    {
+        "module": "SOBDM",
+        "arbitration_id": 2018,
+        "arbitration_id_hex": "07E2",
+        "enable": false,
+        "period": 1,
+        "dids": [
+            {
+                "did_name": "ChargerOutputVoltage",
+                "did_id": 18506,
+                "did_id_hex": "484A",
+                "codec_id": 18506
             }
         ]
     },
