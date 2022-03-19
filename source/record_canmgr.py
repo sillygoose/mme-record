@@ -91,14 +91,10 @@ class RecordCanbusManager:
                                 timeout.valid = False
                                 timeout.invalid_reason = "request timed out"
                                 responses.append({'arbitration_id': txid, 'arbitration_id_hex': f"{txid:04X}", 'did_list': next_read, 'response': timeout})
-                            except NegativeResponseException as e:
-                                _LOGGER.error(f"{txid:04X}: {e}")
-                            except UnexpectedResponseException as e:
-                                _LOGGER.error(f"{txid:04X}: {e}")
-                            except InvalidResponseException as e:
+                            except (NegativeResponseException, UnexpectedResponseException, InvalidResponseException) as e:
                                 _LOGGER.error(f"{txid:04X}: {e}")
                             except Exception as e:
-                                _LOGGER.error(f"Unexpected exception: {e}")
+                                _LOGGER.exception(f"Unexpected exception: {e}")
                 try:
                     self.response_queue.put(responses)
                 except Full:

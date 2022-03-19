@@ -8,6 +8,7 @@ from did import EngineStartRemote, EngineStartNormal, EngineStartDisable
 from vehicle_state import VehicleState, CallType
 from hash import *
 
+from codec_manager import connect_gps_server, CodecManager
 from charging import Charging
 from trip import Trip
 
@@ -68,6 +69,12 @@ class StateTransistion(Charging, Trip):
 
     def on(self, call_type: CallType) -> VehicleState:
         new_state = VehicleState.Unchanged
+        if call_type == CallType.Incoming:
+            if not CodecManager._gps_server_enabled:
+                _LOGGER.info(f"Checking for precise GPS server at '{CodecManager._gps_server}'")
+                connect_gps_server()
+            return new_state
+
         if call_type == CallType.Default:
             if inferred_key := get_InferredKey('on'):
                 if inferred_key == InferredKey.KeyOut:

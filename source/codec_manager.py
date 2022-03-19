@@ -121,9 +121,14 @@ class CodecGearCommanded(Codec):
 
 
 class CodecGPS(Codec):
+    """
+    _previous_gps_speed = -1
+    """
+
     def decode(self, payload):
         # default to using MME GPS data
         gps_elevation, gps_latitude, gps_longitude, gps_fix, gps_speed, gps_bearing = struct.unpack('>hllBHH', payload)
+
         if gps_fix == 255:
             # saved hires GPS data
             gps_elevation, gps_latitude, gps_longitude, gps_fix, gps_speed, gps_bearing = struct.unpack('>hffBHH', payload)
@@ -135,7 +140,17 @@ class CodecGPS(Codec):
                     {'gps_speed': gps_speed},
                     {'gps_bearing': gps_bearing},
                 ]
-            gps_data = f"GPS: ({gps_latitude:3.8f}, {gps_longitude:3.8f}), elevation: {gps_elevation} m, bearing: {gps_bearing}°, speed: {gps_speed:.01f} kph, fix: {gps_fix}"
+            gps_data = f"GPS: ({gps_latitude:3.6f}, {gps_longitude:3.6f}), elevation: {gps_elevation} m, bearing: {gps_bearing}°, speed: {gps_speed:.01f} kph, fix: {gps_fix}"
+
+            """
+            if self != 'pb':
+                if CodecGPS._previous_gps_speed == 0:
+                    if gps_speed == 0:
+                        _LOGGER.debug(f"07D0/8012: Discarding precise: {gps_data}")
+                        return None
+                CodecGPS._previous_gps_speed = gps_speed
+            """
+
         else:
             # vehicle lores GPS data
             gps_latitude = float(gps_latitude / 60.0)
@@ -150,14 +165,23 @@ class CodecGPS(Codec):
                 ]
             gps_data = f"GPS: ({gps_latitude:3.6f}, {gps_longitude:3.6f}), elevation: {gps_elevation} m, bearing: {gps_bearing}°, speed: {gps_speed:.01f} kph, fix: {gps_fix}"
 
+            """
+            if self != 'pb':
+                if CodecGPS._previous_gps_speed == 0:
+                    if gps_speed == 0:
+                        _LOGGER.debug(f"07D0/8012: Discarding MME: {gps_data}")
+                        return None
+                CodecGPS._previous_gps_speed = gps_speed
+            """
+
             # Use the external GPS server if available
-            if CodecManager._gps_server:
+            if CodecManager._gps_server_enabled:
                 # if successful modify the payload to reflect the hires GPS data
                 try:
-                    gps_response = requests.get(CodecManager._gps_server, timeout=0.4)
+                    gps_response = requests.get(CodecManager._gps_server, timeout=CodecManager._gps_server_timeout)
                     phone_gps = gps_response.json()
-                    gps_latitude = float(phone_gps.get('latitude'))
-                    gps_longitude = float(phone_gps.get('longitude'))
+                    gps_latitude = round(float(phone_gps.get('latitude')), 6)
+                    gps_longitude = round(float(phone_gps.get('longitude')), 6)
                     gps_elevation = int(phone_gps.get('altitude'))
 
                     jps_speed = phone_gps.get('speed')
@@ -180,14 +204,12 @@ class CodecGPS(Codec):
                     if gps_bearing >= 0.0:
                         states.append({'gps_bearing': gps_bearing})
 
-                    gps_data = f"GPS: ({gps_latitude:3.8f}, {gps_longitude:3.8f}), elevation: {gps_elevation} m, bearing: {gps_bearing}°, speed: {gps_speed:.01f} kph, elapsed: {gps_elapsed:.03f}"
+                    gps_data = f"GPS: ({gps_latitude:3.6f}, {gps_longitude:3.6f}), elevation: {gps_elevation} m, bearing: {gps_bearing}°, speed: {gps_speed:.01f} kph, elapsed: {gps_elapsed:.03f}"
                     payload = struct.pack('>hffBHH', int(gps_elevation), float(gps_latitude), float(gps_longitude), 255, int(gps_speed / 3.6), int(gps_bearing))
                     return {'payload': payload, 'states': states, 'decoded': gps_data}
-                except (ReadTimeout, HTTPError, InvalidURL, InvalidSchema) as e:
+                except (ReadTimeout, HTTPError, InvalidURL, InvalidSchema, ConnectTimeout, ConnectionError) as e:
                     _LOGGER.error(f"{e}")
                     return None
-                except (ConnectTimeout, ConnectionError) as e:
-                    pass
                 except Exception as e:
                     _LOGGER.exception(f"Unexpected GPS exception: {e}")
 
@@ -654,12 +676,39 @@ class CodecManager:
         DidId.EngineRunTime:                  CodecEngineRunTime,
     }
 
+    _gps_server_enabled = False
+    _gps_server = None
+    _gps_server_timeout = 0.5
+
     def __init__(self, config: Configuration) -> None:
         self._codec_lookup = CodecManager._codec_lookup
         CodecManager._gps_server = dict(config).get('gps_server', None)
+        CodecManager._gps_server_timeout = dict(config).get('gps_server_timeout', 0.5)
+        if CodecManager._gps_server:
+            CodecManager._gps_server_enabled = connect_gps_server()
+
 
     def codec(self, did_id: int) -> Codec:
         try:
             return self._codec_lookup.get(DidId(did_id), CodecNull)
         except ValueError:
             return CodecNull
+
+
+def connect_gps_server() -> bool:
+    CodecManager._gps_server_enabled = False
+    for _ in range(3):
+        try:
+            _ = requests.get(CodecManager._gps_server, timeout=CodecManager._gps_server_timeout)
+            CodecManager._gps_server_enabled = True
+            break
+        except (ReadTimeout, HTTPError, InvalidURL, InvalidSchema, ConnectTimeout, ConnectionError) as e:
+            continue
+        except Exception as e:
+            _LOGGER.exception(f"Unexpected exception testing for GPS server '{CodecManager._gps_server}': {e}")
+
+    if CodecManager._gps_server_enabled:
+        _LOGGER.info(f"Connected to precision GPS server '{CodecManager._gps_server}'")
+    else:
+        _LOGGER.error(f"Unable to connect to precision GPS server '{CodecManager._gps_server}', server is disabled")
+    return CodecManager._gps_server_enabled

@@ -64,10 +64,10 @@ class PlaybackDID:
         index = 0
         for _ in self._states:
             self._states[index] = unpacked_values[index]
-            self._log_event(event)
             index += 1
             if index == 1 and self._bitfield:
                 break
+        self._log_event(event)
 
     def _log_event(self, event: dict) -> None:
         event_time = event.get('time')
@@ -75,7 +75,7 @@ class PlaybackDID:
         did_id = event.get('did_id')
         payload = event.get('payload')
         if codec := self._codec_manager.codec(did_id):
-            decoded = codec.decode(None, bytearray(payload))
+            decoded = codec.decode('pb', bytearray(payload))
             _LOGGER.debug(f"Event {event_time:.06f} {arbitration_id:04X}/{did_id:04X} payload={payload} {decoded.get('decoded')}")
         else:
             _LOGGER.debug(f"Event {event_time:.06f} {arbitration_id:04X}/{did_id:04X} payload={payload}")

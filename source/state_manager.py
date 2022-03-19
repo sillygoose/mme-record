@@ -157,8 +157,8 @@ class StateManager(StateTransistion):
         if state_change.get('type', None) is None:
             if did_id := state_change.get('did_id', None):
                 arbitration_id = state_change.get('arbitration_id')
-                decoded_payload = state_change.get('payload')
-                states = decoded_payload.get('states')
+                payload = state_change.get('payload')
+                states = payload.get('states')
                 for state in states:
                     for state_name, state_value in state.items():
                         if hash := get_hash(f"{arbitration_id:04X}:{did_id:04X}:{state_name}"):
