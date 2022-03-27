@@ -1,4 +1,5 @@
 import logging
+import os
 import json
 
 from config.configuration import Configuration
@@ -33,6 +34,15 @@ class RecordFileManager:
         with open(self._filename, 'a') as outfile:
             self._write_file()
             outfile.write('\n]')
+
+    def flush(self, rename_to: str = None) -> None:
+        self._write_file()
+        self._close()
+        if rename_to:
+            flushed_filename = f"{self._dest_path}/{rename_to}.json"
+            os.rename(self._filename, flushed_filename)
+        self._open()
+        _LOGGER.info(f"Flushed output file and renamed to '{flushed_filename}'" if rename_to else f"Flushed output file '{self._filename}'")
 
     def write_record(self, data_point: dict) -> None:
         if self._file_writes > 0 :

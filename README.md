@@ -38,6 +38,7 @@ Both utilities can be configured via a YAML configuration file.  Definitions for
 - access accurate GPS location using iPhone app
 - better vehicle data for viewing in a iPhone app
 - define the minimum trip and charge in the YAML file
+- trips and charges are written out to files for easier playback and smaller size
 
 <a id='requirements'></a>
 ## Requirements
