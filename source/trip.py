@@ -15,6 +15,7 @@ from hash import *
 
 from influxdb import influxdb_trip
 from geocoding import reverse_geocode
+from logfiles import rollover
 
 
 _LOGGER = logging.getLogger('mme')
@@ -172,7 +173,9 @@ class Trip:
                         Hash.TR_ExteriorStart, Hash.TR_ExteriorEnd, Hash.TR_ExteriorAverage,
                     ]
                 influxdb_trip(tags=tags, fields=fields, trip_start=Hash.TR_TimeStart)
-                self._file_manager.flush('trip_' + datetime.datetime.fromtimestamp(starting_time).strftime('%Y-%m-%d_%H_%M'))
+                filename = 'trip_' + datetime.datetime.fromtimestamp(starting_time).strftime('%Y-%m-%d_%H_%M')
+                self._file_manager.flush(filename)
+                rollover(filename)
             self._trip_log = None
 
         return new_state

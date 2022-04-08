@@ -14,6 +14,7 @@ from hash import *
 
 from influxdb import influxdb_charging
 from geocoding import reverse_geocode
+from logfiles import rollover
 
 
 _LOGGER = logging.getLogger('mme')
@@ -189,6 +190,8 @@ class Charging:
                         Hash.CS_ChargerType,
                     ]
                 influxdb_charging(tags=tags, fields=fields, charge_start=Hash.CS_TimeStart)
-                self._file_manager.flush('charge_' + datetime.datetime.fromtimestamp(starting_time).strftime('%Y-%m-%d_%H_%M'))
+                filename = 'charge_' + datetime.datetime.fromtimestamp(starting_time).strftime('%Y-%m-%d_%H_%M')
+                self._file_manager.flush(filename)
+                rollover(filename)
             self._charging_session = None
         return new_state
