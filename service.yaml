@@ -22,7 +22,7 @@ mme:
         # p2_star_timeout:                  max time in seconds to wait for a response (positive, negative, or NRC0x78) after the reception of
         #                                   a negative response with code 0x78 (requestCorrectlyReceived-ResponsePending) (default: 1.0)
         dest_path:                          'record-files'
-        dest_file:                          'trips-202203167'
+        dest_file:                          'greta'
         gps_server:                         http://172.20.10.1:8080
         gps_server_timeout:                 0.35
         trip_minimum:                       0.1
@@ -60,7 +60,7 @@ mme:
         org:                                !secret influxdb2_org
         url:                                !secret influxdb2_url
         token:                              !secret influxdb2_token
-        bucket:                             ev-test
+        bucket:                             ev-data
         block_size:                         100
 
     geocodio:

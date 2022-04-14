@@ -134,9 +134,7 @@ def write_lp_points(lp_points: List) -> None:
 
 def influxdb_trip(tags: List[Hash], fields: List[Hash], trip_start: Hash) -> None:
     ts_start = get_state_value(trip_start)
-    time_tag = datetime.datetime.fromtimestamp(ts_start).strftime('%Y-%m-%dT%H:%M')
-
-    line_protocol = f"trip,session={time_tag}"
+    line_protocol = f"trip"
     for _, hash in enumerate(tags):
         tag_name, tag_type = get_db_fields(hash)
         if tag_type == 'str':
@@ -162,9 +160,7 @@ def influxdb_trip(tags: List[Hash], fields: List[Hash], trip_start: Hash) -> Non
 
 def influxdb_charging(tags: List[Hash], fields: List[Hash], charge_start: Hash) -> None:
     ts_start = get_state_value(charge_start)
-    time_tag = datetime.datetime.fromtimestamp(ts_start).strftime('%Y-%m-%dT%H:%M')
-
-    line_protocol = f"charging,session={time_tag}"
+    line_protocol = f"charging"
     for _, hash in enumerate(tags):
         tag_name, tag_type = get_db_fields(hash)
         if tag_type == 'str':

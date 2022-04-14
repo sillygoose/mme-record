@@ -58,7 +58,7 @@ mme:
         enable:                             true
         org:                                !secret influxdb2_org
         url:                                !secret influxdb2_url
-        bucket:                             'ev-test' # !secret influxdb2_bucket
+        bucket:                             'ev-data' # !secret influxdb2_bucket
         token:                              !secret influxdb2_token
         block_size:                         200
 
