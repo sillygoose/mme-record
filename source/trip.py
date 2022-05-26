@@ -57,7 +57,7 @@ class Trip:
             for hash in Trip._requiredHashes:
                 if (hash_value := get_state_value(hash, None)) is None:
                     arbitration_id, did_id, _ = get_hash_fields(hash)
-                    _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: Missing required DID: '{hash.name}'")
+                    _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: Waiting for required DID: '{hash.name}'")
                     return new_state
                 self._trip_log[hash] = hash_value
 
