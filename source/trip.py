@@ -3,7 +3,7 @@ import time
 import datetime
 
 from state_engine import delete_state, get_state_value, set_state, odometer_km, odometer_miles, speed_kph, speed_mph
-from state_engine import delete_did_cache, delete_state
+from state_engine import delete_state
 from state_engine import get_InferredKey, get_GearCommanded
 from state_engine import get_EngineStartRemote, get_EngineStartDisable
 
