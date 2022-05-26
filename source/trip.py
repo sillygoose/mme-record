@@ -2,8 +2,8 @@ import logging
 import time
 import datetime
 
-from state_engine import get_state_value, set_state, odometer_km, odometer_miles, speed_kph, speed_mph
-from state_engine import delete_did_cache
+from state_engine import delete_state, get_state_value, set_state, odometer_km, odometer_miles, speed_kph, speed_mph
+from state_engine import delete_did_cache, delete_state
 from state_engine import get_InferredKey, get_GearCommanded
 from state_engine import get_EngineStartRemote, get_EngineStartDisable
 
@@ -38,14 +38,14 @@ class Trip:
             self._trip_log = {
                 'time': int(time.time()),
             }
-            delete_did_cache(Hash.HvbEnergyGained)
-            delete_did_cache(Hash.HvbEnergyLost)
-            delete_did_cache(Hash.GpsElevationMax)
-            delete_did_cache(Hash.GpsElevationMin)
-            delete_did_cache(Hash.HiresSpeedMax)
-            delete_did_cache(Hash.ExtTemperatureSum)
-            delete_did_cache(Hash.ExtTemperatureCount)
-            delete_did_cache(Hash.ExteriorTemperature)
+            delete_state(Hash.HvbEnergyGained, True)
+            delete_state(Hash.HvbEnergyLost, True)
+            delete_state(Hash.GpsElevationMax, True)
+            delete_state(Hash.GpsElevationMin, True)
+            delete_state(Hash.HiresSpeedMax, True)
+            delete_state(Hash.ExtTemperatureSum, True)
+            delete_state(Hash.ExtTemperatureCount, True)
+            delete_state(Hash.ExteriorTemperature, True)
 
         elif call_type == CallType.Outgoing:
             for hash in Trip._requiredHashes:

@@ -58,9 +58,11 @@ def set_state_interval(hash: Hash, value: Any) -> int:
     StateEngine._state[hash] = (value, ts)
     return ts
 
-def delete_state(hash: Hash) -> None:
+def delete_state(hash: Hash, delete_cache: bool = False) -> None:
     try:
         StateEngine._state.pop(hash)
+        if delete_cache:
+            delete_did_cache(hash)
     except KeyError:
         pass
 
