@@ -36,11 +36,13 @@ class Charging:
         new_state = VehicleState.Unchanged
         if call_type == CallType.Incoming:
             assert self._charging_session is None
+            incoming_charge_time = int(time.time())
             self._charging_session = {
-                'time': int(time.time()),
+                'time':incoming_charge_time,
             }
             set_state(Hash.ChargerInputPowerMax, 0)
             set_state(Hash.ChargerOutputPowerMax, 0)
+            _LOGGER.debug(f"Incoming charging session detected at {incoming_charge_time}")
 
         elif call_type == CallType.Outgoing:
             if self._exiting == False:
