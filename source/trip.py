@@ -38,11 +38,13 @@ class Trip:
             self._trip_log = {
                 'time': int(time.time()),
             }
-            set_state(Hash.HvbEnergyGained, 0)
-            set_state(Hash.HvbEnergyLost, 0)
-            set_state(Hash.HiresSpeedMax, 0)
-            set_state(Hash.ExtTemperatureSum, 0)
-            set_state(Hash.ExtTemperatureCount, 0)
+            delete_did_cache(Hash.HvbEnergyGained)
+            delete_did_cache(Hash.HvbEnergyLost)
+            delete_did_cache(Hash.HiresSpeedMax)
+            delete_did_cache(Hash.ExtTemperatureSum)
+            delete_did_cache(Hash.ExtTemperatureCount)
+            delete_did_cache(Hash.GpsElevationMax)
+            delete_did_cache(Hash.GpsElevationMin)
             delete_did_cache(Hash.ExteriorTemperature)
 
         elif call_type == CallType.Outgoing:
