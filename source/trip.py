@@ -170,6 +170,7 @@ class Trip:
                         Hash.TR_LatitudeStart, Hash.TR_LatitudeEnd, Hash.TR_LongitudeStart, Hash.TR_LongitudeEnd, Hash.TR_ElevationStart, Hash.TR_ElevationEnd,
                         Hash.TR_MaxElevation, Hash.TR_MinElevation, Hash.TR_ElevationChange,
                         Hash.TR_SocDStart, Hash.TR_SocDEnd, Hash.TR_EtEStart, Hash.TR_EtEEnd,
+                        Hash.HvbPowerMax, Hash.HvbPowerMin,
                         Hash.TR_EnergyGained, Hash.TR_EnergyLost, Hash.TR_EnergyUsed, Hash.TR_EnergyEfficiency,
                         Hash.TR_MaxSpeed, Hash.TR_AverageSpeed,
                         Hash.TR_ExteriorStart, Hash.TR_ExteriorEnd, Hash.TR_ExteriorAverage,
