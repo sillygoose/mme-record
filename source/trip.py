@@ -124,6 +124,8 @@ class Trip:
             ending_ete = set_state(Hash.TR_EtEEnd, get_state_value(Hash.HvbEtE))
             energy_gained = set_state(Hash.TR_EnergyGained, int(get_state_value(Hash.HvbEnergyGained)))
             energy_lost = set_state(Hash.TR_EnergyLost, int(get_state_value(Hash.HvbEnergyLost)))
+            hvb_power_min = set_state(Hash.TR_HvbPowerMin, get_state_value(Hash.HvbPowerMin))
+            hvb_power_max = set_state(Hash.TR_HvbPowerMax, get_state_value(Hash.HvbPowerMax))
 
             trip_distance = set_state(Hash.TR_Distance, odometer_km(ending_odometer - starting_odometer))
             startingLocation = set_state(Hash.TR_LocationStarting, reverse_geocode(starting_latitude, starting_longitude))
@@ -152,7 +154,7 @@ class Trip:
             _LOGGER.info(f"        ending elevation {ending_elevation} m, elevation change {elevation_change} m")
             _LOGGER.info(f"        minimum elevation: {min_elevation} m, maximum elevation: {max_elevation} m")
             _LOGGER.info(f"        ending SoC: {ending_socd:.01f}%, ending EtE: {ending_ete} Wh, ΔEtE: {wh_used} Wh, calculated ΔEtE: {int(calculated_wh_used)} Wh")
-            _LOGGER.info(f"        maximum power: {get_state_value(Hash.HvbPowerMax)} W, minimum power seen: {get_state_value(Hash.HvbPowerMin)} W")
+            _LOGGER.info(f"        maximum power: {hvb_power_max} W, minimum power seen: {hvb_power_min} W")
             _LOGGER.info(f"        energy gained: {energy_gained} Wh, energy lost: {energy_lost} Wh")
             _LOGGER.info(f"        energy efficiency: {efficiency_km_kwh:.02f} km/kWh ({efficiency_miles_kwh:.02f} mi/kWh)")
             _LOGGER.info(f"        maximum speed: {max_speed:.01f} kph ({speed_mph(max_speed):.01f} mph)")
@@ -170,7 +172,7 @@ class Trip:
                         Hash.TR_LatitudeStart, Hash.TR_LatitudeEnd, Hash.TR_LongitudeStart, Hash.TR_LongitudeEnd, Hash.TR_ElevationStart, Hash.TR_ElevationEnd,
                         Hash.TR_MaxElevation, Hash.TR_MinElevation, Hash.TR_ElevationChange,
                         Hash.TR_SocDStart, Hash.TR_SocDEnd, Hash.TR_EtEStart, Hash.TR_EtEEnd,
-                        Hash.HvbPowerMax, Hash.HvbPowerMin,
+                        Hash.TR_HvbPowerMin, Hash.TR_HvbPowerMax,
                         Hash.TR_EnergyGained, Hash.TR_EnergyLost, Hash.TR_EnergyUsed, Hash.TR_EnergyEfficiency,
                         Hash.TR_MaxSpeed, Hash.TR_AverageSpeed,
                         Hash.TR_ExteriorStart, Hash.TR_ExteriorEnd, Hash.TR_ExteriorAverage,

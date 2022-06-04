@@ -122,6 +122,8 @@ class Hash(Enum):
 
     TR_MaxElevation             = 'FFFF:9001:tr_elevation_max:int'
     TR_MinElevation             = 'FFFF:9001:tr_elevation_min:int'
+    TR_HvbPowerMin              = 'FFFF:9001:tr_hvb_power_min:int'
+    TR_HvbPowerMax              = 'FFFF:9001:tr_hvb_power_max:int'
     TR_EnergyUsed               = 'FFFF:9001:tr_wh_used:int'
     TR_EnergyGained             = 'FFFF:9001:tr_wh_gained:int'
     TR_EnergyLost               = 'FFFF:9001:tr_wh_lost:int'
