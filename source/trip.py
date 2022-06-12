@@ -43,6 +43,8 @@ class Trip:
             delete_state(Hash.GpsElevationMax, True)
             delete_state(Hash.GpsElevationMin, True)
             delete_state(Hash.HiresSpeedMax, True)
+            delete_state(Hash.HvbPowerMax, True)
+            delete_state(Hash.HvbPowerMin, True)
             delete_state(Hash.ExtTemperatureSum, True)
             delete_state(Hash.ExtTemperatureCount, True)
             delete_state(Hash.ExteriorTemperature, True)
