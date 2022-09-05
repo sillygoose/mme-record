@@ -206,6 +206,86 @@
         ]
     },
     {
+        "did_id": 18434,
+        "did_id_hex": "4802",
+        "enable": true,
+        "did_name": "HvbContactorStatus",
+        "modules": [
+            "BECM"
+        ],
+        "packing": "L",
+        "states": [
+            {
+                "name": "hvb_contactor_status",
+                "initial_value": 0
+            }
+        ]
+    },
+    {
+        "did_id": 18435,
+        "did_id_hex": "4803",
+        "enable": true,
+        "did_name": "HvbPositiveContactorLeakVoltage",
+        "modules": [
+            "BECM"
+        ],
+        "packing": "H",
+        "states": [
+            {
+                "name": "hvb_positive_contactor_leak_voltage",
+                "initial_value": 0
+            }
+        ]
+    },
+    {
+        "did_id": 18436,
+        "did_id_hex": "4804",
+        "enable": true,
+        "did_name": "HvbNegativeContactorLeakVoltage",
+        "modules": [
+            "BECM"
+        ],
+        "packing": "H",
+        "states": [
+            {
+                "name": "hvb_negative_contactor_leak_voltage",
+                "initial_value": 0
+            }
+        ]
+    },
+    {
+        "did_id": 18437,
+        "did_id_hex": "4805",
+        "enable": true,
+        "did_name": "HvbPositiveContactorVoltage",
+        "modules": [
+            "BECM"
+        ],
+        "packing": "H",
+        "states": [
+            {
+                "name": "hvb_positive_contactor_voltage",
+                "initial_value": 0
+            }
+        ]
+    },
+    {
+        "did_id": 18438,
+        "did_id_hex": "4806",
+        "enable": true,
+        "did_name": "HvbNegativeContactorVoltage",
+        "modules": [
+            "BECM"
+        ],
+        "packing": "H",
+        "states": [
+            {
+                "name": "hvb_negative_contactor_voltage",
+                "initial_value": 0
+            }
+        ]
+    },
+    {
         "did_id": 18445,
         "did_id_hex": "480D",
         "enable": true,
@@ -221,6 +301,70 @@
         "states": [
             {
                 "name": "hvb_voltage",
+                "initial_value": 0
+            }
+        ]
+    },
+    {
+        "did_id": 18449,
+        "did_id_hex": "4811",
+        "enable": true,
+        "did_name": "HvbContactorPositiveBusLeakResistance",
+        "modules": [
+            "BECM"
+        ],
+        "packing": "H",
+        "states": [
+            {
+                "name": "hvb_contactor_positive_bus_leak_resistance",
+                "initial_value": 0
+            }
+        ]
+    },
+    {
+        "did_id": 18450,
+        "did_id_hex": "4812",
+        "enable": true,
+        "did_name": "HvbContactorNegativeBusLeakResistance",
+        "modules": [
+            "BECM"
+        ],
+        "packing": "H",
+        "states": [
+            {
+                "name": "hvb_contactor_negative_bus_leak_resistance",
+                "initial_value": 0
+            }
+        ]
+    },
+    {
+        "did_id": 18451,
+        "did_id_hex": "4813",
+        "enable": true,
+        "did_name": "HvbContactorOverallLeakResistance",
+        "modules": [
+            "BECM"
+        ],
+        "packing": "H",
+        "states": [
+            {
+                "name": "hvb_contactor_overall_leak_resistance",
+                "initial_value": 0
+            }
+        ]
+    },
+    {
+        "did_id": 18452,
+        "did_id_hex": "4814",
+        "enable": true,
+        "did_name": "HvbContactorOpenLeakResistance",
+        "modules": [
+            "BECM"
+        ],
+        "packing": "H",
+        "states": [
+            {
+                "name": "hvb_contactor_open_leak_resistance",
                 "initial_value": 0
             }
         ]

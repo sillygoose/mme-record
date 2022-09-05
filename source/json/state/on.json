@@ -98,6 +98,12 @@
                 "did_id": 18681,
                 "did_id_hex": "48F9",
                 "codec_id": 18681
+            },
+            {
+                "did_name": "HvbContactorLeakResistance",
+                "did_id": 18452,
+                "did_id_hex": "4814",
+                "codec_id": 18452
             }
         ]
     },

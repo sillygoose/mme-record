@@ -33,7 +33,7 @@ class RecordStateManager(StateManager):
         sync_queue = Queue()
         self._request_thread = Thread(target=self._request_task, args=(sync_queue,), name='state_request')
         self._response_thread = Thread(target=self._response_task, args=(sync_queue,), name='state_response')
-        initialize_did_cache()
+        initialize_did_cache(config.record)
         self._file_manager = RecordFileManager(config.record)
         influxdb_connect(config.influxdb2)
 
@@ -158,6 +158,8 @@ class RecordStateManager(StateManager):
                                         _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: {decoded_payload.get('decoded')} (default value)")
                                     influxdb_state_data = self.update_vehicle_state(state_details)
                                     influxdb_write_record(influxdb_state_data)
+                                else:
+                                    pass
                         continue
 
                     for did_id in response.service_data.values:

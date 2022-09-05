@@ -624,56 +624,155 @@ class CodecLvbDcDcLVCurrent(Codec):
         return 1
 
 
+class CodecHvbContactorStatus(Codec):
+    def decode(self, payload):
+        contactor_status = struct.unpack_from('>L', payload, offset=0)[0]
+        states = [{'hvb_contactor_status': contactor_status}]
+        return {'payload': payload, 'states': states, 'decoded': f"Contactor status ({contactor_status:08X}"}
+
+    def __len__(self):
+        return 4
+
+
+class CodecHvbPositiveContactorLeakVoltage(Codec):
+    def decode(self, payload):
+        leak_voltage = float(struct.unpack('>H', payload)[0])
+        states = [{'hvb_positive_contactor_leak_voltage': leak_voltage}]
+        return {'payload': payload, 'states': states, 'decoded': f"Positive Contactor Leak Voltage ({leak_voltage:04X}): hvb_positive_contactor_leak_voltage={leak_voltage}"}
+
+    def __len__(self):
+        return 2
+
+
+class CodecHvbNegativeContactorLeakVoltage(Codec):
+    def decode(self, payload):
+        leak_voltage = float(struct.unpack('>H', payload)[0])
+        states = [{'hvb_negative_contactor_leak_voltage': leak_voltage}]
+        return {'payload': payload, 'states': states, 'decoded': f"Negative Contactor Leak Voltage ({leak_voltage:04X}): hvb_negative_contactor_leak_voltage={leak_voltage}"}
+
+    def __len__(self):
+        return 2
+
+
+class CodecHvbPositiveContactorVoltage(Codec):
+    def decode(self, payload):
+        voltage = float(struct.unpack('>H', payload)[0])
+        states = [{'hvb_positive_contactor_voltage': voltage}]
+        return {'payload': payload, 'states': states, 'decoded': f"Positive Contactor Voltage ({voltage:04X}): hvb_positive_contactor_voltage={voltage}"}
+
+    def __len__(self):
+        return 2
+
+
+class CodecHvbNegativeContactorVoltage(Codec):
+    def decode(self, payload):
+        voltage = float(struct.unpack('>H', payload)[0])
+        states = [{'hvb_negative_contactor_voltage': voltage}]
+        return {'payload': payload, 'states': states, 'decoded': f"Negative Contactor Voltage ({voltage:04X}): hvb_negative_contactor_voltage={voltage}"}
+
+    def __len__(self):
+        return 2
+
+
+class CodecHvbContactorPositiveBusLeakResistance(Codec):
+    def decode(self, payload):
+        leak_resistance = float(struct.unpack('>H', payload)[0])
+        states = [{'hvb_contactor_positive_bus_leak_resistance': leak_resistance}]
+        return {'payload': payload, 'states': states, 'decoded': f"Contactor Bus+ Leak Resistance ({leak_resistance:04X}): hvb_contactor_positive_bus_leak_resistance={leak_resistance}"}
+
+    def __len__(self):
+        return 2
+
+
+class CodecHvbContactorNegativeBusLeakResistance(Codec):
+    def decode(self, payload):
+        leak_resistance = float(struct.unpack('>H', payload)[0])
+        states = [{'hvb_contactor_negative_bus_leak_resistance': leak_resistance}]
+        return {'payload': payload, 'states': states, 'decoded': f"Contactor Bus- Leak Resistance ({leak_resistance:04X}): hvb_contactor_negative_bus_leak_resistance={leak_resistance}"}
+
+    def __len__(self):
+        return 2
+
+
+class CodecHvbContactorOverallLeakResistance(Codec):
+    def decode(self, payload):
+        leak_resistance = float(struct.unpack('>H', payload)[0])
+        states = [{'hvb_contactor_overall_leak_resistance': leak_resistance}]
+        return {'payload': payload, 'states': states, 'decoded': f"Contactor OveralLeak Resistance ({leak_resistance:04X}): hvb_contactor_overall_resistance={leak_resistance}"}
+
+    def __len__(self):
+        return 2
+
+
+class CodecHvbContactorOpenLeakResistance(Codec):
+    def decode(self, payload):
+        leak_resistance = float(struct.unpack('>H', payload)[0])
+        states = [{'hvb_contactor_open_leak_resistance': leak_resistance}]
+        return {'payload': payload, 'states': states, 'decoded': f"Contactor Open Leak Resistance ({leak_resistance:04X}): hvb_contactor_open_resistance={leak_resistance}"}
+
+    def __len__(self):
+        return 2
+
+
 class CodecManager:
 
     _codec_lookup = {
-        DidId.Null:                           CodecNull,
-        DidId.KeyState:                       CodecKeyState,
-        DidId.InferredKey:                    CodecInferredKey,
-        DidId.GearDisplayed:                  CodecGearDisplayed,
-        DidId.GearCommanded:                  CodecGearCommanded,
-        DidId.ChargePlug:                     CodecChargePlug,
-        DidId.LoresOdometer:                  CodecLoresOdometer,
-        DidId.HiresOdometer:                  CodecHiresOdometer,
-        DidId.HiresSpeed:                     CodecHiresSpeed,
-        DidId.EngineStart:                    CodecEngineStart,
-        DidId.ExteriorTemp:                   CodecExteriorTemp,
-        DidId.InteriorTemp:                   CodecInteriorTemp,
-        DidId.Time:                           CodecTime,
-        DidId.Gps:                            CodecGPS,
-        DidId.HvbSoc:                         CodecHvbSoc,
-        DidId.HvbSocD:                        CodecHvbSocD,
-        DidId.HvbEtE:                         CodecHvbEtE,
-        DidId.HvbSoH:                         CodecHvbSoH,
-        DidId.HvbTemp:                        CodecHvbTemp,
-        DidId.HvbVoltage:                     CodecHvbVoltage,
-        DidId.HvbCurrent:                     CodecHvbCurrent,
-        DidId.HvbCHP:                         CodecHvbCHP,
-        DidId.HvbCHOp:                        CodecHvbCHOp,
-        DidId.ChargingStatus:                 CodecChargingStatus,
-        DidId.EvseType:                       CodecEvseType,
-        DidId.EvseDigitalMode:                CodecEvseDigitalMode,
-        DidId.ChargerStatus:                  CodecChargerStatus,
-        DidId.ChargerInputVoltage:            CodecChargerInputVoltage,
-        DidId.ChargerInputCurrent:            CodecChargerInputCurrent,
-        DidId.ChargerInputFrequency:          CodecChargerInputFrequency,
-        DidId.ChargerPilotVoltage:            CodecChargerPilotVoltage,
-        DidId.ChargerPilotDutyCycle:          CodecChargerPilotDutyCycle,
-        DidId.ChargerInputPowerAvailable:     CodecChargerInputPowerAvailable,
-        DidId.ChargerMaxPower:                CodecChargerMaxPower,
-        DidId.ChargerOutputVoltage:           CodecChargerOutputVoltage,
-        DidId.ChargerOutputCurrent:           CodecChargerOutputCurrent,
-        DidId.ChargePowerLimit:               CodecChargerPowerLimit,
-        DidId.HvbChargeCurrentRequested:      CodecHvbChargeCurrentRequested,
-        DidId.HvbChargeVoltageRequested:      CodecHvbChargeVoltageRequested,
-        DidId.HvbMaximumChargeCurrent:        CodecHvbMaxChargeCurrent,
-        DidId.LvbSoc:                         CodecLvbSoc,
-        DidId.LvbVoltage:                     CodecLvbVoltage,
-        DidId.LvbCurrent:                     CodecLvbCurrent,
-        DidId.LvbDcDcEnable:                  CodecLvbDcDcEnable,
-        DidId.LvbDcDcHVCurrent:               CodecLvbDcDcHVCurrent,
-        DidId.LvbDcDcLVCurrent:               CodecLvbDcDcLVCurrent,
-        DidId.EngineRunTime:                  CodecEngineRunTime,
+        DidId.Null:                             CodecNull,
+        DidId.KeyState:                         CodecKeyState,
+        DidId.InferredKey:                      CodecInferredKey,
+        DidId.GearDisplayed:                    CodecGearDisplayed,
+        DidId.GearCommanded:                    CodecGearCommanded,
+        DidId.ChargePlug:                       CodecChargePlug,
+        DidId.LoresOdometer:                    CodecLoresOdometer,
+        DidId.HiresOdometer:                    CodecHiresOdometer,
+        DidId.HiresSpeed:                       CodecHiresSpeed,
+        DidId.EngineStart:                      CodecEngineStart,
+        DidId.ExteriorTemp:                     CodecExteriorTemp,
+        DidId.InteriorTemp:                     CodecInteriorTemp,
+        DidId.Time:                             CodecTime,
+        DidId.Gps:                              CodecGPS,
+        DidId.HvbSoc:                           CodecHvbSoc,
+        DidId.HvbSocD:                          CodecHvbSocD,
+        DidId.HvbEtE:                           CodecHvbEtE,
+        DidId.HvbSoH:                           CodecHvbSoH,
+        DidId.HvbTemp:                          CodecHvbTemp,
+        DidId.HvbVoltage:                       CodecHvbVoltage,
+        DidId.HvbCurrent:                       CodecHvbCurrent,
+        DidId.HvbCHP:                           CodecHvbCHP,
+        DidId.HvbCHOp:                          CodecHvbCHOp,
+        DidId.HvbContactorStatus:                       CodecHvbContactorStatus,
+        DidId.HvbPositiveContactorLeakVoltage:          CodecHvbPositiveContactorLeakVoltage,
+        DidId.HvbNegativeContactorLeakVoltage:          CodecHvbNegativeContactorLeakVoltage,
+        DidId.HvbPositiveContactorVoltage:              CodecHvbPositiveContactorVoltage,
+        DidId.HvbNegativeContactorVoltage:              CodecHvbNegativeContactorVoltage,
+        DidId.HvbContactorPositiveBusLeakResistance:    CodecHvbContactorPositiveBusLeakResistance,
+        DidId.HvbContactorNegativeBusLeakResistance:    CodecHvbContactorNegativeBusLeakResistance,
+        DidId.HvbContactorOverallLeakResistance:        CodecHvbContactorOverallLeakResistance,
+        DidId.HvbContactorOpenLeakResistance:           CodecHvbContactorOpenLeakResistance,
+        DidId.ChargingStatus:                   CodecChargingStatus,
+        DidId.EvseType:                         CodecEvseType,
+        DidId.EvseDigitalMode:                  CodecEvseDigitalMode,
+        DidId.ChargerStatus:                    CodecChargerStatus,
+        DidId.ChargerInputVoltage:              CodecChargerInputVoltage,
+        DidId.ChargerInputCurrent:              CodecChargerInputCurrent,
+        DidId.ChargerInputFrequency:            CodecChargerInputFrequency,
+        DidId.ChargerPilotVoltage:              CodecChargerPilotVoltage,
+        DidId.ChargerPilotDutyCycle:            CodecChargerPilotDutyCycle,
+        DidId.ChargerInputPowerAvailable:       CodecChargerInputPowerAvailable,
+        DidId.ChargerMaxPower:                  CodecChargerMaxPower,
+        DidId.ChargerOutputVoltage:             CodecChargerOutputVoltage,
+        DidId.ChargerOutputCurrent:             CodecChargerOutputCurrent,
+        DidId.ChargePowerLimit:                 CodecChargerPowerLimit,
+        DidId.HvbChargeCurrentRequested:        CodecHvbChargeCurrentRequested,
+        DidId.HvbChargeVoltageRequested:        CodecHvbChargeVoltageRequested,
+        DidId.HvbMaximumChargeCurrent:          CodecHvbMaxChargeCurrent,
+        DidId.LvbSoc:                           CodecLvbSoc,
+        DidId.LvbVoltage:                       CodecLvbVoltage,
+        DidId.LvbCurrent:                       CodecLvbCurrent,
+        DidId.LvbDcDcEnable:                    CodecLvbDcDcEnable,
+        DidId.LvbDcDcHVCurrent:                 CodecLvbDcDcHVCurrent,
+        DidId.LvbDcDcLVCurrent:                 CodecLvbDcDcLVCurrent,
+        DidId.EngineRunTime:                    CodecEngineRunTime,
     }
 
     _gps_server_enabled = False

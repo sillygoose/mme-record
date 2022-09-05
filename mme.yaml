@@ -32,6 +32,7 @@ mme:
         request_timeout:                    1.0
         p2_timeout:                         1.0
         p2_star_timeout:                    1.0
+        caching:                            false
 
     playback:
         # You can control the playback options here:
@@ -43,7 +44,7 @@ mme:
         # rx_flowcontrol_timeout:           triggers a timeout if a flow control is not received (default: 1.0)
         speedup:                            false
         source_path:                        'playback-files'
-        source_file:                        'charge_2022-04-04_10_08' # 'trimmed' # 'charge-20220308' # 'trip-20220221' #
+        source_file:                        'charge_2022-09-03_20_41' # 'trimmed' # 'charge-20220308' # 'trip-20220221' #
         rx_consecutive_frame_timeout:       1.0
         rx_flowcontrol_timeout:             1.0
 

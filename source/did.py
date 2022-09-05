@@ -14,7 +14,16 @@ class DidId(Enum):
     EngineStart = 0x41B9
     HvbTemp = 0x4800
     HvbSoc = 0x4801
+    HvbContactorStatus = 0x4802 # A1 0B 84 00
+    HvbPositiveContactorLeakVoltage = 0x4803 # 03 09
+    HvbNegativeContactorLeakVoltage = 0x4804 # 08 95
+    HvbPositiveContactorVoltage = 0x4805 # 88 52
+    HvbNegativeContactorVoltage = 0x4806# 00 57
     HvbVoltage = 0x480D
+    HvbContactorPositiveBusLeakResistance = 0x4811 # FF FF
+    HvbContactorNegativeBusLeakResistance = 0x4812 # FF FF
+    HvbContactorOverallLeakResistance = 0x4813 # CD EA
+    HvbContactorOpenLeakResistance = 0x4814 # FF FF
     LvbDcDcLVCurrent = 0x4836
     LvbDcDcHVCurrent = 0x483A
     LvbDcDcEnable = 0x483D

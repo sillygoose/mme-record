@@ -252,6 +252,7 @@ def check_config(config):
                     {'vin': {'required': False, 'keys': [], 'type': str}},
                 ]}},
                 {'record': {'required': True, 'keys': [
+                    {'caching': {'required': False, 'keys': [], 'type': bool}},
                     {'dest_path': {'required': True, 'keys': [], 'type': str}},
                     {'dest_file': {'required': True, 'keys': [], 'type': str}},
                     {'gps_server': {'required': False, 'keys': [], 'type': str}},

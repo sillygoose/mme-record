@@ -45,6 +45,16 @@ class Hash(Enum):
     HvbChargeCurrentRequested   = '07E4:4842:hvb_charge_current_requested:float'
     HvbMaxChargeCurrent         = '07E4:48BC:hvb_max_charge_current:float'
 
+    HvbContactorStatus                      = '07E4:4802:hvb_contactor_status:int'
+    HvbPositiveContactorLeakVoltage         = '07E4:4803:hvb_positive_contactor_leak_voltage:float'
+    HvbNegativeContactorLeakVoltage         = '07E4:4804:hvb_negative_contactor_leak_voltage:float'
+    HvbPositiveContactorVoltage             = '07E4:4805:hvb_positive_contactor_voltage:float'
+    HvbNegativeContactorVoltage             = '07E4:4806:hvb_negative_contactor_voltage:float'
+    HvbContactorPositiveBusLeakResistance   = '07E4:4811:hvb_contactor_positive_bus_leak_resistance:float'
+    HvbContactorNegativeBusLeakResistance   = '07E4:4812:hvb_contactor_negative_bus_leak_resistance:float'
+    HvbContactorOverallLeakResistance       = '07E4:4813:hvb_contactor_overall_leak_resistance:float'
+    HvbContactorOpenLeakResistance          = '07E4:4814:hvb_contactor_open_leak_resistance:float'
+
     LvbVoltage                  = '0726:402A:lvb_voltage:float'
     LvbCurrent                  = '0726:402B:lvb_current:float'
     LvbPower                    = 'FFFF:8001:lvb_power:int'
