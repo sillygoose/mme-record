@@ -178,8 +178,8 @@ class RecordStateManager(StateManager):
                         new_data_point = get_did_cache(key) is None or get_did_cache(key) != payload
                         if new_data_point or self._caching == False:
                             set_did_cache(key, payload)
-                            self._file_manager.write_record(state_details)
                             if new_data_point:
+                                self._file_manager.write_record(state_details)
                                 _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: {response_packet.get('decoded')}")
                             decoded_state_details = {'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did_id, 'did_id_hex': f"{did_id:04X}", 'payload': response_packet}
                             influxdb_state_data = self.update_vehicle_state(decoded_state_details)
