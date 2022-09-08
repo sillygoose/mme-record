@@ -4,6 +4,69 @@
         "arbitration_id": 2020,
         "arbitration_id_hex": "07E4",
         "enable": true,
+        "period": 10,
+        "dids": [
+            {
+                "did_name": "HvbConStat",
+                "did_id": 18434,
+                "did_id_hex": "4802",
+                "codec_id": 18434
+            },
+            {
+                "did_name": "HvbPosConLeakVolt",
+                "did_id": 18435,
+                "did_id_hex": "4803",
+                "codec_id": 18435
+            },
+            {
+                "did_name": "HvbNegConLeakVolt",
+                "did_id": 18436,
+                "did_id_hex": "4804",
+                "codec_id": 18436
+            },
+            {
+                "did_name": "HvbPosConVolt",
+                "did_id": 18437,
+                "did_id_hex": "4805",
+                "codec_id": 18437
+            },
+            {
+                "did_name": "HvbNegConVolt",
+                "did_id": 18438,
+                "did_id_hex": "4806",
+                "codec_id": 18438
+            },
+            {
+                "did_name": "HvbConPosBusLeakResistance",
+                "did_id": 18449,
+                "did_id_hex": "4811",
+                "codec_id": 18449
+            },
+            {
+                "did_name": "HvbConNegBusLeakResistance",
+                "did_id": 18450,
+                "did_id_hex": "4812",
+                "codec_id": 18450
+            },
+            {
+                "did_name": "HvbConOverallLeakResistance",
+                "did_id": 18451,
+                "did_id_hex": "4813",
+                "codec_id": 18451
+            },
+            {
+                "did_name": "HvbConOpenLeakResistance",
+                "did_id": 18452,
+                "did_id_hex": "4814",
+                "codec_id": 18452
+            }
+        ]
+    },
+    {
+        "module": "BECM",
+        "arbitration_id": 2020,
+        "arbitration_id_hex": "07E4",
+        "enable": true,
         "period": 1,
         "dids": [
             {

@@ -628,7 +628,7 @@ class CodecHvbContactorStatus(Codec):
     def decode(self, payload):
         contactor_status = struct.unpack_from('>L', payload, offset=0)[0]
         states = [{'hvb_contactor_status': contactor_status}]
-        return {'payload': payload, 'states': states, 'decoded': f"Contactor status ({contactor_status:08X}"}
+        return {'payload': payload, 'states': states, 'decoded': f"Contactor status: {contactor_status:08X}"}
 
     def __len__(self):
         return 4
@@ -636,9 +636,10 @@ class CodecHvbContactorStatus(Codec):
 
 class CodecHvbPositiveContactorLeakVoltage(Codec):
     def decode(self, payload):
-        leak_voltage = float(struct.unpack('>H', payload)[0])
+        raw_data = struct.unpack('>H', payload)[0]
+        leak_voltage = float(raw_data) * 0.001
         states = [{'hvb_positive_contactor_leak_voltage': leak_voltage}]
-        return {'payload': payload, 'states': states, 'decoded': f"Positive Contactor Leak Voltage ({leak_voltage:04X}): hvb_positive_contactor_leak_voltage={leak_voltage}"}
+        return {'payload': payload, 'states': states, 'decoded': f"Positive Contactor Leak Voltage: {leak_voltage:.01f} V ({raw_data:04X})"}
 
     def __len__(self):
         return 2
@@ -646,9 +647,10 @@ class CodecHvbPositiveContactorLeakVoltage(Codec):
 
 class CodecHvbNegativeContactorLeakVoltage(Codec):
     def decode(self, payload):
-        leak_voltage = float(struct.unpack('>H', payload)[0])
+        raw_data = struct.unpack('>H', payload)[0]
+        leak_voltage = float(raw_data) * 0.001
         states = [{'hvb_negative_contactor_leak_voltage': leak_voltage}]
-        return {'payload': payload, 'states': states, 'decoded': f"Negative Contactor Leak Voltage ({leak_voltage:04X}): hvb_negative_contactor_leak_voltage={leak_voltage}"}
+        return {'payload': payload, 'states': states, 'decoded': f"Negative Contactor Leak Voltage: {leak_voltage:.01f} V ({raw_data:04X})"}
 
     def __len__(self):
         return 2
@@ -656,9 +658,10 @@ class CodecHvbNegativeContactorLeakVoltage(Codec):
 
 class CodecHvbPositiveContactorVoltage(Codec):
     def decode(self, payload):
-        voltage = float(struct.unpack('>H', payload)[0])
+        raw_data = struct.unpack('>H', payload)[0]
+        voltage = float(raw_data) * 0.01
         states = [{'hvb_positive_contactor_voltage': voltage}]
-        return {'payload': payload, 'states': states, 'decoded': f"Positive Contactor Voltage ({voltage:04X}): hvb_positive_contactor_voltage={voltage}"}
+        return {'payload': payload, 'states': states, 'decoded': f"Positive Contactor Voltage: {voltage:.01f} V ({raw_data:04X})"}
 
     def __len__(self):
         return 2
@@ -666,9 +669,10 @@ class CodecHvbPositiveContactorVoltage(Codec):
 
 class CodecHvbNegativeContactorVoltage(Codec):
     def decode(self, payload):
-        voltage = float(struct.unpack('>H', payload)[0])
+        raw_data = struct.unpack('>H', payload)[0]
+        voltage = float(raw_data) * 0.01
         states = [{'hvb_negative_contactor_voltage': voltage}]
-        return {'payload': payload, 'states': states, 'decoded': f"Negative Contactor Voltage ({voltage:04X}): hvb_negative_contactor_voltage={voltage}"}
+        return {'payload': payload, 'states': states, 'decoded': f"Negative Contactor Voltage: {voltage:.02f} V ({raw_data:04X})"}
 
     def __len__(self):
         return 2
@@ -676,9 +680,10 @@ class CodecHvbNegativeContactorVoltage(Codec):
 
 class CodecHvbContactorPositiveBusLeakResistance(Codec):
     def decode(self, payload):
-        leak_resistance = float(struct.unpack('>H', payload)[0])
+        raw_data = struct.unpack('>H', payload)[0]
+        leak_resistance = float(raw_data) * 25.0
         states = [{'hvb_contactor_positive_bus_leak_resistance': leak_resistance}]
-        return {'payload': payload, 'states': states, 'decoded': f"Contactor Bus+ Leak Resistance ({leak_resistance:04X}): hvb_contactor_positive_bus_leak_resistance={leak_resistance}"}
+        return {'payload': payload, 'states': states, 'decoded': f"Contactor Bus+ Leak Resistance: {leak_resistance:.0f} Ω ({raw_data:04X})"}
 
     def __len__(self):
         return 2
@@ -686,9 +691,10 @@ class CodecHvbContactorPositiveBusLeakResistance(Codec):
 
 class CodecHvbContactorNegativeBusLeakResistance(Codec):
     def decode(self, payload):
-        leak_resistance = float(struct.unpack('>H', payload)[0])
+        raw_data = struct.unpack('>H', payload)[0]
+        leak_resistance = float(raw_data) * 25.0
         states = [{'hvb_contactor_negative_bus_leak_resistance': leak_resistance}]
-        return {'payload': payload, 'states': states, 'decoded': f"Contactor Bus- Leak Resistance ({leak_resistance:04X}): hvb_contactor_negative_bus_leak_resistance={leak_resistance}"}
+        return {'payload': payload, 'states': states, 'decoded': f"Contactor Bus- Leak Resistance: {leak_resistance:.0f} Ω ({raw_data:04X})"}
 
     def __len__(self):
         return 2
@@ -696,9 +702,10 @@ class CodecHvbContactorNegativeBusLeakResistance(Codec):
 
 class CodecHvbContactorOverallLeakResistance(Codec):
     def decode(self, payload):
-        leak_resistance = float(struct.unpack('>H', payload)[0])
+        raw_data = struct.unpack('>H', payload)[0]
+        leak_resistance = float(raw_data) * 25.0
         states = [{'hvb_contactor_overall_leak_resistance': leak_resistance}]
-        return {'payload': payload, 'states': states, 'decoded': f"Contactor OveralLeak Resistance ({leak_resistance:04X}): hvb_contactor_overall_resistance={leak_resistance}"}
+        return {'payload': payload, 'states': states, 'decoded': f"Contactor Overall Leak Resistance: {leak_resistance:.0f} Ω ({raw_data:04X})"}
 
     def __len__(self):
         return 2
@@ -706,9 +713,10 @@ class CodecHvbContactorOverallLeakResistance(Codec):
 
 class CodecHvbContactorOpenLeakResistance(Codec):
     def decode(self, payload):
-        leak_resistance = float(struct.unpack('>H', payload)[0])
+        raw_data = struct.unpack('>H', payload)[0]
+        leak_resistance = float(raw_data) * 25.0
         states = [{'hvb_contactor_open_leak_resistance': leak_resistance}]
-        return {'payload': payload, 'states': states, 'decoded': f"Contactor Open Leak Resistance ({leak_resistance:04X}): hvb_contactor_open_resistance={leak_resistance}"}
+        return {'payload': payload, 'states': states, 'decoded': f"Contactor Open Leak Resistance: {leak_resistance:.0f} Ω ({raw_data:04X})"}
 
     def __len__(self):
         return 2

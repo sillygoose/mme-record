@@ -321,6 +321,8 @@ def parse_yaml_file(yaml_file: str = None) -> None:
             raise FailedInitialization(f"Configuration file error: unable to find the YAML configuration file '{yaml_file}'")
 
         global SECRET_YAML
+
+        _LOGGER.info(f"Using '{yaml_path}' for the configuration file")
         index = yaml_file.find('.')
         SECRET_YAML = yaml_file[:index] + '_secrets' + yaml_file[index:]
         yaml.FullLoader.add_constructor('!secret', secret_yaml)

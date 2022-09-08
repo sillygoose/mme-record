@@ -16,6 +16,7 @@ mme:
         # file_writes:                      number of records collected before writing an output file, set to 0 to disable file writes (default: 200)
         # did_read:                         specify the number of DID per request (default is 1)
         # born_on:                          timestamp added to DID 0xDD00 to get current GMT time (not used at this time)
+        # caching:                          enables or disables caching of data
         # request_timeout:                  max time in seconds to wait for a response of any kind, positive or negative, after sending a request (default: 1.0)
         # p2_timeout:                       max time in seconds to wait for a first response (positive, negative, or NRC 0x78) (default: 1.0)
         # p2_star_timeout:                  max time in seconds to wait for a response (positive, negative, or NRC0x78) after the reception of

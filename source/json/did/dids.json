@@ -217,7 +217,7 @@
         "states": [
             {
                 "name": "hvb_contactor_status",
-                "initial_value": 0
+                "initial_value": 2701886464
             }
         ]
     },
@@ -249,7 +249,7 @@
         "states": [
             {
                 "name": "hvb_negative_contactor_leak_voltage",
-                "initial_value": 0
+                "initial_value": 100
             }
         ]
     },
@@ -281,7 +281,7 @@
         "states": [
             {
                 "name": "hvb_negative_contactor_voltage",
-                "initial_value": 0
+                "initial_value": 100
             }
         ]
     },

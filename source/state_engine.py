@@ -7,8 +7,6 @@ from hash import Hash, get_hash_fields
 from did import EngineStartRemote, EngineStartNormal, EngineStartDisable, ChargePlugConnected
 from did import KeyState, ChargingStatus, EvseType, GearCommanded, InferredKey
 
-from config.configuration import Configuration
-
 
 _LOGGER = logging.getLogger('mme')
 
@@ -17,17 +15,12 @@ class StateEngine:
 
     _state = {}
     _did_cache = {}
-    _caching = True
 
-def initialize_did_cache(config: Configuration) -> None:
-    config_record = dict(config)
-    StateEngine._caching = config_record.get('caching', True)
+def initialize_did_cache() -> None:
     StateEngine._did_cache = {}
 
 def get_did_cache(key: str) -> Any:
-    if StateEngine._caching:
-        return StateEngine._did_cache.get(key, None)
-    return None
+    return StateEngine._did_cache.get(key, None)
 
 def set_did_cache(key: str, value: Any) -> None:
     StateEngine._did_cache[key] = value

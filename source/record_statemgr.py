@@ -33,8 +33,11 @@ class RecordStateManager(StateManager):
         sync_queue = Queue()
         self._request_thread = Thread(target=self._request_task, args=(sync_queue,), name='state_request')
         self._response_thread = Thread(target=self._response_task, args=(sync_queue,), name='state_response')
-        initialize_did_cache(config.record)
+        initialize_did_cache()
         self._file_manager = RecordFileManager(config.record)
+        config_record = dict(config.record)
+        self._caching = config_record.get('caching', True)
+        _LOGGER.debug(f"Database caching is {'enabled' if self._caching else 'disabled'}")
         influxdb_connect(config.influxdb2)
 
     def start(self) -> List[Thread]:
@@ -147,7 +150,8 @@ class RecordStateManager(StateManager):
                                 for _ in range(packing_length):
                                     payload.append(default_value)
                                 state_details = {'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did_id, 'did_id_hex': f"{did_id:04X}", 'payload': payload}
-                                if get_did_cache(key) is None or get_did_cache(key) != payload:
+                                new_data_point = get_did_cache(key) is None or get_did_cache(key) != payload
+                                if new_data_point or self._caching == False:
                                     set_did_cache(key, payload)
                                     self._file_manager.write_record(state_details)
                                     if codec := self._codec_manager.codec(did_id):
@@ -159,7 +163,7 @@ class RecordStateManager(StateManager):
                                     influxdb_state_data = self.update_vehicle_state(state_details)
                                     influxdb_write_record(influxdb_state_data)
                                 else:
-                                    pass
+                                    _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: {decoded_payload.get('decoded')} (default value)")
                         continue
 
                     for did_id in response.service_data.values:
@@ -171,10 +175,12 @@ class RecordStateManager(StateManager):
                         current_time = time()
                         payload = response_packet.get('payload', None)
                         state_details = {'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did_id, 'did_id_hex': f"{did_id:04X}", 'payload': list(payload)}
-                        if get_did_cache(key) is None or get_did_cache(key) != payload:
+                        new_data_point = get_did_cache(key) is None or get_did_cache(key) != payload
+                        if new_data_point or self._caching == False:
                             set_did_cache(key, payload)
                             self._file_manager.write_record(state_details)
-                            _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: {response_packet.get('decoded')}")
+                            if new_data_point:
+                                _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: {response_packet.get('decoded')}")
                             decoded_state_details = {'time': current_time, 'arbitration_id': arbitration_id, 'arbitration_id_hex': f"{arbitration_id:04X}", 'did_id': did_id, 'did_id_hex': f"{did_id:04X}", 'payload': response_packet}
                             influxdb_state_data = self.update_vehicle_state(decoded_state_details)
                             influxdb_write_record(influxdb_state_data)
