@@ -225,14 +225,14 @@
         "did_id": 18435,
         "did_id_hex": "4803",
         "enable": true,
-        "did_name": "HvbPositiveContactorLeakVoltage",
+        "did_name": "HvbContactorPositiveLeakVoltage",
         "modules": [
             "BECM"
         ],
         "packing": "H",
         "states": [
             {
-                "name": "hvb_positive_contactor_leak_voltage",
+                "name": "hvb_contactor_positive_leak_voltage",
                 "initial_value": 0
             }
         ]
@@ -241,14 +241,14 @@
         "did_id": 18436,
         "did_id_hex": "4804",
         "enable": true,
-        "did_name": "HvbNegativeContactorLeakVoltage",
+        "did_name": "HvbContactorNegativeLeakVoltage",
         "modules": [
             "BECM"
         ],
         "packing": "H",
         "states": [
             {
-                "name": "hvb_negative_contactor_leak_voltage",
+                "name": "hvb_contactor_negative_leak_voltage",
                 "initial_value": 100
             }
         ]
@@ -257,14 +257,14 @@
         "did_id": 18437,
         "did_id_hex": "4805",
         "enable": true,
-        "did_name": "HvbPositiveContactorVoltage",
+        "did_name": "HvbContactorPositiveVoltage",
         "modules": [
             "BECM"
         ],
         "packing": "H",
         "states": [
             {
-                "name": "hvb_positive_contactor_voltage",
+                "name": "hvb_contactor_positive_voltage",
                 "initial_value": 0
             }
         ]
@@ -273,14 +273,14 @@
         "did_id": 18438,
         "did_id_hex": "4806",
         "enable": true,
-        "did_name": "HvbNegativeContactorVoltage",
+        "did_name": "HvbContactorNegativeVoltage",
         "modules": [
             "BECM"
         ],
         "packing": "H",
         "states": [
             {
-                "name": "hvb_negative_contactor_voltage",
+                "name": "hvb_contactor_negative_voltage",
                 "initial_value": 100
             }
         ]
