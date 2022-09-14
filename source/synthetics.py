@@ -162,7 +162,7 @@ def update_synthetics(hash: Hash) -> List[dict]:
                 wh_end = get_state_value(Hash.HvbEtE, 0)
                 set_state(Hash.WhPerKilometerStart, wh_end)
 
-                if wh_start >= 0:
+                if wh_start >= 0 and delta_odometer > 0:
                     delta_wh = wh_end - wh_start
                     wh_per_kilometer = int(delta_wh / delta_odometer)
                     set_state(Hash.WhPerKilometer, wh_per_kilometer)

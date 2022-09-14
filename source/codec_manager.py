@@ -2,7 +2,8 @@ import logging
 import struct
 
 import requests
-from requests.exceptions import ConnectionError, ConnectTimeout, ReadTimeout, HTTPError, InvalidURL, InvalidSchema
+from requests.exceptions import ConnectionError, ConnectTimeout, ReadTimeout, HTTPError, InvalidURL
+from requests.exceptions import InvalidSchema, MissingSchema
 
 from udsoncan import DidCodec
 
@@ -130,7 +131,7 @@ class CodecGPS(Codec):
         gps_elevation, gps_latitude, gps_longitude, gps_fix, gps_speed, gps_bearing = struct.unpack('>hllBHH', payload)
 
         if gps_fix == 255:
-            # saved hires GPS data
+            # saved hires GPS data vi playback
             gps_elevation, gps_latitude, gps_longitude, gps_fix, gps_speed, gps_bearing = struct.unpack('>hffBHH', payload)
             gps_speed *= 3.6
             states = [
@@ -212,6 +213,10 @@ class CodecGPS(Codec):
                     return None
                 except Exception as e:
                     _LOGGER.exception(f"Unexpected GPS exception: {e}")
+            else:
+                if self != 'pb':
+                    CodecManager._gps_server_enabled = connect_gps_server()
+
 
         return {'payload': payload, 'states': states, 'decoded': gps_data}
 
@@ -804,12 +809,12 @@ class CodecManager:
 
 def connect_gps_server() -> bool:
     CodecManager._gps_server_enabled = False
-    for _ in range(3):
+    for _ in range(1):
         try:
             _ = requests.get(CodecManager._gps_server, timeout=CodecManager._gps_server_timeout)
             CodecManager._gps_server_enabled = True
             break
-        except (ReadTimeout, HTTPError, InvalidURL, InvalidSchema, ConnectTimeout, ConnectionError) as e:
+        except (ReadTimeout, HTTPError, InvalidURL, InvalidSchema, ConnectTimeout, ConnectionError, MissingSchema) as e:
             continue
         except Exception as e:
             _LOGGER.exception(f"Unexpected exception testing for GPS server '{CodecManager._gps_server}': {e}")

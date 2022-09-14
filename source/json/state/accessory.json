@@ -154,5 +154,20 @@
                 "codec_id": 18504
             }
         ]
+    },
+    {
+        "module": "APIM",
+        "arbitration_id": 2000,
+        "arbitration_id_hex": "07D0",
+        "enable": true,
+        "period": 10,
+        "dids": [
+            {
+                "did_name": "GPS",
+                "did_id": 32786,
+                "did_id_hex": "8012",
+                "codec_id": 32786
+            }
+        ]
     }
 ]
