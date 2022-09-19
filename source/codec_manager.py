@@ -809,7 +809,7 @@ class CodecManager:
 
 def connect_gps_server() -> bool:
     CodecManager._gps_server_enabled = False
-    for _ in range(1):
+    for _ in range(3):
         try:
             _ = requests.get(CodecManager._gps_server, timeout=CodecManager._gps_server_timeout)
             CodecManager._gps_server_enabled = True
