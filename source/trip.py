@@ -53,7 +53,7 @@ class Trip:
             for hash in Trip._requiredHashes:
                 assert get_state_value(hash, None) is not None, f"{hash.name}"
             odometer = get_state_value(Hash.HiresOdometer)
-            _LOGGER.info(f"Starting new trip, odometer: {odometer_km(odometer):.01f} km ({odometer_miles(odometer):.01f} mi)")
+            _LOGGER.info(f"Starting new trip in {get_state_value(Hash.VehicleID)}, odometer: {odometer_km(odometer):.01f} km ({odometer_miles(odometer):.01f} mi)")
 
         elif call_type == CallType.Default:
             for hash in Trip._requiredHashes:
@@ -100,7 +100,6 @@ class Trip:
 
         elif call_type == CallType.Outgoing:
             trip = self._trip_log
-            vehicle = set_state(Hash.Vehicle, self._vehicle_name)
             starting_time = set_state(Hash.TR_TimeStart, trip.get('time'))
             ending_time = set_state(Hash.TR_TimeEnd, int(time.time()))
             starting_datetime = datetime.datetime.fromtimestamp(starting_time).strftime('%Y-%m-%d %H:%M')
@@ -143,7 +142,7 @@ class Trip:
             efficiency_miles_kwh = efficiency_km_kwh * 0.6213712
             average_temperature = set_state(Hash.TR_ExteriorAverage, int(get_state_value(Hash.ExtTemperatureSum) / get_state_value(Hash.ExtTemperatureCount)))
 
-            _LOGGER.info(f"Trip in '{vehicle}' started at {starting_datetime} and lasted for {hours} hours, {minutes} minutes, {seconds} seconds")
+            _LOGGER.info(f"Trip in {get_state_value(Hash.VehicleID)} started at {starting_datetime} and lasted for {hours} hours, {minutes} minutes, {seconds} seconds")
             _LOGGER.info(f"        starting odometer: {odometer_km(starting_odometer):.01f} km ({odometer_miles(starting_odometer):.01f} mi)")
             _LOGGER.info(f"        starting point: {startingLocation}")
             _LOGGER.info(f"        starting elevation: {starting_elevation} m")

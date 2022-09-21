@@ -81,6 +81,14 @@ def get_InferredKey(state: str) -> InferredKey:
             _LOGGER.debug(f"While in '{state}', 'InferredKey' had an unexpected value: {inferred_key}")
         return None
 
+def get_VIN(state: str) -> str:
+    try:
+        return get_state_value(Hash.VehicleID)
+    except ValueError:
+        if vin := get_state_value(Hash.VehicleID):
+            _LOGGER.debug(f"While in '{state}', 'VehicleID' had an unexpected value: {vin}")
+        return None
+
 def get_ChargingStatus(state: str) -> ChargingStatus:
     try:
         return ChargingStatus(get_state_value(Hash.ChargingStatus))

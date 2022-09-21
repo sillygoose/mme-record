@@ -9,7 +9,9 @@ _LOGGER = logging.getLogger('mme')
 
 @unique
 class Hash(Enum):
+    VehicleID                   = '0726:F190:vin:str'
     Vehicle                     = 'FFFF:9002:vehicle:str'
+
     KeyState                    = '0716:411F:key_state:int'
     InferredKey                 = '0726:417D:inferred_key:int'
     EvseType                    = '07E4:4851:evse_type:int'
@@ -175,7 +177,7 @@ def get_hash(hash: str) -> Hash:
                     hash_str = hash + ':bool'
                     return Hash(hash_str)
                 except ValueError:
-                    _LOGGER.error(f"Hash error: no hash defined for hash string '{hash_str}'")
+                    _LOGGER.error(f"Hash error: no hash defined for hash string '{hash}'")
                     return None
 
 

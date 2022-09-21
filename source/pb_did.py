@@ -40,6 +40,8 @@ class PlaybackDID:
                 packing_format = '>L'
             elif self._packing[index] == 't':
                 packing_format = '>l'
+            elif self._packing[index] == '1': ###
+                packing_format = self._packing
             else:
                 packing_format = '>' + self._packing[index]
             postfix = struct.pack(packing_format, state)

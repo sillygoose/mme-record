@@ -48,7 +48,10 @@ class Charging:
             if self._exiting == False:
                 for state in Charging._requiredHashes:
                     assert get_state_value(state, None) is not None, f"{state.name}"
-                _LOGGER.info(f"Starting charging session, HVB SoC: {get_state_value(Hash.HvbSoCD)}%, HVB temp: {get_state_value(Hash.HvbTemp)}°C")
+                vehicleID = get_state_value(Hash.VehicleID)
+                hvbSoCD = get_state_value(Hash.HvbSoCD)
+                hvbTemp = get_state_value(Hash.HvbTemp)
+                _LOGGER.info(f"Starting charging session in {vehicleID}, HVB SoC: {hvbSoCD}%, HVB temp: {hvbTemp}°C")
             else:
                 self._charging_session = None
                 self._exiting = False
@@ -73,7 +76,7 @@ class Charging:
                 if (hash_value := get_state_value(hash, None)) is None:
                     arbitration_id, did_id, _ = get_hash_fields(hash)
                     _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: Waiting for required DID: '{hash.name}'")
-                    return new_state
+                    return VehicleState.Unchanged
                 self._charging_session[hash] = hash_value
 
             if charging_status := get_ChargingStatus('charging_starting'):
@@ -131,7 +134,6 @@ class Charging:
 
         elif call_type == CallType.Outgoing:
             session = self._charging_session
-            vehicle = set_state(Hash.Vehicle, self._vehicle_name)
             charger_type = set_state(Hash.CS_ChargerType, session.get('type'))
             starting_time = set_state(Hash.CS_TimeStart, session.get('time'))
             ending_time = set_state(Hash.CS_TimeEnd, int(time.time()))
@@ -162,7 +164,7 @@ class Charging:
             hours, rem = divmod(ending_time - starting_time, 3600)
             minutes, _ = divmod(rem, 60)
 
-            _LOGGER.info(f"'{vehicle}' charging session results:")
+            _LOGGER.info(f"{get_state_value(Hash.VehicleID)} charging session results:")
             _LOGGER.info(f"    {charger_type} charging session started at {session_datetime} for {hours} hours, {minutes} minutes")
             _LOGGER.info(f"    odometer: {odometer_km(odometer):.01f} km ({odometer_miles(odometer):.01f} mi)")
             _LOGGER.info(f"    location: {chargeLocation}")

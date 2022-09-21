@@ -962,6 +962,25 @@
         ]
     },
     {
+        "did_id": 61840,
+        "did_id_hex": "F190",
+        "enable": true,
+        "did_name": "VehicleID",
+        "modules": [
+            "BCM",
+            "GWM",
+            "SOBDMB",
+            "SOBDMC"
+        ],
+        "packing": "17s",
+        "states": [
+            {
+                "name": "vin",
+                "initial_value": ""
+            }
+        ]
+    },
+    {
         "did_id": 62495,
         "did_id_hex": "F41F",
         "enable": true,

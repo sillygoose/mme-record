@@ -19,7 +19,7 @@ from vehicle_state import CallType, VehicleState
 from exceptions import RuntimeError
 
 from state_transition import StateTransistion
-from state_engine import set_state
+from state_engine import set_state, get_state_value
 
 
 _LOGGER = logging.getLogger('mme')
@@ -49,7 +49,8 @@ class StateManager(StateTransistion):
 
     def __init__(self, config: Configuration) -> None:
         super().__init__()
-        self._vehicle_name = config.vehicle.name
+        ###self._vehicle_name = config.vehicle.name
+        ###self._vehicle_hash = hash(config.vehicle.vin)
         self._state = None
         self._state_function = self.dummy
         self._putback_enabled = False
@@ -120,9 +121,9 @@ class StateManager(StateTransistion):
         self._state_function(call_type = CallType.Outgoing)
 
         if self._state is None:
-            _LOGGER.info(f"'{self._vehicle_name}' state set to '{new_state.name}'")
+            _LOGGER.info(f"Initial state set to '{new_state.name}'")
         else:
-            _LOGGER.info(f"'{self._vehicle_name}' state changed from '{self._state.name}' to '{new_state.name}'")
+            _LOGGER.info(f"{get_state_value(Hash.VehicleID)} state changed from '{self._state.name}' to '{new_state.name}'")
 
         self._state = new_state
         self._state_time = time.time()

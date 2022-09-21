@@ -55,6 +55,17 @@ class CodecInferredKey(Codec):
         return 1
 
 
+class CodecVehicleID(Codec):
+    def decode(self, payload):
+        bytes_vin = struct.unpack('17s', payload)[0]
+        vin = bytes_vin.decode("utf-8")
+        states = [{'vin': vin}]
+        return {'payload': payload, 'states': states, 'decoded': f"VIN: {vin}"}
+
+    def __len__(self):
+        return 17
+
+
 class CodecEngineRunTime(Codec):
     def decode(self, payload):
         engine_runtime = struct.unpack('>H', payload)[0]
@@ -785,6 +796,7 @@ class CodecManager:
         DidId.LvbDcDcEnable:                    CodecLvbDcDcEnable,
         DidId.LvbDcDcHVCurrent:                 CodecLvbDcDcHVCurrent,
         DidId.LvbDcDcLVCurrent:                 CodecLvbDcDcLVCurrent,
+        DidId.VehicleID:                        CodecVehicleID,
         DidId.EngineRunTime:                    CodecEngineRunTime,
     }
 

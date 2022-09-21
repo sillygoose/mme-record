@@ -247,10 +247,6 @@ def check_config(config):
     required_keys = [
         {
             'mme': {'required': True, 'keys': [
-                {'vehicle': {'required': True, 'keys': [
-                    {'name': {'required': True, 'keys': [], 'type': str}},
-                    {'vin': {'required': False, 'keys': [], 'type': str}},
-                ]}},
                 {'record': {'required': True, 'keys': [
                     {'caching': {'required': False, 'keys': [], 'type': bool}},
                     {'dest_path': {'required': True, 'keys': [], 'type': str}},

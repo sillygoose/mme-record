@@ -1,7 +1,9 @@
 import logging
+from hashlib import sha256
 
-from state_engine import get_InferredKey, get_ChargePlugConnected, get_GearCommanded, get_ChargingStatus, get_KeyState
+from state_engine import get_InferredKey, get_ChargePlugConnected, get_GearCommanded, get_ChargingStatus, get_KeyState, get_VIN
 from state_engine import get_EngineStartRemote, get_EngineStartDisable, get_EngineStartNormal
+from state_engine import get_state_value, set_state
 
 from did import InferredKey, ChargePlugConnected, GearCommanded, ChargingStatus, KeyState
 from did import EngineStartRemote, EngineStartNormal, EngineStartDisable
@@ -25,9 +27,19 @@ class StateTransistion(Charging, Trip):
     def dummy(self, call_type: CallType) -> None:
         _ = call_type
 
+    _requiredUnknownHashes = [
+            Hash.VehicleID
+        ]
+
     def unknown(self, call_type: CallType) -> VehicleState:
         new_state = VehicleState.Unchanged
-        if call_type == CallType.Default:
+        if call_type == CallType.Incoming:
+            pass
+
+        elif call_type == CallType.Outgoing:
+            pass
+
+        elif call_type == CallType.Default:
             if inferred_key := get_InferredKey('unknown'):
                 if inferred_key == InferredKey.KeyOut:
                     if engine_start_remote := get_EngineStartRemote('unknown'):
@@ -35,6 +47,25 @@ class StateTransistion(Charging, Trip):
                 if inferred_key == InferredKey.KeyIn:
                     if engine_start_disable := get_EngineStartDisable('unknown'):
                         new_state = VehicleState.On if engine_start_disable == EngineStartDisable.No else VehicleState.Accessory
+
+            for unknownHash in StateTransistion._requiredUnknownHashes:
+                if (hash_value := get_state_value(unknownHash, None)) is None:
+                    arbitration_id, did_id, _ = get_hash_fields(unknownHash)
+                    _LOGGER.debug(f"{arbitration_id:04X}/{did_id:04X}: Waiting for required DID: '{unknownHash.name}'")
+                    return VehicleState.Unchanged
+
+            if vin := get_VIN('unknown'):
+                set_state(Hash.Vehicle, sha256(vin.encode('utf-8')).hexdigest())
+                set_state(Hash.VehicleID, vin)
+###                self._unknownHashes[hash] = hash_value
+
+###            if vin := get_VIN('unknown'):
+###                vin_hash = hash(vin)
+###                set_state(Hash.VehicleHash, vin_hash)
+###                print(f"{vin}: {hex(vin_hash)}")
+###            else:
+###                new_state = VehicleState.Unchanged
+
         return new_state
 
     def idle(self, call_type: CallType) -> VehicleState:

@@ -4,6 +4,21 @@
         "arbitration_id": 1830,
         "arbitration_id_hex": "0726",
         "enable": true,
+        "period": 2,
+        "dids": [
+            {
+                "did_name": "VehicleID",
+                "did_id": 61840,
+                "did_id_hex": "F190",
+                "codec_id": 61840
+            }
+        ]
+    },
+    {
+        "module": "BCM",
+        "arbitration_id": 1830,
+        "arbitration_id_hex": "0726",
+        "enable": true,
         "period": 1,
         "dids": [
             {

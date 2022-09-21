@@ -136,11 +136,8 @@ def influxdb_trip(tags: List[Hash], fields: List[Hash], trip_start: Hash) -> Non
     ts_start = get_state_value(trip_start)
     line_protocol = f"trip"
     for _, hash in enumerate(tags):
-        tag_name, tag_type = get_db_fields(hash)
-        if tag_type == 'str':
-            line_protocol += ',' + tag_name + '=' + f'"{get_state_value(hash)}"'
-        else:
-            _LOGGER.warning(f"Only string types allowed as tag values: {field_name}")
+        tag_name, _ = get_db_fields(hash)
+        line_protocol += ',' + tag_name + '=' + f'{get_state_value(hash)}'
     line_protocol += ' '
 
     for index, hash in enumerate(fields):
@@ -162,11 +159,8 @@ def influxdb_charging(tags: List[Hash], fields: List[Hash], charge_start: Hash) 
     ts_start = get_state_value(charge_start)
     line_protocol = f"charging"
     for _, hash in enumerate(tags):
-        tag_name, tag_type = get_db_fields(hash)
-        if tag_type == 'str':
-            line_protocol += ',' + tag_name + '=' + f'"{get_state_value(hash)}"'
-        else:
-            _LOGGER.warning(f"Only string types allowed as tag values: {field_name}")
+        tag_name, _ = get_db_fields(hash)
+        line_protocol += ',' + tag_name + '=' + f'{get_state_value(hash)}'
     line_protocol += ' '
 
     for index, hash in enumerate(fields):
@@ -187,12 +181,16 @@ def influxdb_charging(tags: List[Hash], fields: List[Hash], charge_start: Hash) 
 def influxdb_write_record(data_points: List[dict], flush=False) -> None:
     lp_points = []
     ts = int(time())
+    vehicle = get_state_value(Hash.Vehicle)
+    if vehicle is None:
+        return
+    tag_name, _ = get_db_fields(Hash.Vehicle)
     for data_point in data_points:
         arb_id = data_point.get('arbitration_id')
         did_id = data_point.get('did_id')
         did_name = data_point.get('name')
         value = data_point.get('value')
-        line_protocol = f"dids,arb_id={arb_id:04X},did_id={did_id:04X} {did_name}="
+        line_protocol = f"dids,{tag_name}={vehicle} {did_name}="
         if hash := get_hash(f"{arb_id:04X}:{did_id:04X}:{did_name}"):
             _, field_type = get_db_fields(hash)
             if field_type == 'str':

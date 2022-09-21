@@ -4,7 +4,7 @@
 from pathlib import Path
 from setuptools import setup
 
-VERSION = "0.9.9.7"
+VERSION = "8"
 URL = "https://github.com/sillygoose/mme-record.git"
 
 setup(

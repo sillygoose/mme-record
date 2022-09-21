@@ -57,8 +57,8 @@ class DidId(Enum):
     LoresOdometer = 0xDD01
     InteriorTemp = 0xDD04
     ExteriorTemp = 0xDD05
+    VehicleID = 0xF190
     EngineRunTime = 0xF41F
-
 
 @unique
 class KeyState(Enum):

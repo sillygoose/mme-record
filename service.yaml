@@ -1,10 +1,6 @@
 # YAML configuraton file for the Mustang Mach-E CANbus Record/Playback utilities
 # This version is used by the Record/Playback utilities runing as a system service
 mme:
-    vehicle:
-        name:   'Greta'
-        vin:    '12345678901234567'
-
     record:
         # You can control the record options here.
         #
