@@ -26,6 +26,7 @@ Both utilities can be configured via a YAML configuration file.  Definitions for
 
 <a id='whats-new'></a>
 ## What's new
+- Added VIN as database tag for multiple vehcile support
 - InfluxDB support (now with backing cache if internet connection is lost)
 - YAML secrets supported
 - switched to venv for Python3.10 support
