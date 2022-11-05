@@ -58,12 +58,12 @@ mme:
         org:                                !secret influxdb2_org
         url:                                !secret influxdb2_url
         token:                              !secret influxdb2_token
-        bucket:                             ev-data
+        bucket:                             !secret influxdb2_bucket
         block_size:                         100
 
     geocodio:
         # Geocodio configuration options:
         #   enable                          set to True to enable Geocod.io reverse geocoding
         #   api_key                         your Geocodio API key
-        enable:                             true
+        enable:                             false
         api_key:                            !secret geocodio_apikey

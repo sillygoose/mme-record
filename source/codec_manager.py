@@ -194,7 +194,7 @@ class CodecGPS(Codec):
                     phone_gps = gps_response.json()
                     gps_latitude = round(float(phone_gps.get('latitude')), 6)
                     gps_longitude = round(float(phone_gps.get('longitude')), 6)
-                    gps_elevation = int(phone_gps.get('altitude'))
+                    gps_elevation = round(float(phone_gps.get('altitude')), 1)
 
                     jps_speed = phone_gps.get('speed')
                     if jps_speed >= 0.0:
@@ -216,7 +216,7 @@ class CodecGPS(Codec):
                     if gps_bearing >= 0.0:
                         states.append({'gps_bearing': gps_bearing})
 
-                    gps_data = f"GPS: ({gps_latitude:3.6f}, {gps_longitude:3.6f}), elevation: {gps_elevation} m, bearing: {gps_bearing}°, speed: {gps_speed:.01f} kph, elapsed: {gps_elapsed:.03f}"
+                    gps_data = f"GPS: ({gps_latitude:3.6f}, {gps_longitude:3.6f}), elevation: {gps_elevation:.1f} m, bearing: {gps_bearing}°, speed: {gps_speed:.01f} kph, elapsed: {gps_elapsed:.03f}"
                     payload = struct.pack('>hffBHH', int(gps_elevation), float(gps_latitude), float(gps_longitude), 255, int(gps_speed / 3.6), int(gps_bearing))
                     return {'payload': payload, 'states': states, 'decoded': gps_data}
                 except (ReadTimeout, HTTPError, InvalidURL, InvalidSchema, ConnectTimeout, ConnectionError) as e:

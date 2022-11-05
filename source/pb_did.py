@@ -40,10 +40,15 @@ class PlaybackDID:
                 packing_format = '>L'
             elif self._packing[index] == 't':
                 packing_format = '>l'
-            elif self._packing[index] == '1': ###
+            elif self._packing[index] == '1':
+                ###
                 packing_format = self._packing
+                if type(state) != bytes:
+                    state = bytes(state, 'utf-8')
+                ###
             else:
                 packing_format = '>' + self._packing[index]
+
             postfix = struct.pack(packing_format, state)
             if self._packing[index] == 'T' or self._packing[index] == 't':
                 # Pack as uint then remove high order byte to get A:B:C

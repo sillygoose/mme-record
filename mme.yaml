@@ -39,9 +39,9 @@ mme:
         # source_file:                      source file name for the playback files
         # rx_consecutive_frame_timeout:     triggers a timeout if a consecutive frame is not received (default: 1.0)
         # rx_flowcontrol_timeout:           triggers a timeout if a flow control is not received (default: 1.0)
-        speedup:                            false
-        source_path:                        'playback-files'
-        source_file:                        charge_2022-09-19_15_13 # 'trip_2022-06-04_11_52' # 'charge_2022-09-03_20_41'
+        speedup:                            true
+        source_path:                        'record-files'
+        source_file:                        'trip_2022-11-04_11_36' # charge_2022-09-19_15_13 # 'charge_2022-09-03_20_41'
         rx_consecutive_frame_timeout:       1.0
         rx_flowcontrol_timeout:             1.0
 
@@ -56,7 +56,7 @@ mme:
         enable:                             true
         org:                                !secret influxdb2_org
         url:                                !secret influxdb2_url
-        bucket:                             'ev-data' # !secret influxdb2_bucket
+        bucket:                             !secret influxdb2_bucket
         token:                              !secret influxdb2_token
         block_size:                         200
 
@@ -64,5 +64,5 @@ mme:
         # Geocodio configuration options:
         #   enable                          set to True to enable Geocod.io reverse geocoding
         #   api_key                         your Geocodio API key
-        enable:                             true
+        enable:                             false
         api_key:                            !secret geocodio_apikey

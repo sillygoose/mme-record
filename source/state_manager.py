@@ -3,6 +3,7 @@ State definitions
 """
 
 import logging
+from operator import truediv
 from threading import Lock
 from queue import PriorityQueue
 import json
@@ -153,6 +154,19 @@ class StateManager(StateTransistion):
     def _get_state_function(self, state) -> List[str]:
         return StateManager._state_file_lookup.get(state).get('state_function')
 
+    def _saved_hash(self, hash) -> bool:
+        saved_hashes = [
+            Hash.HiresSpeed,
+            Hash.HiresOdometer,
+            Hash.GpsLatitude,
+            Hash.GpsLongitude,
+            Hash.GpsElevation,
+        ]
+        if self._state == VehicleState.Trip:
+            if hash in saved_hashes:
+                return True
+        return False
+
     def update_vehicle_state(self, state_change: dict) -> List[dict]:
         state_data = []
         if state_change.get('type', None) is None:
@@ -164,9 +178,9 @@ class StateManager(StateTransistion):
                     for state_name, state_value in state.items():
                         if hash := get_hash(f"{arbitration_id:04X}:{did_id:04X}:{state_name}"):
                             set_state(hash, state_value)
-                            state_data.append({'arbitration_id': arbitration_id, 'did_id': did_id, 'name': state_name, 'value': state_value})
-                            if synthetics := update_synthetics(hash):
-                                state_data += synthetics
+                            update_synthetics(hash)
+                            if self._saved_hash(hash):
+                                state_data.append({'arbitration_id': arbitration_id, 'did_id': did_id, 'name': state_name, 'value': state_value})
             return state_data
 
     def _update_state_machine(self) -> None:
