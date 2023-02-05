@@ -129,8 +129,6 @@ class Trip:
             hvb_power_max = set_state(Hash.TR_HvbPowerMax, get_state_value(Hash.HvbPowerMax))
 
             trip_distance = set_state(Hash.TR_Distance, odometer_km(ending_odometer - starting_odometer))
-            startingLocation = set_state(Hash.TR_LocationStarting, reverse_geocode(starting_latitude, starting_longitude))
-            endingLocation = set_state(Hash.TR_LocationEnding, reverse_geocode(ending_latitude, ending_longitude))
             elevation_change = set_state(Hash.TR_ElevationChange, get_state_value(Hash.GpsElevation) - trip.get(Hash.GpsElevation))
             max_elevation = set_state(Hash.TR_MaxElevation, get_state_value(Hash.GpsElevationMax))
             min_elevation = set_state(Hash.TR_MinElevation, get_state_value(Hash.GpsElevationMin))
@@ -144,13 +142,11 @@ class Trip:
 
             _LOGGER.info(f"Trip in {get_state_value(Hash.VehicleID)} started at {starting_datetime} and lasted for {hours} hours, {minutes} minutes, {seconds} seconds")
             _LOGGER.info(f"        starting odometer: {odometer_km(starting_odometer):.01f} km ({odometer_miles(starting_odometer):.01f} mi)")
-            _LOGGER.info(f"        starting point: {startingLocation}")
             _LOGGER.info(f"        starting elevation: {starting_elevation} m")
             _LOGGER.info(f"        starting SoC: {starting_socd:.01f}%, starting EtE: {starting_ete} Wh")
             _LOGGER.info(f"        starting temperature: {starting_temperature}°C")
             _LOGGER.info(f"ending at {ending_datetime}")
             _LOGGER.info(f"        ending odometer: {odometer_km(ending_odometer):.1f} km ({odometer_miles(ending_odometer):.1f} mi)")
-            _LOGGER.info(f"        ending point: {endingLocation}")
             _LOGGER.info(f"        distance covered: {odometer_km(trip_distance):.1f} km ({odometer_miles(trip_distance):.1f} mi)")
             _LOGGER.info(f"        ending elevation {ending_elevation:.0f} m, elevation change {elevation_change:.0f} m")
             _LOGGER.info(f"        minimum elevation: {min_elevation:.1f} m, maximum elevation: {max_elevation:.1f} m")
@@ -168,7 +164,6 @@ class Trip:
                 tags = [Hash.Vehicle]
                 fields = [
                         Hash.TR_TimeStart, Hash.TR_TimeEnd,
-                        Hash.TR_LocationStarting, Hash.TR_LocationEnding,
                         Hash.TR_OdometerStart, Hash.TR_OdometerEnd, Hash.TR_Distance,
                         Hash.TR_LatitudeStart, Hash.TR_LatitudeEnd, Hash.TR_LongitudeStart, Hash.TR_LongitudeEnd, Hash.TR_ElevationStart, Hash.TR_ElevationEnd,
                         Hash.TR_MaxElevation, Hash.TR_MinElevation, Hash.TR_ElevationChange,

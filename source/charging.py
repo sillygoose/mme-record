@@ -141,7 +141,6 @@ class Charging:
             odometer = set_state(Hash.CS_Odometer, get_state_value(Hash.LoresOdometer))
             latitude = set_state(Hash.CS_Latitude, get_state_value(Hash.GpsLatitude))
             longitude = set_state(Hash.CS_Longitude, get_state_value(Hash.GpsLongitude))
-            chargeLocation = set_state(Hash.CS_ChargeLocation, reverse_geocode(latitude=latitude, longitude=longitude))
             max_input_power = set_state(Hash.CS_MaxInputPower, get_state_value(Hash.ChargerInputPowerMax))
 
             hvb_soh = set_state(Hash.CS_HvbSoH, session.get(Hash.HvbSoH))
@@ -167,7 +166,6 @@ class Charging:
             _LOGGER.info(f"{get_state_value(Hash.VehicleID)} charging session results:")
             _LOGGER.info(f"    {charger_type} charging session started at {session_datetime} for {hours} hours, {minutes} minutes")
             _LOGGER.info(f"    odometer: {odometer_km(odometer):.01f} km ({odometer_miles(odometer):.01f} mi)")
-            _LOGGER.info(f"    location: {chargeLocation}")
             _LOGGER.info(f"    starting HvB temperature: {hvb_starting_temp}°C, ending HvB temperature: {hvb_ending_temp}°C")
             _LOGGER.info(f"    starting HVB SoC: {hvb_starting_soc:.01f}%, ending SoC: {hvb_ending_soc:.01f}%")
             _LOGGER.info(f"    starting HVB EtE: {hvb_starting_ete} Wh, ending EtE: {hvb_ending_ete} Wh")
@@ -183,7 +181,7 @@ class Charging:
                 tags = [Hash.Vehicle]
                 fields = [
                         Hash.CS_TimeStart, Hash.CS_TimeEnd,
-                        Hash.CS_Latitude, Hash.CS_Longitude, Hash.CS_ChargeLocation, Hash.CS_Odometer,
+                        Hash.CS_Latitude, Hash.CS_Longitude, Hash.CS_Odometer,
                         Hash.CS_HvbTempStart, Hash.CS_HvbTempEnd,
                         Hash.CS_HvbSoCStart, Hash.CS_HvbSoCEnd, Hash.CS_HvbEtEStart, Hash.CS_HvbEteEnd,
                         Hash.CS_HvbWhAdded, Hash.CS_HvbSoH,
