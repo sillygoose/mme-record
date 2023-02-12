@@ -124,7 +124,7 @@
         "states": [
             {
                 "name": "key_state",
-                "initial_value": 1
+                "initial_value": 5
             }
         ]
     },

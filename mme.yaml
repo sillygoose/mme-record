@@ -23,7 +23,7 @@ mme:
         gps_server_timeout:                 0.35
         trip_minimum:                       0.1
         charge_minimum:                     180
-        file_writes:                        500
+        file_writes:                        100
         did_read:                           1
         born_on:                            1623167753
         request_timeout:                    1.0
@@ -41,7 +41,7 @@ mme:
         # rx_flowcontrol_timeout:           triggers a timeout if a flow control is not received (default: 1.0)
         speedup:                            true
         source_path:                        'record-files'
-        source_file:                        'charge_2023-02-04_17_57' # 'trip_2022-11-04_11_36' # charge_2022-09-19_15_13 # 'charge_2022-09-03_20_41'
+        source_file:                        'trip_2023-02-12_15_53' # 'charge_2023-02-04_17_57' # 'trip_2023-02-07_14_18' # charge_2022-09-19_15_13 # 'charge_2022-09-03_20_41'
         rx_consecutive_frame_timeout:       1.0
         rx_flowcontrol_timeout:             1.0
 

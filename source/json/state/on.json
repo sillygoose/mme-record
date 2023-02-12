@@ -30,6 +30,21 @@
         ]
     },
     {
+        "module": "GWM",
+        "arbitration_id": 1814,
+        "arbitration_id_hex": "0716",
+        "enable": true,
+        "period": 5,
+        "dids": [
+            {
+                "did_name": "KeyState",
+                "did_id": 16671,
+                "did_id_hex": "411F",
+                "codec_id": 16671
+            }
+        ]
+    },
+    {
         "module": "BCM",
         "arbitration_id": 1830,
         "arbitration_id_hex": "0726",
