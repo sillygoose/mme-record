@@ -224,7 +224,7 @@ if __name__ == '__main__':
     set_state(Hash.CS_Odometer, 10000)
     set_state(Hash.CS_Latitude, 42.0)
     set_state(Hash.CS_Longitude, -76.0)
-    set_state(Hash.CS_MaxInputPower, 10000)
+    set_state(Hash.CS_MaxInputPower, 10000.0)
     set_state(Hash.CS_WhAdded, 25000)
     set_state(Hash.CS_WhUsed, 30000)
     set_state(Hash.CS_ChargingEfficiency, 0.91)

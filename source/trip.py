@@ -123,8 +123,9 @@ class Trip:
             ending_temperature = set_state(Hash.TR_ExteriorEnd, get_state_value(Hash.ExteriorTemperature))
             ending_socd = set_state(Hash.TR_SocDEnd, get_state_value(Hash.HvbSoCD))
             ending_ete = set_state(Hash.TR_EtEEnd, get_state_value(Hash.HvbEtE))
-            energy_gained = set_state(Hash.TR_EnergyGained, int(get_state_value(Hash.HvbEnergyGained)))
-            energy_lost = set_state(Hash.TR_EnergyLost, int(get_state_value(Hash.HvbEnergyLost)))
+            ending_soh = set_state(Hash.TR_SohEnd, get_state_value(Hash.HvbSoH))
+            energy_gained = set_state(Hash.TR_EnergyGained, get_state_value(Hash.HvbEnergyGained))
+            energy_lost = set_state(Hash.TR_EnergyLost, get_state_value(Hash.HvbEnergyLost))
             hvb_power_min = set_state(Hash.TR_HvbPowerMin, get_state_value(Hash.HvbPowerMin))
             hvb_power_max = set_state(Hash.TR_HvbPowerMax, get_state_value(Hash.HvbPowerMax))
 
@@ -138,7 +139,7 @@ class Trip:
             calculated_wh_used = get_state_value(Hash.HvbEnergy) - trip.get(Hash.HvbEnergy)
             efficiency_km_kwh = set_state(Hash.TR_EnergyEfficiency, 0.0 if wh_used == 0.0 else trip_distance / (wh_used * 0.001))
             efficiency_miles_kwh = efficiency_km_kwh * 0.6213712
-            average_temperature = set_state(Hash.TR_ExteriorAverage, int(get_state_value(Hash.ExtTemperatureSum) / get_state_value(Hash.ExtTemperatureCount)))
+            average_temperature = set_state(Hash.TR_ExteriorAverage, get_state_value(Hash.ExtTemperatureSum) / get_state_value(Hash.ExtTemperatureCount))
 
             _LOGGER.info(f"Trip in {get_state_value(Hash.VehicleID)} started at {starting_datetime} and lasted for {hours} hours, {minutes} minutes, {seconds} seconds")
             _LOGGER.info(f"        starting odometer: {odometer_km(starting_odometer):.01f} km ({odometer_miles(starting_odometer):.01f} mi)")
@@ -150,7 +151,7 @@ class Trip:
             _LOGGER.info(f"        distance covered: {odometer_km(trip_distance):.1f} km ({odometer_miles(trip_distance):.1f} mi)")
             _LOGGER.info(f"        ending elevation {ending_elevation:.0f} m, elevation change {elevation_change:.0f} m")
             _LOGGER.info(f"        minimum elevation: {min_elevation:.1f} m, maximum elevation: {max_elevation:.1f} m")
-            _LOGGER.info(f"        ending SoC: {ending_socd:.1f}%, ending EtE: {ending_ete} Wh, ΔEtE: {wh_used} Wh, calculated ΔEtE: {int(calculated_wh_used)} Wh")
+            _LOGGER.info(f"        ending SoC: {ending_socd:.1f}%, ending EtE: {ending_ete} Wh, ΔEtE: {wh_used} Wh, calculated ΔEtE: {calculated_wh_used} Wh")
             _LOGGER.info(f"        maximum power: {hvb_power_max} W, minimum power seen: {hvb_power_min} W")
             _LOGGER.info(f"        energy gained: {energy_gained} Wh, energy lost: {energy_lost} Wh")
             _LOGGER.info(f"        energy efficiency: {efficiency_km_kwh:.2f} km/kWh ({efficiency_miles_kwh:.2f} mi/kWh)")
@@ -167,7 +168,7 @@ class Trip:
                         Hash.TR_OdometerStart, Hash.TR_OdometerEnd, Hash.TR_Distance,
                         Hash.TR_LatitudeStart, Hash.TR_LatitudeEnd, Hash.TR_LongitudeStart, Hash.TR_LongitudeEnd, Hash.TR_ElevationStart, Hash.TR_ElevationEnd,
                         Hash.TR_MaxElevation, Hash.TR_MinElevation, Hash.TR_ElevationChange,
-                        Hash.TR_SocDStart, Hash.TR_SocDEnd, Hash.TR_EtEStart, Hash.TR_EtEEnd,
+                        Hash.TR_SocDStart, Hash.TR_SocDEnd, Hash.TR_EtEStart, Hash.TR_EtEEnd, Hash.TR_SohEnd,
                         Hash.TR_HvbPowerMin, Hash.TR_HvbPowerMax,
                         Hash.TR_EnergyGained, Hash.TR_EnergyLost, Hash.TR_EnergyUsed, Hash.TR_EnergyEfficiency,
                         Hash.TR_MaxSpeed, Hash.TR_AverageSpeed,

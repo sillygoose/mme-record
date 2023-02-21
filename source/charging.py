@@ -141,6 +141,7 @@ class Charging:
             odometer = set_state(Hash.CS_Odometer, get_state_value(Hash.LoresOdometer))
             latitude = set_state(Hash.CS_Latitude, get_state_value(Hash.GpsLatitude))
             longitude = set_state(Hash.CS_Longitude, get_state_value(Hash.GpsLongitude))
+            elevation = set_state(Hash.CS_Elevation, get_state_value(Hash.GpsElevation))
             max_input_power = set_state(Hash.CS_MaxInputPower, get_state_value(Hash.ChargerInputPowerMax))
 
             hvb_soh = set_state(Hash.CS_HvbSoH, session.get(Hash.HvbSoH))
@@ -156,8 +157,8 @@ class Charging:
             lvb_ending_soc = set_state(Hash.CS_LvbSoCEnd, get_state_value(Hash.LvbSoC))
             lvb_delta_energy = set_state(Hash.CS_LvbWhAdded, get_state_value(Hash.LvbEnergy) - session.get(Hash.LvbEnergy))
 
-            wh_added = set_state(Hash.CS_WhAdded, int(hvb_delta_energy + lvb_delta_energy))
-            wh_used = set_state(Hash.CS_WhUsed, int(get_state_value(Hash.ChargerInputEnergy) - session.get(Hash.ChargerInputEnergy, 0.0)))
+            wh_added = set_state(Hash.CS_WhAdded, hvb_delta_energy + lvb_delta_energy)
+            wh_used = set_state(Hash.CS_WhUsed, get_state_value(Hash.ChargerInputEnergy) - session.get(Hash.ChargerInputEnergy, 0.0))
             charging_efficiency = (set_state(Hash.CS_ChargingEfficiency, (wh_added / wh_used * 100.0) if wh_used > 0 else 0.0))
             session_datetime = datetime.datetime.fromtimestamp(starting_time).strftime('%Y-%m-%d %H:%M')
             hours, rem = divmod(ending_time - starting_time, 3600)
@@ -181,13 +182,11 @@ class Charging:
                 tags = [Hash.Vehicle]
                 fields = [
                         Hash.CS_TimeStart, Hash.CS_TimeEnd,
-                        Hash.CS_Latitude, Hash.CS_Longitude, Hash.CS_Odometer,
+                        Hash.CS_Latitude, Hash.CS_Longitude, Hash.CS_Elevation, Hash.CS_Odometer,
                         Hash.CS_HvbTempStart, Hash.CS_HvbTempEnd,
                         Hash.CS_HvbSoCStart, Hash.CS_HvbSoCEnd, Hash.CS_HvbEtEStart, Hash.CS_HvbEteEnd,
                         Hash.CS_HvbWhAdded, Hash.CS_HvbSoH,
-                        Hash.CS_LvbSoCStart, Hash.CS_LvbSoCEnd, Hash.CS_LvbWhAdded,
-                        Hash.CS_WhAdded, Hash.CS_WhUsed,
-                        Hash.CS_ChargingEfficiency,
+                        Hash.CS_WhAdded, Hash.CS_WhUsed, Hash.CS_ChargingEfficiency,
                         Hash.CS_MaxInputPower,
                         Hash.CS_ChargerType,
                     ]

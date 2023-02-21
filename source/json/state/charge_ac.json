@@ -111,6 +111,36 @@
         ]
     },
     {
+        "module": "SOBDMC",
+        "arbitration_id": 2022,
+        "arbitration_id_hex": "07E6",
+        "enable": true,
+        "period": 60,
+        "dids": [
+            {
+                "did_name": "ExteriorTemp",
+                "did_id": 56581,
+                "did_id_hex": "DD05",
+                "codec_id": 56581
+            }
+        ]
+    },
+    {
+        "module": "SOBDM",
+        "arbitration_id": 2018,
+        "arbitration_id_hex": "07E2",
+        "enable": true,
+        "period": 60,
+        "dids": [
+            {
+                "did_name": "InteriorTemp",
+                "did_id": 56580,
+                "did_id_hex": "DD04",
+                "codec_id": 56580
+            }
+        ]
+    },
+    {
         "module": "BECM",
         "arbitration_id": 2020,
         "arbitration_id_hex": "07E4",

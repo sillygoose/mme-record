@@ -155,15 +155,32 @@ class StateManager(StateTransistion):
         return StateManager._state_file_lookup.get(state).get('state_function')
 
     def _saved_hash(self, hash) -> bool:
-        saved_hashes = [
+        trip_saved_hashes = [
             Hash.HiresSpeed,
             Hash.HiresOdometer,
             Hash.GpsLatitude,
             Hash.GpsLongitude,
             Hash.GpsElevation,
+            Hash.HvbSoC,
+            Hash.HvbEtE,
+            Hash.HvbTemp,
+            Hash.ExteriorTemperature,
+            Hash.InteriorTemperature,
+        ]
+        ac_charge_saved_hashes = [
+            Hash.HvbVoltage,
+            Hash.HvbCurrent,
+            Hash.HvbSoC,
+            Hash.HvbEtE,
+            Hash.HvbTemp,
+            Hash.ExteriorTemperature,
+            Hash.InteriorTemperature,
         ]
         if self._state == VehicleState.Trip:
-            if hash in saved_hashes:
+            if hash in trip_saved_hashes:
+                return True
+        if self._state == VehicleState.Charge_AC:
+            if hash in ac_charge_saved_hashes:
                 return True
         return False
 
