@@ -20,6 +20,7 @@ from urllib3.exceptions import ReadTimeoutError, ConnectTimeoutError, NewConnect
 
 from state_engine import get_state_value, set_state
 from hash import *
+from did import EvseType
 
 
 _LOGGER = logging.getLogger("mme")
@@ -181,16 +182,20 @@ def influxdb_charging(tags: List[Hash], fields: List[Hash], charge_start: Hash) 
 def influxdb_write_record(data_points: List[dict], flush=False) -> None:
     lp_points = []
     ts = int(time())
+    id = get_state_value(Hash.DatabaseID)
     vehicle = get_state_value(Hash.Vehicle)
     if vehicle is None:
         return
-    tag_name, _ = get_db_fields(Hash.Vehicle)
+    if id is None:
+        return
+    id_tag_name, _ = get_db_fields(Hash.DatabaseID)
+    vtag_name, _ = get_db_fields(Hash.Vehicle)
     for data_point in data_points:
         arb_id = data_point.get('arbitration_id')
         did_id = data_point.get('did_id')
         did_name = data_point.get('name')
         value = data_point.get('value')
-        line_protocol = f"dids,{tag_name}={vehicle} {did_name}="
+        line_protocol = f"dids,{id_tag_name}={id},{vtag_name}={vehicle} {did_name}="
         if hash := get_hash(f"{arb_id:04X}:{did_id:04X}:{did_name}"):
             _, field_type = get_db_fields(hash)
             if field_type == 'str':
@@ -214,7 +219,7 @@ def influxdb_write_record(data_points: List[dict], flush=False) -> None:
 
 if __name__ == '__main__':
     set_state(Hash.Vehicle, 'Greta')
-    set_state(Hash.CS_ChargerType, 'AC')
+    set_state(Hash.CS_ChargerType, EvseType.BasAC)
     set_state(Hash.CS_TimeStart, 0)
     set_state(Hash.CS_TimeEnd, 20000)
     set_state(Hash.CS_StartSoCD, 60)

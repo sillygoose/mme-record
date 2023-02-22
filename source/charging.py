@@ -16,6 +16,8 @@ from influxdb import influxdb_charging
 from geocoding import reverse_geocode
 from logfiles import rollover
 
+from uuid6 import uuid6
+
 
 _LOGGER = logging.getLogger('mme')
 
@@ -29,7 +31,7 @@ class Charging:
     _requiredHashes = [
             Hash.HvbTemp, Hash.HvbEtE, Hash.HvbSoCD, Hash.HvbSoH,
             Hash.LvbSoC, Hash.LvbEnergy,
-            Hash.ChargerInputEnergy
+            Hash.ChargerInputEnergy, Hash.ChargerCouplerTemperature
         ]
 
     def charge_starting(self, call_type: CallType) -> VehicleState:
@@ -40,6 +42,7 @@ class Charging:
             self._charging_session = {
                 'time':incoming_charge_time,
             }
+            set_state(Hash.DatabaseID, uuid6())
             set_state(Hash.ChargerInputPowerMax, 0)
             set_state(Hash.ChargerOutputPowerMax, 0)
             _LOGGER.debug(f"Incoming charging session detected at {incoming_charge_time}")
@@ -85,8 +88,9 @@ class Charging:
                         if evse_type := get_EvseType('charging_starting'):
                             if evse_type == EvseType.BasAC:
                                 new_state = VehicleState.Charge_AC
-                                self._charging_session['type'] = 'AC'
+                                self._charging_session['type'] = evse_type
                             elif evse_type != EvseType.NoType:
+                                self._charging_session['type'] = EvseType.Unknown
                                 _LOGGER.error(f"While in '{VehicleState.Charge_Starting.name}', 'EvseType' returned an unexpected state: {evse_type}")
                 else:
                     _LOGGER.info(f"While in {VehicleState.Charge_Starting.name}, 'ChargingStatus' returned an unexpected response: {charging_status}")
@@ -134,7 +138,8 @@ class Charging:
 
         elif call_type == CallType.Outgoing:
             session = self._charging_session
-            charger_type = set_state(Hash.CS_ChargerType, session.get('type'))
+            charger_type = session.get('type')
+            set_state(Hash.CS_ChargerType, charger_type.value)
             starting_time = set_state(Hash.CS_TimeStart, session.get('time'))
             ending_time = set_state(Hash.CS_TimeEnd, int(time.time()))
 
@@ -153,13 +158,16 @@ class Charging:
             hvb_ending_ete = set_state(Hash.CS_HvbEteEnd, get_state_value(Hash.HvbEtE))
             hvb_delta_energy = set_state(Hash.CS_HvbWhAdded, hvb_ending_ete - hvb_starting_ete)
 
+            starting_cct = set_state(Hash.CS_CouplerTemperatureStart, session.get(Hash.ChargerCouplerTemperature))
+            ending_cct = set_state(Hash.CS_CouplerTemperatureEnd, get_state_value(Hash.ChargerCouplerTemperature))
+
             lvb_starting_soc = set_state(Hash.CS_LvbSoCStart, session.get(Hash.LvbSoC))
             lvb_ending_soc = set_state(Hash.CS_LvbSoCEnd, get_state_value(Hash.LvbSoC))
             lvb_delta_energy = set_state(Hash.CS_LvbWhAdded, get_state_value(Hash.LvbEnergy) - session.get(Hash.LvbEnergy))
 
             wh_added = set_state(Hash.CS_WhAdded, hvb_delta_energy + lvb_delta_energy)
             wh_used = set_state(Hash.CS_WhUsed, get_state_value(Hash.ChargerInputEnergy) - session.get(Hash.ChargerInputEnergy, 0.0))
-            charging_efficiency = (set_state(Hash.CS_ChargingEfficiency, (wh_added / wh_used * 100.0) if wh_used > 0 else 0.0))
+            charging_efficiency = (set_state(Hash.CS_ChargingEfficiency, (wh_added / wh_used) if wh_used > 0 else 0.0))
             session_datetime = datetime.datetime.fromtimestamp(starting_time).strftime('%Y-%m-%d %H:%M')
             hours, rem = divmod(ending_time - starting_time, 3600)
             minutes, _ = divmod(rem, 60)
@@ -176,19 +184,20 @@ class Charging:
             _LOGGER.info(f"    overall efficiency: {charging_efficiency:.01f}%")
             _LOGGER.info(f"    maximum input power: {max_input_power} W")
             _LOGGER.info(f"    HVB state of health: {hvb_soh}%")
+            _LOGGER.info(f"    starting CCT: {starting_cct}°C, ending CCT: {ending_cct}°C")
 
             if ending_time - starting_time >= self._minimum_charge:
                 _LOGGER.info(f"    charging session timestamps: {get_state_value(Hash.CS_TimeStart)}   {get_state_value(Hash.CS_TimeEnd)}")
-                tags = [Hash.Vehicle]
+                tags = [Hash.DatabaseID, Hash.Vehicle]
                 fields = [
-                        Hash.CS_TimeStart, Hash.CS_TimeEnd,
+                        Hash.CS_TimeStart, Hash.CS_TimeEnd, Hash.CS_ChargerType,
                         Hash.CS_Latitude, Hash.CS_Longitude, Hash.CS_Elevation, Hash.CS_Odometer,
                         Hash.CS_HvbTempStart, Hash.CS_HvbTempEnd,
                         Hash.CS_HvbSoCStart, Hash.CS_HvbSoCEnd, Hash.CS_HvbEtEStart, Hash.CS_HvbEteEnd,
+                        Hash.CS_CouplerTemperatureStart, Hash.CS_CouplerTemperatureEnd,
                         Hash.CS_HvbWhAdded, Hash.CS_HvbSoH,
                         Hash.CS_WhAdded, Hash.CS_WhUsed, Hash.CS_ChargingEfficiency,
                         Hash.CS_MaxInputPower,
-                        Hash.CS_ChargerType,
                     ]
                 influxdb_charging(tags=tags, fields=fields, charge_start=Hash.CS_TimeStart)
                 filename = 'charge_' + datetime.datetime.fromtimestamp(starting_time).strftime('%Y-%m-%d_%H_%M')

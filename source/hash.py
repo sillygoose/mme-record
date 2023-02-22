@@ -9,6 +9,8 @@ _LOGGER = logging.getLogger('mme')
 
 @unique
 class Hash(Enum):
+    DatabaseID                  = 'FFFF:9003:id:str'
+
     VehicleID                   = '0726:F190:vin:str'
     Vehicle                     = 'FFFF:9002:vehicle:str'
 
@@ -107,7 +109,7 @@ class Hash(Enum):
 
     CS_TimeStart                = 'FFFF:9000:cs_time_start:int'
     CS_TimeEnd                  = 'FFFF:9000:cs_time_end:int'
-    CS_ChargerType              = 'FFFF:9000:cs_charger_type:str'
+    CS_ChargerType              = 'FFFF:9000:cs_charger_type:int'
     CS_ChargingEfficiency       = 'FFFF:9000:cs_charging_efficiency:float'
     CS_Odometer                 = 'FFFF:9000:cs_odometer:float'
     CS_Latitude                 = 'FFFF:9000:cs_latitude:float'
@@ -126,6 +128,9 @@ class Hash(Enum):
     CS_HvbTempStart             = 'FFFF:9000:cs_hvb_temp_start:float'
     CS_HvbTempEnd               = 'FFFF:9000:cs_hvb_temp_end:float'
     CS_HvbWhAdded               = 'FFFF:9000:cs_hvb_wh_added:float'
+
+    CS_CouplerTemperatureStart  = 'FFFF:9000:cs_coupler_temperature_start:float'
+    CS_CouplerTemperatureEnd    = 'FFFF:9000:cs_coupler_temperature_end:float'
 
     CS_LvbSoCStart              = 'FFFF:9000:cs_lvb_soc_start:float'
     CS_LvbSoCEnd                = 'FFFF:9000:cs_lvb_soc_end:float'
