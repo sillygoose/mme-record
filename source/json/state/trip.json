@@ -141,7 +141,7 @@
         "module": "BCM",
         "arbitration_id": 1830,
         "arbitration_id_hex": "0726",
-        "enable": true,
+        "enable": false,
         "period": 5,
         "dids": [
             {

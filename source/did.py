@@ -36,12 +36,13 @@ class DidId(Enum):
     ChargingStatus = 0x484D
     ChargerInputPowerAvailable = 0x484E
     ChargerStatus = 0x484F
-    ChargerOutputCurrent = 0x4850
+    ChargerOutputCurrentMeasured = 0x4850
     EvseType = 0x4851
     ChargerInputVoltage = 0x485E
     ChargerInputCurrent = 0x485F
     ChargerInputFrequency = 0x4860
     ChargerPilotDutyCycle = 0x4861
+    ChargerCouplerTemperature = 0x4888
     ChargerPilotVoltage = 0x48B6
     EvseDigitalMode = 0x48B7
     HvbMaximumChargeCurrent = 0x48BC

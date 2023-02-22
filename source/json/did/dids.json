@@ -582,7 +582,7 @@
         "did_id": 18512,
         "did_id_hex": "4850",
         "enable": true,
-        "did_name": "ChargerOutputCurrent",
+        "did_name": "ChargerOutputCurrentMeasured",
         "modules": [
             "OBCC",
             "SOBDM",
@@ -591,7 +591,7 @@
         "packing": "h",
         "states": [
             {
-                "name": "charger_output_current",
+                "name": "charger_output_current_neasured",
                 "initial_value": 0
             }
         ]
@@ -675,6 +675,22 @@
             {
                 "name": "charger_pilot_duty_cycle",
                 "initial_value": 0
+            }
+        ]
+    },
+    {
+        "did_id": 18568,
+        "did_id_hex": "4888",
+        "enable": true,
+        "did_name": "ChargerCouplerTemperature",
+        "modules": [
+            "SOBDM"
+        ],
+        "packing": "B",
+        "states": [
+            {
+                "name": "charger_coupler_temperature",
+                "initial_value": 40
             }
         ]
     },

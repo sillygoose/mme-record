@@ -73,10 +73,12 @@ class Hash(Enum):
     ChargerInputEnergy          = 'FFFF:8002:charger_input_energy:float'
 
     ChargerOutputVoltage        = '07E2:484A:charger_output_voltage:float'
-    ChargerOutputCurrent        = '07E2:4850:charger_output_current:float'
+    ChargerOutputCurrentMeasured = '07E2:4850:charger_output_current_measured:float'
     ChargerOutputPower          = 'FFFF:8003:charger_output_power:float'
     ChargerOutputPowerMax       = 'FFFF:8003:charger_output_power_max:float'
     ChargerOutputEnergy         = 'FFFF:8003:charger_output_energy:float'
+
+    ChargerCouplerTemperature   = '07E2:4888:charger_coupler_temperature:float'
 
     GpsLatitude                 = '07D0:8012:gps_latitude:float'
     GpsLongitude                = '07D0:8012:gps_longitude:float'

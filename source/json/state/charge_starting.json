@@ -80,6 +80,12 @@
                 "did_id": 56580,
                 "did_id_hex": "DD04",
                 "codec_id": 56580
+            },
+            {
+                "did_name": "ChargerCouplerTemperature",
+                "did_id": 18568,
+                "did_id_hex": "4888",
+                "codec_id": 18568
             }
         ]
     },

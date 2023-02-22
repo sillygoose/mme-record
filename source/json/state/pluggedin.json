@@ -63,7 +63,7 @@
         "module": "DCDC",
         "arbitration_id": 1862,
         "arbitration_id_hex": "0746",
-        "enable": true,
+        "enable": false,
         "period": 5,
         "dids": [
             {
@@ -79,7 +79,7 @@
         "arbitration_id": 1830,
         "arbitration_id_hex": "0726",
         "enable": true,
-        "period": 10,
+        "period": 15,
         "dids": [
             {
                 "did_name": "LvbVoltage",

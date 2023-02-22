@@ -509,6 +509,16 @@ class CodecChargerInputFrequency(Codec):
         return 1
 
 
+class CodecChargerCouplerTemperature(Codec):
+    def decode(self, payload):
+        charger_coupler_temperature = struct.unpack('>B', payload)[0] * 0.1
+        states = [{'charger_coupler_temperature': charger_coupler_temperature}]
+        return {'payload': payload, 'states': states, 'decoded': f"Charger coupler temperature: {charger_coupler_temperature}°C"}
+
+    def __len__(self):
+        return 1
+
+
 class CodecChargerPilotVoltage(Codec):
     def decode(self, payload):
         charger_pilot_voltage = struct.unpack('>B', payload)[0] * 0.1
@@ -559,11 +569,11 @@ class CodecChargerOutputVoltage(Codec):
         return 2
 
 
-class CodecChargerOutputCurrent(Codec):
+class CodecChargerOutputCurrentMeasured(Codec):
     def decode(self, payload):
         charger_output_current = struct.unpack('>h', payload)[0] * 0.01
         states = [{'charger_output_current': charger_output_current}]
-        return {'payload': payload, 'states': states, 'decoded': f"AC charger output current: {charger_output_current:.1f} A"}
+        return {'payload': payload, 'states': states, 'decoded': f"AC charger output current measured: {charger_output_current:.1f} A"}
 
     def __len__(self):
         return 2
@@ -773,19 +783,20 @@ class CodecManager:
         DidId.HvbContactorNegativeBusLeakResistance:    CodecHvbContactorNegativeBusLeakResistance,
         DidId.HvbContactorOverallLeakResistance:        CodecHvbContactorOverallLeakResistance,
         DidId.HvbContactorOpenLeakResistance:           CodecHvbContactorOpenLeakResistance,
-        DidId.ChargingStatus:                   CodecChargingStatus,
+        DidId.ChargingStatus:                       CodecChargingStatus,
         DidId.EvseType:                         CodecEvseType,
         DidId.EvseDigitalMode:                  CodecEvseDigitalMode,
         DidId.ChargerStatus:                    CodecChargerStatus,
         DidId.ChargerInputVoltage:              CodecChargerInputVoltage,
         DidId.ChargerInputCurrent:              CodecChargerInputCurrent,
         DidId.ChargerInputFrequency:            CodecChargerInputFrequency,
+        DidId.ChargerCouplerTemperature:        CodecChargerCouplerTemperature,
         DidId.ChargerPilotVoltage:              CodecChargerPilotVoltage,
         DidId.ChargerPilotDutyCycle:            CodecChargerPilotDutyCycle,
         DidId.ChargerInputPowerAvailable:       CodecChargerInputPowerAvailable,
         DidId.ChargerMaxPower:                  CodecChargerMaxPower,
         DidId.ChargerOutputVoltage:             CodecChargerOutputVoltage,
-        DidId.ChargerOutputCurrent:             CodecChargerOutputCurrent,
+        DidId.ChargerOutputCurrentMeasured:     CodecChargerOutputCurrentMeasured,
         DidId.ChargePowerLimit:                 CodecChargerPowerLimit,
         DidId.HvbChargeCurrentRequested:        CodecHvbChargeCurrentRequested,
         DidId.HvbChargeVoltageRequested:        CodecHvbChargeVoltageRequested,

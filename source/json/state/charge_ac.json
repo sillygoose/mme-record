@@ -70,7 +70,7 @@
         "period": 10,
         "dids": [
             {
-                "did_name": "ChargerOutputCurrent",
+                "did_name": "ChargerOutputCurrentMeasured",
                 "did_id": 18512,
                 "did_id_hex": "4850",
                 "codec_id": 18512
@@ -84,11 +84,26 @@
         ]
     },
     {
+        "module": "SOBDM",
+        "arbitration_id": 2018,
+        "arbitration_id_hex": "07E2",
+        "enable": true,
+        "period": 30,
+        "dids": [
+            {
+                "did_name": "ChargerCouplerTemperature",
+                "did_id": 18568,
+                "did_id_hex": "4888",
+                "codec_id": 18568
+            }
+        ]
+    },
+    {
         "module": "BCM",
         "arbitration_id": 1830,
         "arbitration_id_hex": "0726",
         "enable": true,
-        "period": 10,
+        "period": 60,
         "dids": [
             {
                 "did_name": "LvbVoltage",
@@ -147,6 +162,24 @@
         "enable": true,
         "period": 30,
         "dids": [
+            {
+                "did_name": "HvbChargeVoltageRequested",
+                "did_id": 18500,
+                "did_id_hex": "4844",
+                "codec_id": 18500
+            },
+            {
+                "did_name": "ChargePowerLimit",
+                "did_id": 18683,
+                "did_id_hex": "48FB",
+                "codec_id": 18683
+            },
+            {
+                "did_name": "ChargerInputPowerAvailable",
+                "did_id": 18683,
+                "did_id_hex": "484E",
+                "codec_id": 18683
+            },
             {
                 "did_name": "HvbTemp",
                 "did_id": 18432,

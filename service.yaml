@@ -23,7 +23,7 @@ mme:
         gps_server:                         http://172.20.10.1:8080
         gps_server_timeout:                 0.35
         trip_minimum:                       0.1
-        charge_minimum:                     180
+        charge_minimum:                     0
         file_writes:                        250
         did_read:                           1
         born_on:                            1623167753

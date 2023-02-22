@@ -46,6 +46,12 @@
                 "codec_id": 18527
             },
             {
+                "did_name": "ChargerCouplerTemperature",
+                "did_id": 18568,
+                "did_id_hex": "4888",
+                "codec_id": 18568
+            },
+            {
                 "did_name": "ChargerInputVoltage",
                 "did_id": 18526,
                 "did_id_hex": "485E",
@@ -61,7 +67,7 @@
         "period": 0,
         "dids": [
             {
-                "did_name": "ChargerOutputCurrent",
+                "did_name": "ChargerOutputCurrentMeasured",
                 "did_id": 18512,
                 "did_id_hex": "4850",
                 "codec_id": 18512
