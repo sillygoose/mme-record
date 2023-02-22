@@ -7,6 +7,12 @@
         "period": 0,
         "dids": [
             {
+                "did_name": "HvbSoH",
+                "did_id": 18700,
+                "did_id_hex": "490C",
+                "codec_id": 18700
+            },
+            {
                 "did_name": "HvbSocD",
                 "did_id": 18501,
                 "did_id_hex": "4845",

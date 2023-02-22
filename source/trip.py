@@ -13,6 +13,8 @@ from did import EngineStartRemote, EngineStartDisable
 from vehicle_state import VehicleState, CallType
 from hash import *
 
+from uuid6 import uuid6
+
 from influxdb import influxdb_trip
 from geocoding import reverse_geocode
 from logfiles import rollover
@@ -28,7 +30,7 @@ class Trip:
 
     _requiredHashes = [
             Hash.HiresOdometer, Hash.HvbSoCD, Hash.HvbEtE, Hash.HvbEnergy, Hash.ExteriorTemperature,
-            Hash.GpsLatitude, Hash.GpsLongitude, Hash.GpsElevation,
+            Hash.GpsLatitude, Hash.GpsLongitude, Hash.GpsElevation, Hash.HvbSoH
         ]
 
     def trip_starting(self, call_type: CallType) -> VehicleState:
@@ -38,6 +40,7 @@ class Trip:
             self._trip_log = {
                 'time': int(time.time()),
             }
+            set_state(Hash.DatabaseID, uuid6())
             delete_state(Hash.HvbEnergyGained, True)
             delete_state(Hash.HvbEnergyLost, True)
             delete_state(Hash.GpsElevationMax, True)
@@ -123,7 +126,7 @@ class Trip:
             ending_temperature = set_state(Hash.TR_ExteriorEnd, get_state_value(Hash.ExteriorTemperature))
             ending_socd = set_state(Hash.TR_SocDEnd, get_state_value(Hash.HvbSoCD))
             ending_ete = set_state(Hash.TR_EtEEnd, get_state_value(Hash.HvbEtE))
-            ending_soh = set_state(Hash.TR_SohEnd, get_state_value(Hash.HvbSoH))
+            ending_soh = set_state(Hash.TR_SoHEnd, get_state_value(Hash.HvbSoH))
             energy_gained = set_state(Hash.TR_EnergyGained, get_state_value(Hash.HvbEnergyGained))
             energy_lost = set_state(Hash.TR_EnergyLost, get_state_value(Hash.HvbEnergyLost))
             hvb_power_min = set_state(Hash.TR_HvbPowerMin, get_state_value(Hash.HvbPowerMin))
@@ -159,16 +162,17 @@ class Trip:
             _LOGGER.info(f"        average speed: {average_speed:.1f} kph ({speed_mph(average_speed):.1f} mph)")
             _LOGGER.info(f"        ending temperature: {ending_temperature}°C")
             _LOGGER.info(f"        average temperature: {average_temperature}°C")
+            _LOGGER.info(f"        HVB state of health: {ending_soh}%")
 
             if trip_distance >= self._minimum_trip:
                 _LOGGER.info(f"        trip timestamps: {get_state_value(Hash.TR_TimeStart)}   {get_state_value(Hash.TR_TimeEnd)}")
-                tags = [Hash.Vehicle]
+                tags = [Hash.DatabaseID, Hash.Vehicle]
                 fields = [
                         Hash.TR_TimeStart, Hash.TR_TimeEnd,
                         Hash.TR_OdometerStart, Hash.TR_OdometerEnd, Hash.TR_Distance,
                         Hash.TR_LatitudeStart, Hash.TR_LatitudeEnd, Hash.TR_LongitudeStart, Hash.TR_LongitudeEnd, Hash.TR_ElevationStart, Hash.TR_ElevationEnd,
                         Hash.TR_MaxElevation, Hash.TR_MinElevation, Hash.TR_ElevationChange,
-                        Hash.TR_SocDStart, Hash.TR_SocDEnd, Hash.TR_EtEStart, Hash.TR_EtEEnd, Hash.TR_SohEnd,
+                        Hash.TR_SocDStart, Hash.TR_SocDEnd, Hash.TR_EtEStart, Hash.TR_EtEEnd, Hash.TR_SoHEnd,
                         Hash.TR_HvbPowerMin, Hash.TR_HvbPowerMax,
                         Hash.TR_EnergyGained, Hash.TR_EnergyLost, Hash.TR_EnergyUsed, Hash.TR_EnergyEfficiency,
                         Hash.TR_MaxSpeed, Hash.TR_AverageSpeed,
