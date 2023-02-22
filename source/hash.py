@@ -79,6 +79,9 @@ class Hash(Enum):
     ChargerOutputEnergy         = 'FFFF:8003:charger_output_energy:float'
 
     ChargerCouplerTemperature   = '07E2:4888:charger_coupler_temperature:float'
+    ChargeVoltageRequested      = '07E4:4844:hvb_charge_voltage_requested:float'
+    ChargerPowerLimit           = '07E4:48FB:charger_power_limit:float'
+    ChargerInputPowerAvailable  = '07E4:484E:charger_input_power_available:float'
 
     GpsLatitude                 = '07D0:8012:gps_latitude:float'
     GpsLongitude                = '07D0:8012:gps_longitude:float'

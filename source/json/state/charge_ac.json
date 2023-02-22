@@ -66,7 +66,7 @@
         "module": "SOBDM",
         "arbitration_id": 2018,
         "arbitration_id_hex": "07E2",
-        "enable": false,
+        "enable": true,
         "period": 10,
         "dids": [
             {
@@ -176,9 +176,9 @@
             },
             {
                 "did_name": "ChargerInputPowerAvailable",
-                "did_id": 18683,
+                "did_id": 18510,
                 "did_id_hex": "484E",
-                "codec_id": 18683
+                "codec_id": 18510
             },
             {
                 "did_name": "HvbTemp",

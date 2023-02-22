@@ -20,7 +20,7 @@ class Synthetics:
         Hash.ChargerInputVoltage:       Hash.ChargerInputPower,
         Hash.ChargerInputCurrent:       Hash.ChargerInputPower,
         Hash.ChargerOutputVoltage:      Hash.ChargerOutputPower,
-        Hash.ChargerOutputCurrent:      Hash.ChargerOutputPower,
+        Hash.ChargerOutputCurrentMeasured:      Hash.ChargerOutputPower,
         Hash.HiresSpeed:                Hash.HiresSpeedMax,
         Hash.GpsElevation:              Hash.GpsElevationMin,
         Hash.ExteriorTemperature:       Hash.ExtTemperatureSum,
@@ -108,7 +108,7 @@ def update_synthetics(hash: Hash) -> List[dict]:
             elif synthetic_hash == Hash.ChargerOutputPower:
                 charger_output_power_interval_start, interval_start = get_state(Hash.ChargerOutputPower, 0.0)
 
-                charger_output_power = int(get_state_value(Hash.ChargerOutputVoltage, 0.0) * get_state_value(Hash.ChargerOutputCurrent, 0.0))
+                charger_output_power = int(get_state_value(Hash.ChargerOutputVoltage, 0.0) * get_state_value(Hash.ChargerOutputCurrentMeasured, 0.0))
                 interval_end = set_state_interval(Hash.ChargerOutputPower, charger_output_power)
                 arbitration_id, did_id, synthetic_name = get_hash_fields(Hash.ChargerOutputPower)
                 synthetics.append({'arbitration_id': arbitration_id, 'did_id': did_id, 'name': synthetic_name, 'value': charger_output_power})

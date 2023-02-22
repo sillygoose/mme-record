@@ -511,7 +511,7 @@ class CodecChargerInputFrequency(Codec):
 
 class CodecChargerCouplerTemperature(Codec):
     def decode(self, payload):
-        charger_coupler_temperature = struct.unpack('>B', payload)[0] * 0.1
+        charger_coupler_temperature = struct.unpack('>B', payload)[0] - 40
         states = [{'charger_coupler_temperature': charger_coupler_temperature}]
         return {'payload': payload, 'states': states, 'decoded': f"Charger coupler temperature: {charger_coupler_temperature}°C"}
 
@@ -571,9 +571,9 @@ class CodecChargerOutputVoltage(Codec):
 
 class CodecChargerOutputCurrentMeasured(Codec):
     def decode(self, payload):
-        charger_output_current = struct.unpack('>h', payload)[0] * 0.01
-        states = [{'charger_output_current': charger_output_current}]
-        return {'payload': payload, 'states': states, 'decoded': f"AC charger output current measured: {charger_output_current:.1f} A"}
+        charger_output_current_measured = struct.unpack('>h', payload)[0] * 0.01
+        states = [{'charger_output_current_measured': charger_output_current_measured}]
+        return {'payload': payload, 'states': states, 'decoded': f"AC charger output current measured: {charger_output_current_measured:.1f} A"}
 
     def __len__(self):
         return 2
@@ -581,9 +581,9 @@ class CodecChargerOutputCurrentMeasured(Codec):
 
 class CodecChargerPowerLimit(Codec):
     def decode(self, payload):
-        charger_power_limit = struct.unpack('>h', payload)[0] * 0.1
+        charger_power_limit = struct.unpack('>h', payload)[0] * 0.01
         states = [{'charger_power_limit': charger_power_limit}]
-        return {'payload': payload, 'states': states, 'decoded': f"Charge power limit: {charger_power_limit:.1f} A"}
+        return {'payload': payload, 'states': states, 'decoded': f"Charge power limit: {charger_power_limit:.1f} kW"}
 
     def __len__(self):
         return 2
@@ -611,7 +611,7 @@ class CodecHvbChargeVoltageRequested(Codec):
 
 class CodecHvbMaxChargeCurrent(Codec):
     def decode(self, payload):
-        hvb_max_charge_current = struct.unpack('>h', payload)[0] * 0.05
+        hvb_max_charge_current = struct.unpack('>h', payload)[0] * 0.01
         states = [{'hvb_max_charge_current': hvb_max_charge_current}]
         return {'payload': payload, 'states': states, 'decoded': f"HVB maximum charge current: {hvb_max_charge_current:.1f} A"}
 
