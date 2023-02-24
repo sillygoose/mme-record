@@ -158,7 +158,7 @@ def influxdb_trip(tags: List[Hash], fields: List[Hash], trip_start: Hash) -> Non
 
 def influxdb_charging(tags: List[Hash], fields: List[Hash], charge_start: Hash) -> None:
     ts_start = get_state_value(charge_start)
-    line_protocol = f"charging"
+    line_protocol = f"charge"
     for _, hash in enumerate(tags):
         tag_name, _ = get_db_fields(hash)
         line_protocol += ',' + tag_name + '=' + f'{get_state_value(hash)}'
@@ -195,7 +195,7 @@ def influxdb_write_record(data_points: List[dict], flush=False) -> None:
         did_id = data_point.get('did_id')
         did_name = data_point.get('name')
         value = data_point.get('value')
-        line_protocol = f"dids,{id_tag_name}={id},{vtag_name}={vehicle} {did_name}="
+        line_protocol = f"did,{id_tag_name}={id},{vtag_name}={vehicle} {did_name}="
         if hash := get_hash(f"{arb_id:04X}:{did_id:04X}:{did_name}"):
             _, field_type = get_db_fields(hash)
             if field_type == 'str':

@@ -55,8 +55,8 @@ class StateTransistion(Charging, Trip):
                     return VehicleState.Unchanged
 
             if vin := get_VIN('unknown'):
-                set_state(Hash.Vehicle, sha256(vin.encode('utf-8')).hexdigest())
-                set_state(Hash.VehicleID, vin)
+                set_state(Hash.Vehicle, vin)
+                set_state(Hash.VehicleID, vin) ### duplicates?
 ###                self._unknownHashes[hash] = hash_value
 
 ###            if vin := get_VIN('unknown'):

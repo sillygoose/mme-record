@@ -12,7 +12,7 @@ class Hash(Enum):
     DatabaseID                  = 'FFFF:9003:id:str'
 
     VehicleID                   = '0726:F190:vin:str'
-    Vehicle                     = 'FFFF:9002:vehicle:str'
+    Vehicle                     = 'FFFF:9002:vin:str'
 
     KeyState                    = '0716:411F:key_state:int'
     InferredKey                 = '0726:417D:inferred_key:int'
