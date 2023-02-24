@@ -152,7 +152,7 @@ class CodecGPS(Codec):
                     {'gps_speed': gps_speed},
                     {'gps_bearing': gps_bearing},
                 ]
-            gps_data = f"GPS: ({gps_latitude:3.6f}, {gps_longitude:3.6f}), elevation: {gps_elevation} m, bearing: {gps_bearing}°, speed: {gps_speed:.01f} kph, fix: {gps_fix}"
+            gps_data = f"GPS: ({gps_latitude:3.6f}, {gps_longitude:3.6f}), elevation: {gps_elevation} m, bearing: {gps_bearing}°, speed: {gps_speed:.1f} kph, fix: {gps_fix}"
 
             """
             if self != 'pb':
@@ -175,7 +175,7 @@ class CodecGPS(Codec):
                     {'gps_speed': gps_speed},
                     {'gps_bearing': gps_bearing},
                 ]
-            gps_data = f"GPS: ({gps_latitude:3.6f}, {gps_longitude:3.6f}), elevation: {gps_elevation} m, bearing: {gps_bearing}°, speed: {gps_speed:.01f} kph, fix: {gps_fix}"
+            gps_data = f"GPS: ({gps_latitude:3.6f}, {gps_longitude:3.6f}), elevation: {gps_elevation} m, bearing: {gps_bearing}°, speed: {gps_speed:.1f} kph, fix: {gps_fix}"
 
             """
             if self != 'pb':
@@ -216,7 +216,7 @@ class CodecGPS(Codec):
                     if gps_bearing >= 0.0:
                         states.append({'gps_bearing': gps_bearing})
 
-                    gps_data = f"GPS: ({gps_latitude:3.6f}, {gps_longitude:3.6f}), elevation: {gps_elevation:.1f} m, bearing: {gps_bearing}°, speed: {gps_speed:.01f} kph, elapsed: {gps_elapsed:.03f}"
+                    gps_data = f"GPS: ({gps_latitude:3.6f}, {gps_longitude:3.6f}), elevation: {gps_elevation:.1f} m, bearing: {gps_bearing}°, speed: {gps_speed:.1f} kph, elapsed: {gps_elapsed:.03f}"
                     payload = struct.pack('>hffBHH', int(gps_elevation), float(gps_latitude), float(gps_longitude), 255, int(gps_speed / 3.6), int(gps_bearing))
                     return {'payload': payload, 'states': states, 'decoded': gps_data}
                 except (ReadTimeout, HTTPError, InvalidURL, InvalidSchema, ConnectTimeout, ConnectionError) as e:
@@ -240,7 +240,7 @@ class CodecLoresOdometer(Codec):
         odometer_high, odometer_low = struct.unpack('>HB', payload)
         lores_odometer = float(odometer_high * 256 + odometer_low)
         states = [{'lores_odometer': lores_odometer}]
-        return {'payload': payload, 'states': states, 'decoded': f"Lores odometer: {odometer_km(lores_odometer):.01f} km ({odometer_miles(lores_odometer):.01f} mi)"}
+        return {'payload': payload, 'states': states, 'decoded': f"Lores odometer: {odometer_km(lores_odometer):.1f} km ({odometer_miles(lores_odometer):.1f} mi)"}
 
     def __len__(self):
         return 3
@@ -251,7 +251,7 @@ class CodecHiresOdometer(Codec):
         odometer_high, odometer_low = struct.unpack('>HB', payload)
         hires_odometer = float(odometer_high * 256 + odometer_low) * 0.1
         states = [{'hires_odometer': hires_odometer}]
-        return {'payload': payload, 'states': states, 'decoded': f"Hires odometer: {odometer_km(hires_odometer):.01f} km ({odometer_miles(hires_odometer):.01f} mi)"}
+        return {'payload': payload, 'states': states, 'decoded': f"Hires odometer: {odometer_km(hires_odometer):.1f} km ({odometer_miles(hires_odometer):.1f} mi)"}
 
     def __len__(self):
         return 3
@@ -262,7 +262,7 @@ class CodecHiresSpeed(Codec):
         hires_speed = struct.unpack('>H', payload)[0]
         hires_speed = hires_speed / 128.0
         states = [{'hires_speed': hires_speed}]
-        return {'payload': payload, 'states': states, 'decoded': f"Hires Speed: {speed_kph(hires_speed):.01f} kph ({speed_mph(hires_speed):.01f} mph)"}
+        return {'payload': payload, 'states': states, 'decoded': f"Hires Speed: {speed_kph(hires_speed):.1f} kph ({speed_mph(hires_speed):.1f} mph)"}
 
     def __len__(self):
         return 2
@@ -312,7 +312,7 @@ class CodecHvbSocD(Codec):
     def decode(self, payload):
         hvb_socd = float(struct.unpack('>B', payload)[0]) * 0.5
         states = [{'hvb_socd': hvb_socd}]
-        return {'payload': payload, 'states': states, 'decoded': f"HVB SoC: {hvb_socd:.01f}%"}
+        return {'payload': payload, 'states': states, 'decoded': f"HVB SoC: {hvb_socd:.1f}%"}
 
     def __len__(self):
         return 1
@@ -376,7 +376,7 @@ class CodecLvbVoltage(Codec):
     def decode(self, payload):
         lvb_voltage = struct.unpack('>B', payload)[0] * 0.05 + 6.0
         states = [{'lvb_voltage': lvb_voltage}]
-        return {'payload': payload, 'states': states, 'decoded': f"LVB voltage: {lvb_voltage:.01f} V"}
+        return {'payload': payload, 'states': states, 'decoded': f"LVB voltage: {lvb_voltage:.1f} V"}
 
     def __len__(self):
         return 1
@@ -665,7 +665,7 @@ class CodecHvbContactorPositiveLeakVoltage(Codec):
         raw_data = struct.unpack('>H', payload)[0]
         leak_voltage = float(raw_data) * 0.001
         states = [{'hvb_contactor_positive_leak_voltage': leak_voltage}]
-        return {'payload': payload, 'states': states, 'decoded': f"Positive Contactor Leak Voltage: {leak_voltage:.01f} V ({raw_data:04X})"}
+        return {'payload': payload, 'states': states, 'decoded': f"Positive Contactor Leak Voltage: {leak_voltage:.1f} V ({raw_data:04X})"}
 
     def __len__(self):
         return 2
@@ -676,7 +676,7 @@ class CodecHvbContactorNegativeLeakVoltage(Codec):
         raw_data = struct.unpack('>H', payload)[0]
         leak_voltage = float(raw_data) * 0.001
         states = [{'hvb_contactor_negative_leak_voltage': leak_voltage}]
-        return {'payload': payload, 'states': states, 'decoded': f"Negative Contactor Leak Voltage: {leak_voltage:.01f} V ({raw_data:04X})"}
+        return {'payload': payload, 'states': states, 'decoded': f"Negative Contactor Leak Voltage: {leak_voltage:.1f} V ({raw_data:04X})"}
 
     def __len__(self):
         return 2
@@ -687,7 +687,7 @@ class CodecHvbContactorPositiveVoltage(Codec):
         raw_data = struct.unpack('>H', payload)[0]
         voltage = float(raw_data) * 0.01
         states = [{'hvb_contactor_positive_voltage': voltage}]
-        return {'payload': payload, 'states': states, 'decoded': f"Positive Contactor Voltage: {voltage:.01f} V ({raw_data:04X})"}
+        return {'payload': payload, 'states': states, 'decoded': f"Positive Contactor Voltage: {voltage:.1f} V ({raw_data:04X})"}
 
     def __len__(self):
         return 2
