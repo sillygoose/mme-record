@@ -102,7 +102,7 @@
         "module": "BCM",
         "arbitration_id": 1830,
         "arbitration_id_hex": "0726",
-        "enable": true,
+        "enable": false,
         "period": 60,
         "dids": [
             {
@@ -160,7 +160,7 @@
         "arbitration_id": 2020,
         "arbitration_id_hex": "07E4",
         "enable": true,
-        "period": 30,
+        "period": 60,
         "dids": [
             {
                 "did_name": "HvbChargeVoltageRequested",

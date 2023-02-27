@@ -166,6 +166,8 @@ class Hash(Enum):
     TR_SocDEnd                  = 'FFFF:9001:tr_socd_end:float'
     TR_EtEStart                 = 'FFFF:9001:tr_ete_start:float'
     TR_EtEEnd                   = 'FFFF:9001:tr_ete_end:float'
+    TR_HvbTempStart             = 'FFFF:9001:tr_hvb_temp_start:float'
+    TR_HvbTempEnd               = 'FFFF:9001:tr_hvb_temp_end:float'
     TR_SoHEnd                   = 'FFFF:9001:tr_soh_end:float'
     TR_ExteriorStart            = 'FFFF:9001:tr_exterior_start:float'
     TR_ExteriorEnd              = 'FFFF:9001:tr_exterior_end:float'

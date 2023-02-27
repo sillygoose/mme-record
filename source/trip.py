@@ -30,7 +30,7 @@ class Trip:
 
     _requiredHashes = [
             Hash.HiresOdometer, Hash.HvbSoCD, Hash.HvbEtE, Hash.HvbEnergy, Hash.ExteriorTemperature,
-            Hash.GpsLatitude, Hash.GpsLongitude, Hash.GpsElevation, Hash.HvbSoH
+            Hash.GpsLatitude, Hash.GpsLongitude, Hash.GpsElevation, Hash.HvbSoH, Hash.HvbTemp
         ]
 
     def trip_starting(self, call_type: CallType) -> VehicleState:
@@ -118,6 +118,7 @@ class Trip:
             starting_temperature = set_state(Hash.TR_ExteriorStart, trip.get(Hash.ExteriorTemperature))
             starting_socd = set_state(Hash.TR_SocDStart, trip.get(Hash.HvbSoCD))
             starting_ete = set_state(Hash.TR_EtEStart, trip.get(Hash.HvbEtE))
+            starting_hvb_temp = set_state(Hash.TR_HvbTempStart, trip.get(Hash.HvbEtE))
 
             ending_odometer = set_state(Hash.TR_OdometerEnd, get_state_value(Hash.HiresOdometer))
             ending_latitude = set_state(Hash.TR_LatitudeEnd, get_state_value(Hash.GpsLatitude))
@@ -126,6 +127,7 @@ class Trip:
             ending_temperature = set_state(Hash.TR_ExteriorEnd, get_state_value(Hash.ExteriorTemperature))
             ending_socd = set_state(Hash.TR_SocDEnd, get_state_value(Hash.HvbSoCD))
             ending_ete = set_state(Hash.TR_EtEEnd, get_state_value(Hash.HvbEtE))
+            ending_hvb_temp = set_state(Hash.TR_HvbTempEnd, get_state_value(Hash.HvbTemp))
             ending_soh = set_state(Hash.TR_SoHEnd, get_state_value(Hash.HvbSoH))
             energy_gained = set_state(Hash.TR_EnergyGained, get_state_value(Hash.HvbEnergyGained))
             energy_lost = set_state(Hash.TR_EnergyLost, get_state_value(Hash.HvbEnergyLost))
@@ -148,7 +150,7 @@ class Trip:
             _LOGGER.info(f"        starting odometer: {odometer_km(starting_odometer):.1f} km ({odometer_miles(starting_odometer):.1f} mi)")
             _LOGGER.info(f"        starting elevation: {starting_elevation} m")
             _LOGGER.info(f"        starting SoC: {starting_socd:.1f}%, starting EtE: {starting_ete} Wh")
-            _LOGGER.info(f"        starting temperature: {starting_temperature}°C")
+            _LOGGER.info(f"        starting temperatures: exterior({starting_temperature}°C)    battery({starting_hvb_temp}°C)")
             _LOGGER.info(f"ending at {ending_datetime}")
             _LOGGER.info(f"        ending odometer: {odometer_km(ending_odometer):.1f} km ({odometer_miles(ending_odometer):.1f} mi)")
             _LOGGER.info(f"        distance covered: {odometer_km(trip_distance):.1f} km ({odometer_miles(trip_distance):.1f} mi)")
@@ -160,7 +162,7 @@ class Trip:
             _LOGGER.info(f"        energy efficiency: {efficiency_km_kwh:.2f} km/kWh ({efficiency_miles_kwh:.2f} mi/kWh)")
             _LOGGER.info(f"        maximum speed: {max_speed:.1f} kph ({speed_mph(max_speed):.1f} mph)")
             _LOGGER.info(f"        average speed: {average_speed:.1f} kph ({speed_mph(average_speed):.1f} mph)")
-            _LOGGER.info(f"        ending temperature: {ending_temperature}°C")
+            _LOGGER.info(f"        ending temperature: exterior({ending_temperature}°C)    battery({ending_hvb_temp}°C)")
             _LOGGER.info(f"        average temperature: {average_temperature}°C")
             _LOGGER.info(f"        HVB state of health: {ending_soh}%")
 
@@ -173,6 +175,7 @@ class Trip:
                         Hash.TR_LatitudeStart, Hash.TR_LatitudeEnd, Hash.TR_LongitudeStart, Hash.TR_LongitudeEnd, Hash.TR_ElevationStart, Hash.TR_ElevationEnd,
                         Hash.TR_MaxElevation, Hash.TR_MinElevation, Hash.TR_ElevationChange,
                         Hash.TR_SocDStart, Hash.TR_SocDEnd, Hash.TR_EtEStart, Hash.TR_EtEEnd, Hash.TR_SoHEnd,
+                        Hash.TR_HvbTempStart, Hash.TR_HvbTempEnd,
                         Hash.TR_HvbPowerMin, Hash.TR_HvbPowerMax,
                         Hash.TR_EnergyGained, Hash.TR_EnergyLost, Hash.TR_EnergyUsed, Hash.TR_EnergyEfficiency,
                         Hash.TR_MaxSpeed, Hash.TR_AverageSpeed,
