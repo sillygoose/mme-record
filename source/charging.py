@@ -195,7 +195,7 @@ class Charging:
                         Hash.CS_HvbTempStart, Hash.CS_HvbTempEnd,
                         Hash.CS_HvbSoCStart, Hash.CS_HvbSoCEnd, Hash.CS_HvbEtEStart, Hash.CS_HvbEteEnd,
                         Hash.CS_CouplerTemperatureStart, Hash.CS_CouplerTemperatureEnd,
-                        Hash.CS_HvbWhAdded, Hash.CS_HvbSoH,
+                        Hash.CS_HvbSoH,
                         Hash.CS_WhAdded, Hash.CS_WhUsed, Hash.CS_ChargingEfficiency,
                         Hash.CS_MaxInputPower,
                     ]
