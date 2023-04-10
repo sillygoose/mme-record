@@ -185,7 +185,7 @@
         "states": [
             {
                 "name": "hvb_temp",
-                "initial_value": 0
+                "initial_value": 50
             }
         ]
     },
@@ -493,6 +493,22 @@
         ]
     },
     {
+        "did_id": 18502,
+        "did_id_hex": "4846",
+        "enable": true,
+        "did_name": "hvbCoolantInletTemperature",
+        "modules": [
+            "BECM"
+        ],
+        "packing": "B",
+        "states": [
+            {
+                "name": "hvbCoolantInletTemperature",
+                "initial_value": 50
+            }
+        ]
+    },
+    {
         "did_id": 18504,
         "did_id_hex": "4848",
         "enable": true,
@@ -564,7 +580,7 @@
         "did_id": 18511,
         "did_id_hex": "484F",
         "enable": true,
-        "did_name": "ChargerStatus",
+        "did_name": "AcChargerStatus",
         "modules": [
             "OBCC",
             "SOBDM",
@@ -695,6 +711,24 @@
         ]
     },
     {
+        "did_id": 18590,
+        "did_id_hex": "489E",
+        "enable": true,
+        "did_name": "DcChargerStatus",
+        "modules": [
+            "OBCC",
+            "SOBDM",
+            "BECM"
+        ],
+        "packing": "B",
+        "states": [
+            {
+                "name": "dc_charger_status",
+                "initial_value": 0
+            }
+        ]
+    },
+    {
         "did_id": 18614,
         "did_id_hex": "48B6",
         "enable": true,
@@ -759,6 +793,24 @@
         "states": [
             {
                 "name": "charger_max_power",
+                "initial_value": 0
+            }
+        ]
+    },
+    {
+        "did_id": 18654,
+        "did_id_hex": "48DE",
+        "enable": true,
+        "did_name": "hvbCoolantHeaterPower",
+        "modules": [
+            "OBCC",
+            "SOBDM",
+            "BECM"
+        ],
+        "packing": "H",
+        "states": [
+            {
+                "name": "hvbCoolantHeaterPower",
                 "initial_value": 0
             }
         ]

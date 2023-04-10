@@ -60,6 +60,38 @@
         ]
     },
     {
+        "module": "BECM",
+        "arbitration_id": 2020,
+        "arbitration_id_hex": "07E4",
+        "enable": true,
+        "period": 5,
+        "offset": 1,
+        "dids": [
+            {
+                "did_name": "ChargerStatus",
+                "did_id": 18511,
+                "did_id_hex": "484F",
+                "codec_id": 18511
+            }
+        ]
+    },
+    {
+        "module": "BECM",
+        "arbitration_id": 2020,
+        "arbitration_id_hex": "07E4",
+        "enable": true,
+        "period": 5,
+        "offset": 1,
+        "dids": [
+            {
+                "did_name": "DcChargerStatus",
+                "did_id": 18590,
+                "did_id_hex": "489E",
+                "codec_id": 18590
+            }
+        ]
+    },
+    {
         "module": "DCDC",
         "arbitration_id": 1862,
         "arbitration_id_hex": "0746",

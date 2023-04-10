@@ -31,6 +31,7 @@ class DidId(Enum):
     ChargePlug = 0x4843
     HvbChargeVoltageRequested = 0x4844
     HvbSocD = 0x4845
+    HvbCoolantInletTemperature = 0x4846
     HvbEtE = 0x4848
     ChargerOutputVoltage = 0x484A
     ChargingStatus = 0x484D
@@ -43,6 +44,7 @@ class DidId(Enum):
     ChargerInputFrequency = 0x4860
     ChargerPilotDutyCycle = 0x4861
     ChargerCouplerTemperature = 0x4888
+    DcChargerStatus = 0x489E
     ChargerPilotVoltage = 0x48B6
     EvseDigitalMode = 0x48B7
     HvbMaximumChargeCurrent = 0x48BC

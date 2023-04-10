@@ -81,6 +81,21 @@
         ]
     },
     {
+        "module": "SOBDMC",
+        "arbitration_id": 2022,
+        "arbitration_id_hex": "07E6",
+        "enable": true,
+        "period": 0,
+        "dids": [
+            {
+                "did_name": "ExteriorTemp",
+                "did_id": 56581,
+                "did_id_hex": "DD05",
+                "codec_id": 56581
+            }
+        ]
+    },
+    {
         "module": "BCM",
         "arbitration_id": 1830,
         "arbitration_id_hex": "0726",

@@ -338,11 +338,21 @@ class CodecHvbTemp(Codec):
         return 1
 
 
+class CodecHvbCoolantInletTemperature(Codec):
+    def decode(self, payload):
+        hvbCoolantInletTemperature = struct.unpack('>B', payload)[0] - 50
+        states = [{'hvbCoolantInletTemperature': hvbCoolantInletTemperature}]
+        return {'payload': payload, 'states': states, 'decoded': f"HVB temperature: {hvbCoolantInletTemperature}°C"}
+
+    def __len__(self):
+        return 1
+
+
 class CodecHvbCHP(Codec):
     # INT16(A:B)×.001
     def decode(self, payload):
         hvb_chp = struct.unpack('>H', payload)[0] * 0.001
-        states = [{'hvb_chp': hvb_chp}]
+        states = [{'hvbCoolantHeaterPower': hvb_chp}]
         return {'payload': payload, 'states': states, 'decoded': f"HVB coolant heater power: {hvb_chp} W"}
 
     def __len__(self):
@@ -440,6 +450,21 @@ class CodecChargerStatus(Codec):
     def __len__(self):
         return 1
 
+
+class CodecDcChargerStatus(Codec):
+    def decode(self, payload):
+        dc_charger_status = struct.unpack('>B', payload)[0]
+        # LOOKUP(A:A:0='NRdy':1='Init':2='Rdy':3='WChk':4='PreC':5='Chg':6='Done':8='Wait':9='NCap':10='FAULT':11='CChk')
+        dc_charger_statuses = {
+            0: 'Not Ready', 1: 'Init', 2: 'Ready', 3: 'WChk', 4: 'PreC', 5: 'Charging',
+            6: 'Done', 8: 'Wait', 9: 'NCap', 10: 'Fault', 11: 'CChk',
+        }
+        status_string = 'DC charger status: ' + dc_charger_statuses.get(dc_charger_status, f"unknown ({dc_charger_status})")
+        states = [{'dc_charger_status': dc_charger_status}]
+        return {'payload': payload, 'states': states, 'decoded': status_string}
+
+    def __len__(self):
+        return 1
 
 class CodecEvseType(Codec):
     def decode(self, payload):
@@ -772,6 +797,7 @@ class CodecManager:
         DidId.HvbTemp:                          CodecHvbTemp,
         DidId.HvbVoltage:                       CodecHvbVoltage,
         DidId.HvbCurrent:                       CodecHvbCurrent,
+        DidId.HvbCoolantInletTemperature:       CodecHvbCoolantInletTemperature,
         DidId.HvbCHP:                           CodecHvbCHP,
         DidId.HvbCHOp:                          CodecHvbCHOp,
         DidId.HvbContactorStatus:                       CodecHvbContactorStatus,
@@ -787,6 +813,7 @@ class CodecManager:
         DidId.EvseType:                         CodecEvseType,
         DidId.EvseDigitalMode:                  CodecEvseDigitalMode,
         DidId.ChargerStatus:                    CodecChargerStatus,
+        DidId.DcChargerStatus:                    CodecDcChargerStatus,
         DidId.ChargerInputVoltage:              CodecChargerInputVoltage,
         DidId.ChargerInputCurrent:              CodecChargerInputCurrent,
         DidId.ChargerInputFrequency:            CodecChargerInputFrequency,

@@ -44,8 +44,9 @@ class Hash(Enum):
     HvbSoCD                     = '07E4:4845:hvb_socd:float'
     HvbEtE                      = '07E4:4848:hvb_ete:float'
     HvbTemp                     = '07E4:4800:hvb_temp:float'
-    HvbCHOp                     = '07E7:48DF:hvb_chop:int'
-    HvbCHP                      = '07E7:48DE:hvb_chp:int'
+    HvbCHOp                     = '07E7:48DF:hvb_chop:float'
+    HvbCoolantInletTemperature  = '07E4:4846:hvbCoolantInletTemperature:float'
+    HvbCHP                      = '07E7:48DE:hvbCoolantHeaterPower:float'
     HvbChargeCurrentRequested   = '07E4:4842:hvb_charge_current_requested:float'
     HvbMaxChargeCurrent         = '07E4:48BC:hvb_max_charge_current:float'
 
